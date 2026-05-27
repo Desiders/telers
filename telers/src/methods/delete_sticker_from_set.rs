@@ -24,10 +24,9 @@ impl DeleteStickerFromSet {
 
     /// File identifier of the sticker
     #[must_use]
-    pub fn sticker<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sticker = val.into();
-        this
+    pub fn sticker<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.sticker = val.into();
+        self
     }
 }
 impl super::TelegramMethod for DeleteStickerFromSet {

@@ -32,10 +32,9 @@ impl PaidMediaInfo {
 
     /// The number of Telegram Stars that must be paid to buy access to the media
     #[must_use]
-    pub fn star_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.star_count = val.into();
-        this
+    pub fn star_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.star_count = val.into();
+        self
     }
 
     /// Information about the paid media
@@ -43,15 +42,14 @@ impl PaidMediaInfo {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn paid_medias<T: Into<Box<[crate::types::PaidMedia]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.paid_media = this
+    pub fn paid_medias<T: Into<Box<[crate::types::PaidMedia]>>>(mut self, val: T) -> Self {
+        self.paid_media = self
             .paid_media
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// Information about the paid media
@@ -59,14 +57,13 @@ impl PaidMediaInfo {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn paid_media<T: Into<crate::types::PaidMedia>>(self, val: T) -> Self {
-        let mut this = self;
-        this.paid_media = this
+    pub fn paid_media<T: Into<crate::types::PaidMedia>>(mut self, val: T) -> Self {
+        self.paid_media = self
             .paid_media
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

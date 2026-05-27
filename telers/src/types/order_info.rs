@@ -34,69 +34,61 @@ impl OrderInfo {
 
     /// User name
     #[must_use]
-    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.name = Some(val.into());
-        this
+    pub fn name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.name = Some(val.into());
+        self
     }
 
     /// User name
     #[must_use]
-    pub fn name_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.name = val.map(Into::into);
-        this
+    pub fn name_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.name = val.map(Into::into);
+        self
     }
 
     /// User's phone number
     #[must_use]
-    pub fn phone_number<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.phone_number = Some(val.into());
-        this
+    pub fn phone_number<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.phone_number = Some(val.into());
+        self
     }
 
     /// User's phone number
     #[must_use]
-    pub fn phone_number_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.phone_number = val.map(Into::into);
-        this
+    pub fn phone_number_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.phone_number = val.map(Into::into);
+        self
     }
 
     /// User email
     #[must_use]
-    pub fn email<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.email = Some(val.into());
-        this
+    pub fn email<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.email = Some(val.into());
+        self
     }
 
     /// User email
     #[must_use]
-    pub fn email_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.email = val.map(Into::into);
-        this
+    pub fn email_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.email = val.map(Into::into);
+        self
     }
 
     /// User shipping address
     #[must_use]
-    pub fn shipping_address<T: Into<crate::types::ShippingAddress>>(self, val: T) -> Self {
-        let mut this = self;
-        this.shipping_address = Some(val.into());
-        this
+    pub fn shipping_address<T: Into<crate::types::ShippingAddress>>(mut self, val: T) -> Self {
+        self.shipping_address = Some(val.into());
+        self
     }
 
     /// User shipping address
     #[must_use]
     pub fn shipping_address_option<T: Into<crate::types::ShippingAddress>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.shipping_address = val.map(Into::into);
-        this
+        self.shipping_address = val.map(Into::into);
+        self
     }
 }
 impl Default for OrderInfo {

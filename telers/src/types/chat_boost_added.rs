@@ -21,9 +21,8 @@ impl ChatBoostAdded {
 
     /// Number of boosts added by the user
     #[must_use]
-    pub fn boost_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.boost_count = val.into();
-        this
+    pub fn boost_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.boost_count = val.into();
+        self
     }
 }

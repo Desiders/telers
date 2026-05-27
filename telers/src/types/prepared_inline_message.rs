@@ -25,17 +25,15 @@ impl PreparedInlineMessage {
 
     /// Unique identifier of the prepared message
     #[must_use]
-    pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 
     /// Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used
     #[must_use]
-    pub fn expiration_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.expiration_date = val.into();
-        this
+    pub fn expiration_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.expiration_date = val.into();
+        self
     }
 }

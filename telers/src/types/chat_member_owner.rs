@@ -32,33 +32,29 @@ impl ChatMemberOwner {
 
     /// Information about the user
     #[must_use]
-    pub fn user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user = Box::new(val.into());
-        this
+    pub fn user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.user = Box::new(val.into());
+        self
     }
 
     /// `true`, if the user's presence in the chat is hidden
     #[must_use]
-    pub fn is_anonymous<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_anonymous = val.into();
-        this
+    pub fn is_anonymous<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_anonymous = val.into();
+        self
     }
 
     /// Custom title for this user
     #[must_use]
-    pub fn custom_title<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.custom_title = Some(val.into());
-        this
+    pub fn custom_title<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.custom_title = Some(val.into());
+        self
     }
 
     /// Custom title for this user
     #[must_use]
-    pub fn custom_title_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.custom_title = val.map(Into::into);
-        this
+    pub fn custom_title_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.custom_title = val.map(Into::into);
+        self
     }
 }

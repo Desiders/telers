@@ -128,217 +128,190 @@ impl ChatMemberAdministrator {
 
     /// Information about the user
     #[must_use]
-    pub fn user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user = Box::new(val.into());
-        this
+    pub fn user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.user = Box::new(val.into());
+        self
     }
 
     /// `true`, if the bot is allowed to edit administrator privileges of that user
     #[must_use]
-    pub fn can_be_edited<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_be_edited = val.into();
-        this
+    pub fn can_be_edited<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_be_edited = val.into();
+        self
     }
 
     /// `true`, if the user's presence in the chat is hidden
     #[must_use]
-    pub fn is_anonymous<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_anonymous = val.into();
-        this
+    pub fn is_anonymous<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_anonymous = val.into();
+        self
     }
 
     /// `true`, if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages, ignore slow mode, and send messages to the chat without paying Telegram Stars. Implied by any other administrator privilege.
     #[must_use]
-    pub fn can_manage_chat<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_manage_chat = val.into();
-        this
+    pub fn can_manage_chat<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_manage_chat = val.into();
+        self
     }
 
     /// `true`, if the administrator can delete messages of other users
     #[must_use]
-    pub fn can_delete_messages<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_delete_messages = val.into();
-        this
+    pub fn can_delete_messages<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_delete_messages = val.into();
+        self
     }
 
     /// `true`, if the administrator can manage video chats
     #[must_use]
-    pub fn can_manage_video_chats<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_manage_video_chats = val.into();
-        this
+    pub fn can_manage_video_chats<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_manage_video_chats = val.into();
+        self
     }
 
     /// `true`, if the administrator can restrict, ban or unban chat members, or access supergroup statistics
     #[must_use]
-    pub fn can_restrict_members<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_restrict_members = val.into();
-        this
+    pub fn can_restrict_members<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_restrict_members = val.into();
+        self
     }
 
     /// `true`, if the administrator can add new administrators with a subset of their own privileges or demote administrators that they have promoted, directly or indirectly (promoted by administrators that were appointed by the user)
     #[must_use]
-    pub fn can_promote_members<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_promote_members = val.into();
-        this
+    pub fn can_promote_members<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_promote_members = val.into();
+        self
     }
 
     /// `true`, if the user is allowed to change the chat title, photo and other settings
     #[must_use]
-    pub fn can_change_info<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_change_info = val.into();
-        this
+    pub fn can_change_info<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_change_info = val.into();
+        self
     }
 
     /// `true`, if the user is allowed to invite new users to the chat
     #[must_use]
-    pub fn can_invite_users<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_invite_users = val.into();
-        this
+    pub fn can_invite_users<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_invite_users = val.into();
+        self
     }
 
     /// `true`, if the administrator can post stories to the chat
     #[must_use]
-    pub fn can_post_stories<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_post_stories = val.into();
-        this
+    pub fn can_post_stories<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_post_stories = val.into();
+        self
     }
 
     /// `true`, if the administrator can edit stories posted by other users, post stories to the chat page, pin chat stories, and access the chat's story archive
     #[must_use]
-    pub fn can_edit_stories<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_edit_stories = val.into();
-        this
+    pub fn can_edit_stories<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_edit_stories = val.into();
+        self
     }
 
     /// `true`, if the administrator can delete stories posted by other users
     #[must_use]
-    pub fn can_delete_stories<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_delete_stories = val.into();
-        this
+    pub fn can_delete_stories<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_delete_stories = val.into();
+        self
     }
 
     /// `true`, if the administrator can post messages in the channel, approve suggested posts, or access channel statistics; for channels only
     #[must_use]
-    pub fn can_post_messages<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_post_messages = Some(val.into());
-        this
+    pub fn can_post_messages<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_post_messages = Some(val.into());
+        self
     }
 
     /// `true`, if the administrator can post messages in the channel, approve suggested posts, or access channel statistics; for channels only
     #[must_use]
-    pub fn can_post_messages_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.can_post_messages = val.map(Into::into);
-        this
+    pub fn can_post_messages_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.can_post_messages = val.map(Into::into);
+        self
     }
 
     /// `true`, if the administrator can edit messages of other users and can pin messages; for channels only
     #[must_use]
-    pub fn can_edit_messages<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_edit_messages = Some(val.into());
-        this
+    pub fn can_edit_messages<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_edit_messages = Some(val.into());
+        self
     }
 
     /// `true`, if the administrator can edit messages of other users and can pin messages; for channels only
     #[must_use]
-    pub fn can_edit_messages_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.can_edit_messages = val.map(Into::into);
-        this
+    pub fn can_edit_messages_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.can_edit_messages = val.map(Into::into);
+        self
     }
 
     /// `true`, if the user is allowed to pin messages; for groups and supergroups only
     #[must_use]
-    pub fn can_pin_messages<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_pin_messages = Some(val.into());
-        this
+    pub fn can_pin_messages<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_pin_messages = Some(val.into());
+        self
     }
 
     /// `true`, if the user is allowed to pin messages; for groups and supergroups only
     #[must_use]
-    pub fn can_pin_messages_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.can_pin_messages = val.map(Into::into);
-        this
+    pub fn can_pin_messages_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.can_pin_messages = val.map(Into::into);
+        self
     }
 
     /// `true`, if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only
     #[must_use]
-    pub fn can_manage_topics<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_manage_topics = Some(val.into());
-        this
+    pub fn can_manage_topics<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_manage_topics = Some(val.into());
+        self
     }
 
     /// `true`, if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only
     #[must_use]
-    pub fn can_manage_topics_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.can_manage_topics = val.map(Into::into);
-        this
+    pub fn can_manage_topics_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.can_manage_topics = val.map(Into::into);
+        self
     }
 
     /// `true`, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only
     #[must_use]
-    pub fn can_manage_direct_messages<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_manage_direct_messages = Some(val.into());
-        this
+    pub fn can_manage_direct_messages<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_manage_direct_messages = Some(val.into());
+        self
     }
 
     /// `true`, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only
     #[must_use]
-    pub fn can_manage_direct_messages_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.can_manage_direct_messages = val.map(Into::into);
-        this
+    pub fn can_manage_direct_messages_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.can_manage_direct_messages = val.map(Into::into);
+        self
     }
 
     /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted defaults to the value of `can_pin_messages`.
     #[must_use]
-    pub fn can_manage_tags<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_manage_tags = Some(val.into());
-        this
+    pub fn can_manage_tags<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_manage_tags = Some(val.into());
+        self
     }
 
     /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted defaults to the value of `can_pin_messages`.
     #[must_use]
-    pub fn can_manage_tags_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.can_manage_tags = val.map(Into::into);
-        this
+    pub fn can_manage_tags_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.can_manage_tags = val.map(Into::into);
+        self
     }
 
     /// Custom title for this user
     #[must_use]
-    pub fn custom_title<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.custom_title = Some(val.into());
-        this
+    pub fn custom_title<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.custom_title = Some(val.into());
+        self
     }
 
     /// Custom title for this user
     #[must_use]
-    pub fn custom_title_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.custom_title = val.map(Into::into);
-        this
+    pub fn custom_title_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.custom_title = val.map(Into::into);
+        self
     }
 }

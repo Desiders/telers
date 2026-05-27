@@ -147,6 +147,12 @@ impl ChatBoostSource {
         self.user().and_then(|inner| inner.last_name.as_deref())
     }
 
+    /// Helper method for nested field `supports_guest_queries`.
+    #[must_use]
+    pub fn supports_guest_queries(&self) -> Option<bool> {
+        self.user().and_then(|inner| inner.supports_guest_queries)
+    }
+
     /// Helper method for nested field `supports_inline_queries`.
     #[must_use]
     pub fn supports_inline_queries(&self) -> Option<bool> {

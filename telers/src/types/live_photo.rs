@@ -1,0 +1,171 @@
+use serde::{Deserialize, Serialize};
+/// This object represents a live photo.
+/// # Documentation
+/// <https://core.telegram.org/bots/api#livephoto>
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct LivePhoto {
+    /// Available sizes of the corresponding static photo
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub photo: Option<Box<[crate::types::PhotoSize]>>,
+    /// Identifier for the video file which can be used to download or reuse the file
+    pub file_id: Box<str>,
+    /// Unique identifier for the video file which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
+    pub file_unique_id: Box<str>,
+    /// Video width as defined by the sender
+    pub width: i64,
+    /// Video height as defined by the sender
+    pub height: i64,
+    /// Duration of the video in seconds as defined by the sender
+    pub duration: i64,
+    /// MIME type of the file as defined by the sender
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mime_type: Option<Box<str>>,
+    /// File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub file_size: Option<i64>,
+}
+impl LivePhoto {
+    /// Creates a new `LivePhoto`.
+    ///
+    /// # Arguments
+    /// * `file_id` - Identifier for the video file which can be used to download or reuse the file
+    /// * `file_unique_id` - Unique identifier for the video file which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
+    /// * `width` - Video width as defined by the sender
+    /// * `height` - Video height as defined by the sender
+    /// * `duration` - Duration of the video in seconds as defined by the sender
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
+    #[must_use]
+    pub fn new<
+        T0: Into<Box<str>>,
+        T1: Into<Box<str>>,
+        T2: Into<i64>,
+        T3: Into<i64>,
+        T4: Into<i64>,
+    >(
+        file_id: T0,
+        file_unique_id: T1,
+        width: T2,
+        height: T3,
+        duration: T4,
+    ) -> Self {
+        Self {
+            photo: None,
+            file_id: file_id.into(),
+            file_unique_id: file_unique_id.into(),
+            width: width.into(),
+            height: height.into(),
+            duration: duration.into(),
+            mime_type: None,
+            file_size: None,
+        }
+    }
+
+    /// Available sizes of the corresponding static photo
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn photos<T: Into<Box<[crate::types::PhotoSize]>>>(mut self, val: T) -> Self {
+        self.photo = Some(
+            self.photo
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into())
+                .collect(),
+        );
+        self
+    }
+
+    /// Available sizes of the corresponding static photo
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn photo<T: Into<crate::types::PhotoSize>>(mut self, val: T) -> Self {
+        self.photo = Some(
+            self.photo
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        self
+    }
+
+    /// Available sizes of the corresponding static photo
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn photo_option<T: Into<Box<[crate::types::PhotoSize]>>>(mut self, val: Option<T>) -> Self {
+        self.photo = val.map(Into::into);
+        self
+    }
+
+    /// Identifier for the video file which can be used to download or reuse the file
+    #[must_use]
+    pub fn file_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.file_id = val.into();
+        self
+    }
+
+    /// Unique identifier for the video file which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
+    #[must_use]
+    pub fn file_unique_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.file_unique_id = val.into();
+        self
+    }
+
+    /// Video width as defined by the sender
+    #[must_use]
+    pub fn width<T: Into<i64>>(mut self, val: T) -> Self {
+        self.width = val.into();
+        self
+    }
+
+    /// Video height as defined by the sender
+    #[must_use]
+    pub fn height<T: Into<i64>>(mut self, val: T) -> Self {
+        self.height = val.into();
+        self
+    }
+
+    /// Duration of the video in seconds as defined by the sender
+    #[must_use]
+    pub fn duration<T: Into<i64>>(mut self, val: T) -> Self {
+        self.duration = val.into();
+        self
+    }
+
+    /// MIME type of the file as defined by the sender
+    #[must_use]
+    pub fn mime_type<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.mime_type = Some(val.into());
+        self
+    }
+
+    /// MIME type of the file as defined by the sender
+    #[must_use]
+    pub fn mime_type_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.mime_type = val.map(Into::into);
+        self
+    }
+
+    /// File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
+    #[must_use]
+    pub fn file_size<T: Into<i64>>(mut self, val: T) -> Self {
+        self.file_size = Some(val.into());
+        self
+    }
+
+    /// File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
+    #[must_use]
+    pub fn file_size_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.file_size = val.map(Into::into);
+        self
+    }
+}

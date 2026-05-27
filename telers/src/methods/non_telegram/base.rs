@@ -109,6 +109,9 @@ pub fn prepare_input_media(files: &mut Vec<InputFile>, input_media: &mut InputMe
         InputMedia::Document(inner) => {
             prepare_file(files, &mut inner.media);
         }
+        InputMedia::LivePhoto(inner) => {
+            prepare_file(files, &mut inner.media);
+        }
         InputMedia::Photo(inner) => {
             prepare_file(files, &mut inner.media);
         }
@@ -139,6 +142,9 @@ pub fn prepare_input_stickers(files: &mut Vec<InputFile>, input_stickers: Vec<&m
 
 pub fn prepare_input_paid_media(files: &mut Vec<InputFile>, input_paid_media: &mut InputPaidMedia) {
     match input_paid_media {
+        InputPaidMedia::LivePhoto(inner) => {
+            prepare_file(files, &mut inner.media);
+        }
         InputPaidMedia::Photo(inner) => {
             prepare_file(files, &mut inner.media);
         }

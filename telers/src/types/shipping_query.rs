@@ -43,33 +43,29 @@ impl ShippingQuery {
 
     /// Unique query identifier
     #[must_use]
-    pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 
     /// User who sent the query
     #[must_use]
-    pub fn from<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.from = Box::new(val.into());
-        this
+    pub fn from<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.from = Box::new(val.into());
+        self
     }
 
     /// Bot-specified invoice payload
     #[must_use]
-    pub fn invoice_payload<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.invoice_payload = val.into();
-        this
+    pub fn invoice_payload<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.invoice_payload = val.into();
+        self
     }
 
     /// User specified shipping address
     #[must_use]
-    pub fn shipping_address<T: Into<crate::types::ShippingAddress>>(self, val: T) -> Self {
-        let mut this = self;
-        this.shipping_address = val.into();
-        this
+    pub fn shipping_address<T: Into<crate::types::ShippingAddress>>(mut self, val: T) -> Self {
+        self.shipping_address = val.into();
+        self
     }
 }

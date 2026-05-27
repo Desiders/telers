@@ -32,41 +32,36 @@ impl StoryAreaTypeSuggestedReaction {
 
     /// Type of the reaction
     #[must_use]
-    pub fn reaction_type<T: Into<crate::types::ReactionType>>(self, val: T) -> Self {
-        let mut this = self;
-        this.reaction_type = val.into();
-        this
+    pub fn reaction_type<T: Into<crate::types::ReactionType>>(mut self, val: T) -> Self {
+        self.reaction_type = val.into();
+        self
     }
 
     /// Pass `true` if the reaction area has a dark background
     #[must_use]
-    pub fn is_dark<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_dark = Some(val.into());
-        this
+    pub fn is_dark<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_dark = Some(val.into());
+        self
     }
 
     /// Pass `true` if the reaction area has a dark background
     #[must_use]
-    pub fn is_dark_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_dark = val.map(Into::into);
-        this
+    pub fn is_dark_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_dark = val.map(Into::into);
+        self
     }
 
     /// Pass `true` if reaction area corner is flipped
     #[must_use]
-    pub fn is_flipped<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_flipped = Some(val.into());
-        this
+    pub fn is_flipped<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_flipped = Some(val.into());
+        self
     }
 
     /// Pass `true` if reaction area corner is flipped
     #[must_use]
-    pub fn is_flipped_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_flipped = val.map(Into::into);
-        this
+    pub fn is_flipped_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_flipped = val.map(Into::into);
+        self
     }
 }

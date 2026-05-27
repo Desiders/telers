@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `crate::types::ForumTopic`
 #[derive(Clone, Debug, Serialize)]
 pub struct CreateForumTopic {
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Topic name, 1-128 characters
     pub name: Box<str>,
@@ -22,7 +22,7 @@ impl CreateForumTopic {
     /// Creates a new `CreateForumTopic`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup in the format @username
     /// * `name` - Topic name, 1-128 characters
     ///
     /// # Notes
@@ -40,52 +40,46 @@ impl CreateForumTopic {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Topic name, 1-128 characters
     #[must_use]
-    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.name = val.into();
-        this
+    pub fn name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.name = val.into();
+        self
     }
 
     /// Color of the topic icon in RGB format. Currently, must be one of 7322096 (0x6FB9F0), 16766590 (0xFFD67E), 13338331 (0xCB86DB), 9367192 (0x8EEE98), 16749490 (0xFF93B2), or 16478047 (0xFB6F5F)
     #[must_use]
-    pub fn icon_color<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.icon_color = Some(val.into());
-        this
+    pub fn icon_color<T: Into<i64>>(mut self, val: T) -> Self {
+        self.icon_color = Some(val.into());
+        self
     }
 
     /// Color of the topic icon in RGB format. Currently, must be one of 7322096 (0x6FB9F0), 16766590 (0xFFD67E), 13338331 (0xCB86DB), 9367192 (0x8EEE98), 16749490 (0xFF93B2), or 16478047 (0xFB6F5F)
     #[must_use]
-    pub fn icon_color_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.icon_color = val.map(Into::into);
-        this
+    pub fn icon_color_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.icon_color = val.map(Into::into);
+        self
     }
 
     /// Unique identifier of the custom emoji shown as the topic icon. Use [`crate::methods::GetForumTopicIconStickers`] to get all allowed custom emoji identifiers.
     #[must_use]
-    pub fn icon_custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.icon_custom_emoji_id = Some(val.into());
-        this
+    pub fn icon_custom_emoji_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.icon_custom_emoji_id = Some(val.into());
+        self
     }
 
     /// Unique identifier of the custom emoji shown as the topic icon. Use [`crate::methods::GetForumTopicIconStickers`] to get all allowed custom emoji identifiers.
     #[must_use]
-    pub fn icon_custom_emoji_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.icon_custom_emoji_id = val.map(Into::into);
-        this
+    pub fn icon_custom_emoji_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.icon_custom_emoji_id = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for CreateForumTopic {

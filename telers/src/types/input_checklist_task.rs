@@ -36,34 +36,30 @@ impl InputChecklistTask {
 
     /// Unique identifier of the task; must be positive and unique among all task identifiers currently present in the checklist
     #[must_use]
-    pub fn id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 
     /// Text of the task; 1-100 characters after entities parsing
     #[must_use]
-    pub fn text<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text = val.into();
-        this
+    pub fn text<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.text = val.into();
+        self
     }
 
     /// Mode for parsing entities in the text. See formatting options for more details.
     #[must_use]
-    pub fn parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.parse_mode = Some(val.into());
-        this
+    pub fn parse_mode<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.parse_mode = Some(val.into());
+        self
     }
 
     /// Mode for parsing entities in the text. See formatting options for more details.
     #[must_use]
-    pub fn parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.parse_mode = val.map(Into::into);
-        this
+    pub fn parse_mode_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.parse_mode = val.map(Into::into);
+        self
     }
 
     /// List of special entities that appear in the text, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are allowed.
@@ -71,17 +67,16 @@ impl InputChecklistTask {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn text_entities<T: Into<Box<[crate::types::MessageEntity]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text_entities = Some(
-            this.text_entities
+    pub fn text_entities<T: Into<Box<[crate::types::MessageEntity]>>>(mut self, val: T) -> Self {
+        self.text_entities = Some(
+            self.text_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// List of special entities that appear in the text, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are allowed.
@@ -89,17 +84,16 @@ impl InputChecklistTask {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn text_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text_entities = Some(
-            this.text_entities
+    pub fn text_entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.text_entities = Some(
+            self.text_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// List of special entities that appear in the text, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are allowed.
@@ -108,11 +102,10 @@ impl InputChecklistTask {
     /// Adds a single element.
     #[must_use]
     pub fn text_entities_option<T: Into<Box<[crate::types::MessageEntity]>>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.text_entities = val.map(Into::into);
-        this
+        self.text_entities = val.map(Into::into);
+        self
     }
 }

@@ -631,15 +631,13 @@ fn builder_impl_for_type(type_quote: &NormalizedType, ctx: &TypeDocContext<'_>) 
                     };
                     if field.required {
                         quote! {
-                            let mut this = self;
-                            this.#name = this.#name.into_vec().into_iter().chain(#op).collect();
-                            this
+                            self.#name = self.#name.into_vec().into_iter().chain(#op).collect();
+                            self
                         }
                     } else {
                         quote! {
-                            let mut this = self;
-                            this.#name = Some(this.#name.unwrap_or_default().into_vec().into_iter().chain(#op).collect());
-                            this
+                            self.#name = Some(self.#name.unwrap_or_default().into_vec().into_iter().chain(#op).collect());
+                            self
                         }
                     }
                 };
@@ -648,7 +646,7 @@ fn builder_impl_for_type(type_quote: &NormalizedType, ctx: &TypeDocContext<'_>) 
                 methods.push(quote! {
                     #plural_doc
                     #[must_use]
-                    pub fn #plural_name<T: Into<#ty>>(self, val: T) -> Self {
+                    pub fn #plural_name<T: Into<#ty>>(mut self, val: T) -> Self {
                         #plural_body
                     }
                 });
@@ -658,7 +656,7 @@ fn builder_impl_for_type(type_quote: &NormalizedType, ctx: &TypeDocContext<'_>) 
                     methods.push(quote! {
                         #singular_doc
                         #[must_use]
-                        pub fn #singular_name<T: Into<#inner>>(self, val: T) -> Self {
+                        pub fn #singular_name<T: Into<#inner>>(mut self, val: T) -> Self {
                             #singular_body
                         }
                     });
@@ -670,10 +668,9 @@ fn builder_impl_for_type(type_quote: &NormalizedType, ctx: &TypeDocContext<'_>) 
                     methods.push(quote! {
                         #option_doc
                         #[must_use]
-                        pub fn #option_name<T: Into<#ty>>(self, val: Option<T>) -> Self {
-                            let mut this = self;
-                            this.#name = val.map(Into::into);
-                            this
+                        pub fn #option_name<T: Into<#ty>>(mut self, val: Option<T>) -> Self {
+                            self.#name = val.map(Into::into);
+                            self
                         }
                     });
                 }
@@ -686,10 +683,9 @@ fn builder_impl_for_type(type_quote: &NormalizedType, ctx: &TypeDocContext<'_>) 
                 methods.push(quote! {
                     #[doc = #doc]
                     #[must_use]
-                    pub fn #name<T: Into<#ty>>(self, val: T) -> Self {
-                        let mut this = self;
-                        this.#name = #value;
-                        this
+                    pub fn #name<T: Into<#ty>>(mut self, val: T) -> Self {
+                        self.#name = #value;
+                        self
                     }
                 });
 
@@ -703,10 +699,9 @@ fn builder_impl_for_type(type_quote: &NormalizedType, ctx: &TypeDocContext<'_>) 
                     methods.push(quote! {
                         #[doc = #doc]
                         #[must_use]
-                        pub fn #method_name<T: Into<#ty>>(self, val: Option<T>) -> Self {
-                            let mut this = self;
-                            this.#name = #opt_value;
-                            this
+                        pub fn #method_name<T: Into<#ty>>(mut self, val: Option<T>) -> Self {
+                            self.#name = #opt_value;
+                            self
                         }
                     });
                 }

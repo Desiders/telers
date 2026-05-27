@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `crate::types::ChatInviteLink`
 #[derive(Clone, Debug, Serialize)]
 pub struct CreateChatSubscriptionInviteLink {
-    /// Unique identifier for the target channel chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target channel chat or username of the target channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Invite link name; 0-32 characters
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -21,7 +21,7 @@ impl CreateChatSubscriptionInviteLink {
     /// Creates a new `CreateChatSubscriptionInviteLink`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target channel chat or username of the target channel (in the format @channelusername)
+    /// * `chat_id` - Unique identifier for the target channel chat or username of the target channel in the format @username
     /// * `subscription_period` - The number of seconds the subscription will be active for before the next payment. Currently, it must always be 2592000 (30 days).
     /// * `subscription_price` - The amount of Telegram Stars a user must pay initially and after each subsequent subscription period to be a member of the chat; 1-10000
     ///
@@ -41,44 +41,39 @@ impl CreateChatSubscriptionInviteLink {
         }
     }
 
-    /// Unique identifier for the target channel chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target channel chat or username of the target channel in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Invite link name; 0-32 characters
     #[must_use]
-    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.name = Some(val.into());
-        this
+    pub fn name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.name = Some(val.into());
+        self
     }
 
     /// Invite link name; 0-32 characters
     #[must_use]
-    pub fn name_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.name = val.map(Into::into);
-        this
+    pub fn name_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.name = val.map(Into::into);
+        self
     }
 
     /// The number of seconds the subscription will be active for before the next payment. Currently, it must always be 2592000 (30 days).
     #[must_use]
-    pub fn subscription_period<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.subscription_period = val.into();
-        this
+    pub fn subscription_period<T: Into<i64>>(mut self, val: T) -> Self {
+        self.subscription_period = val.into();
+        self
     }
 
     /// The amount of Telegram Stars a user must pay initially and after each subsequent subscription period to be a member of the chat; 1-10000
     #[must_use]
-    pub fn subscription_price<T: Into<u16>>(self, val: T) -> Self {
-        let mut this = self;
-        this.subscription_price = val.into();
-        this
+    pub fn subscription_price<T: Into<u16>>(mut self, val: T) -> Self {
+        self.subscription_price = val.into();
+        self
     }
 }
 impl super::TelegramMethod for CreateChatSubscriptionInviteLink {

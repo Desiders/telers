@@ -25,10 +25,9 @@ impl GetFile {
 
     /// File identifier to get information about
     #[must_use]
-    pub fn file_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.file_id = val.into();
-        this
+    pub fn file_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.file_id = val.into();
+        self
     }
 }
 impl super::TelegramMethod for GetFile {

@@ -31,18 +31,16 @@ impl DeleteStory {
 
     /// Unique identifier of the business connection
     #[must_use]
-    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection_id = val.into();
-        this
+    pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.business_connection_id = val.into();
+        self
     }
 
     /// Unique identifier of the story to delete
     #[must_use]
-    pub fn story_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.story_id = val.into();
-        this
+    pub fn story_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.story_id = val.into();
+        self
     }
 }
 impl super::TelegramMethod for DeleteStory {

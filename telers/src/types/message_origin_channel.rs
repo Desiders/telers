@@ -40,41 +40,36 @@ impl MessageOriginChannel {
 
     /// Date the message was sent originally in Unix time
     #[must_use]
-    pub fn date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.date = val.into();
-        this
+    pub fn date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.date = val.into();
+        self
     }
 
     /// Channel chat to which the message was originally sent
     #[must_use]
-    pub fn chat<T: Into<crate::types::Chat>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat = Box::new(val.into());
-        this
+    pub fn chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
+        self.chat = Box::new(val.into());
+        self
     }
 
     /// Unique message identifier inside the chat
     #[must_use]
-    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_id = val.into();
-        this
+    pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_id = val.into();
+        self
     }
 
     /// Signature of the original post author
     #[must_use]
-    pub fn author_signature<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.author_signature = Some(val.into());
-        this
+    pub fn author_signature<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.author_signature = Some(val.into());
+        self
     }
 
     /// Signature of the original post author
     #[must_use]
-    pub fn author_signature_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.author_signature = val.map(Into::into);
-        this
+    pub fn author_signature_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.author_signature = val.map(Into::into);
+        self
     }
 }

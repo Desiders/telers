@@ -35,10 +35,9 @@ impl PassportData {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn data<T: Into<Box<[crate::types::EncryptedPassportElement]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.data = this.data.into_vec().into_iter().chain(val.into()).collect();
-        this
+    pub fn data<T: Into<Box<[crate::types::EncryptedPassportElement]>>>(mut self, val: T) -> Self {
+        self.data = self.data.into_vec().into_iter().chain(val.into()).collect();
+        self
     }
 
     /// Array with information about documents and other Telegram Passport elements that was shared with the bot
@@ -46,22 +45,20 @@ impl PassportData {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn datum<T: Into<crate::types::EncryptedPassportElement>>(self, val: T) -> Self {
-        let mut this = self;
-        this.data = this
+    pub fn datum<T: Into<crate::types::EncryptedPassportElement>>(mut self, val: T) -> Self {
+        self.data = self
             .data
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// Encrypted credentials required to decrypt the data
     #[must_use]
-    pub fn credentials<T: Into<crate::types::EncryptedCredentials>>(self, val: T) -> Self {
-        let mut this = self;
-        this.credentials = val.into();
-        this
+    pub fn credentials<T: Into<crate::types::EncryptedCredentials>>(mut self, val: T) -> Self {
+        self.credentials = val.into();
+        self
     }
 }

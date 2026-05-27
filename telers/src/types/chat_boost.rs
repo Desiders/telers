@@ -43,33 +43,29 @@ impl ChatBoost {
 
     /// Unique identifier of the boost
     #[must_use]
-    pub fn boost_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.boost_id = val.into();
-        this
+    pub fn boost_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.boost_id = val.into();
+        self
     }
 
     /// Point in time (Unix timestamp) when the chat was boosted
     #[must_use]
-    pub fn add_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.add_date = val.into();
-        this
+    pub fn add_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.add_date = val.into();
+        self
     }
 
     /// Point in time (Unix timestamp) when the boost will automatically expire, unless the booster's Telegram Premium subscription is prolonged
     #[must_use]
-    pub fn expiration_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.expiration_date = val.into();
-        this
+    pub fn expiration_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.expiration_date = val.into();
+        self
     }
 
     /// Source of the added boost
     #[must_use]
-    pub fn source<T: Into<crate::types::ChatBoostSource>>(self, val: T) -> Self {
-        let mut this = self;
-        this.source = val.into();
-        this
+    pub fn source<T: Into<crate::types::ChatBoostSource>>(mut self, val: T) -> Self {
+        self.source = val.into();
+        self
     }
 }

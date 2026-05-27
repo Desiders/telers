@@ -63,26 +63,23 @@ impl UniqueGiftColors {
 
     /// Custom emoji identifier of the unique gift's model
     #[must_use]
-    pub fn model_custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.model_custom_emoji_id = val.into();
-        this
+    pub fn model_custom_emoji_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.model_custom_emoji_id = val.into();
+        self
     }
 
     /// Custom emoji identifier of the unique gift's symbol
     #[must_use]
-    pub fn symbol_custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.symbol_custom_emoji_id = val.into();
-        this
+    pub fn symbol_custom_emoji_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.symbol_custom_emoji_id = val.into();
+        self
     }
 
     /// Main color used in light themes; RGB format
     #[must_use]
-    pub fn light_theme_main_color<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.light_theme_main_color = val.into();
-        this
+    pub fn light_theme_main_color<T: Into<i64>>(mut self, val: T) -> Self {
+        self.light_theme_main_color = val.into();
+        self
     }
 
     /// List of 1-3 additional colors used in light themes; RGB format
@@ -90,15 +87,14 @@ impl UniqueGiftColors {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn light_theme_other_colors<T: Into<Box<[u8]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.light_theme_other_colors = this
+    pub fn light_theme_other_colors<T: Into<Box<[u8]>>>(mut self, val: T) -> Self {
+        self.light_theme_other_colors = self
             .light_theme_other_colors
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// List of 1-3 additional colors used in light themes; RGB format
@@ -106,23 +102,21 @@ impl UniqueGiftColors {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn light_theme_other_color<T: Into<u8>>(self, val: T) -> Self {
-        let mut this = self;
-        this.light_theme_other_colors = this
+    pub fn light_theme_other_color<T: Into<u8>>(mut self, val: T) -> Self {
+        self.light_theme_other_colors = self
             .light_theme_other_colors
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// Main color used in dark themes; RGB format
     #[must_use]
-    pub fn dark_theme_main_color<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.dark_theme_main_color = val.into();
-        this
+    pub fn dark_theme_main_color<T: Into<i64>>(mut self, val: T) -> Self {
+        self.dark_theme_main_color = val.into();
+        self
     }
 
     /// List of 1-3 additional colors used in dark themes; RGB format
@@ -130,15 +124,14 @@ impl UniqueGiftColors {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn dark_theme_other_colors<T: Into<Box<[u8]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.dark_theme_other_colors = this
+    pub fn dark_theme_other_colors<T: Into<Box<[u8]>>>(mut self, val: T) -> Self {
+        self.dark_theme_other_colors = self
             .dark_theme_other_colors
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// List of 1-3 additional colors used in dark themes; RGB format
@@ -146,14 +139,13 @@ impl UniqueGiftColors {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn dark_theme_other_color<T: Into<u8>>(self, val: T) -> Self {
-        let mut this = self;
-        this.dark_theme_other_colors = this
+    pub fn dark_theme_other_color<T: Into<u8>>(mut self, val: T) -> Self {
+        self.dark_theme_other_colors = self
             .dark_theme_other_colors
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

@@ -225,6 +225,17 @@ impl ChatMember {
         }
     }
 
+    /// Helper method for field `can_react_to_messages`.
+    ///
+    /// `true`, if the user is allowed to react to messages
+    #[must_use]
+    pub fn can_react_to_messages(&self) -> Option<bool> {
+        match self {
+            Self::Restricted(val) => Some(val.can_react_to_messages),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `can_restrict_members`.
     ///
     /// `true`, if the administrator can restrict, ban or unban chat members, or access supergroup statistics
@@ -536,6 +547,15 @@ impl ChatMember {
         {
             let inner = self.user();
             inner.last_name.as_deref()
+        }
+    }
+
+    /// Helper method for nested field `supports_guest_queries`.
+    #[must_use]
+    pub fn supports_guest_queries(&self) -> Option<bool> {
+        {
+            let inner = self.user();
+            inner.supports_guest_queries
         }
     }
 

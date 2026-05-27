@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `bool`
 #[derive(Clone, Debug, Serialize)]
 pub struct ApproveChatJoinRequest {
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier of the target user
     pub user_id: i64,
@@ -16,7 +16,7 @@ impl ApproveChatJoinRequest {
     /// Creates a new `ApproveChatJoinRequest`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target channel in the format @username
     /// * `user_id` - Unique identifier of the target user
     #[must_use]
     pub fn new<T0: Into<crate::types::ChatIdKind>, T1: Into<i64>>(
@@ -29,20 +29,18 @@ impl ApproveChatJoinRequest {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target channel in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Unique identifier of the target user
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 }
 impl super::TelegramMethod for ApproveChatJoinRequest {

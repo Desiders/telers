@@ -25,17 +25,15 @@ impl Story {
 
     /// Chat that posted the story
     #[must_use]
-    pub fn chat<T: Into<crate::types::Chat>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat = Box::new(val.into());
-        this
+    pub fn chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
+        self.chat = Box::new(val.into());
+        self
     }
 
     /// Unique identifier for the story in the chat
     #[must_use]
-    pub fn id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 }

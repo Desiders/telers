@@ -32,36 +32,32 @@ impl InlineQueryResultGame {
 
     /// Unique identifier for this result, 1-64 bytes
     #[must_use]
-    pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 
     /// Short name of the game
     #[must_use]
-    pub fn game_short_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.game_short_name = val.into();
-        this
+    pub fn game_short_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.game_short_name = val.into();
+        self
     }
 
     /// Inline keyboard attached to the message
     #[must_use]
-    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(self, val: T) -> Self {
-        let mut this = self;
-        this.reply_markup = Some(val.into());
-        this
+    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(mut self, val: T) -> Self {
+        self.reply_markup = Some(val.into());
+        self
     }
 
     /// Inline keyboard attached to the message
     #[must_use]
     pub fn reply_markup_option<T: Into<crate::types::InlineKeyboardMarkup>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.reply_markup = val.map(Into::into);
-        this
+        self.reply_markup = val.map(Into::into);
+        self
     }
 }

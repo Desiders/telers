@@ -45,49 +45,43 @@ impl RefundedPayment {
 
     /// Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram Stars. Currently, always `XTR`
     #[must_use]
-    pub fn currency<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.currency = val.into();
-        this
+    pub fn currency<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.currency = val.into();
+        self
     }
 
     /// Total refunded price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45, `total_amount` = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
     #[must_use]
-    pub fn total_amount<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.total_amount = val.into();
-        this
+    pub fn total_amount<T: Into<i64>>(mut self, val: T) -> Self {
+        self.total_amount = val.into();
+        self
     }
 
     /// Bot-specified invoice payload
     #[must_use]
-    pub fn invoice_payload<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.invoice_payload = val.into();
-        this
+    pub fn invoice_payload<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.invoice_payload = val.into();
+        self
     }
 
     /// Telegram payment identifier
     #[must_use]
-    pub fn telegram_payment_charge_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.telegram_payment_charge_id = val.into();
-        this
+    pub fn telegram_payment_charge_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.telegram_payment_charge_id = val.into();
+        self
     }
 
     /// Provider payment identifier
     #[must_use]
-    pub fn provider_payment_charge_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.provider_payment_charge_id = Some(val.into());
-        this
+    pub fn provider_payment_charge_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.provider_payment_charge_id = Some(val.into());
+        self
     }
 
     /// Provider payment identifier
     #[must_use]
-    pub fn provider_payment_charge_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.provider_payment_charge_id = val.map(Into::into);
-        this
+    pub fn provider_payment_charge_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.provider_payment_charge_id = val.map(Into::into);
+        self
     }
 }

@@ -375,30 +375,26 @@ fn builder_impl_for_method(
                 let make_singular_body = |is_required: bool| -> TokenStream {
                     if is_required {
                         quote! {
-                            let mut this = self;
-                            this.#name = this.#name.into_vec().into_iter().chain(Some(val.into())).collect();
-                            this
+                            self.#name = self.#name.into_vec().into_iter().chain(Some(val.into())).collect();
+                            self
                         }
                     } else {
                         quote! {
-                            let mut this = self;
-                            this.#name = Some(this.#name.unwrap_or_default().into_vec().into_iter().chain(Some(val.into())).collect());
-                            this
+                            self.#name = Some(self.#name.unwrap_or_default().into_vec().into_iter().chain(Some(val.into())).collect());
+                            self
                         }
                     }
                 };
                 let make_plural_body = |is_required: bool| -> TokenStream {
                     if is_required {
                         quote! {
-                            let mut this = self;
-                            this.#name = this.#name.into_vec().into_iter().chain(val.into_iter().map(Into::into)).collect();
-                            this
+                            self.#name = self.#name.into_vec().into_iter().chain(val.into_iter().map(Into::into)).collect();
+                            self
                         }
                     } else {
                         quote! {
-                            let mut this = self;
-                            this.#name = Some(this.#name.unwrap_or_default().into_vec().into_iter().chain(val.into_iter().map(Into::into)).collect());
-                            this
+                            self.#name = Some(self.#name.unwrap_or_default().into_vec().into_iter().chain(val.into_iter().map(Into::into)).collect());
+                            self
                         }
                     }
                 };
@@ -408,7 +404,7 @@ fn builder_impl_for_method(
                 methods.push(quote! {
                     #plural_doc
                     #[must_use]
-                    pub fn #plural_name<TItem: Into<#inner>, T: IntoIterator<Item = TItem>>(self, val: T) -> Self {
+                    pub fn #plural_name<TItem: Into<#inner>, T: IntoIterator<Item = TItem>>(mut self, val: T) -> Self {
                         #plural_body
                     }
                 });
@@ -419,7 +415,7 @@ fn builder_impl_for_method(
                     methods.push(quote! {
                         #singular_doc
                         #[must_use]
-                        pub fn #singular_name<T: Into<#inner>>(self, val: T) -> Self {
+                        pub fn #singular_name<T: Into<#inner>>(mut self, val: T) -> Self {
                             #singular_body
                         }
                     });
@@ -431,10 +427,9 @@ fn builder_impl_for_method(
                     methods.push(quote! {
                         #option_doc
                         #[must_use]
-                        pub fn #option_name<TItem: Into<#inner>, T: IntoIterator<Item = TItem>>(self, val: Option<T>) -> Self {
-                            let mut this = self;
-                            this.#name = val.map(|v| v.into_iter().map(Into::into).collect());
-                            this
+                        pub fn #option_name<TItem: Into<#inner>, T: IntoIterator<Item = TItem>>(mut self, val: Option<T>) -> Self {
+                            self.#name = val.map(|v| v.into_iter().map(Into::into).collect());
+                            self
                         }
                     });
                 }
@@ -455,10 +450,9 @@ fn builder_impl_for_method(
                 methods.push(quote! {
                     #[doc = #doc]
                     #[must_use]
-                    pub fn #name<T: Into<#ty>>(self, val: T) -> Self {
-                        let mut this = self;
-                        this.#name = #value;
-                        this
+                    pub fn #name<T: Into<#ty>>(mut self, val: T) -> Self {
+                        self.#name = #value;
+                        self
                     }
                 });
 
@@ -472,10 +466,9 @@ fn builder_impl_for_method(
                     methods.push(quote! {
                         #[doc = #doc]
                         #[must_use]
-                        pub fn #method_name<T: Into<#ty>>(self, val: Option<T>) -> Self {
-                            let mut this = self;
-                            this.#name = #opt_value;
-                            this
+                        pub fn #method_name<T: Into<#ty>>(mut self, val: Option<T>) -> Self {
+                            self.#name = #opt_value;
+                            self
                         }
                     });
                 }

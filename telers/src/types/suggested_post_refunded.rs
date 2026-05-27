@@ -28,28 +28,25 @@ impl SuggestedPostRefunded {
 
     /// Message containing the suggested post. Note that the Message object in this field will not contain the `reply_to_message` field even if it itself is a reply.
     #[must_use]
-    pub fn suggested_post_message<T: Into<crate::types::Message>>(self, val: T) -> Self {
-        let mut this = self;
-        this.suggested_post_message = Some(Box::new(val.into()));
-        this
+    pub fn suggested_post_message<T: Into<crate::types::Message>>(mut self, val: T) -> Self {
+        self.suggested_post_message = Some(Box::new(val.into()));
+        self
     }
 
     /// Message containing the suggested post. Note that the Message object in this field will not contain the `reply_to_message` field even if it itself is a reply.
     #[must_use]
     pub fn suggested_post_message_option<T: Into<crate::types::Message>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.suggested_post_message = val.map(|val| Box::new(val.into()));
-        this
+        self.suggested_post_message = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// Reason for the refund. Currently, one of `post_deleted` if the post was deleted within 24 hours of being posted or removed from scheduled messages without being posted, or `payment_refunded` if the payer refunded their payment.
     #[must_use]
-    pub fn reason<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.reason = val.into();
-        this
+    pub fn reason<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.reason = val.into();
+        self
     }
 }

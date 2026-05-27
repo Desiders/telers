@@ -64,89 +64,81 @@ impl ChatMemberUpdated {
 
     /// Chat the user belongs to
     #[must_use]
-    pub fn chat<T: Into<crate::types::Chat>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat = Box::new(val.into());
-        this
+    pub fn chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
+        self.chat = Box::new(val.into());
+        self
     }
 
     /// Performer of the action, which resulted in the change
     #[must_use]
-    pub fn from<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.from = Box::new(val.into());
-        this
+    pub fn from<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.from = Box::new(val.into());
+        self
     }
 
     /// Date the change was done in Unix time
     #[must_use]
-    pub fn date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.date = val.into();
-        this
+    pub fn date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.date = val.into();
+        self
     }
 
     /// Previous information about the chat member
     #[must_use]
-    pub fn old_chat_member<T: Into<crate::types::ChatMember>>(self, val: T) -> Self {
-        let mut this = self;
-        this.old_chat_member = val.into();
-        this
+    pub fn old_chat_member<T: Into<crate::types::ChatMember>>(mut self, val: T) -> Self {
+        self.old_chat_member = val.into();
+        self
     }
 
     /// New information about the chat member
     #[must_use]
-    pub fn new_chat_member<T: Into<crate::types::ChatMember>>(self, val: T) -> Self {
-        let mut this = self;
-        this.new_chat_member = val.into();
-        this
+    pub fn new_chat_member<T: Into<crate::types::ChatMember>>(mut self, val: T) -> Self {
+        self.new_chat_member = val.into();
+        self
     }
 
     /// Chat invite link, which was used by the user to join the chat; for joining by invite link events only.
     #[must_use]
-    pub fn invite_link<T: Into<crate::types::ChatInviteLink>>(self, val: T) -> Self {
-        let mut this = self;
-        this.invite_link = Some(val.into());
-        this
+    pub fn invite_link<T: Into<crate::types::ChatInviteLink>>(mut self, val: T) -> Self {
+        self.invite_link = Some(val.into());
+        self
     }
 
     /// Chat invite link, which was used by the user to join the chat; for joining by invite link events only.
     #[must_use]
-    pub fn invite_link_option<T: Into<crate::types::ChatInviteLink>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.invite_link = val.map(Into::into);
-        this
+    pub fn invite_link_option<T: Into<crate::types::ChatInviteLink>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.invite_link = val.map(Into::into);
+        self
     }
 
     /// `true`, if the user joined the chat after sending a direct join request without using an invite link and being approved by an administrator
     #[must_use]
-    pub fn via_join_request<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.via_join_request = Some(val.into());
-        this
+    pub fn via_join_request<T: Into<bool>>(mut self, val: T) -> Self {
+        self.via_join_request = Some(val.into());
+        self
     }
 
     /// `true`, if the user joined the chat after sending a direct join request without using an invite link and being approved by an administrator
     #[must_use]
-    pub fn via_join_request_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.via_join_request = val.map(Into::into);
-        this
+    pub fn via_join_request_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.via_join_request = val.map(Into::into);
+        self
     }
 
     /// `true`, if the user joined the chat via a chat folder invite link
     #[must_use]
-    pub fn via_chat_folder_invite_link<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.via_chat_folder_invite_link = Some(val.into());
-        this
+    pub fn via_chat_folder_invite_link<T: Into<bool>>(mut self, val: T) -> Self {
+        self.via_chat_folder_invite_link = Some(val.into());
+        self
     }
 
     /// `true`, if the user joined the chat via a chat folder invite link
     #[must_use]
-    pub fn via_chat_folder_invite_link_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.via_chat_folder_invite_link = val.map(Into::into);
-        this
+    pub fn via_chat_folder_invite_link_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.via_chat_folder_invite_link = val.map(Into::into);
+        self
     }
 }

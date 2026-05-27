@@ -27,17 +27,15 @@ impl EncryptedPassportElementAddress {
 
     /// Base64-encoded encrypted Telegram Passport element data provided by the user; available only for `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport` and `address` types. Can be decrypted and verified using the accompanying [`crate::types::EncryptedCredentials`].
     #[must_use]
-    pub fn data<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.data = val.into();
-        this
+    pub fn data<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.data = val.into();
+        self
     }
 
     /// Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
     #[must_use]
-    pub fn hash<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.hash = val.into();
-        this
+    pub fn hash<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.hash = val.into();
+        self
     }
 }

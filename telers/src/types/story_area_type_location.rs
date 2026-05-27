@@ -32,33 +32,32 @@ impl StoryAreaTypeLocation {
 
     /// Location latitude in degrees
     #[must_use]
-    pub fn latitude<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.latitude = val.into();
-        this
+    pub fn latitude<T: Into<f64>>(mut self, val: T) -> Self {
+        self.latitude = val.into();
+        self
     }
 
     /// Location longitude in degrees
     #[must_use]
-    pub fn longitude<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.longitude = val.into();
-        this
+    pub fn longitude<T: Into<f64>>(mut self, val: T) -> Self {
+        self.longitude = val.into();
+        self
     }
 
     /// Address of the location
     #[must_use]
-    pub fn address<T: Into<crate::types::LocationAddress>>(self, val: T) -> Self {
-        let mut this = self;
-        this.address = Some(val.into());
-        this
+    pub fn address<T: Into<crate::types::LocationAddress>>(mut self, val: T) -> Self {
+        self.address = Some(val.into());
+        self
     }
 
     /// Address of the location
     #[must_use]
-    pub fn address_option<T: Into<crate::types::LocationAddress>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.address = val.map(Into::into);
-        this
+    pub fn address_option<T: Into<crate::types::LocationAddress>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.address = val.map(Into::into);
+        self
     }
 }

@@ -35,25 +35,22 @@ impl MessageEntityTextMention {
 
     /// Offset in UTF-16 code units to the start of the entity
     #[must_use]
-    pub fn offset<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.offset = val.into();
-        this
+    pub fn offset<T: Into<i64>>(mut self, val: T) -> Self {
+        self.offset = val.into();
+        self
     }
 
     /// Length of the entity in UTF-16 code units
     #[must_use]
-    pub fn length<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.length = val.into();
-        this
+    pub fn length<T: Into<i64>>(mut self, val: T) -> Self {
+        self.length = val.into();
+        self
     }
 
     /// For `text_mention` only, the mentioned user
     #[must_use]
-    pub fn user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user = Box::new(val.into());
-        this
+    pub fn user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.user = Box::new(val.into());
+        self
     }
 }

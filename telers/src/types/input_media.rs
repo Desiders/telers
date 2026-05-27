@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
 /// This object represents the content of a media message to be sent. It should be one of
 /// - [`crate::types::InputMediaAnimation`]
-/// - [`crate::types::InputMediaDocument`]
 /// - [`crate::types::InputMediaAudio`]
+/// - [`crate::types::InputMediaDocument`]
+/// - [`crate::types::InputMediaLivePhoto`]
 /// - [`crate::types::InputMediaPhoto`]
 /// - [`crate::types::InputMediaVideo`]
 /// # Documentation
@@ -11,8 +12,9 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum InputMedia {
     Animation(crate::types::InputMediaAnimation),
-    Document(crate::types::InputMediaDocument),
     Audio(crate::types::InputMediaAudio),
+    Document(crate::types::InputMediaDocument),
+    LivePhoto(crate::types::InputMediaLivePhoto),
     Photo(crate::types::InputMediaPhoto),
     Video(crate::types::InputMediaVideo),
 }
@@ -21,16 +23,18 @@ impl InputMedia {
     ///
     /// # Variants
     /// - `InputMediaAnimation`. Caption of the animation to be sent, 0-1024 characters after entities parsing
-    /// - `InputMediaDocument`. Caption of the document to be sent, 0-1024 characters after entities parsing
     /// - `InputMediaAudio`. Caption of the audio to be sent, 0-1024 characters after entities parsing
+    /// - `InputMediaDocument`. Caption of the document to be sent, 0-1024 characters after entities parsing
+    /// - `InputMediaLivePhoto`. Caption of the live photo to be sent, 0-1024 characters after entities parsing
     /// - `InputMediaPhoto`. Caption of the photo to be sent, 0-1024 characters after entities parsing
     /// - `InputMediaVideo`. Caption of the video to be sent, 0-1024 characters after entities parsing
     #[must_use]
     pub fn caption(&self) -> Option<&str> {
         match self {
             Self::Animation(val) => val.caption.as_deref(),
-            Self::Document(val) => val.caption.as_deref(),
             Self::Audio(val) => val.caption.as_deref(),
+            Self::Document(val) => val.caption.as_deref(),
+            Self::LivePhoto(val) => val.caption.as_deref(),
             Self::Photo(val) => val.caption.as_deref(),
             Self::Video(val) => val.caption.as_deref(),
         }
@@ -43,8 +47,9 @@ impl InputMedia {
     pub fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
         match self {
             Self::Animation(val) => val.caption_entities.as_deref(),
-            Self::Document(val) => val.caption_entities.as_deref(),
             Self::Audio(val) => val.caption_entities.as_deref(),
+            Self::Document(val) => val.caption_entities.as_deref(),
+            Self::LivePhoto(val) => val.caption_entities.as_deref(),
             Self::Photo(val) => val.caption_entities.as_deref(),
             Self::Video(val) => val.caption_entities.as_deref(),
         }
@@ -92,12 +97,14 @@ impl InputMedia {
     ///
     /// # Variants
     /// - `InputMediaAnimation`. Pass `true` if the animation needs to be covered with a spoiler animation
+    /// - `InputMediaLivePhoto`. Pass `true` if the live photo needs to be covered with a spoiler animation
     /// - `InputMediaPhoto`. Pass `true` if the photo needs to be covered with a spoiler animation
     /// - `InputMediaVideo`. Pass `true` if the video needs to be covered with a spoiler animation
     #[must_use]
     pub fn has_spoiler(&self) -> Option<bool> {
         match self {
             Self::Animation(val) => val.has_spoiler,
+            Self::LivePhoto(val) => val.has_spoiler,
             Self::Photo(val) => val.has_spoiler,
             Self::Video(val) => val.has_spoiler,
             _ => None,
@@ -120,13 +127,16 @@ impl InputMedia {
 
     /// Helper method for field `media`.
     ///
-    /// File to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
+    /// # Variants
+    /// - `InputMediaAnimation`, `InputMediaAudio`, `InputMediaDocument`, `InputMediaPhoto`, `InputMediaVideo`. File to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
+    /// - `InputMediaLivePhoto`. Video of the live photo to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended) or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending live photos by a URL is currently unsupported.
     #[must_use]
     pub fn media(&self) -> &crate::types::InputFile {
         match self {
             Self::Animation(val) => &val.media,
-            Self::Document(val) => &val.media,
             Self::Audio(val) => &val.media,
+            Self::Document(val) => &val.media,
+            Self::LivePhoto(val) => &val.media,
             Self::Photo(val) => &val.media,
             Self::Video(val) => &val.media,
         }
@@ -136,16 +146,18 @@ impl InputMedia {
     ///
     /// # Variants
     /// - `InputMediaAnimation`. Mode for parsing entities in the animation caption. See formatting options for more details.
-    /// - `InputMediaDocument`. Mode for parsing entities in the document caption. See formatting options for more details.
     /// - `InputMediaAudio`. Mode for parsing entities in the audio caption. See formatting options for more details.
+    /// - `InputMediaDocument`. Mode for parsing entities in the document caption. See formatting options for more details.
+    /// - `InputMediaLivePhoto`. Mode for parsing entities in the live photo caption. See formatting options for more details.
     /// - `InputMediaPhoto`. Mode for parsing entities in the photo caption. See formatting options for more details.
     /// - `InputMediaVideo`. Mode for parsing entities in the video caption. See formatting options for more details.
     #[must_use]
     pub fn parse_mode(&self) -> Option<&str> {
         match self {
             Self::Animation(val) => val.parse_mode.as_deref(),
-            Self::Document(val) => val.parse_mode.as_deref(),
             Self::Audio(val) => val.parse_mode.as_deref(),
+            Self::Document(val) => val.parse_mode.as_deref(),
+            Self::LivePhoto(val) => val.parse_mode.as_deref(),
             Self::Photo(val) => val.parse_mode.as_deref(),
             Self::Video(val) => val.parse_mode.as_deref(),
         }
@@ -162,6 +174,17 @@ impl InputMedia {
         }
     }
 
+    /// Helper method for field `photo`.
+    ///
+    /// The static photo to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended) or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending live photos by a URL is currently unsupported.
+    #[must_use]
+    pub fn photo(&self) -> Option<&crate::types::InputFile> {
+        match self {
+            Self::LivePhoto(val) => Some(&val.photo),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `show_caption_above_media`.
     ///
     /// Pass `true`, if the caption must be shown above the message media
@@ -169,6 +192,7 @@ impl InputMedia {
     pub fn show_caption_above_media(&self) -> Option<bool> {
         match self {
             Self::Animation(val) => val.show_caption_above_media,
+            Self::LivePhoto(val) => val.show_caption_above_media,
             Self::Photo(val) => val.show_caption_above_media,
             Self::Video(val) => val.show_caption_above_media,
             _ => None,
@@ -204,10 +228,10 @@ impl InputMedia {
     pub fn thumbnail(&self) -> Option<&crate::types::InputFile> {
         match self {
             Self::Animation(val) => val.thumbnail.as_ref(),
-            Self::Document(val) => val.thumbnail.as_ref(),
             Self::Audio(val) => val.thumbnail.as_ref(),
+            Self::Document(val) => val.thumbnail.as_ref(),
             Self::Video(val) => val.thumbnail.as_ref(),
-            Self::Photo(_) => None,
+            _ => None,
         }
     }
 
@@ -255,6 +279,25 @@ impl TryFrom<InputMedia> for crate::types::InputMediaAnimation {
         }
     }
 }
+impl From<crate::types::InputMediaAudio> for InputMedia {
+    fn from(val: crate::types::InputMediaAudio) -> Self {
+        Self::Audio(val)
+    }
+}
+impl TryFrom<InputMedia> for crate::types::InputMediaAudio {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: InputMedia) -> Result<Self, Self::Error> {
+        if let InputMedia::Audio(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(InputMedia),
+                stringify!(InputMediaAudio),
+            ))
+        }
+    }
+}
 impl From<crate::types::InputMediaDocument> for InputMedia {
     fn from(val: crate::types::InputMediaDocument) -> Self {
         Self::Document(val)
@@ -274,21 +317,21 @@ impl TryFrom<InputMedia> for crate::types::InputMediaDocument {
         }
     }
 }
-impl From<crate::types::InputMediaAudio> for InputMedia {
-    fn from(val: crate::types::InputMediaAudio) -> Self {
-        Self::Audio(val)
+impl From<crate::types::InputMediaLivePhoto> for InputMedia {
+    fn from(val: crate::types::InputMediaLivePhoto) -> Self {
+        Self::LivePhoto(val)
     }
 }
-impl TryFrom<InputMedia> for crate::types::InputMediaAudio {
+impl TryFrom<InputMedia> for crate::types::InputMediaLivePhoto {
     type Error = crate::errors::ConvertToTypeError;
 
     fn try_from(val: InputMedia) -> Result<Self, Self::Error> {
-        if let InputMedia::Audio(inner) = val {
+        if let InputMedia::LivePhoto(inner) = val {
             Ok(inner)
         } else {
             Err(Self::Error::new(
                 stringify!(InputMedia),
-                stringify!(InputMediaAudio),
+                stringify!(InputMediaLivePhoto),
             ))
         }
     }

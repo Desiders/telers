@@ -30,50 +30,44 @@ impl PaidMediaPreview {
 
     /// Media width as defined by the sender
     #[must_use]
-    pub fn width<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.width = Some(val.into());
-        this
+    pub fn width<T: Into<i64>>(mut self, val: T) -> Self {
+        self.width = Some(val.into());
+        self
     }
 
     /// Media width as defined by the sender
     #[must_use]
-    pub fn width_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.width = val.map(Into::into);
-        this
+    pub fn width_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.width = val.map(Into::into);
+        self
     }
 
     /// Media height as defined by the sender
     #[must_use]
-    pub fn height<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.height = Some(val.into());
-        this
+    pub fn height<T: Into<i64>>(mut self, val: T) -> Self {
+        self.height = Some(val.into());
+        self
     }
 
     /// Media height as defined by the sender
     #[must_use]
-    pub fn height_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.height = val.map(Into::into);
-        this
+    pub fn height_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.height = val.map(Into::into);
+        self
     }
 
     /// Duration of the media in seconds as defined by the sender
     #[must_use]
-    pub fn duration<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.duration = Some(val.into());
-        this
+    pub fn duration<T: Into<i64>>(mut self, val: T) -> Self {
+        self.duration = Some(val.into());
+        self
     }
 
     /// Duration of the media in seconds as defined by the sender
     #[must_use]
-    pub fn duration_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.duration = val.map(Into::into);
-        this
+    pub fn duration_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.duration = val.map(Into::into);
+        self
     }
 }
 impl Default for PaidMediaPreview {

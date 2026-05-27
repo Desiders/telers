@@ -45,26 +45,26 @@ impl TransactionPartnerUserPaidMediaPayment {
 
     /// Information about the user
     #[must_use]
-    pub fn user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user = Box::new(val.into());
-        this
+    pub fn user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.user = Box::new(val.into());
+        self
     }
 
     /// Information about the affiliate that received a commission via this transaction. Can be available only for `invoice_payment` and `paid_media_payment` transactions.
     #[must_use]
-    pub fn affiliate<T: Into<crate::types::AffiliateInfo>>(self, val: T) -> Self {
-        let mut this = self;
-        this.affiliate = Some(val.into());
-        this
+    pub fn affiliate<T: Into<crate::types::AffiliateInfo>>(mut self, val: T) -> Self {
+        self.affiliate = Some(val.into());
+        self
     }
 
     /// Information about the affiliate that received a commission via this transaction. Can be available only for `invoice_payment` and `paid_media_payment` transactions.
     #[must_use]
-    pub fn affiliate_option<T: Into<crate::types::AffiliateInfo>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.affiliate = val.map(Into::into);
-        this
+    pub fn affiliate_option<T: Into<crate::types::AffiliateInfo>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.affiliate = val.map(Into::into);
+        self
     }
 
     /// Information about the paid media bought by the user; for `paid_media_payment` transactions only
@@ -72,15 +72,14 @@ impl TransactionPartnerUserPaidMediaPayment {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn paid_medias<T: Into<Box<[crate::types::PaidMedia]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.paid_media = this
+    pub fn paid_medias<T: Into<Box<[crate::types::PaidMedia]>>>(mut self, val: T) -> Self {
+        self.paid_media = self
             .paid_media
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// Information about the paid media bought by the user; for `paid_media_payment` transactions only
@@ -88,30 +87,27 @@ impl TransactionPartnerUserPaidMediaPayment {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn paid_media<T: Into<crate::types::PaidMedia>>(self, val: T) -> Self {
-        let mut this = self;
-        this.paid_media = this
+    pub fn paid_media<T: Into<crate::types::PaidMedia>>(mut self, val: T) -> Self {
+        self.paid_media = self
             .paid_media
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// Bot-specified paid media payload. Can be available only for `paid_media_payment` transactions.
     #[must_use]
-    pub fn paid_media_payload<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.paid_media_payload = Some(val.into());
-        this
+    pub fn paid_media_payload<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.paid_media_payload = Some(val.into());
+        self
     }
 
     /// Bot-specified paid media payload. Can be available only for `paid_media_payment` transactions.
     #[must_use]
-    pub fn paid_media_payload_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.paid_media_payload = val.map(Into::into);
-        this
+    pub fn paid_media_payload_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.paid_media_payload = val.map(Into::into);
+        self
     }
 }

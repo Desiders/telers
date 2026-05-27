@@ -7,14 +7,14 @@ use serde::Serialize;
 /// - `bool`
 #[derive(Clone, Debug, Serialize)]
 pub struct LeaveChat {
-    /// Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername). Channel direct messages chats aren't supported; leave the corresponding channel instead.
+    /// Unique identifier for the target chat or username of the target supergroup or channel in the format @username. Channel direct messages chats aren't supported; leave the corresponding channel instead.
     pub chat_id: crate::types::ChatIdKind,
 }
 impl LeaveChat {
     /// Creates a new `LeaveChat`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername). Channel direct messages chats aren't supported; leave the corresponding channel instead.
+    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup or channel in the format @username. Channel direct messages chats aren't supported; leave the corresponding channel instead.
     #[must_use]
     pub fn new<T0: Into<crate::types::ChatIdKind>>(chat_id: T0) -> Self {
         Self {
@@ -22,12 +22,11 @@ impl LeaveChat {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername). Channel direct messages chats aren't supported; leave the corresponding channel instead.
+    /// Unique identifier for the target chat or username of the target supergroup or channel in the format @username. Channel direct messages chats aren't supported; leave the corresponding channel instead.
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 }
 impl super::TelegramMethod for LeaveChat {

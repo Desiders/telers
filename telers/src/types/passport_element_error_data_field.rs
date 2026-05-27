@@ -38,33 +38,29 @@ impl PassportElementErrorDataField {
 
     /// The section of the user's Telegram Passport which has the error, one of `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport`, `address`
     #[must_use]
-    pub fn r#type<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.r#type = val.into();
-        this
+    pub fn r#type<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.r#type = val.into();
+        self
     }
 
     /// Name of the data field which has the error
     #[must_use]
-    pub fn field_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.field_name = val.into();
-        this
+    pub fn field_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.field_name = val.into();
+        self
     }
 
     /// Base64-encoded data hash
     #[must_use]
-    pub fn data_hash<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.data_hash = val.into();
-        this
+    pub fn data_hash<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.data_hash = val.into();
+        self
     }
 
     /// Error message
     #[must_use]
-    pub fn message<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message = val.into();
-        this
+    pub fn message<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.message = val.into();
+        self
     }
 }

@@ -27,17 +27,15 @@ impl EncryptedPassportElementPhoneNumber {
 
     /// User's verified phone number; available only for `phone_number` type
     #[must_use]
-    pub fn phone_number<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.phone_number = val.into();
-        this
+    pub fn phone_number<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.phone_number = val.into();
+        self
     }
 
     /// Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
     #[must_use]
-    pub fn hash<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.hash = val.into();
-        this
+    pub fn hash<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.hash = val.into();
+        self
     }
 }

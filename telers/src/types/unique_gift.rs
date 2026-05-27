@@ -84,137 +84,123 @@ impl UniqueGift {
 
     /// Identifier of the regular gift from which the gift was upgraded
     #[must_use]
-    pub fn gift_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.gift_id = val.into();
-        this
+    pub fn gift_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.gift_id = val.into();
+        self
     }
 
     /// Human-readable name of the regular gift from which this unique gift was upgraded
     #[must_use]
-    pub fn base_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.base_name = val.into();
-        this
+    pub fn base_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.base_name = val.into();
+        self
     }
 
     /// Unique name of the gift. This name can be used in <https://t.me/nft/>... links and story areas
     #[must_use]
-    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.name = val.into();
-        this
+    pub fn name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.name = val.into();
+        self
     }
 
     /// Unique number of the upgraded gift among gifts upgraded from the same regular gift
     #[must_use]
-    pub fn number<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.number = val.into();
-        this
+    pub fn number<T: Into<i64>>(mut self, val: T) -> Self {
+        self.number = val.into();
+        self
     }
 
     /// Model of the gift
     #[must_use]
-    pub fn model<T: Into<crate::types::UniqueGiftModel>>(self, val: T) -> Self {
-        let mut this = self;
-        this.model = val.into();
-        this
+    pub fn model<T: Into<crate::types::UniqueGiftModel>>(mut self, val: T) -> Self {
+        self.model = val.into();
+        self
     }
 
     /// Symbol of the gift
     #[must_use]
-    pub fn symbol<T: Into<crate::types::UniqueGiftSymbol>>(self, val: T) -> Self {
-        let mut this = self;
-        this.symbol = val.into();
-        this
+    pub fn symbol<T: Into<crate::types::UniqueGiftSymbol>>(mut self, val: T) -> Self {
+        self.symbol = val.into();
+        self
     }
 
     /// Backdrop of the gift
     #[must_use]
-    pub fn backdrop<T: Into<crate::types::UniqueGiftBackdrop>>(self, val: T) -> Self {
-        let mut this = self;
-        this.backdrop = val.into();
-        this
+    pub fn backdrop<T: Into<crate::types::UniqueGiftBackdrop>>(mut self, val: T) -> Self {
+        self.backdrop = val.into();
+        self
     }
 
     /// `true`, if the original regular gift was exclusively purchaseable by Telegram Premium subscribers
     #[must_use]
-    pub fn is_premium<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_premium = Some(val.into());
-        this
+    pub fn is_premium<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_premium = Some(val.into());
+        self
     }
 
     /// `true`, if the original regular gift was exclusively purchaseable by Telegram Premium subscribers
     #[must_use]
-    pub fn is_premium_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_premium = val.map(Into::into);
-        this
+    pub fn is_premium_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_premium = val.map(Into::into);
+        self
     }
 
     /// `true`, if the gift was used to craft another gift and isn't available anymore
     #[must_use]
-    pub fn is_burned<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_burned = Some(val.into());
-        this
+    pub fn is_burned<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_burned = Some(val.into());
+        self
     }
 
     /// `true`, if the gift was used to craft another gift and isn't available anymore
     #[must_use]
-    pub fn is_burned_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_burned = val.map(Into::into);
-        this
+    pub fn is_burned_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_burned = val.map(Into::into);
+        self
     }
 
     /// `true`, if the gift is assigned from the TON blockchain and can't be resold or transferred in Telegram
     #[must_use]
-    pub fn is_from_blockchain<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_from_blockchain = Some(val.into());
-        this
+    pub fn is_from_blockchain<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_from_blockchain = Some(val.into());
+        self
     }
 
     /// `true`, if the gift is assigned from the TON blockchain and can't be resold or transferred in Telegram
     #[must_use]
-    pub fn is_from_blockchain_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_from_blockchain = val.map(Into::into);
-        this
+    pub fn is_from_blockchain_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_from_blockchain = val.map(Into::into);
+        self
     }
 
     /// The color scheme that can be used by the gift's owner for the chat's name, replies to messages and link previews; for business account gifts and gifts that are currently on sale only
     #[must_use]
-    pub fn colors<T: Into<crate::types::UniqueGiftColors>>(self, val: T) -> Self {
-        let mut this = self;
-        this.colors = Some(val.into());
-        this
+    pub fn colors<T: Into<crate::types::UniqueGiftColors>>(mut self, val: T) -> Self {
+        self.colors = Some(val.into());
+        self
     }
 
     /// The color scheme that can be used by the gift's owner for the chat's name, replies to messages and link previews; for business account gifts and gifts that are currently on sale only
     #[must_use]
-    pub fn colors_option<T: Into<crate::types::UniqueGiftColors>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.colors = val.map(Into::into);
-        this
+    pub fn colors_option<T: Into<crate::types::UniqueGiftColors>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.colors = val.map(Into::into);
+        self
     }
 
     /// Information about the chat that published the gift
     #[must_use]
-    pub fn publisher_chat<T: Into<crate::types::Chat>>(self, val: T) -> Self {
-        let mut this = self;
-        this.publisher_chat = Some(Box::new(val.into()));
-        this
+    pub fn publisher_chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
+        self.publisher_chat = Some(Box::new(val.into()));
+        self
     }
 
     /// Information about the chat that published the gift
     #[must_use]
-    pub fn publisher_chat_option<T: Into<crate::types::Chat>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.publisher_chat = val.map(|val| Box::new(val.into()));
-        this
+    pub fn publisher_chat_option<T: Into<crate::types::Chat>>(mut self, val: Option<T>) -> Self {
+        self.publisher_chat = val.map(|val| Box::new(val.into()));
+        self
     }
 }

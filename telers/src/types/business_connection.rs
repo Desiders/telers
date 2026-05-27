@@ -56,57 +56,53 @@ impl BusinessConnection {
 
     /// Unique identifier of the business connection
     #[must_use]
-    pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 
     /// Business account user that created the business connection
     #[must_use]
-    pub fn user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user = Box::new(val.into());
-        this
+    pub fn user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.user = Box::new(val.into());
+        self
     }
 
     /// Identifier of a private chat with the user who created the business connection. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
     #[must_use]
-    pub fn user_chat_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_chat_id = val.into();
-        this
+    pub fn user_chat_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_chat_id = val.into();
+        self
     }
 
     /// Date the connection was established in Unix time
     #[must_use]
-    pub fn date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.date = val.into();
-        this
+    pub fn date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.date = val.into();
+        self
     }
 
     /// Rights of the business bot
     #[must_use]
-    pub fn rights<T: Into<crate::types::BusinessBotRights>>(self, val: T) -> Self {
-        let mut this = self;
-        this.rights = Some(val.into());
-        this
+    pub fn rights<T: Into<crate::types::BusinessBotRights>>(mut self, val: T) -> Self {
+        self.rights = Some(val.into());
+        self
     }
 
     /// Rights of the business bot
     #[must_use]
-    pub fn rights_option<T: Into<crate::types::BusinessBotRights>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.rights = val.map(Into::into);
-        this
+    pub fn rights_option<T: Into<crate::types::BusinessBotRights>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.rights = val.map(Into::into);
+        self
     }
 
     /// `true`, if the connection is active
     #[must_use]
-    pub fn is_enabled<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_enabled = val.into();
-        this
+    pub fn is_enabled<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_enabled = val.into();
+        self
     }
 }

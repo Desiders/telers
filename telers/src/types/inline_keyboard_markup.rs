@@ -30,17 +30,16 @@ impl InlineKeyboardMarkup {
     /// Adds multiple elements.
     #[must_use]
     pub fn inline_keyboards<T: Into<Box<[Box<[crate::types::InlineKeyboardButton]>]>>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.inline_keyboard = this
+        self.inline_keyboard = self
             .inline_keyboard
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// Array of button rows, each represented by an Array of [`crate::types::InlineKeyboardButton`] objects
@@ -49,16 +48,15 @@ impl InlineKeyboardMarkup {
     /// Adds a single element.
     #[must_use]
     pub fn inline_keyboard<T: Into<Box<[crate::types::InlineKeyboardButton]>>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.inline_keyboard = this
+        self.inline_keyboard = self
             .inline_keyboard
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

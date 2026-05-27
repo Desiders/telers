@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-/// This object contains information about the creation or token update of a bot that is managed by the current bot.
+/// This object contains information about the creation, token update, or owner update of a bot that is managed by the current bot.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#managedbotupdated>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -28,17 +28,15 @@ impl ManagedBotUpdated {
 
     /// User that created the bot
     #[must_use]
-    pub fn user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user = Box::new(val.into());
-        this
+    pub fn user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.user = Box::new(val.into());
+        self
     }
 
     /// Information about the bot. Token of the bot can be fetched using the method getManagedBotToken.
     #[must_use]
-    pub fn bot<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.bot = Box::new(val.into());
-        this
+    pub fn bot<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.bot = Box::new(val.into());
+        self
     }
 }

@@ -57,6 +57,7 @@ fn main() {
     schema.split_chat_types();
     schema.split_sticker_types();
     schema.split_poll_types();
+    schema.split_poll_media_types();
     schema.split_giveaway_types();
     schema.split_giveaway_winners_types();
     schema.split_star_transaction_types();

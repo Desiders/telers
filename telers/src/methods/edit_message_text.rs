@@ -11,7 +11,7 @@ pub struct EditMessageText {
     /// Unique identifier of the business connection on behalf of which the message to be edited was sent
     #[serde(skip_serializing_if = "Option::is_none")]
     pub business_connection_id: Option<Box<str>>,
-    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub chat_id: Option<crate::types::ChatIdKind>,
     /// Required if `inline_message_id` is not specified. Identifier of the message to edit
@@ -60,90 +60,79 @@ impl EditMessageText {
 
     /// Unique identifier of the business connection on behalf of which the message to be edited was sent
     #[must_use]
-    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection_id = Some(val.into());
-        this
+    pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.business_connection_id = Some(val.into());
+        self
     }
 
     /// Unique identifier of the business connection on behalf of which the message to be edited was sent
     #[must_use]
-    pub fn business_connection_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.business_connection_id = val.map(Into::into);
-        this
+    pub fn business_connection_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.business_connection_id = val.map(Into::into);
+        self
     }
 
-    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username.
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = Some(val.into());
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = Some(val.into());
+        self
     }
 
-    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username.
     #[must_use]
-    pub fn chat_id_option<T: Into<crate::types::ChatIdKind>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.chat_id = val.map(Into::into);
-        this
+    pub fn chat_id_option<T: Into<crate::types::ChatIdKind>>(mut self, val: Option<T>) -> Self {
+        self.chat_id = val.map(Into::into);
+        self
     }
 
     /// Required if `inline_message_id` is not specified. Identifier of the message to edit
     #[must_use]
-    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_id = Some(val.into());
-        this
+    pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_id = Some(val.into());
+        self
     }
 
     /// Required if `inline_message_id` is not specified. Identifier of the message to edit
     #[must_use]
-    pub fn message_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.message_id = val.map(Into::into);
-        this
+    pub fn message_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.message_id = val.map(Into::into);
+        self
     }
 
     /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
     #[must_use]
-    pub fn inline_message_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.inline_message_id = Some(val.into());
-        this
+    pub fn inline_message_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.inline_message_id = Some(val.into());
+        self
     }
 
     /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
     #[must_use]
-    pub fn inline_message_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.inline_message_id = val.map(Into::into);
-        this
+    pub fn inline_message_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.inline_message_id = val.map(Into::into);
+        self
     }
 
     /// New text of the message, 1-4096 characters after entities parsing
     #[must_use]
-    pub fn text<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text = val.into();
-        this
+    pub fn text<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.text = val.into();
+        self
     }
 
     /// Mode for parsing entities in the message text. See formatting options for more details.
     #[must_use]
-    pub fn parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.parse_mode = Some(val.into());
-        this
+    pub fn parse_mode<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.parse_mode = Some(val.into());
+        self
     }
 
     /// Mode for parsing entities in the message text. See formatting options for more details.
     #[must_use]
-    pub fn parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.parse_mode = val.map(Into::into);
-        this
+    pub fn parse_mode_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.parse_mode = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in message text, which can be specified instead of `parse_mode`
@@ -152,19 +141,18 @@ impl EditMessageText {
     /// Adds multiple elements.
     #[must_use]
     pub fn entities<TItem: Into<crate::types::MessageEntity>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.entities = Some(
-            this.entities
+        self.entities = Some(
+            self.entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in message text, which can be specified instead of `parse_mode`
@@ -172,17 +160,16 @@ impl EditMessageText {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.entities = Some(
-            this.entities
+    pub fn entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.entities = Some(
+            self.entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in message text, which can be specified instead of `parse_mode`
@@ -194,50 +181,48 @@ impl EditMessageText {
         TItem: Into<crate::types::MessageEntity>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.entities = val.map(|v| v.into_iter().map(Into::into).collect());
-        this
+        self.entities = val.map(|v| v.into_iter().map(Into::into).collect());
+        self
     }
 
     /// Link preview generation options for the message
     #[must_use]
-    pub fn link_preview_options<T: Into<crate::types::LinkPreviewOptions>>(self, val: T) -> Self {
-        let mut this = self;
-        this.link_preview_options = Some(val.into());
-        this
+    pub fn link_preview_options<T: Into<crate::types::LinkPreviewOptions>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.link_preview_options = Some(val.into());
+        self
     }
 
     /// Link preview generation options for the message
     #[must_use]
     pub fn link_preview_options_option<T: Into<crate::types::LinkPreviewOptions>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.link_preview_options = val.map(Into::into);
-        this
+        self.link_preview_options = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized object for an inline keyboard.
     #[must_use]
-    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(self, val: T) -> Self {
-        let mut this = self;
-        this.reply_markup = Some(val.into());
-        this
+    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(mut self, val: T) -> Self {
+        self.reply_markup = Some(val.into());
+        self
     }
 
     /// A JSON-serialized object for an inline keyboard.
     #[must_use]
     pub fn reply_markup_option<T: Into<crate::types::InlineKeyboardMarkup>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.reply_markup = val.map(Into::into);
-        this
+        self.reply_markup = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for EditMessageText {

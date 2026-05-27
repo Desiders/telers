@@ -21,9 +21,8 @@ impl BackgroundFillSolid {
 
     /// The color of the background fill in the RGB24 format
     #[must_use]
-    pub fn color<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.color = val.into();
-        this
+    pub fn color<T: Into<i64>>(mut self, val: T) -> Self {
+        self.color = val.into();
+        self
     }
 }

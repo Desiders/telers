@@ -62,58 +62,51 @@ impl MessageReactionUpdated {
 
     /// The chat containing the message the user reacted to
     #[must_use]
-    pub fn chat<T: Into<crate::types::Chat>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat = Box::new(val.into());
-        this
+    pub fn chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
+        self.chat = Box::new(val.into());
+        self
     }
 
     /// Unique identifier of the message inside the chat
     #[must_use]
-    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_id = val.into();
-        this
+    pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_id = val.into();
+        self
     }
 
     /// The user that changed the reaction, if the user isn't anonymous
     #[must_use]
-    pub fn user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user = Some(Box::new(val.into()));
-        this
+    pub fn user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.user = Some(Box::new(val.into()));
+        self
     }
 
     /// The user that changed the reaction, if the user isn't anonymous
     #[must_use]
-    pub fn user_option<T: Into<crate::types::User>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.user = val.map(|val| Box::new(val.into()));
-        this
+    pub fn user_option<T: Into<crate::types::User>>(mut self, val: Option<T>) -> Self {
+        self.user = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// The chat on behalf of which the reaction was changed, if the user is anonymous
     #[must_use]
-    pub fn actor_chat<T: Into<crate::types::Chat>>(self, val: T) -> Self {
-        let mut this = self;
-        this.actor_chat = Some(Box::new(val.into()));
-        this
+    pub fn actor_chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
+        self.actor_chat = Some(Box::new(val.into()));
+        self
     }
 
     /// The chat on behalf of which the reaction was changed, if the user is anonymous
     #[must_use]
-    pub fn actor_chat_option<T: Into<crate::types::Chat>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.actor_chat = val.map(|val| Box::new(val.into()));
-        this
+    pub fn actor_chat_option<T: Into<crate::types::Chat>>(mut self, val: Option<T>) -> Self {
+        self.actor_chat = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// Date of the change in Unix time
     #[must_use]
-    pub fn date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.date = val.into();
-        this
+    pub fn date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.date = val.into();
+        self
     }
 
     /// Previous list of reaction types that were set by the user
@@ -121,15 +114,14 @@ impl MessageReactionUpdated {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn old_reactions<T: Into<Box<[crate::types::ReactionType]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.old_reaction = this
+    pub fn old_reactions<T: Into<Box<[crate::types::ReactionType]>>>(mut self, val: T) -> Self {
+        self.old_reaction = self
             .old_reaction
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// Previous list of reaction types that were set by the user
@@ -137,15 +129,14 @@ impl MessageReactionUpdated {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn old_reaction<T: Into<crate::types::ReactionType>>(self, val: T) -> Self {
-        let mut this = self;
-        this.old_reaction = this
+    pub fn old_reaction<T: Into<crate::types::ReactionType>>(mut self, val: T) -> Self {
+        self.old_reaction = self
             .old_reaction
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// New list of reaction types that have been set by the user
@@ -153,15 +144,14 @@ impl MessageReactionUpdated {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn new_reactions<T: Into<Box<[crate::types::ReactionType]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.new_reaction = this
+    pub fn new_reactions<T: Into<Box<[crate::types::ReactionType]>>>(mut self, val: T) -> Self {
+        self.new_reaction = self
             .new_reaction
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// New list of reaction types that have been set by the user
@@ -169,14 +159,13 @@ impl MessageReactionUpdated {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn new_reaction<T: Into<crate::types::ReactionType>>(self, val: T) -> Self {
-        let mut this = self;
-        this.new_reaction = this
+    pub fn new_reaction<T: Into<crate::types::ReactionType>>(mut self, val: T) -> Self {
+        self.new_reaction = self
             .new_reaction
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

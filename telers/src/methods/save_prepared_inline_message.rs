@@ -50,82 +50,72 @@ impl SavePreparedInlineMessage {
 
     /// Unique identifier of the target user that can use the prepared message
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// A JSON-serialized object describing the message to be sent
     #[must_use]
-    pub fn result<T: Into<crate::types::InlineQueryResult>>(self, val: T) -> Self {
-        let mut this = self;
-        this.result = val.into();
-        this
+    pub fn result<T: Into<crate::types::InlineQueryResult>>(mut self, val: T) -> Self {
+        self.result = val.into();
+        self
     }
 
     /// Pass `true` if the message can be sent to private chats with users
     #[must_use]
-    pub fn allow_user_chats<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.allow_user_chats = Some(val.into());
-        this
+    pub fn allow_user_chats<T: Into<bool>>(mut self, val: T) -> Self {
+        self.allow_user_chats = Some(val.into());
+        self
     }
 
     /// Pass `true` if the message can be sent to private chats with users
     #[must_use]
-    pub fn allow_user_chats_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.allow_user_chats = val.map(Into::into);
-        this
+    pub fn allow_user_chats_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.allow_user_chats = val.map(Into::into);
+        self
     }
 
     /// Pass `true` if the message can be sent to private chats with bots
     #[must_use]
-    pub fn allow_bot_chats<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.allow_bot_chats = Some(val.into());
-        this
+    pub fn allow_bot_chats<T: Into<bool>>(mut self, val: T) -> Self {
+        self.allow_bot_chats = Some(val.into());
+        self
     }
 
     /// Pass `true` if the message can be sent to private chats with bots
     #[must_use]
-    pub fn allow_bot_chats_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.allow_bot_chats = val.map(Into::into);
-        this
+    pub fn allow_bot_chats_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.allow_bot_chats = val.map(Into::into);
+        self
     }
 
     /// Pass `true` if the message can be sent to group and supergroup chats
     #[must_use]
-    pub fn allow_group_chats<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.allow_group_chats = Some(val.into());
-        this
+    pub fn allow_group_chats<T: Into<bool>>(mut self, val: T) -> Self {
+        self.allow_group_chats = Some(val.into());
+        self
     }
 
     /// Pass `true` if the message can be sent to group and supergroup chats
     #[must_use]
-    pub fn allow_group_chats_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.allow_group_chats = val.map(Into::into);
-        this
+    pub fn allow_group_chats_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.allow_group_chats = val.map(Into::into);
+        self
     }
 
     /// Pass `true` if the message can be sent to channel chats
     #[must_use]
-    pub fn allow_channel_chats<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.allow_channel_chats = Some(val.into());
-        this
+    pub fn allow_channel_chats<T: Into<bool>>(mut self, val: T) -> Self {
+        self.allow_channel_chats = Some(val.into());
+        self
     }
 
     /// Pass `true` if the message can be sent to channel chats
     #[must_use]
-    pub fn allow_channel_chats_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.allow_channel_chats = val.map(Into::into);
-        this
+    pub fn allow_channel_chats_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.allow_channel_chats = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for SavePreparedInlineMessage {

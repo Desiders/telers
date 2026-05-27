@@ -81,34 +81,30 @@ impl GiveawayWinnersStar {
 
     /// The chat that created the giveaway
     #[must_use]
-    pub fn chat<T: Into<crate::types::Chat>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat = Box::new(val.into());
-        this
+    pub fn chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
+        self.chat = Box::new(val.into());
+        self
     }
 
     /// Identifier of the message with the giveaway in the chat
     #[must_use]
-    pub fn giveaway_message_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.giveaway_message_id = val.into();
-        this
+    pub fn giveaway_message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.giveaway_message_id = val.into();
+        self
     }
 
     /// Point in time (Unix timestamp) when winners of the giveaway were selected
     #[must_use]
-    pub fn winners_selection_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.winners_selection_date = val.into();
-        this
+    pub fn winners_selection_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.winners_selection_date = val.into();
+        self
     }
 
     /// Total number of winners in the giveaway
     #[must_use]
-    pub fn winner_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.winner_count = val.into();
-        this
+    pub fn winner_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.winner_count = val.into();
+        self
     }
 
     /// List of up to 100 winners of the giveaway
@@ -116,15 +112,14 @@ impl GiveawayWinnersStar {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn winners<T: Into<Box<[crate::types::User]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.winners = this
+    pub fn winners<T: Into<Box<[crate::types::User]>>>(mut self, val: T) -> Self {
+        self.winners = self
             .winners
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// List of up to 100 winners of the giveaway
@@ -132,102 +127,90 @@ impl GiveawayWinnersStar {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn winner<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.winners = this
+    pub fn winner<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.winners = self
             .winners
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// The number of other chats the user had to join in order to be eligible for the giveaway
     #[must_use]
-    pub fn additional_chat_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.additional_chat_count = Some(val.into());
-        this
+    pub fn additional_chat_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.additional_chat_count = Some(val.into());
+        self
     }
 
     /// The number of other chats the user had to join in order to be eligible for the giveaway
     #[must_use]
-    pub fn additional_chat_count_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.additional_chat_count = val.map(Into::into);
-        this
+    pub fn additional_chat_count_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.additional_chat_count = val.map(Into::into);
+        self
     }
 
     /// The number of Telegram Stars that were split between giveaway winners; for Telegram Star giveaways only
     #[must_use]
-    pub fn prize_star_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.prize_star_count = val.into();
-        this
+    pub fn prize_star_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.prize_star_count = val.into();
+        self
     }
 
     /// Number of undistributed prizes
     #[must_use]
-    pub fn unclaimed_prize_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.unclaimed_prize_count = Some(val.into());
-        this
+    pub fn unclaimed_prize_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.unclaimed_prize_count = Some(val.into());
+        self
     }
 
     /// Number of undistributed prizes
     #[must_use]
-    pub fn unclaimed_prize_count_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.unclaimed_prize_count = val.map(Into::into);
-        this
+    pub fn unclaimed_prize_count_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.unclaimed_prize_count = val.map(Into::into);
+        self
     }
 
     /// `true`, if only users who had joined the chats after the giveaway started were eligible to win
     #[must_use]
-    pub fn only_new_members<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.only_new_members = Some(val.into());
-        this
+    pub fn only_new_members<T: Into<bool>>(mut self, val: T) -> Self {
+        self.only_new_members = Some(val.into());
+        self
     }
 
     /// `true`, if only users who had joined the chats after the giveaway started were eligible to win
     #[must_use]
-    pub fn only_new_members_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.only_new_members = val.map(Into::into);
-        this
+    pub fn only_new_members_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.only_new_members = val.map(Into::into);
+        self
     }
 
     /// `true`, if the giveaway was canceled because the payment for it was refunded
     #[must_use]
-    pub fn was_refunded<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.was_refunded = Some(val.into());
-        this
+    pub fn was_refunded<T: Into<bool>>(mut self, val: T) -> Self {
+        self.was_refunded = Some(val.into());
+        self
     }
 
     /// `true`, if the giveaway was canceled because the payment for it was refunded
     #[must_use]
-    pub fn was_refunded_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.was_refunded = val.map(Into::into);
-        this
+    pub fn was_refunded_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.was_refunded = val.map(Into::into);
+        self
     }
 
     /// Description of additional giveaway prize
     #[must_use]
-    pub fn prize_description<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.prize_description = Some(val.into());
-        this
+    pub fn prize_description<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.prize_description = Some(val.into());
+        self
     }
 
     /// Description of additional giveaway prize
     #[must_use]
-    pub fn prize_description_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.prize_description = val.map(Into::into);
-        this
+    pub fn prize_description_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.prize_description = val.map(Into::into);
+        self
     }
 }

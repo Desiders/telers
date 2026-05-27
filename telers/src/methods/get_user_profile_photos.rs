@@ -35,42 +35,37 @@ impl GetUserProfilePhotos {
 
     /// Unique identifier of the target user
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// Sequential number of the first photo to be returned. By default, all photos are returned.
     #[must_use]
-    pub fn offset<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.offset = Some(val.into());
-        this
+    pub fn offset<T: Into<i64>>(mut self, val: T) -> Self {
+        self.offset = Some(val.into());
+        self
     }
 
     /// Sequential number of the first photo to be returned. By default, all photos are returned.
     #[must_use]
-    pub fn offset_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.offset = val.map(Into::into);
-        this
+    pub fn offset_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.offset = val.map(Into::into);
+        self
     }
 
     /// Limits the number of photos to be retrieved. Values between 1-100 are accepted. Defaults to 100.
     #[must_use]
-    pub fn limit<T: Into<u8>>(self, val: T) -> Self {
-        let mut this = self;
-        this.limit = Some(val.into());
-        this
+    pub fn limit<T: Into<u8>>(mut self, val: T) -> Self {
+        self.limit = Some(val.into());
+        self
     }
 
     /// Limits the number of photos to be retrieved. Values between 1-100 are accepted. Defaults to 100.
     #[must_use]
-    pub fn limit_option<T: Into<u8>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.limit = val.map(Into::into);
-        this
+    pub fn limit_option<T: Into<u8>>(mut self, val: Option<T>) -> Self {
+        self.limit = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for GetUserProfilePhotos {

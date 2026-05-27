@@ -30,18 +30,16 @@ impl UpdateEditedMessage {
 
     /// The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
     #[must_use]
-    pub fn update_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.update_id = val.into();
-        this
+    pub fn update_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.update_id = val.into();
+        self
     }
 
     /// New version of a message that is known to the bot and was edited. This update may at times be triggered by changes to message fields that are either unavailable or not actively used by your bot.
     #[must_use]
-    pub fn edited_message<T: Into<crate::types::Message>>(self, val: T) -> Self {
-        let mut this = self;
-        this.edited_message = Box::new(val.into());
-        this
+    pub fn edited_message<T: Into<crate::types::Message>>(mut self, val: T) -> Self {
+        self.edited_message = Box::new(val.into());
+        self
     }
 }
 impl From<UpdateEditedMessage> for crate::types::Message {

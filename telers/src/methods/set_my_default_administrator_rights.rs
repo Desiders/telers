@@ -29,37 +29,33 @@ impl SetMyDefaultAdministratorRights {
 
     /// A JSON-serialized object describing new default administrator rights. If not specified, the default administrator rights will be cleared.
     #[must_use]
-    pub fn rights<T: Into<crate::types::ChatAdministratorRights>>(self, val: T) -> Self {
-        let mut this = self;
-        this.rights = Some(val.into());
-        this
+    pub fn rights<T: Into<crate::types::ChatAdministratorRights>>(mut self, val: T) -> Self {
+        self.rights = Some(val.into());
+        self
     }
 
     /// A JSON-serialized object describing new default administrator rights. If not specified, the default administrator rights will be cleared.
     #[must_use]
     pub fn rights_option<T: Into<crate::types::ChatAdministratorRights>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.rights = val.map(Into::into);
-        this
+        self.rights = val.map(Into::into);
+        self
     }
 
     /// Pass `true` to change the default administrator rights of the bot in channels. Otherwise, the default administrator rights of the bot for groups and supergroups will be changed.
     #[must_use]
-    pub fn for_channels<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.for_channels = Some(val.into());
-        this
+    pub fn for_channels<T: Into<bool>>(mut self, val: T) -> Self {
+        self.for_channels = Some(val.into());
+        self
     }
 
     /// Pass `true` to change the default administrator rights of the bot in channels. Otherwise, the default administrator rights of the bot for groups and supergroups will be changed.
     #[must_use]
-    pub fn for_channels_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.for_channels = val.map(Into::into);
-        this
+    pub fn for_channels_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.for_channels = val.map(Into::into);
+        self
     }
 }
 impl Default for SetMyDefaultAdministratorRights {

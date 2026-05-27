@@ -7,14 +7,14 @@ use serde::Serialize;
 /// - `bool`
 #[derive(Clone, Debug, Serialize)]
 pub struct CloseGeneralForumTopic {
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username
     pub chat_id: crate::types::ChatIdKind,
 }
 impl CloseGeneralForumTopic {
     /// Creates a new `CloseGeneralForumTopic`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup in the format @username
     #[must_use]
     pub fn new<T0: Into<crate::types::ChatIdKind>>(chat_id: T0) -> Self {
         Self {
@@ -22,12 +22,11 @@ impl CloseGeneralForumTopic {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 }
 impl super::TelegramMethod for CloseGeneralForumTopic {

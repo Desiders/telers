@@ -28,25 +28,22 @@ impl TransactionPartnerChat {
 
     /// Information about the chat
     #[must_use]
-    pub fn chat<T: Into<crate::types::Chat>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat = Box::new(val.into());
-        this
+    pub fn chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
+        self.chat = Box::new(val.into());
+        self
     }
 
     /// The gift sent to the chat by the bot
     #[must_use]
-    pub fn gift<T: Into<crate::types::Gift>>(self, val: T) -> Self {
-        let mut this = self;
-        this.gift = Some(Box::new(val.into()));
-        this
+    pub fn gift<T: Into<crate::types::Gift>>(mut self, val: T) -> Self {
+        self.gift = Some(Box::new(val.into()));
+        self
     }
 
     /// The gift sent to the chat by the bot
     #[must_use]
-    pub fn gift_option<T: Into<crate::types::Gift>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.gift = val.map(|val| Box::new(val.into()));
-        this
+    pub fn gift_option<T: Into<crate::types::Gift>>(mut self, val: Option<T>) -> Self {
+        self.gift = val.map(|val| Box::new(val.into()));
+        self
     }
 }

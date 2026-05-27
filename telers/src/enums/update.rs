@@ -1,7 +1,7 @@
 use crate::types::Update;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents an incoming update.
-/// At most one of the optional parameters can be present in any given update.
+/// At most one of the optional fields can be present in any given update.
 /// Currently, it can be one of
 /// - [`crate::types::UpdateBusinessConnection`]
 /// - [`crate::types::UpdateBusinessMessage`]
@@ -15,6 +15,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::UpdateEditedBusinessMessage`]
 /// - [`crate::types::UpdateEditedChannelPost`]
 /// - [`crate::types::UpdateEditedMessage`]
+/// - [`crate::types::UpdateGuestMessage`]
 /// - [`crate::types::UpdateInlineQuery`]
 /// - [`crate::types::UpdateManagedBot`]
 /// - [`crate::types::UpdateMessage`]
@@ -55,6 +56,8 @@ pub enum UpdateType {
     EditedChannelPost,
     #[strum(serialize = "edited_message")]
     EditedMessage,
+    #[strum(serialize = "guest_message")]
+    GuestMessage,
     #[strum(serialize = "inline_query")]
     InlineQuery,
     #[strum(serialize = "managed_bot")]
@@ -82,7 +85,7 @@ pub enum UpdateType {
 }
 impl UpdateType {
     #[must_use]
-    pub const fn all() -> [UpdateType; 24usize] {
+    pub const fn all() -> [UpdateType; 25usize] {
         [
             UpdateType::BusinessConnection,
             UpdateType::BusinessMessage,
@@ -96,6 +99,7 @@ impl UpdateType {
             UpdateType::EditedBusinessMessage,
             UpdateType::EditedChannelPost,
             UpdateType::EditedMessage,
+            UpdateType::GuestMessage,
             UpdateType::InlineQuery,
             UpdateType::ManagedBot,
             UpdateType::Message,
@@ -141,6 +145,7 @@ impl<'a> From<&'a Update> for UpdateType {
             Update::EditedBusinessMessage(_) => UpdateType::EditedBusinessMessage,
             Update::EditedChannelPost(_) => UpdateType::EditedChannelPost,
             Update::EditedMessage(_) => UpdateType::EditedMessage,
+            Update::GuestMessage(_) => UpdateType::GuestMessage,
             Update::InlineQuery(_) => UpdateType::InlineQuery,
             Update::ManagedBot(_) => UpdateType::ManagedBot,
             Update::Message(_) => UpdateType::Message,

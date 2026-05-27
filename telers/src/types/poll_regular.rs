@@ -25,6 +25,11 @@ pub struct PollRegular {
     pub allows_multiple_answers: bool,
     /// `true`, if the poll allows to change the chosen answer options
     pub allows_revoting: bool,
+    /// `true` if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
+    pub members_only: bool,
+    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. If omitted, then users from any country can participate in the poll.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub country_codes: Option<Box<[Box<str>]>>,
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the explanation
     #[serde(skip_serializing_if = "Option::is_none")]
     pub explanation_entities: Option<Box<[crate::types::MessageEntity]>>,
@@ -40,6 +45,9 @@ pub struct PollRegular {
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the description
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description_entities: Option<Box<[crate::types::MessageEntity]>>,
+    /// Media added to the poll description; for polls inside the Message object only
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub media: Option<crate::types::PollMedia>,
 }
 impl PollRegular {
     /// Creates a new `PollRegular`.
@@ -53,6 +61,7 @@ impl PollRegular {
     /// * `is_anonymous` - `true`, if the poll is anonymous
     /// * `allows_multiple_answers` - `true`, if the poll allows multiple answers
     /// * `allows_revoting` - `true`, if the poll allows to change the chosen answer options
+    /// * `members_only` - `true` if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -67,6 +76,7 @@ impl PollRegular {
         T5: Into<bool>,
         T6: Into<bool>,
         T7: Into<bool>,
+        T8: Into<bool>,
     >(
         id: T0,
         question: T1,
@@ -76,6 +86,7 @@ impl PollRegular {
         is_anonymous: T5,
         allows_multiple_answers: T6,
         allows_revoting: T7,
+        members_only: T8,
     ) -> Self {
         Self {
             id: id.into(),
@@ -87,28 +98,29 @@ impl PollRegular {
             is_anonymous: is_anonymous.into(),
             allows_multiple_answers: allows_multiple_answers.into(),
             allows_revoting: allows_revoting.into(),
+            members_only: members_only.into(),
+            country_codes: None,
             explanation_entities: None,
             open_period: None,
             close_date: None,
             description: None,
             description_entities: None,
+            media: None,
         }
     }
 
     /// Unique poll identifier
     #[must_use]
-    pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 
     /// Poll question, 1-300 characters
     #[must_use]
-    pub fn question<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.question = val.into();
-        this
+    pub fn question<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.question = val.into();
+        self
     }
 
     /// Special entities that appear in the question. Currently, only custom emoji entities are allowed in poll questions
@@ -116,17 +128,19 @@ impl PollRegular {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn question_entities<T: Into<Box<[crate::types::MessageEntity]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.question_entities = Some(
-            this.question_entities
+    pub fn question_entities<T: Into<Box<[crate::types::MessageEntity]>>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.question_entities = Some(
+            self.question_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// Special entities that appear in the question. Currently, only custom emoji entities are allowed in poll questions
@@ -134,17 +148,16 @@ impl PollRegular {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn question_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.question_entities = Some(
-            this.question_entities
+    pub fn question_entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.question_entities = Some(
+            self.question_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// Special entities that appear in the question. Currently, only custom emoji entities are allowed in poll questions
@@ -153,12 +166,11 @@ impl PollRegular {
     /// Adds a single element.
     #[must_use]
     pub fn question_entities_option<T: Into<Box<[crate::types::MessageEntity]>>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.question_entities = val.map(Into::into);
-        this
+        self.question_entities = val.map(Into::into);
+        self
     }
 
     /// List of poll options
@@ -166,15 +178,14 @@ impl PollRegular {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn options<T: Into<Box<[crate::types::PollOption]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.options = this
+    pub fn options<T: Into<Box<[crate::types::PollOption]>>>(mut self, val: T) -> Self {
+        self.options = self
             .options
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// List of poll options
@@ -182,73 +193,120 @@ impl PollRegular {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn option<T: Into<crate::types::PollOption>>(self, val: T) -> Self {
-        let mut this = self;
-        this.options = this
+    pub fn option<T: Into<crate::types::PollOption>>(mut self, val: T) -> Self {
+        self.options = self
             .options
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// Total number of users that voted in the poll
     #[must_use]
-    pub fn total_voter_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.total_voter_count = val.into();
-        this
+    pub fn total_voter_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.total_voter_count = val.into();
+        self
     }
 
     /// `true`, if the poll is closed
     #[must_use]
-    pub fn is_closed<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_closed = val.into();
-        this
+    pub fn is_closed<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_closed = val.into();
+        self
     }
 
     /// `true`, if the poll is anonymous
     #[must_use]
-    pub fn is_anonymous<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_anonymous = val.into();
-        this
+    pub fn is_anonymous<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_anonymous = val.into();
+        self
     }
 
     /// `true`, if the poll allows multiple answers
     #[must_use]
-    pub fn allows_multiple_answers<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.allows_multiple_answers = val.into();
-        this
+    pub fn allows_multiple_answers<T: Into<bool>>(mut self, val: T) -> Self {
+        self.allows_multiple_answers = val.into();
+        self
     }
 
     /// `true`, if the poll allows to change the chosen answer options
     #[must_use]
-    pub fn allows_revoting<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.allows_revoting = val.into();
-        this
+    pub fn allows_revoting<T: Into<bool>>(mut self, val: T) -> Self {
+        self.allows_revoting = val.into();
+        self
     }
 
-    /// Special entities like usernames, URLs, bot commands, etc. that appear in the explanation
+    /// `true` if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
+    #[must_use]
+    pub fn members_only<T: Into<bool>>(mut self, val: T) -> Self {
+        self.members_only = val.into();
+        self
+    }
+
+    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. If omitted, then users from any country can participate in the poll.
     ///
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn explanation_entities<T: Into<Box<[crate::types::MessageEntity]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.explanation_entities = Some(
-            this.explanation_entities
+    pub fn country_codes<T: Into<Box<[Box<str>]>>>(mut self, val: T) -> Self {
+        self.country_codes = Some(
+            self.country_codes
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
+    }
+
+    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. If omitted, then users from any country can participate in the poll.
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn country_code<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.country_codes = Some(
+            self.country_codes
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        self
+    }
+
+    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. If omitted, then users from any country can participate in the poll.
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn country_codes_option<T: Into<Box<[Box<str>]>>>(mut self, val: Option<T>) -> Self {
+        self.country_codes = val.map(Into::into);
+        self
+    }
+
+    /// Special entities like usernames, URLs, bot commands, etc. that appear in the explanation
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn explanation_entities<T: Into<Box<[crate::types::MessageEntity]>>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.explanation_entities = Some(
+            self.explanation_entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into())
+                .collect(),
+        );
+        self
     }
 
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the explanation
@@ -256,17 +314,16 @@ impl PollRegular {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn explanation_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.explanation_entities = Some(
-            this.explanation_entities
+    pub fn explanation_entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.explanation_entities = Some(
+            self.explanation_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the explanation
@@ -275,60 +332,53 @@ impl PollRegular {
     /// Adds a single element.
     #[must_use]
     pub fn explanation_entities_option<T: Into<Box<[crate::types::MessageEntity]>>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.explanation_entities = val.map(Into::into);
-        this
+        self.explanation_entities = val.map(Into::into);
+        self
     }
 
     /// Amount of time in seconds the poll will be active after creation
     #[must_use]
-    pub fn open_period<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.open_period = Some(val.into());
-        this
+    pub fn open_period<T: Into<i64>>(mut self, val: T) -> Self {
+        self.open_period = Some(val.into());
+        self
     }
 
     /// Amount of time in seconds the poll will be active after creation
     #[must_use]
-    pub fn open_period_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.open_period = val.map(Into::into);
-        this
+    pub fn open_period_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.open_period = val.map(Into::into);
+        self
     }
 
     /// Point in time (Unix timestamp) when the poll will be automatically closed
     #[must_use]
-    pub fn close_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.close_date = Some(val.into());
-        this
+    pub fn close_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.close_date = Some(val.into());
+        self
     }
 
     /// Point in time (Unix timestamp) when the poll will be automatically closed
     #[must_use]
-    pub fn close_date_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.close_date = val.map(Into::into);
-        this
+    pub fn close_date_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.close_date = val.map(Into::into);
+        self
     }
 
     /// Description of the poll; for polls inside the Message object only
     #[must_use]
-    pub fn description<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.description = Some(val.into());
-        this
+    pub fn description<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.description = Some(val.into());
+        self
     }
 
     /// Description of the poll; for polls inside the Message object only
     #[must_use]
-    pub fn description_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.description = val.map(Into::into);
-        this
+    pub fn description_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.description = val.map(Into::into);
+        self
     }
 
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the description
@@ -336,17 +386,19 @@ impl PollRegular {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn description_entities<T: Into<Box<[crate::types::MessageEntity]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.description_entities = Some(
-            this.description_entities
+    pub fn description_entities<T: Into<Box<[crate::types::MessageEntity]>>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.description_entities = Some(
+            self.description_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the description
@@ -354,17 +406,16 @@ impl PollRegular {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn description_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.description_entities = Some(
-            this.description_entities
+    pub fn description_entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.description_entities = Some(
+            self.description_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the description
@@ -373,11 +424,24 @@ impl PollRegular {
     /// Adds a single element.
     #[must_use]
     pub fn description_entities_option<T: Into<Box<[crate::types::MessageEntity]>>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.description_entities = val.map(Into::into);
-        this
+        self.description_entities = val.map(Into::into);
+        self
+    }
+
+    /// Media added to the poll description; for polls inside the Message object only
+    #[must_use]
+    pub fn media<T: Into<crate::types::PollMedia>>(mut self, val: T) -> Self {
+        self.media = Some(val.into());
+        self
+    }
+
+    /// Media added to the poll description; for polls inside the Message object only
+    #[must_use]
+    pub fn media_option<T: Into<crate::types::PollMedia>>(mut self, val: Option<T>) -> Self {
+        self.media = val.map(Into::into);
+        self
     }
 }

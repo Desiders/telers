@@ -21,9 +21,8 @@ impl BotDescription {
 
     /// The bot's description
     #[must_use]
-    pub fn description<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.description = val.into();
-        this
+    pub fn description<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.description = val.into();
+        self
     }
 }

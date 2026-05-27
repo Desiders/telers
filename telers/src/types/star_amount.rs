@@ -28,25 +28,22 @@ impl StarAmount {
 
     /// Integer amount of Telegram Stars, rounded to 0; can be negative
     #[must_use]
-    pub fn amount<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.amount = val.into();
-        this
+    pub fn amount<T: Into<i64>>(mut self, val: T) -> Self {
+        self.amount = val.into();
+        self
     }
 
     /// The number of 1/1000000000 shares of Telegram Stars; from -999999999 to 999999999; can be negative if and only if amount is non-positive
     #[must_use]
-    pub fn nanostar_amount<T: Into<i32>>(self, val: T) -> Self {
-        let mut this = self;
-        this.nanostar_amount = Some(val.into());
-        this
+    pub fn nanostar_amount<T: Into<i32>>(mut self, val: T) -> Self {
+        self.nanostar_amount = Some(val.into());
+        self
     }
 
     /// The number of 1/1000000000 shares of Telegram Stars; from -999999999 to 999999999; can be negative if and only if amount is non-positive
     #[must_use]
-    pub fn nanostar_amount_option<T: Into<i32>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.nanostar_amount = val.map(Into::into);
-        this
+    pub fn nanostar_amount_option<T: Into<i32>>(mut self, val: Option<T>) -> Self {
+        self.nanostar_amount = val.map(Into::into);
+        self
     }
 }

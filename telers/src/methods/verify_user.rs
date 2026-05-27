@@ -31,26 +31,23 @@ impl VerifyUser {
 
     /// Unique identifier of the target user
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description.
     #[must_use]
-    pub fn custom_description<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.custom_description = Some(val.into());
-        this
+    pub fn custom_description<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.custom_description = Some(val.into());
+        self
     }
 
     /// Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description.
     #[must_use]
-    pub fn custom_description_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.custom_description = val.map(Into::into);
-        this
+    pub fn custom_description_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.custom_description = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for VerifyUser {

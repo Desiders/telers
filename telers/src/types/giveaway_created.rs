@@ -22,18 +22,16 @@ impl GiveawayCreated {
 
     /// The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
     #[must_use]
-    pub fn prize_star_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.prize_star_count = Some(val.into());
-        this
+    pub fn prize_star_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.prize_star_count = Some(val.into());
+        self
     }
 
     /// The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
     #[must_use]
-    pub fn prize_star_count_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.prize_star_count = val.map(Into::into);
-        this
+    pub fn prize_star_count_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.prize_star_count = val.map(Into::into);
+        self
     }
 }
 impl Default for GiveawayCreated {

@@ -33,25 +33,22 @@ impl PassportElementErrorUnspecified {
 
     /// Type of element of the user's Telegram Passport which has the issue
     #[must_use]
-    pub fn r#type<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.r#type = val.into();
-        this
+    pub fn r#type<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.r#type = val.into();
+        self
     }
 
     /// Base64-encoded element hash
     #[must_use]
-    pub fn element_hash<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.element_hash = val.into();
-        this
+    pub fn element_hash<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.element_hash = val.into();
+        self
     }
 
     /// Error message
     #[must_use]
-    pub fn message<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message = val.into();
-        this
+    pub fn message<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.message = val.into();
+        self
     }
 }

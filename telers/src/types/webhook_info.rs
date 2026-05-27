@@ -60,106 +60,93 @@ impl WebhookInfo {
 
     /// Webhook URL, may be empty if webhook is not set up
     #[must_use]
-    pub fn url<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.url = val.into();
-        this
+    pub fn url<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.url = val.into();
+        self
     }
 
     /// `true`, if a custom certificate was provided for webhook certificate checks
     #[must_use]
-    pub fn has_custom_certificate<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.has_custom_certificate = val.into();
-        this
+    pub fn has_custom_certificate<T: Into<bool>>(mut self, val: T) -> Self {
+        self.has_custom_certificate = val.into();
+        self
     }
 
     /// Number of updates awaiting delivery
     #[must_use]
-    pub fn pending_update_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.pending_update_count = val.into();
-        this
+    pub fn pending_update_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.pending_update_count = val.into();
+        self
     }
 
     /// Currently used webhook IP address
     #[must_use]
-    pub fn ip_address<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.ip_address = Some(val.into());
-        this
+    pub fn ip_address<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.ip_address = Some(val.into());
+        self
     }
 
     /// Currently used webhook IP address
     #[must_use]
-    pub fn ip_address_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.ip_address = val.map(Into::into);
-        this
+    pub fn ip_address_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.ip_address = val.map(Into::into);
+        self
     }
 
     /// Unix time for the most recent error that happened when trying to deliver an update via webhook
     #[must_use]
-    pub fn last_error_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.last_error_date = Some(val.into());
-        this
+    pub fn last_error_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.last_error_date = Some(val.into());
+        self
     }
 
     /// Unix time for the most recent error that happened when trying to deliver an update via webhook
     #[must_use]
-    pub fn last_error_date_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.last_error_date = val.map(Into::into);
-        this
+    pub fn last_error_date_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.last_error_date = val.map(Into::into);
+        self
     }
 
     /// Error message in human-readable format for the most recent error that happened when trying to deliver an update via webhook
     #[must_use]
-    pub fn last_error_message<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.last_error_message = Some(val.into());
-        this
+    pub fn last_error_message<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.last_error_message = Some(val.into());
+        self
     }
 
     /// Error message in human-readable format for the most recent error that happened when trying to deliver an update via webhook
     #[must_use]
-    pub fn last_error_message_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.last_error_message = val.map(Into::into);
-        this
+    pub fn last_error_message_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.last_error_message = val.map(Into::into);
+        self
     }
 
     /// Unix time of the most recent error that happened when trying to synchronize available updates with Telegram datacenters
     #[must_use]
-    pub fn last_synchronization_error_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.last_synchronization_error_date = Some(val.into());
-        this
+    pub fn last_synchronization_error_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.last_synchronization_error_date = Some(val.into());
+        self
     }
 
     /// Unix time of the most recent error that happened when trying to synchronize available updates with Telegram datacenters
     #[must_use]
-    pub fn last_synchronization_error_date_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.last_synchronization_error_date = val.map(Into::into);
-        this
+    pub fn last_synchronization_error_date_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.last_synchronization_error_date = val.map(Into::into);
+        self
     }
 
     /// The maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery
     #[must_use]
-    pub fn max_connections<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.max_connections = Some(val.into());
-        this
+    pub fn max_connections<T: Into<i64>>(mut self, val: T) -> Self {
+        self.max_connections = Some(val.into());
+        self
     }
 
     /// The maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery
     #[must_use]
-    pub fn max_connections_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.max_connections = val.map(Into::into);
-        this
+    pub fn max_connections_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.max_connections = val.map(Into::into);
+        self
     }
 
     /// A list of update types the bot is subscribed to. Defaults to all update types except `chat_member`
@@ -167,17 +154,16 @@ impl WebhookInfo {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn allowed_updates<T: Into<Box<[Box<str>]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.allowed_updates = Some(
-            this.allowed_updates
+    pub fn allowed_updates<T: Into<Box<[Box<str>]>>>(mut self, val: T) -> Self {
+        self.allowed_updates = Some(
+            self.allowed_updates
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// A list of update types the bot is subscribed to. Defaults to all update types except `chat_member`
@@ -185,17 +171,16 @@ impl WebhookInfo {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn allowed_update<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.allowed_updates = Some(
-            this.allowed_updates
+    pub fn allowed_update<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.allowed_updates = Some(
+            self.allowed_updates
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A list of update types the bot is subscribed to. Defaults to all update types except `chat_member`
@@ -203,9 +188,8 @@ impl WebhookInfo {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn allowed_updates_option<T: Into<Box<[Box<str>]>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.allowed_updates = val.map(Into::into);
-        this
+    pub fn allowed_updates_option<T: Into<Box<[Box<str>]>>>(mut self, val: Option<T>) -> Self {
+        self.allowed_updates = val.map(Into::into);
+        self
     }
 }

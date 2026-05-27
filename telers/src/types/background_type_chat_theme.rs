@@ -21,9 +21,8 @@ impl BackgroundTypeChatTheme {
 
     /// Name of the chat theme, which is usually an emoji
     #[must_use]
-    pub fn theme_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.theme_name = val.into();
-        this
+    pub fn theme_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.theme_name = val.into();
+        self
     }
 }

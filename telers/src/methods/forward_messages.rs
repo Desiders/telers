@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `Box<[crate::types::MessageId]>`
 #[derive(Clone, Debug, Serialize)]
 pub struct ForwardMessages {
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -15,7 +15,7 @@ pub struct ForwardMessages {
     /// Identifier of the direct messages topic to which the messages will be forwarded; required if the messages are forwarded to a direct messages chat
     #[serde(skip_serializing_if = "Option::is_none")]
     pub direct_messages_topic_id: Option<i64>,
-    /// Unique identifier for the chat where the original messages were sent (or channel username in the format @channelusername)
+    /// Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup or channel in the format @username)
     pub from_chat_id: crate::types::ChatIdKind,
     /// A JSON-serialized list of 1-100 identifiers of messages in the chat `from_chat_id` to forward. The identifiers must be specified in a strictly increasing order.
     pub message_ids: Box<[u8]>,
@@ -30,8 +30,8 @@ impl ForwardMessages {
     /// Creates a new `ForwardMessages`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-    /// * `from_chat_id` - Unique identifier for the chat where the original messages were sent (or channel username in the format @channelusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
+    /// * `from_chat_id` - Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup or channel in the format @username)
     /// * `message_ids` - A JSON-serialized list of 1-100 identifiers of messages in the chat `from_chat_id` to forward. The identifiers must be specified in a strictly increasing order.
     ///
     /// # Notes
@@ -58,52 +58,46 @@ impl ForwardMessages {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     #[must_use]
-    pub fn message_thread_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_thread_id = Some(val.into());
-        this
+    pub fn message_thread_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_thread_id = Some(val.into());
+        self
     }
 
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     #[must_use]
-    pub fn message_thread_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.message_thread_id = val.map(Into::into);
-        this
+    pub fn message_thread_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.message_thread_id = val.map(Into::into);
+        self
     }
 
     /// Identifier of the direct messages topic to which the messages will be forwarded; required if the messages are forwarded to a direct messages chat
     #[must_use]
-    pub fn direct_messages_topic_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.direct_messages_topic_id = Some(val.into());
-        this
+    pub fn direct_messages_topic_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.direct_messages_topic_id = Some(val.into());
+        self
     }
 
     /// Identifier of the direct messages topic to which the messages will be forwarded; required if the messages are forwarded to a direct messages chat
     #[must_use]
-    pub fn direct_messages_topic_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.direct_messages_topic_id = val.map(Into::into);
-        this
+    pub fn direct_messages_topic_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.direct_messages_topic_id = val.map(Into::into);
+        self
     }
 
-    /// Unique identifier for the chat where the original messages were sent (or channel username in the format @channelusername)
+    /// Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup or channel in the format @username)
     #[must_use]
-    pub fn from_chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.from_chat_id = val.into();
-        this
+    pub fn from_chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.from_chat_id = val.into();
+        self
     }
 
     /// A JSON-serialized list of 1-100 identifiers of messages in the chat `from_chat_id` to forward. The identifiers must be specified in a strictly increasing order.
@@ -111,15 +105,14 @@ impl ForwardMessages {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn message_ids<TItem: Into<u8>, T: IntoIterator<Item = TItem>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_ids = this
+    pub fn message_ids<TItem: Into<u8>, T: IntoIterator<Item = TItem>>(mut self, val: T) -> Self {
+        self.message_ids = self
             .message_ids
             .into_vec()
             .into_iter()
             .chain(val.into_iter().map(Into::into))
             .collect();
-        this
+        self
     }
 
     /// A JSON-serialized list of 1-100 identifiers of messages in the chat `from_chat_id` to forward. The identifiers must be specified in a strictly increasing order.
@@ -127,47 +120,42 @@ impl ForwardMessages {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn message_id<T: Into<u8>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_ids = this
+    pub fn message_id<T: Into<u8>>(mut self, val: T) -> Self {
+        self.message_ids = self
             .message_ids
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// Sends the messages silently. Users will receive a notification with no sound.
     #[must_use]
-    pub fn disable_notification<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.disable_notification = Some(val.into());
-        this
+    pub fn disable_notification<T: Into<bool>>(mut self, val: T) -> Self {
+        self.disable_notification = Some(val.into());
+        self
     }
 
     /// Sends the messages silently. Users will receive a notification with no sound.
     #[must_use]
-    pub fn disable_notification_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.disable_notification = val.map(Into::into);
-        this
+    pub fn disable_notification_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.disable_notification = val.map(Into::into);
+        self
     }
 
     /// Protects the contents of the forwarded messages from forwarding and saving
     #[must_use]
-    pub fn protect_content<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.protect_content = Some(val.into());
-        this
+    pub fn protect_content<T: Into<bool>>(mut self, val: T) -> Self {
+        self.protect_content = Some(val.into());
+        self
     }
 
     /// Protects the contents of the forwarded messages from forwarding and saving
     #[must_use]
-    pub fn protect_content_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.protect_content = val.map(Into::into);
-        this
+    pub fn protect_content_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.protect_content = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for ForwardMessages {

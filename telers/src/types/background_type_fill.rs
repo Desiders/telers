@@ -28,17 +28,15 @@ impl BackgroundTypeFill {
 
     /// The background fill
     #[must_use]
-    pub fn fill<T: Into<crate::types::BackgroundFill>>(self, val: T) -> Self {
-        let mut this = self;
-        this.fill = val.into();
-        this
+    pub fn fill<T: Into<crate::types::BackgroundFill>>(mut self, val: T) -> Self {
+        self.fill = val.into();
+        self
     }
 
     /// Dimming of the background in dark themes, as a percentage; 0-100
     #[must_use]
-    pub fn dark_theme_dimming<T: Into<u8>>(self, val: T) -> Self {
-        let mut this = self;
-        this.dark_theme_dimming = val.into();
-        this
+    pub fn dark_theme_dimming<T: Into<u8>>(mut self, val: T) -> Self {
+        self.dark_theme_dimming = val.into();
+        self
     }
 }

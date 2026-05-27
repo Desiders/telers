@@ -31,18 +31,16 @@ impl TransferBusinessAccountStars {
 
     /// Unique identifier of the business connection
     #[must_use]
-    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection_id = val.into();
-        this
+    pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.business_connection_id = val.into();
+        self
     }
 
     /// Number of Telegram Stars to transfer; 1-10000
     #[must_use]
-    pub fn star_count<T: Into<u16>>(self, val: T) -> Self {
-        let mut this = self;
-        this.star_count = val.into();
-        this
+    pub fn star_count<T: Into<u16>>(mut self, val: T) -> Self {
+        self.star_count = val.into();
+        self
     }
 }
 impl super::TelegramMethod for TransferBusinessAccountStars {

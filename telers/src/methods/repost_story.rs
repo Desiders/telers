@@ -52,66 +52,58 @@ impl RepostStory {
 
     /// Unique identifier of the business connection
     #[must_use]
-    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection_id = val.into();
-        this
+    pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.business_connection_id = val.into();
+        self
     }
 
     /// Unique identifier of the chat which posted the story that should be reposted
     #[must_use]
-    pub fn from_chat_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.from_chat_id = val.into();
-        this
+    pub fn from_chat_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.from_chat_id = val.into();
+        self
     }
 
     /// Unique identifier of the story that should be reposted
     #[must_use]
-    pub fn from_story_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.from_story_id = val.into();
-        this
+    pub fn from_story_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.from_story_id = val.into();
+        self
     }
 
     /// Period after which the story is moved to the archive, in seconds; must be one of 6 * 3600, 12 * 3600, 86400, or 2 * 86400
     #[must_use]
-    pub fn active_period<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.active_period = val.into();
-        this
+    pub fn active_period<T: Into<i64>>(mut self, val: T) -> Self {
+        self.active_period = val.into();
+        self
     }
 
     /// Pass `true` to keep the story accessible after it expires
     #[must_use]
-    pub fn post_to_chat_page<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.post_to_chat_page = Some(val.into());
-        this
+    pub fn post_to_chat_page<T: Into<bool>>(mut self, val: T) -> Self {
+        self.post_to_chat_page = Some(val.into());
+        self
     }
 
     /// Pass `true` to keep the story accessible after it expires
     #[must_use]
-    pub fn post_to_chat_page_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.post_to_chat_page = val.map(Into::into);
-        this
+    pub fn post_to_chat_page_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.post_to_chat_page = val.map(Into::into);
+        self
     }
 
     /// Pass `true` if the content of the story must be protected from forwarding and screenshotting
     #[must_use]
-    pub fn protect_content<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.protect_content = Some(val.into());
-        this
+    pub fn protect_content<T: Into<bool>>(mut self, val: T) -> Self {
+        self.protect_content = Some(val.into());
+        self
     }
 
     /// Pass `true` if the content of the story must be protected from forwarding and screenshotting
     #[must_use]
-    pub fn protect_content_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.protect_content = val.map(Into::into);
-        this
+    pub fn protect_content_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.protect_content = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for RepostStory {

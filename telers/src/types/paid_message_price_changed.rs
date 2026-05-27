@@ -21,9 +21,8 @@ impl PaidMessagePriceChanged {
 
     /// The new number of Telegram Stars that must be paid by non-administrator users of the supergroup chat for each sent message
     #[must_use]
-    pub fn paid_message_star_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.paid_message_star_count = val.into();
-        this
+    pub fn paid_message_star_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.paid_message_star_count = val.into();
+        self
     }
 }

@@ -40,41 +40,36 @@ impl UserRating {
 
     /// Current level of the user, indicating their reliability when purchasing digital goods and services. A higher level suggests a more trustworthy customer; a negative level is likely reason for concern.
     #[must_use]
-    pub fn level<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.level = val.into();
-        this
+    pub fn level<T: Into<i64>>(mut self, val: T) -> Self {
+        self.level = val.into();
+        self
     }
 
     /// Numerical value of the user's rating; the higher the rating, the better
     #[must_use]
-    pub fn rating<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.rating = val.into();
-        this
+    pub fn rating<T: Into<i64>>(mut self, val: T) -> Self {
+        self.rating = val.into();
+        self
     }
 
     /// The rating value required to get the current level
     #[must_use]
-    pub fn current_level_rating<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.current_level_rating = val.into();
-        this
+    pub fn current_level_rating<T: Into<i64>>(mut self, val: T) -> Self {
+        self.current_level_rating = val.into();
+        self
     }
 
     /// The rating value required to get to the next level; omitted if the maximum level was reached
     #[must_use]
-    pub fn next_level_rating<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.next_level_rating = Some(val.into());
-        this
+    pub fn next_level_rating<T: Into<i64>>(mut self, val: T) -> Self {
+        self.next_level_rating = Some(val.into());
+        self
     }
 
     /// The rating value required to get to the next level; omitted if the maximum level was reached
     #[must_use]
-    pub fn next_level_rating_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.next_level_rating = val.map(Into::into);
-        this
+    pub fn next_level_rating_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.next_level_rating = val.map(Into::into);
+        self
     }
 }

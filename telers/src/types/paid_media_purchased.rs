@@ -28,17 +28,15 @@ impl PaidMediaPurchased {
 
     /// User who purchased the media
     #[must_use]
-    pub fn from<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.from = Box::new(val.into());
-        this
+    pub fn from<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.from = Box::new(val.into());
+        self
     }
 
     /// Bot-specified paid media payload
     #[must_use]
-    pub fn paid_media_payload<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.paid_media_payload = val.into();
-        this
+    pub fn paid_media_payload<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.paid_media_payload = val.into();
+        self
     }
 }

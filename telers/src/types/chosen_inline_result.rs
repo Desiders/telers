@@ -45,57 +45,50 @@ impl ChosenInlineResult {
 
     /// The unique identifier for the result that was chosen
     #[must_use]
-    pub fn result_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.result_id = val.into();
-        this
+    pub fn result_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.result_id = val.into();
+        self
     }
 
     /// The user that chose the result
     #[must_use]
-    pub fn from<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.from = Box::new(val.into());
-        this
+    pub fn from<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.from = Box::new(val.into());
+        self
     }
 
     /// Sender location, only for bots that require user location
     #[must_use]
-    pub fn location<T: Into<crate::types::Location>>(self, val: T) -> Self {
-        let mut this = self;
-        this.location = Some(val.into());
-        this
+    pub fn location<T: Into<crate::types::Location>>(mut self, val: T) -> Self {
+        self.location = Some(val.into());
+        self
     }
 
     /// Sender location, only for bots that require user location
     #[must_use]
-    pub fn location_option<T: Into<crate::types::Location>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.location = val.map(Into::into);
-        this
+    pub fn location_option<T: Into<crate::types::Location>>(mut self, val: Option<T>) -> Self {
+        self.location = val.map(Into::into);
+        self
     }
 
     /// Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. Will be also received in callback queries and can be used to edit the message.
     #[must_use]
-    pub fn inline_message_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.inline_message_id = Some(val.into());
-        this
+    pub fn inline_message_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.inline_message_id = Some(val.into());
+        self
     }
 
     /// Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. Will be also received in callback queries and can be used to edit the message.
     #[must_use]
-    pub fn inline_message_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.inline_message_id = val.map(Into::into);
-        this
+    pub fn inline_message_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.inline_message_id = val.map(Into::into);
+        self
     }
 
     /// The query that was used to obtain the result
     #[must_use]
-    pub fn query<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.query = val.into();
-        this
+    pub fn query<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.query = val.into();
+        self
     }
 }

@@ -27,17 +27,15 @@ impl EncryptedPassportElementEmail {
 
     /// User's verified email address; available only for `email` type
     #[must_use]
-    pub fn email<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.email = val.into();
-        this
+    pub fn email<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.email = val.into();
+        self
     }
 
     /// Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
     #[must_use]
-    pub fn hash<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.hash = val.into();
-        this
+    pub fn hash<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.hash = val.into();
+        self
     }
 }

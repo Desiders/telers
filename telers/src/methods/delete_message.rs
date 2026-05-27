@@ -18,7 +18,7 @@ use serde::Serialize;
 /// - `bool`
 #[derive(Clone, Debug, Serialize)]
 pub struct DeleteMessage {
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Identifier of the message to delete
     pub message_id: i64,
@@ -27,7 +27,7 @@ impl DeleteMessage {
     /// Creates a new `DeleteMessage`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     /// * `message_id` - Identifier of the message to delete
     #[must_use]
     pub fn new<T0: Into<crate::types::ChatIdKind>, T1: Into<i64>>(
@@ -40,20 +40,18 @@ impl DeleteMessage {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Identifier of the message to delete
     #[must_use]
-    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_id = val.into();
-        this
+    pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_id = val.into();
+        self
     }
 }
 impl super::TelegramMethod for DeleteMessage {

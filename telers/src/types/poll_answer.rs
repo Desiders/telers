@@ -50,42 +50,37 @@ impl PollAnswer {
 
     /// Unique poll identifier
     #[must_use]
-    pub fn poll_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.poll_id = val.into();
-        this
+    pub fn poll_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.poll_id = val.into();
+        self
     }
 
     /// The chat that changed the answer to the poll, if the voter is anonymous
     #[must_use]
-    pub fn voter_chat<T: Into<crate::types::Chat>>(self, val: T) -> Self {
-        let mut this = self;
-        this.voter_chat = Some(Box::new(val.into()));
-        this
+    pub fn voter_chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
+        self.voter_chat = Some(Box::new(val.into()));
+        self
     }
 
     /// The chat that changed the answer to the poll, if the voter is anonymous
     #[must_use]
-    pub fn voter_chat_option<T: Into<crate::types::Chat>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.voter_chat = val.map(|val| Box::new(val.into()));
-        this
+    pub fn voter_chat_option<T: Into<crate::types::Chat>>(mut self, val: Option<T>) -> Self {
+        self.voter_chat = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// The user that changed the answer to the poll, if the voter isn't anonymous
     #[must_use]
-    pub fn user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user = Some(Box::new(val.into()));
-        this
+    pub fn user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.user = Some(Box::new(val.into()));
+        self
     }
 
     /// The user that changed the answer to the poll, if the voter isn't anonymous
     #[must_use]
-    pub fn user_option<T: Into<crate::types::User>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.user = val.map(|val| Box::new(val.into()));
-        this
+    pub fn user_option<T: Into<crate::types::User>>(mut self, val: Option<T>) -> Self {
+        self.user = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// 0-based identifiers of chosen answer options. May be empty if the vote was retracted.
@@ -93,15 +88,14 @@ impl PollAnswer {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn option_ids<T: Into<Box<[i64]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.option_ids = this
+    pub fn option_ids<T: Into<Box<[i64]>>>(mut self, val: T) -> Self {
+        self.option_ids = self
             .option_ids
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// 0-based identifiers of chosen answer options. May be empty if the vote was retracted.
@@ -109,15 +103,14 @@ impl PollAnswer {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn option_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.option_ids = this
+    pub fn option_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.option_ids = self
             .option_ids
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// Persistent identifiers of the chosen answer options. May be empty if the vote was retracted.
@@ -125,15 +118,14 @@ impl PollAnswer {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn option_persistent_ids<T: Into<Box<[Box<str>]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.option_persistent_ids = this
+    pub fn option_persistent_ids<T: Into<Box<[Box<str>]>>>(mut self, val: T) -> Self {
+        self.option_persistent_ids = self
             .option_persistent_ids
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// Persistent identifiers of the chosen answer options. May be empty if the vote was retracted.
@@ -141,14 +133,13 @@ impl PollAnswer {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn option_persistent_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.option_persistent_ids = this
+    pub fn option_persistent_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.option_persistent_ids = self
             .option_persistent_ids
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

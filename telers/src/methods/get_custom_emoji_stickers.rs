@@ -30,17 +30,16 @@ impl GetCustomEmojiStickers {
     /// Adds multiple elements.
     #[must_use]
     pub fn custom_emoji_ids<TItem: Into<Box<str>>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.custom_emoji_ids = this
+        self.custom_emoji_ids = self
             .custom_emoji_ids
             .into_vec()
             .into_iter()
             .chain(val.into_iter().map(Into::into))
             .collect();
-        this
+        self
     }
 
     /// A JSON-serialized list of custom emoji identifiers. At most 200 custom emoji identifiers can be specified.
@@ -48,15 +47,14 @@ impl GetCustomEmojiStickers {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.custom_emoji_ids = this
+    pub fn custom_emoji_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.custom_emoji_ids = self
             .custom_emoji_ids
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }
 impl super::TelegramMethod for GetCustomEmojiStickers {

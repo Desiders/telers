@@ -42,50 +42,44 @@ impl UpgradeGift {
 
     /// Unique identifier of the business connection
     #[must_use]
-    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection_id = val.into();
-        this
+    pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.business_connection_id = val.into();
+        self
     }
 
     /// Unique identifier of the regular gift that should be upgraded to a unique one
     #[must_use]
-    pub fn owned_gift_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.owned_gift_id = val.into();
-        this
+    pub fn owned_gift_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.owned_gift_id = val.into();
+        self
     }
 
     /// Pass `true` to keep the original gift text, sender and receiver in the upgraded gift
     #[must_use]
-    pub fn keep_original_details<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.keep_original_details = Some(val.into());
-        this
+    pub fn keep_original_details<T: Into<bool>>(mut self, val: T) -> Self {
+        self.keep_original_details = Some(val.into());
+        self
     }
 
     /// Pass `true` to keep the original gift text, sender and receiver in the upgraded gift
     #[must_use]
-    pub fn keep_original_details_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.keep_original_details = val.map(Into::into);
-        this
+    pub fn keep_original_details_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.keep_original_details = val.map(Into::into);
+        self
     }
 
     /// The amount of Telegram Stars that will be paid for the upgrade from the business account balance. If `gift.prepaid_upgrade_star_count` > 0, then pass 0, otherwise, the `can_transfer_stars` business bot right is required and `gift.upgrade_star_count` must be passed.
     #[must_use]
-    pub fn star_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.star_count = Some(val.into());
-        this
+    pub fn star_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.star_count = Some(val.into());
+        self
     }
 
     /// The amount of Telegram Stars that will be paid for the upgrade from the business account balance. If `gift.prepaid_upgrade_star_count` > 0, then pass 0, otherwise, the `can_transfer_stars` business bot right is required and `gift.upgrade_star_count` must be passed.
     #[must_use]
-    pub fn star_count_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.star_count = val.map(Into::into);
-        this
+    pub fn star_count_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.star_count = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for UpgradeGift {

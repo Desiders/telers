@@ -30,25 +30,22 @@ impl ChatGroup {
 
     /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     #[must_use]
-    pub fn id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 
     /// `true`, if the chat is the direct messages chat of a channel
     #[must_use]
-    pub fn is_direct_messages<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_direct_messages = Some(val.into());
-        this
+    pub fn is_direct_messages<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_direct_messages = Some(val.into());
+        self
     }
 
     /// `true`, if the chat is the direct messages chat of a channel
     #[must_use]
-    pub fn is_direct_messages_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_direct_messages = val.map(Into::into);
-        this
+    pub fn is_direct_messages_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_direct_messages = val.map(Into::into);
+        self
     }
 }

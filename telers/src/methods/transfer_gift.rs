@@ -43,42 +43,37 @@ impl TransferGift {
 
     /// Unique identifier of the business connection
     #[must_use]
-    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection_id = val.into();
-        this
+    pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.business_connection_id = val.into();
+        self
     }
 
     /// Unique identifier of the regular gift that should be transferred
     #[must_use]
-    pub fn owned_gift_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.owned_gift_id = val.into();
-        this
+    pub fn owned_gift_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.owned_gift_id = val.into();
+        self
     }
 
     /// Unique identifier of the chat which will own the gift. The chat must be active in the last 24 hours.
     #[must_use]
-    pub fn new_owner_chat_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.new_owner_chat_id = val.into();
-        this
+    pub fn new_owner_chat_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.new_owner_chat_id = val.into();
+        self
     }
 
     /// The amount of Telegram Stars that will be paid for the transfer from the business account balance. If positive, then the `can_transfer_stars` business bot right is required.
     #[must_use]
-    pub fn star_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.star_count = Some(val.into());
-        this
+    pub fn star_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.star_count = Some(val.into());
+        self
     }
 
     /// The amount of Telegram Stars that will be paid for the transfer from the business account balance. If positive, then the `can_transfer_stars` business bot right is required.
     #[must_use]
-    pub fn star_count_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.star_count = val.map(Into::into);
-        this
+    pub fn star_count_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.star_count = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for TransferGift {

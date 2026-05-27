@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `crate::types::ChatInviteLink`
 #[derive(Clone, Debug, Serialize)]
 pub struct CreateChatInviteLink {
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Invite link name; 0-32 characters
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -26,7 +26,7 @@ impl CreateChatInviteLink {
     /// Creates a new `CreateChatInviteLink`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target channel in the format @username
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -41,76 +41,67 @@ impl CreateChatInviteLink {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target channel in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Invite link name; 0-32 characters
     #[must_use]
-    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.name = Some(val.into());
-        this
+    pub fn name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.name = Some(val.into());
+        self
     }
 
     /// Invite link name; 0-32 characters
     #[must_use]
-    pub fn name_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.name = val.map(Into::into);
-        this
+    pub fn name_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.name = val.map(Into::into);
+        self
     }
 
     /// Point in time (Unix timestamp) when the link will expire
     #[must_use]
-    pub fn expire_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.expire_date = Some(val.into());
-        this
+    pub fn expire_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.expire_date = Some(val.into());
+        self
     }
 
     /// Point in time (Unix timestamp) when the link will expire
     #[must_use]
-    pub fn expire_date_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.expire_date = val.map(Into::into);
-        this
+    pub fn expire_date_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.expire_date = val.map(Into::into);
+        self
     }
 
     /// The maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
     #[must_use]
-    pub fn member_limit<T: Into<u32>>(self, val: T) -> Self {
-        let mut this = self;
-        this.member_limit = Some(val.into());
-        this
+    pub fn member_limit<T: Into<u32>>(mut self, val: T) -> Self {
+        self.member_limit = Some(val.into());
+        self
     }
 
     /// The maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
     #[must_use]
-    pub fn member_limit_option<T: Into<u32>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.member_limit = val.map(Into::into);
-        this
+    pub fn member_limit_option<T: Into<u32>>(mut self, val: Option<T>) -> Self {
+        self.member_limit = val.map(Into::into);
+        self
     }
 
     /// `true`, if users joining the chat via the link need to be approved by chat administrators. If `true`, `member_limit` can't be specified
     #[must_use]
-    pub fn creates_join_request<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.creates_join_request = Some(val.into());
-        this
+    pub fn creates_join_request<T: Into<bool>>(mut self, val: T) -> Self {
+        self.creates_join_request = Some(val.into());
+        self
     }
 
     /// `true`, if users joining the chat via the link need to be approved by chat administrators. If `true`, `member_limit` can't be specified
     #[must_use]
-    pub fn creates_join_request_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.creates_join_request = val.map(Into::into);
-        this
+    pub fn creates_join_request_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.creates_join_request = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for CreateChatInviteLink {

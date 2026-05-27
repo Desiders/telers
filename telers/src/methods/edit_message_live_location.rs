@@ -11,7 +11,7 @@ pub struct EditMessageLiveLocation {
     /// Unique identifier of the business connection on behalf of which the message to be edited was sent
     #[serde(skip_serializing_if = "Option::is_none")]
     pub business_connection_id: Option<Box<str>>,
-    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub chat_id: Option<crate::types::ChatIdKind>,
     /// Required if `inline_message_id` is not specified. Identifier of the message to edit
@@ -68,165 +68,145 @@ impl EditMessageLiveLocation {
 
     /// Unique identifier of the business connection on behalf of which the message to be edited was sent
     #[must_use]
-    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection_id = Some(val.into());
-        this
+    pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.business_connection_id = Some(val.into());
+        self
     }
 
     /// Unique identifier of the business connection on behalf of which the message to be edited was sent
     #[must_use]
-    pub fn business_connection_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.business_connection_id = val.map(Into::into);
-        this
+    pub fn business_connection_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.business_connection_id = val.map(Into::into);
+        self
     }
 
-    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username.
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = Some(val.into());
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = Some(val.into());
+        self
     }
 
-    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username.
     #[must_use]
-    pub fn chat_id_option<T: Into<crate::types::ChatIdKind>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.chat_id = val.map(Into::into);
-        this
+    pub fn chat_id_option<T: Into<crate::types::ChatIdKind>>(mut self, val: Option<T>) -> Self {
+        self.chat_id = val.map(Into::into);
+        self
     }
 
     /// Required if `inline_message_id` is not specified. Identifier of the message to edit
     #[must_use]
-    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_id = Some(val.into());
-        this
+    pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_id = Some(val.into());
+        self
     }
 
     /// Required if `inline_message_id` is not specified. Identifier of the message to edit
     #[must_use]
-    pub fn message_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.message_id = val.map(Into::into);
-        this
+    pub fn message_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.message_id = val.map(Into::into);
+        self
     }
 
     /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
     #[must_use]
-    pub fn inline_message_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.inline_message_id = Some(val.into());
-        this
+    pub fn inline_message_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.inline_message_id = Some(val.into());
+        self
     }
 
     /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
     #[must_use]
-    pub fn inline_message_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.inline_message_id = val.map(Into::into);
-        this
+    pub fn inline_message_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.inline_message_id = val.map(Into::into);
+        self
     }
 
     /// Latitude of new location
     #[must_use]
-    pub fn latitude<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.latitude = val.into();
-        this
+    pub fn latitude<T: Into<f64>>(mut self, val: T) -> Self {
+        self.latitude = val.into();
+        self
     }
 
     /// Longitude of new location
     #[must_use]
-    pub fn longitude<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.longitude = val.into();
-        this
+    pub fn longitude<T: Into<f64>>(mut self, val: T) -> Self {
+        self.longitude = val.into();
+        self
     }
 
     /// New period in seconds during which the location can be updated, starting from the message send date. If 0x7FFFFFFF is specified, then the location can be updated forever. Otherwise, the new value must not exceed the current `live_period` by more than a day, and the live location expiration date must remain within the next 90 days. If not specified, then `live_period` remains unchanged
     #[must_use]
-    pub fn live_period<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.live_period = Some(val.into());
-        this
+    pub fn live_period<T: Into<i64>>(mut self, val: T) -> Self {
+        self.live_period = Some(val.into());
+        self
     }
 
     /// New period in seconds during which the location can be updated, starting from the message send date. If 0x7FFFFFFF is specified, then the location can be updated forever. Otherwise, the new value must not exceed the current `live_period` by more than a day, and the live location expiration date must remain within the next 90 days. If not specified, then `live_period` remains unchanged
     #[must_use]
-    pub fn live_period_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.live_period = val.map(Into::into);
-        this
+    pub fn live_period_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.live_period = val.map(Into::into);
+        self
     }
 
     /// The radius of uncertainty for the location, measured in meters; 0-1500
     #[must_use]
-    pub fn horizontal_accuracy<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.horizontal_accuracy = Some(val.into());
-        this
+    pub fn horizontal_accuracy<T: Into<f64>>(mut self, val: T) -> Self {
+        self.horizontal_accuracy = Some(val.into());
+        self
     }
 
     /// The radius of uncertainty for the location, measured in meters; 0-1500
     #[must_use]
-    pub fn horizontal_accuracy_option<T: Into<f64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.horizontal_accuracy = val.map(Into::into);
-        this
+    pub fn horizontal_accuracy_option<T: Into<f64>>(mut self, val: Option<T>) -> Self {
+        self.horizontal_accuracy = val.map(Into::into);
+        self
     }
 
     /// Direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
     #[must_use]
-    pub fn heading<T: Into<u16>>(self, val: T) -> Self {
-        let mut this = self;
-        this.heading = Some(val.into());
-        this
+    pub fn heading<T: Into<u16>>(mut self, val: T) -> Self {
+        self.heading = Some(val.into());
+        self
     }
 
     /// Direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
     #[must_use]
-    pub fn heading_option<T: Into<u16>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.heading = val.map(Into::into);
-        this
+    pub fn heading_option<T: Into<u16>>(mut self, val: Option<T>) -> Self {
+        self.heading = val.map(Into::into);
+        self
     }
 
     /// The maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
     #[must_use]
-    pub fn proximity_alert_radius<T: Into<u32>>(self, val: T) -> Self {
-        let mut this = self;
-        this.proximity_alert_radius = Some(val.into());
-        this
+    pub fn proximity_alert_radius<T: Into<u32>>(mut self, val: T) -> Self {
+        self.proximity_alert_radius = Some(val.into());
+        self
     }
 
     /// The maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
     #[must_use]
-    pub fn proximity_alert_radius_option<T: Into<u32>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.proximity_alert_radius = val.map(Into::into);
-        this
+    pub fn proximity_alert_radius_option<T: Into<u32>>(mut self, val: Option<T>) -> Self {
+        self.proximity_alert_radius = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized object for a new inline keyboard.
     #[must_use]
-    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(self, val: T) -> Self {
-        let mut this = self;
-        this.reply_markup = Some(val.into());
-        this
+    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(mut self, val: T) -> Self {
+        self.reply_markup = Some(val.into());
+        self
     }
 
     /// A JSON-serialized object for a new inline keyboard.
     #[must_use]
     pub fn reply_markup_option<T: Into<crate::types::InlineKeyboardMarkup>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.reply_markup = val.map(Into::into);
-        this
+        self.reply_markup = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for EditMessageLiveLocation {

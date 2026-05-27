@@ -76,185 +76,165 @@ impl Gift {
 
     /// Unique identifier of the gift
     #[must_use]
-    pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 
     /// The sticker that represents the gift
     #[must_use]
-    pub fn sticker<T: Into<crate::types::Sticker>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sticker = Box::new(val.into());
-        this
+    pub fn sticker<T: Into<crate::types::Sticker>>(mut self, val: T) -> Self {
+        self.sticker = Box::new(val.into());
+        self
     }
 
     /// The number of Telegram Stars that must be paid to send the sticker
     #[must_use]
-    pub fn star_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.star_count = val.into();
-        this
+    pub fn star_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.star_count = val.into();
+        self
     }
 
     /// The number of Telegram Stars that must be paid to upgrade the gift to a unique one
     #[must_use]
-    pub fn upgrade_star_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.upgrade_star_count = Some(val.into());
-        this
+    pub fn upgrade_star_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.upgrade_star_count = Some(val.into());
+        self
     }
 
     /// The number of Telegram Stars that must be paid to upgrade the gift to a unique one
     #[must_use]
-    pub fn upgrade_star_count_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.upgrade_star_count = val.map(Into::into);
-        this
+    pub fn upgrade_star_count_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.upgrade_star_count = val.map(Into::into);
+        self
     }
 
     /// `true`, if the gift can only be purchased by Telegram Premium subscribers
     #[must_use]
-    pub fn is_premium<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_premium = Some(val.into());
-        this
+    pub fn is_premium<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_premium = Some(val.into());
+        self
     }
 
     /// `true`, if the gift can only be purchased by Telegram Premium subscribers
     #[must_use]
-    pub fn is_premium_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_premium = val.map(Into::into);
-        this
+    pub fn is_premium_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_premium = val.map(Into::into);
+        self
     }
 
     /// `true`, if the gift can be used (after being upgraded) to customize a user's appearance
     #[must_use]
-    pub fn has_colors<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.has_colors = Some(val.into());
-        this
+    pub fn has_colors<T: Into<bool>>(mut self, val: T) -> Self {
+        self.has_colors = Some(val.into());
+        self
     }
 
     /// `true`, if the gift can be used (after being upgraded) to customize a user's appearance
     #[must_use]
-    pub fn has_colors_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.has_colors = val.map(Into::into);
-        this
+    pub fn has_colors_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.has_colors = val.map(Into::into);
+        self
     }
 
     /// The total number of gifts of this type that can be sent by all users; for limited gifts only
     #[must_use]
-    pub fn total_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.total_count = Some(val.into());
-        this
+    pub fn total_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.total_count = Some(val.into());
+        self
     }
 
     /// The total number of gifts of this type that can be sent by all users; for limited gifts only
     #[must_use]
-    pub fn total_count_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.total_count = val.map(Into::into);
-        this
+    pub fn total_count_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.total_count = val.map(Into::into);
+        self
     }
 
     /// The number of remaining gifts of this type that can be sent by all users; for limited gifts only
     #[must_use]
-    pub fn remaining_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.remaining_count = Some(val.into());
-        this
+    pub fn remaining_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.remaining_count = Some(val.into());
+        self
     }
 
     /// The number of remaining gifts of this type that can be sent by all users; for limited gifts only
     #[must_use]
-    pub fn remaining_count_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.remaining_count = val.map(Into::into);
-        this
+    pub fn remaining_count_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.remaining_count = val.map(Into::into);
+        self
     }
 
     /// The total number of gifts of this type that can be sent by the bot; for limited gifts only
     #[must_use]
-    pub fn personal_total_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.personal_total_count = Some(val.into());
-        this
+    pub fn personal_total_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.personal_total_count = Some(val.into());
+        self
     }
 
     /// The total number of gifts of this type that can be sent by the bot; for limited gifts only
     #[must_use]
-    pub fn personal_total_count_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.personal_total_count = val.map(Into::into);
-        this
+    pub fn personal_total_count_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.personal_total_count = val.map(Into::into);
+        self
     }
 
     /// The number of remaining gifts of this type that can be sent by the bot; for limited gifts only
     #[must_use]
-    pub fn personal_remaining_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.personal_remaining_count = Some(val.into());
-        this
+    pub fn personal_remaining_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.personal_remaining_count = Some(val.into());
+        self
     }
 
     /// The number of remaining gifts of this type that can be sent by the bot; for limited gifts only
     #[must_use]
-    pub fn personal_remaining_count_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.personal_remaining_count = val.map(Into::into);
-        this
+    pub fn personal_remaining_count_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.personal_remaining_count = val.map(Into::into);
+        self
     }
 
     /// Background of the gift
     #[must_use]
-    pub fn background<T: Into<crate::types::GiftBackground>>(self, val: T) -> Self {
-        let mut this = self;
-        this.background = Some(val.into());
-        this
+    pub fn background<T: Into<crate::types::GiftBackground>>(mut self, val: T) -> Self {
+        self.background = Some(val.into());
+        self
     }
 
     /// Background of the gift
     #[must_use]
-    pub fn background_option<T: Into<crate::types::GiftBackground>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.background = val.map(Into::into);
-        this
+    pub fn background_option<T: Into<crate::types::GiftBackground>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.background = val.map(Into::into);
+        self
     }
 
     /// The total number of different unique gifts that can be obtained by upgrading the gift
     #[must_use]
-    pub fn unique_gift_variant_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.unique_gift_variant_count = Some(val.into());
-        this
+    pub fn unique_gift_variant_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.unique_gift_variant_count = Some(val.into());
+        self
     }
 
     /// The total number of different unique gifts that can be obtained by upgrading the gift
     #[must_use]
-    pub fn unique_gift_variant_count_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.unique_gift_variant_count = val.map(Into::into);
-        this
+    pub fn unique_gift_variant_count_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.unique_gift_variant_count = val.map(Into::into);
+        self
     }
 
     /// Information about the chat that published the gift
     #[must_use]
-    pub fn publisher_chat<T: Into<crate::types::Chat>>(self, val: T) -> Self {
-        let mut this = self;
-        this.publisher_chat = Some(Box::new(val.into()));
-        this
+    pub fn publisher_chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
+        self.publisher_chat = Some(Box::new(val.into()));
+        self
     }
 
     /// Information about the chat that published the gift
     #[must_use]
-    pub fn publisher_chat_option<T: Into<crate::types::Chat>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.publisher_chat = val.map(|val| Box::new(val.into()));
-        this
+    pub fn publisher_chat_option<T: Into<crate::types::Chat>>(mut self, val: Option<T>) -> Self {
+        self.publisher_chat = val.map(|val| Box::new(val.into()));
+        self
     }
 }

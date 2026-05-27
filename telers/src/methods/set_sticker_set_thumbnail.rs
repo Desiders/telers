@@ -43,42 +43,37 @@ impl SetStickerSetThumbnail {
 
     /// Sticker set name
     #[must_use]
-    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.name = val.into();
-        this
+    pub fn name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.name = val.into();
+        self
     }
 
     /// User identifier of the sticker set owner
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// A .WEBP or .PNG image with the thumbnail, must be up to 128 kilobytes in size and have a width and height of exactly 100px, or a .TGS animation with a thumbnail up to 32 kilobytes in size (see <https://core.telegram.org/stickers#animation-requirements> for animated sticker technical requirements), or a .WEBM video with the thumbnail up to 32 kilobytes in size; see <https://core.telegram.org/stickers#video-requirements> for video sticker technical requirements. Pass a `file_id` as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Animated and video sticker set thumbnails can't be uploaded via HTTP URL. If omitted, then the thumbnail is dropped and the first sticker is used as the thumbnail.
     #[must_use]
-    pub fn thumbnail<T: Into<crate::types::InputFile>>(self, val: T) -> Self {
-        let mut this = self;
-        this.thumbnail = Some(val.into());
-        this
+    pub fn thumbnail<T: Into<crate::types::InputFile>>(mut self, val: T) -> Self {
+        self.thumbnail = Some(val.into());
+        self
     }
 
     /// A .WEBP or .PNG image with the thumbnail, must be up to 128 kilobytes in size and have a width and height of exactly 100px, or a .TGS animation with a thumbnail up to 32 kilobytes in size (see <https://core.telegram.org/stickers#animation-requirements> for animated sticker technical requirements), or a .WEBM video with the thumbnail up to 32 kilobytes in size; see <https://core.telegram.org/stickers#video-requirements> for video sticker technical requirements. Pass a `file_id` as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Animated and video sticker set thumbnails can't be uploaded via HTTP URL. If omitted, then the thumbnail is dropped and the first sticker is used as the thumbnail.
     #[must_use]
-    pub fn thumbnail_option<T: Into<crate::types::InputFile>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.thumbnail = val.map(Into::into);
-        this
+    pub fn thumbnail_option<T: Into<crate::types::InputFile>>(mut self, val: Option<T>) -> Self {
+        self.thumbnail = val.map(Into::into);
+        self
     }
 
     /// Format of the thumbnail, must be one of `static` for a .WEBP or .PNG image, `animated` for a .TGS animation, or `video` for a .WEBM video
     #[must_use]
-    pub fn format<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.format = val.into();
-        this
+    pub fn format<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.format = val.into();
+        self
     }
 }
 impl super::TelegramMethod for SetStickerSetThumbnail {

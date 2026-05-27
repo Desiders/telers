@@ -26,34 +26,30 @@ impl ForumTopicEdited {
 
     /// New name of the topic, if it was edited
     #[must_use]
-    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.name = Some(val.into());
-        this
+    pub fn name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.name = Some(val.into());
+        self
     }
 
     /// New name of the topic, if it was edited
     #[must_use]
-    pub fn name_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.name = val.map(Into::into);
-        this
+    pub fn name_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.name = val.map(Into::into);
+        self
     }
 
     /// New identifier of the custom emoji shown as the topic icon, if it was edited; an empty string if the icon was removed
     #[must_use]
-    pub fn icon_custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.icon_custom_emoji_id = Some(val.into());
-        this
+    pub fn icon_custom_emoji_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.icon_custom_emoji_id = Some(val.into());
+        self
     }
 
     /// New identifier of the custom emoji shown as the topic icon, if it was edited; an empty string if the icon was removed
     #[must_use]
-    pub fn icon_custom_emoji_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.icon_custom_emoji_id = val.map(Into::into);
-        this
+    pub fn icon_custom_emoji_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.icon_custom_emoji_id = val.map(Into::into);
+        self
     }
 }
 impl Default for ForumTopicEdited {

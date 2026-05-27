@@ -32,41 +32,36 @@ impl KeyboardButtonRequestManagedBot {
 
     /// Signed 32-bit identifier of the request. Must be unique within the message
     #[must_use]
-    pub fn request_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.request_id = val.into();
-        this
+    pub fn request_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.request_id = val.into();
+        self
     }
 
     /// Suggested name for the bot
     #[must_use]
-    pub fn suggested_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.suggested_name = Some(val.into());
-        this
+    pub fn suggested_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.suggested_name = Some(val.into());
+        self
     }
 
     /// Suggested name for the bot
     #[must_use]
-    pub fn suggested_name_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.suggested_name = val.map(Into::into);
-        this
+    pub fn suggested_name_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.suggested_name = val.map(Into::into);
+        self
     }
 
     /// Suggested username for the bot
     #[must_use]
-    pub fn suggested_username<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.suggested_username = Some(val.into());
-        this
+    pub fn suggested_username<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.suggested_username = Some(val.into());
+        self
     }
 
     /// Suggested username for the bot
     #[must_use]
-    pub fn suggested_username_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.suggested_username = val.map(Into::into);
-        this
+    pub fn suggested_username_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.suggested_username = val.map(Into::into);
+        self
     }
 }

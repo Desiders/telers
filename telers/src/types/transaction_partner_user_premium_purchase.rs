@@ -30,17 +30,15 @@ impl TransactionPartnerUserPremiumPurchase {
 
     /// Information about the user
     #[must_use]
-    pub fn user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user = Box::new(val.into());
-        this
+    pub fn user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.user = Box::new(val.into());
+        self
     }
 
     /// Number of months the gifted Telegram Premium subscription will be active for; for `premium_purchase` transactions only
     #[must_use]
-    pub fn premium_subscription_duration<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.premium_subscription_duration = val.into();
-        this
+    pub fn premium_subscription_duration<T: Into<i64>>(mut self, val: T) -> Self {
+        self.premium_subscription_duration = val.into();
+        self
     }
 }

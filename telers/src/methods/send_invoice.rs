@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `crate::types::Message`
 #[derive(Clone, Debug, Serialize)]
 pub struct SendInvoice {
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -79,7 +79,7 @@ pub struct SendInvoice {
     /// Protects the contents of the sent message from forwarding and saving
     #[serde(skip_serializing_if = "Option::is_none")]
     pub protect_content: Option<bool>,
-    /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+    /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_paid_broadcast: Option<bool>,
     /// Unique identifier of the message effect to be added to the message; for private chats only
@@ -99,7 +99,7 @@ impl SendInvoice {
     /// Creates a new `SendInvoice`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     /// * `title` - Product name, 1-32 characters
     /// * `description` - Product description, 1-255 characters
     /// * `payload` - Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
@@ -160,92 +160,81 @@ impl SendInvoice {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     #[must_use]
-    pub fn message_thread_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_thread_id = Some(val.into());
-        this
+    pub fn message_thread_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_thread_id = Some(val.into());
+        self
     }
 
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     #[must_use]
-    pub fn message_thread_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.message_thread_id = val.map(Into::into);
-        this
+    pub fn message_thread_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.message_thread_id = val.map(Into::into);
+        self
     }
 
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
     #[must_use]
-    pub fn direct_messages_topic_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.direct_messages_topic_id = Some(val.into());
-        this
+    pub fn direct_messages_topic_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.direct_messages_topic_id = Some(val.into());
+        self
     }
 
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
     #[must_use]
-    pub fn direct_messages_topic_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.direct_messages_topic_id = val.map(Into::into);
-        this
+    pub fn direct_messages_topic_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.direct_messages_topic_id = val.map(Into::into);
+        self
     }
 
     /// Product name, 1-32 characters
     #[must_use]
-    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.title = val.into();
-        this
+    pub fn title<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.title = val.into();
+        self
     }
 
     /// Product description, 1-255 characters
     #[must_use]
-    pub fn description<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.description = val.into();
-        this
+    pub fn description<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.description = val.into();
+        self
     }
 
     /// Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
     #[must_use]
-    pub fn payload<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.payload = val.into();
-        this
+    pub fn payload<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.payload = val.into();
+        self
     }
 
     /// Payment provider token, obtained via @`BotFather`. Pass an empty string for payments in Telegram Stars.
     #[must_use]
-    pub fn provider_token<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.provider_token = Some(val.into());
-        this
+    pub fn provider_token<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.provider_token = Some(val.into());
+        self
     }
 
     /// Payment provider token, obtained via @`BotFather`. Pass an empty string for payments in Telegram Stars.
     #[must_use]
-    pub fn provider_token_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.provider_token = val.map(Into::into);
-        this
+    pub fn provider_token_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.provider_token = val.map(Into::into);
+        self
     }
 
     /// Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR` for payments in Telegram Stars.
     #[must_use]
-    pub fn currency<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.currency = val.into();
-        this
+    pub fn currency<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.currency = val.into();
+        self
     }
 
     /// Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
@@ -254,17 +243,16 @@ impl SendInvoice {
     /// Adds multiple elements.
     #[must_use]
     pub fn prices<TItem: Into<crate::types::LabeledPrice>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.prices = this
+        self.prices = self
             .prices
             .into_vec()
             .into_iter()
             .chain(val.into_iter().map(Into::into))
             .collect();
-        this
+        self
     }
 
     /// Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
@@ -272,31 +260,28 @@ impl SendInvoice {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn price<T: Into<crate::types::LabeledPrice>>(self, val: T) -> Self {
-        let mut this = self;
-        this.prices = this
+    pub fn price<T: Into<crate::types::LabeledPrice>>(mut self, val: T) -> Self {
+        self.prices = self
             .prices
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass `max_tip_amount` = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
     #[must_use]
-    pub fn max_tip_amount<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.max_tip_amount = Some(val.into());
-        this
+    pub fn max_tip_amount<T: Into<i64>>(mut self, val: T) -> Self {
+        self.max_tip_amount = Some(val.into());
+        self
     }
 
     /// The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass `max_tip_amount` = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
     #[must_use]
-    pub fn max_tip_amount_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.max_tip_amount = val.map(Into::into);
-        this
+    pub fn max_tip_amount_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.max_tip_amount = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
@@ -305,19 +290,18 @@ impl SendInvoice {
     /// Adds multiple elements.
     #[must_use]
     pub fn suggested_tip_amounts<TItem: Into<i64>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.suggested_tip_amounts = Some(
-            this.suggested_tip_amounts
+        self.suggested_tip_amounts = Some(
+            self.suggested_tip_amounts
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
@@ -325,17 +309,16 @@ impl SendInvoice {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn suggested_tip_amount<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.suggested_tip_amounts = Some(
-            this.suggested_tip_amounts
+    pub fn suggested_tip_amount<T: Into<i64>>(mut self, val: T) -> Self {
+        self.suggested_tip_amounts = Some(
+            self.suggested_tip_amounts
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
@@ -344,344 +327,303 @@ impl SendInvoice {
     /// Adds multiple elements.
     #[must_use]
     pub fn suggested_tip_amounts_option<TItem: Into<i64>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.suggested_tip_amounts = val.map(|v| v.into_iter().map(Into::into).collect());
-        this
+        self.suggested_tip_amounts = val.map(|v| v.into_iter().map(Into::into).collect());
+        self
     }
 
     /// Unique deep-linking parameter. If left empty, forwarded copies of the sent message will have a Pay button, allowing multiple users to pay directly from the forwarded message, using the same invoice. If non-empty, forwarded copies of the sent message will have a URL button with a deep link to the bot (instead of a Pay button), with the value used as the start parameter
     #[must_use]
-    pub fn start_parameter<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.start_parameter = Some(val.into());
-        this
+    pub fn start_parameter<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.start_parameter = Some(val.into());
+        self
     }
 
     /// Unique deep-linking parameter. If left empty, forwarded copies of the sent message will have a Pay button, allowing multiple users to pay directly from the forwarded message, using the same invoice. If non-empty, forwarded copies of the sent message will have a URL button with a deep link to the bot (instead of a Pay button), with the value used as the start parameter
     #[must_use]
-    pub fn start_parameter_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.start_parameter = val.map(Into::into);
-        this
+    pub fn start_parameter_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.start_parameter = val.map(Into::into);
+        self
     }
 
     /// JSON-serialized data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider.
     #[must_use]
-    pub fn provider_data<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.provider_data = Some(val.into());
-        this
+    pub fn provider_data<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.provider_data = Some(val.into());
+        self
     }
 
     /// JSON-serialized data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider.
     #[must_use]
-    pub fn provider_data_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.provider_data = val.map(Into::into);
-        this
+    pub fn provider_data_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.provider_data = val.map(Into::into);
+        self
     }
 
     /// URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service. People like it better when they see what they are paying for.
     #[must_use]
-    pub fn photo_url<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.photo_url = Some(val.into());
-        this
+    pub fn photo_url<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.photo_url = Some(val.into());
+        self
     }
 
     /// URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service. People like it better when they see what they are paying for.
     #[must_use]
-    pub fn photo_url_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.photo_url = val.map(Into::into);
-        this
+    pub fn photo_url_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.photo_url = val.map(Into::into);
+        self
     }
 
     /// Photo size in bytes
     #[must_use]
-    pub fn photo_size<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.photo_size = Some(val.into());
-        this
+    pub fn photo_size<T: Into<i64>>(mut self, val: T) -> Self {
+        self.photo_size = Some(val.into());
+        self
     }
 
     /// Photo size in bytes
     #[must_use]
-    pub fn photo_size_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.photo_size = val.map(Into::into);
-        this
+    pub fn photo_size_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.photo_size = val.map(Into::into);
+        self
     }
 
     /// Photo width
     #[must_use]
-    pub fn photo_width<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.photo_width = Some(val.into());
-        this
+    pub fn photo_width<T: Into<i64>>(mut self, val: T) -> Self {
+        self.photo_width = Some(val.into());
+        self
     }
 
     /// Photo width
     #[must_use]
-    pub fn photo_width_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.photo_width = val.map(Into::into);
-        this
+    pub fn photo_width_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.photo_width = val.map(Into::into);
+        self
     }
 
     /// Photo height
     #[must_use]
-    pub fn photo_height<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.photo_height = Some(val.into());
-        this
+    pub fn photo_height<T: Into<i64>>(mut self, val: T) -> Self {
+        self.photo_height = Some(val.into());
+        self
     }
 
     /// Photo height
     #[must_use]
-    pub fn photo_height_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.photo_height = val.map(Into::into);
-        this
+    pub fn photo_height_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.photo_height = val.map(Into::into);
+        self
     }
 
     /// Pass `true` if you require the user's full name to complete the order. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn need_name<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.need_name = Some(val.into());
-        this
+    pub fn need_name<T: Into<bool>>(mut self, val: T) -> Self {
+        self.need_name = Some(val.into());
+        self
     }
 
     /// Pass `true` if you require the user's full name to complete the order. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn need_name_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.need_name = val.map(Into::into);
-        this
+    pub fn need_name_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.need_name = val.map(Into::into);
+        self
     }
 
     /// Pass `true` if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn need_phone_number<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.need_phone_number = Some(val.into());
-        this
+    pub fn need_phone_number<T: Into<bool>>(mut self, val: T) -> Self {
+        self.need_phone_number = Some(val.into());
+        self
     }
 
     /// Pass `true` if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn need_phone_number_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.need_phone_number = val.map(Into::into);
-        this
+    pub fn need_phone_number_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.need_phone_number = val.map(Into::into);
+        self
     }
 
     /// Pass `true` if you require the user's email address to complete the order. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn need_email<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.need_email = Some(val.into());
-        this
+    pub fn need_email<T: Into<bool>>(mut self, val: T) -> Self {
+        self.need_email = Some(val.into());
+        self
     }
 
     /// Pass `true` if you require the user's email address to complete the order. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn need_email_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.need_email = val.map(Into::into);
-        this
+    pub fn need_email_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.need_email = val.map(Into::into);
+        self
     }
 
     /// Pass `true` if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn need_shipping_address<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.need_shipping_address = Some(val.into());
-        this
+    pub fn need_shipping_address<T: Into<bool>>(mut self, val: T) -> Self {
+        self.need_shipping_address = Some(val.into());
+        self
     }
 
     /// Pass `true` if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn need_shipping_address_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.need_shipping_address = val.map(Into::into);
-        this
+    pub fn need_shipping_address_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.need_shipping_address = val.map(Into::into);
+        self
     }
 
     /// Pass `true` if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn send_phone_number_to_provider<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.send_phone_number_to_provider = Some(val.into());
-        this
+    pub fn send_phone_number_to_provider<T: Into<bool>>(mut self, val: T) -> Self {
+        self.send_phone_number_to_provider = Some(val.into());
+        self
     }
 
     /// Pass `true` if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn send_phone_number_to_provider_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.send_phone_number_to_provider = val.map(Into::into);
-        this
+    pub fn send_phone_number_to_provider_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.send_phone_number_to_provider = val.map(Into::into);
+        self
     }
 
     /// Pass `true` if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn send_email_to_provider<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.send_email_to_provider = Some(val.into());
-        this
+    pub fn send_email_to_provider<T: Into<bool>>(mut self, val: T) -> Self {
+        self.send_email_to_provider = Some(val.into());
+        self
     }
 
     /// Pass `true` if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn send_email_to_provider_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.send_email_to_provider = val.map(Into::into);
-        this
+    pub fn send_email_to_provider_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.send_email_to_provider = val.map(Into::into);
+        self
     }
 
     /// Pass `true` if the final price depends on the shipping method. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn is_flexible<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_flexible = Some(val.into());
-        this
+    pub fn is_flexible<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_flexible = Some(val.into());
+        self
     }
 
     /// Pass `true` if the final price depends on the shipping method. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn is_flexible_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_flexible = val.map(Into::into);
-        this
+    pub fn is_flexible_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_flexible = val.map(Into::into);
+        self
     }
 
     /// Sends the message silently. Users will receive a notification with no sound.
     #[must_use]
-    pub fn disable_notification<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.disable_notification = Some(val.into());
-        this
+    pub fn disable_notification<T: Into<bool>>(mut self, val: T) -> Self {
+        self.disable_notification = Some(val.into());
+        self
     }
 
     /// Sends the message silently. Users will receive a notification with no sound.
     #[must_use]
-    pub fn disable_notification_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.disable_notification = val.map(Into::into);
-        this
+    pub fn disable_notification_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.disable_notification = val.map(Into::into);
+        self
     }
 
     /// Protects the contents of the sent message from forwarding and saving
     #[must_use]
-    pub fn protect_content<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.protect_content = Some(val.into());
-        this
+    pub fn protect_content<T: Into<bool>>(mut self, val: T) -> Self {
+        self.protect_content = Some(val.into());
+        self
     }
 
     /// Protects the contents of the sent message from forwarding and saving
     #[must_use]
-    pub fn protect_content_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.protect_content = val.map(Into::into);
-        this
+    pub fn protect_content_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.protect_content = val.map(Into::into);
+        self
     }
 
-    /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+    /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance.
     #[must_use]
-    pub fn allow_paid_broadcast<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.allow_paid_broadcast = Some(val.into());
-        this
+    pub fn allow_paid_broadcast<T: Into<bool>>(mut self, val: T) -> Self {
+        self.allow_paid_broadcast = Some(val.into());
+        self
     }
 
-    /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+    /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance.
     #[must_use]
-    pub fn allow_paid_broadcast_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.allow_paid_broadcast = val.map(Into::into);
-        this
+    pub fn allow_paid_broadcast_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.allow_paid_broadcast = val.map(Into::into);
+        self
     }
 
     /// Unique identifier of the message effect to be added to the message; for private chats only
     #[must_use]
-    pub fn message_effect_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_effect_id = Some(val.into());
-        this
+    pub fn message_effect_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.message_effect_id = Some(val.into());
+        self
     }
 
     /// Unique identifier of the message effect to be added to the message; for private chats only
     #[must_use]
-    pub fn message_effect_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.message_effect_id = val.map(Into::into);
-        this
+    pub fn message_effect_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.message_effect_id = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined.
     #[must_use]
     pub fn suggested_post_parameters<T: Into<crate::types::SuggestedPostParameters>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.suggested_post_parameters = Some(val.into());
-        this
+        self.suggested_post_parameters = Some(val.into());
+        self
     }
 
     /// A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined.
     #[must_use]
     pub fn suggested_post_parameters_option<T: Into<crate::types::SuggestedPostParameters>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.suggested_post_parameters = val.map(Into::into);
-        this
+        self.suggested_post_parameters = val.map(Into::into);
+        self
     }
 
     /// Description of the message to reply to
     #[must_use]
-    pub fn reply_parameters<T: Into<crate::types::ReplyParameters>>(self, val: T) -> Self {
-        let mut this = self;
-        this.reply_parameters = Some(val.into());
-        this
+    pub fn reply_parameters<T: Into<crate::types::ReplyParameters>>(mut self, val: T) -> Self {
+        self.reply_parameters = Some(val.into());
+        self
     }
 
     /// Description of the message to reply to
     #[must_use]
     pub fn reply_parameters_option<T: Into<crate::types::ReplyParameters>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.reply_parameters = val.map(Into::into);
-        this
+        self.reply_parameters = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button.
     #[must_use]
-    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(self, val: T) -> Self {
-        let mut this = self;
-        this.reply_markup = Some(val.into());
-        this
+    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(mut self, val: T) -> Self {
+        self.reply_markup = Some(val.into());
+        self
     }
 
     /// A JSON-serialized object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button.
     #[must_use]
     pub fn reply_markup_option<T: Into<crate::types::InlineKeyboardMarkup>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.reply_markup = val.map(Into::into);
-        this
+        self.reply_markup = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for SendInvoice {

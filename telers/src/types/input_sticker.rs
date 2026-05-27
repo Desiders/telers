@@ -49,18 +49,16 @@ impl InputSticker {
 
     /// The added sticker. Pass a `file_id` as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new file using multipart/form-data under <`file_attach_name`> name. Animated and video stickers can't be uploaded via HTTP URL. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
-    pub fn sticker<T: Into<crate::types::InputFile>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sticker = val.into();
-        this
+    pub fn sticker<T: Into<crate::types::InputFile>>(mut self, val: T) -> Self {
+        self.sticker = val.into();
+        self
     }
 
     /// Format of the added sticker, must be one of `static` for a .WEBP or .PNG image, `animated` for a .TGS animation, `video` for a .WEBM video
     #[must_use]
-    pub fn format<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.format = val.into();
-        this
+    pub fn format<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.format = val.into();
+        self
     }
 
     /// List of 1-20 emoji associated with the sticker
@@ -68,15 +66,14 @@ impl InputSticker {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn emoji_lists<T: Into<Box<[Box<str>]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.emoji_list = this
+    pub fn emoji_lists<T: Into<Box<[Box<str>]>>>(mut self, val: T) -> Self {
+        self.emoji_list = self
             .emoji_list
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// List of 1-20 emoji associated with the sticker
@@ -84,31 +81,31 @@ impl InputSticker {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn emoji_list<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.emoji_list = this
+    pub fn emoji_list<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.emoji_list = self
             .emoji_list
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// Position where the mask should be placed on faces. For `mask` stickers only.
     #[must_use]
-    pub fn mask_position<T: Into<crate::types::MaskPosition>>(self, val: T) -> Self {
-        let mut this = self;
-        this.mask_position = Some(val.into());
-        this
+    pub fn mask_position<T: Into<crate::types::MaskPosition>>(mut self, val: T) -> Self {
+        self.mask_position = Some(val.into());
+        self
     }
 
     /// Position where the mask should be placed on faces. For `mask` stickers only.
     #[must_use]
-    pub fn mask_position_option<T: Into<crate::types::MaskPosition>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.mask_position = val.map(Into::into);
-        this
+    pub fn mask_position_option<T: Into<crate::types::MaskPosition>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.mask_position = val.map(Into::into);
+        self
     }
 
     /// List of 0-20 search keywords for the sticker with total length of up to 64 characters. For `regular` and `custom_emoji` stickers only.
@@ -116,17 +113,16 @@ impl InputSticker {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn keywords<T: Into<Box<[Box<str>]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.keywords = Some(
-            this.keywords
+    pub fn keywords<T: Into<Box<[Box<str>]>>>(mut self, val: T) -> Self {
+        self.keywords = Some(
+            self.keywords
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// List of 0-20 search keywords for the sticker with total length of up to 64 characters. For `regular` and `custom_emoji` stickers only.
@@ -134,17 +130,16 @@ impl InputSticker {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn keyword<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.keywords = Some(
-            this.keywords
+    pub fn keyword<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.keywords = Some(
+            self.keywords
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// List of 0-20 search keywords for the sticker with total length of up to 64 characters. For `regular` and `custom_emoji` stickers only.
@@ -152,9 +147,8 @@ impl InputSticker {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn keywords_option<T: Into<Box<[Box<str>]>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.keywords = val.map(Into::into);
-        this
+    pub fn keywords_option<T: Into<Box<[Box<str>]>>>(mut self, val: Option<T>) -> Self {
+        self.keywords = val.map(Into::into);
+        self
     }
 }

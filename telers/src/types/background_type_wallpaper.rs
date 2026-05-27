@@ -39,49 +39,43 @@ impl BackgroundTypeWallpaper {
 
     /// Document with the wallpaper
     #[must_use]
-    pub fn document<T: Into<crate::types::Document>>(self, val: T) -> Self {
-        let mut this = self;
-        this.document = Box::new(val.into());
-        this
+    pub fn document<T: Into<crate::types::Document>>(mut self, val: T) -> Self {
+        self.document = Box::new(val.into());
+        self
     }
 
     /// Dimming of the background in dark themes, as a percentage; 0-100
     #[must_use]
-    pub fn dark_theme_dimming<T: Into<u8>>(self, val: T) -> Self {
-        let mut this = self;
-        this.dark_theme_dimming = val.into();
-        this
+    pub fn dark_theme_dimming<T: Into<u8>>(mut self, val: T) -> Self {
+        self.dark_theme_dimming = val.into();
+        self
     }
 
     /// `true`, if the wallpaper is downscaled to fit in a 450x450 square and then box-blurred with radius 12
     #[must_use]
-    pub fn is_blurred<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_blurred = Some(val.into());
-        this
+    pub fn is_blurred<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_blurred = Some(val.into());
+        self
     }
 
     /// `true`, if the wallpaper is downscaled to fit in a 450x450 square and then box-blurred with radius 12
     #[must_use]
-    pub fn is_blurred_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_blurred = val.map(Into::into);
-        this
+    pub fn is_blurred_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_blurred = val.map(Into::into);
+        self
     }
 
     /// `true`, if the background moves slightly when the device is tilted
     #[must_use]
-    pub fn is_moving<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_moving = Some(val.into());
-        this
+    pub fn is_moving<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_moving = Some(val.into());
+        self
     }
 
     /// `true`, if the background moves slightly when the device is tilted
     #[must_use]
-    pub fn is_moving_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_moving = val.map(Into::into);
-        this
+    pub fn is_moving_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_moving = val.map(Into::into);
+        self
     }
 }

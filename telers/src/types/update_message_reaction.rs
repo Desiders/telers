@@ -30,18 +30,19 @@ impl UpdateMessageReaction {
 
     /// The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
     #[must_use]
-    pub fn update_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.update_id = val.into();
-        this
+    pub fn update_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.update_id = val.into();
+        self
     }
 
     /// A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify `message_reaction` in the list of `allowed_updates` to receive these updates. The update isn't received for reactions set by bots.
     #[must_use]
-    pub fn message_reaction<T: Into<crate::types::MessageReactionUpdated>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_reaction = val.into();
-        this
+    pub fn message_reaction<T: Into<crate::types::MessageReactionUpdated>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.message_reaction = val.into();
+        self
     }
 }
 impl From<UpdateMessageReaction> for crate::types::MessageReactionUpdated {

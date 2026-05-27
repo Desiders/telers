@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `bool`
 #[derive(Clone, Debug, Serialize)]
 pub struct DeleteMessages {
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// A JSON-serialized list of 1-100 identifiers of messages to delete. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted
     pub message_ids: Box<[u8]>,
@@ -16,7 +16,7 @@ impl DeleteMessages {
     /// Creates a new `DeleteMessages`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     /// * `message_ids` - A JSON-serialized list of 1-100 identifiers of messages to delete. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted
     #[must_use]
     pub fn new<
@@ -33,12 +33,11 @@ impl DeleteMessages {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// A JSON-serialized list of 1-100 identifiers of messages to delete. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted
@@ -46,15 +45,14 @@ impl DeleteMessages {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn message_ids<TItem: Into<u8>, T: IntoIterator<Item = TItem>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_ids = this
+    pub fn message_ids<TItem: Into<u8>, T: IntoIterator<Item = TItem>>(mut self, val: T) -> Self {
+        self.message_ids = self
             .message_ids
             .into_vec()
             .into_iter()
             .chain(val.into_iter().map(Into::into))
             .collect();
-        this
+        self
     }
 
     /// A JSON-serialized list of 1-100 identifiers of messages to delete. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted
@@ -62,15 +60,14 @@ impl DeleteMessages {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn message_id<T: Into<u8>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_ids = this
+    pub fn message_id<T: Into<u8>>(mut self, val: T) -> Self {
+        self.message_ids = self
             .message_ids
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }
 impl super::TelegramMethod for DeleteMessages {

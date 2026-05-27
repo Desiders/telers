@@ -35,42 +35,40 @@ impl SetUserEmojiStatus {
 
     /// Unique identifier of the target user
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// Custom emoji identifier of the emoji status to set. Pass an empty string to remove the status.
     #[must_use]
-    pub fn emoji_status_custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.emoji_status_custom_emoji_id = Some(val.into());
-        this
+    pub fn emoji_status_custom_emoji_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.emoji_status_custom_emoji_id = Some(val.into());
+        self
     }
 
     /// Custom emoji identifier of the emoji status to set. Pass an empty string to remove the status.
     #[must_use]
-    pub fn emoji_status_custom_emoji_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.emoji_status_custom_emoji_id = val.map(Into::into);
-        this
+    pub fn emoji_status_custom_emoji_id_option<T: Into<Box<str>>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.emoji_status_custom_emoji_id = val.map(Into::into);
+        self
     }
 
     /// Expiration date of the emoji status, if any
     #[must_use]
-    pub fn emoji_status_expiration_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.emoji_status_expiration_date = Some(val.into());
-        this
+    pub fn emoji_status_expiration_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.emoji_status_expiration_date = Some(val.into());
+        self
     }
 
     /// Expiration date of the emoji status, if any
     #[must_use]
-    pub fn emoji_status_expiration_date_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.emoji_status_expiration_date = val.map(Into::into);
-        this
+    pub fn emoji_status_expiration_date_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.emoji_status_expiration_date = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for SetUserEmojiStatus {

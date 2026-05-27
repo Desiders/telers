@@ -49,65 +49,57 @@ impl VideoNote {
 
     /// Identifier for this file, which can be used to download or reuse the file
     #[must_use]
-    pub fn file_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.file_id = val.into();
-        this
+    pub fn file_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.file_id = val.into();
+        self
     }
 
     /// Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
     #[must_use]
-    pub fn file_unique_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.file_unique_id = val.into();
-        this
+    pub fn file_unique_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.file_unique_id = val.into();
+        self
     }
 
     /// Video width and height (diameter of the video message) as defined by the sender
     #[must_use]
-    pub fn length<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.length = val.into();
-        this
+    pub fn length<T: Into<i64>>(mut self, val: T) -> Self {
+        self.length = val.into();
+        self
     }
 
     /// Duration of the video in seconds as defined by the sender
     #[must_use]
-    pub fn duration<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.duration = val.into();
-        this
+    pub fn duration<T: Into<i64>>(mut self, val: T) -> Self {
+        self.duration = val.into();
+        self
     }
 
     /// Video thumbnail
     #[must_use]
-    pub fn thumbnail<T: Into<crate::types::PhotoSize>>(self, val: T) -> Self {
-        let mut this = self;
-        this.thumbnail = Some(val.into());
-        this
+    pub fn thumbnail<T: Into<crate::types::PhotoSize>>(mut self, val: T) -> Self {
+        self.thumbnail = Some(val.into());
+        self
     }
 
     /// Video thumbnail
     #[must_use]
-    pub fn thumbnail_option<T: Into<crate::types::PhotoSize>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.thumbnail = val.map(Into::into);
-        this
+    pub fn thumbnail_option<T: Into<crate::types::PhotoSize>>(mut self, val: Option<T>) -> Self {
+        self.thumbnail = val.map(Into::into);
+        self
     }
 
     /// File size in bytes
     #[must_use]
-    pub fn file_size<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.file_size = Some(val.into());
-        this
+    pub fn file_size<T: Into<i64>>(mut self, val: T) -> Self {
+        self.file_size = Some(val.into());
+        self
     }
 
     /// File size in bytes
     #[must_use]
-    pub fn file_size_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.file_size = val.map(Into::into);
-        this
+    pub fn file_size_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.file_size = val.map(Into::into);
+        self
     }
 }

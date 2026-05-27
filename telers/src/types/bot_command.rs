@@ -25,17 +25,15 @@ impl BotCommand {
 
     /// Text of the command; 1-32 characters. Can contain only lowercase English letters, digits and underscores.
     #[must_use]
-    pub fn command<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.command = val.into();
-        this
+    pub fn command<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.command = val.into();
+        self
     }
 
     /// Description of the command; 1-256 characters.
     #[must_use]
-    pub fn description<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.description = val.into();
-        this
+    pub fn description<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.description = val.into();
+        self
     }
 }

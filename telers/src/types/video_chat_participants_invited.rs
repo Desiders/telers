@@ -26,15 +26,14 @@ impl VideoChatParticipantsInvited {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn users<T: Into<Box<[crate::types::User]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.users = this
+    pub fn users<T: Into<Box<[crate::types::User]>>>(mut self, val: T) -> Self {
+        self.users = self
             .users
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// New members that were invited to the video chat
@@ -42,14 +41,13 @@ impl VideoChatParticipantsInvited {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.users = this
+    pub fn user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.users = self
             .users
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

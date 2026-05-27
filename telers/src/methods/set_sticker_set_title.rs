@@ -28,18 +28,16 @@ impl SetStickerSetTitle {
 
     /// Sticker set name
     #[must_use]
-    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.name = val.into();
-        this
+    pub fn name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.name = val.into();
+        self
     }
 
     /// Sticker set title, 1-64 characters
     #[must_use]
-    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.title = val.into();
-        this
+    pub fn title<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.title = val.into();
+        self
     }
 }
 impl super::TelegramMethod for SetStickerSetTitle {

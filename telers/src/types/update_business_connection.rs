@@ -30,18 +30,19 @@ impl UpdateBusinessConnection {
 
     /// The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
     #[must_use]
-    pub fn update_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.update_id = val.into();
-        this
+    pub fn update_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.update_id = val.into();
+        self
     }
 
     /// The bot was connected to or disconnected from a business account, or a user edited an existing connection with the bot
     #[must_use]
-    pub fn business_connection<T: Into<crate::types::BusinessConnection>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection = val.into();
-        this
+    pub fn business_connection<T: Into<crate::types::BusinessConnection>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.business_connection = val.into();
+        self
     }
 }
 impl From<UpdateBusinessConnection> for crate::types::BusinessConnection {

@@ -36,49 +36,43 @@ impl ForumTopicCreated {
 
     /// Name of the topic
     #[must_use]
-    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.name = val.into();
-        this
+    pub fn name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.name = val.into();
+        self
     }
 
     /// Color of the topic icon in RGB format
     #[must_use]
-    pub fn icon_color<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.icon_color = val.into();
-        this
+    pub fn icon_color<T: Into<i64>>(mut self, val: T) -> Self {
+        self.icon_color = val.into();
+        self
     }
 
     /// Unique identifier of the custom emoji shown as the topic icon
     #[must_use]
-    pub fn icon_custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.icon_custom_emoji_id = Some(val.into());
-        this
+    pub fn icon_custom_emoji_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.icon_custom_emoji_id = Some(val.into());
+        self
     }
 
     /// Unique identifier of the custom emoji shown as the topic icon
     #[must_use]
-    pub fn icon_custom_emoji_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.icon_custom_emoji_id = val.map(Into::into);
-        this
+    pub fn icon_custom_emoji_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.icon_custom_emoji_id = val.map(Into::into);
+        self
     }
 
     /// `true`, if the name of the topic wasn't specified explicitly by its creator and likely needs to be changed by the bot
     #[must_use]
-    pub fn is_name_implicit<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_name_implicit = Some(val.into());
-        this
+    pub fn is_name_implicit<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_name_implicit = Some(val.into());
+        self
     }
 
     /// `true`, if the name of the topic wasn't specified explicitly by its creator and likely needs to be changed by the bot
     #[must_use]
-    pub fn is_name_implicit_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_name_implicit = val.map(Into::into);
-        this
+    pub fn is_name_implicit_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_name_implicit = val.map(Into::into);
+        self
     }
 }

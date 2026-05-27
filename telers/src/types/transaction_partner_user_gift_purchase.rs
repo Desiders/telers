@@ -30,17 +30,15 @@ impl TransactionPartnerUserGiftPurchase {
 
     /// Information about the user
     #[must_use]
-    pub fn user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user = Box::new(val.into());
-        this
+    pub fn user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.user = Box::new(val.into());
+        self
     }
 
     /// The gift sent to the user by the bot; for `gift_purchase` transactions only
     #[must_use]
-    pub fn gift<T: Into<crate::types::Gift>>(self, val: T) -> Self {
-        let mut this = self;
-        this.gift = Box::new(val.into());
-        this
+    pub fn gift<T: Into<crate::types::Gift>>(mut self, val: T) -> Self {
+        self.gift = Box::new(val.into());
+        self
     }
 }

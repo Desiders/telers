@@ -28,25 +28,22 @@ impl TransactionPartnerAffiliateProgram {
 
     /// Information about the bot that sponsored the affiliate program
     #[must_use]
-    pub fn sponsor_user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sponsor_user = Some(Box::new(val.into()));
-        this
+    pub fn sponsor_user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.sponsor_user = Some(Box::new(val.into()));
+        self
     }
 
     /// Information about the bot that sponsored the affiliate program
     #[must_use]
-    pub fn sponsor_user_option<T: Into<crate::types::User>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.sponsor_user = val.map(|val| Box::new(val.into()));
-        this
+    pub fn sponsor_user_option<T: Into<crate::types::User>>(mut self, val: Option<T>) -> Self {
+        self.sponsor_user = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// The number of Telegram Stars received by the bot for each 1000 Telegram Stars received by the affiliate program sponsor from referred users
     #[must_use]
-    pub fn commission_per_mille<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.commission_per_mille = val.into();
-        this
+    pub fn commission_per_mille<T: Into<i64>>(mut self, val: T) -> Self {
+        self.commission_per_mille = val.into();
+        self
     }
 }

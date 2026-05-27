@@ -12,6 +12,9 @@ pub struct InputPollOption {
     /// A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of `text_parse_mode`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text_entities: Option<Box<[crate::types::MessageEntity]>>,
+    /// Media added to the poll option
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub media: Option<crate::types::InputPollOptionMedia>,
 }
 impl InputPollOption {
     /// Creates a new `InputPollOption`.
@@ -27,31 +30,29 @@ impl InputPollOption {
             text: text.into(),
             text_parse_mode: None,
             text_entities: None,
+            media: None,
         }
     }
 
     /// Option text, 1-100 characters
     #[must_use]
-    pub fn text<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text = val.into();
-        this
+    pub fn text<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.text = val.into();
+        self
     }
 
     /// Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed
     #[must_use]
-    pub fn text_parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text_parse_mode = Some(val.into());
-        this
+    pub fn text_parse_mode<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.text_parse_mode = Some(val.into());
+        self
     }
 
     /// Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed
     #[must_use]
-    pub fn text_parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.text_parse_mode = val.map(Into::into);
-        this
+    pub fn text_parse_mode_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.text_parse_mode = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of `text_parse_mode`
@@ -59,17 +60,16 @@ impl InputPollOption {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn text_entities<T: Into<Box<[crate::types::MessageEntity]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text_entities = Some(
-            this.text_entities
+    pub fn text_entities<T: Into<Box<[crate::types::MessageEntity]>>>(mut self, val: T) -> Self {
+        self.text_entities = Some(
+            self.text_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of `text_parse_mode`
@@ -77,17 +77,16 @@ impl InputPollOption {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn text_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text_entities = Some(
-            this.text_entities
+    pub fn text_entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.text_entities = Some(
+            self.text_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of `text_parse_mode`
@@ -96,11 +95,27 @@ impl InputPollOption {
     /// Adds a single element.
     #[must_use]
     pub fn text_entities_option<T: Into<Box<[crate::types::MessageEntity]>>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.text_entities = val.map(Into::into);
-        this
+        self.text_entities = val.map(Into::into);
+        self
+    }
+
+    /// Media added to the poll option
+    #[must_use]
+    pub fn media<T: Into<crate::types::InputPollOptionMedia>>(mut self, val: T) -> Self {
+        self.media = Some(val.into());
+        self
+    }
+
+    /// Media added to the poll option
+    #[must_use]
+    pub fn media_option<T: Into<crate::types::InputPollOptionMedia>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.media = val.map(Into::into);
+        self
     }
 }

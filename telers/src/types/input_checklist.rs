@@ -51,26 +51,23 @@ impl InputChecklist {
 
     /// Title of the checklist; 1-255 characters after entities parsing
     #[must_use]
-    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.title = val.into();
-        this
+    pub fn title<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.title = val.into();
+        self
     }
 
     /// Mode for parsing entities in the title. See formatting options for more details.
     #[must_use]
-    pub fn parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.parse_mode = Some(val.into());
-        this
+    pub fn parse_mode<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.parse_mode = Some(val.into());
+        self
     }
 
     /// Mode for parsing entities in the title. See formatting options for more details.
     #[must_use]
-    pub fn parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.parse_mode = val.map(Into::into);
-        this
+    pub fn parse_mode_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.parse_mode = val.map(Into::into);
+        self
     }
 
     /// List of special entities that appear in the title, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are allowed.
@@ -78,17 +75,16 @@ impl InputChecklist {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn title_entities<T: Into<Box<[crate::types::MessageEntity]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.title_entities = Some(
-            this.title_entities
+    pub fn title_entities<T: Into<Box<[crate::types::MessageEntity]>>>(mut self, val: T) -> Self {
+        self.title_entities = Some(
+            self.title_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// List of special entities that appear in the title, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are allowed.
@@ -96,17 +92,16 @@ impl InputChecklist {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn title_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.title_entities = Some(
-            this.title_entities
+    pub fn title_entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.title_entities = Some(
+            self.title_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// List of special entities that appear in the title, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are allowed.
@@ -115,12 +110,11 @@ impl InputChecklist {
     /// Adds a single element.
     #[must_use]
     pub fn title_entities_option<T: Into<Box<[crate::types::MessageEntity]>>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.title_entities = val.map(Into::into);
-        this
+        self.title_entities = val.map(Into::into);
+        self
     }
 
     /// List of 1-30 tasks in the checklist
@@ -128,15 +122,14 @@ impl InputChecklist {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn tasks<T: Into<Box<[crate::types::InputChecklistTask]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.tasks = this
+    pub fn tasks<T: Into<Box<[crate::types::InputChecklistTask]>>>(mut self, val: T) -> Self {
+        self.tasks = self
             .tasks
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// List of 1-30 tasks in the checklist
@@ -144,46 +137,41 @@ impl InputChecklist {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn task<T: Into<crate::types::InputChecklistTask>>(self, val: T) -> Self {
-        let mut this = self;
-        this.tasks = this
+    pub fn task<T: Into<crate::types::InputChecklistTask>>(mut self, val: T) -> Self {
+        self.tasks = self
             .tasks
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// Pass `true` if other users can add tasks to the checklist
     #[must_use]
-    pub fn others_can_add_tasks<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.others_can_add_tasks = Some(val.into());
-        this
+    pub fn others_can_add_tasks<T: Into<bool>>(mut self, val: T) -> Self {
+        self.others_can_add_tasks = Some(val.into());
+        self
     }
 
     /// Pass `true` if other users can add tasks to the checklist
     #[must_use]
-    pub fn others_can_add_tasks_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.others_can_add_tasks = val.map(Into::into);
-        this
+    pub fn others_can_add_tasks_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.others_can_add_tasks = val.map(Into::into);
+        self
     }
 
     /// Pass `true` if other users can mark tasks as done or not done in the checklist
     #[must_use]
-    pub fn others_can_mark_tasks_as_done<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.others_can_mark_tasks_as_done = Some(val.into());
-        this
+    pub fn others_can_mark_tasks_as_done<T: Into<bool>>(mut self, val: T) -> Self {
+        self.others_can_mark_tasks_as_done = Some(val.into());
+        self
     }
 
     /// Pass `true` if other users can mark tasks as done or not done in the checklist
     #[must_use]
-    pub fn others_can_mark_tasks_as_done_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.others_can_mark_tasks_as_done = val.map(Into::into);
-        this
+    pub fn others_can_mark_tasks_as_done_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.others_can_mark_tasks_as_done = val.map(Into::into);
+        self
     }
 }

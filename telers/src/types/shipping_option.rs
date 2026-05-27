@@ -38,18 +38,16 @@ impl ShippingOption {
 
     /// Shipping option identifier
     #[must_use]
-    pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 
     /// Option title
     #[must_use]
-    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.title = val.into();
-        this
+    pub fn title<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.title = val.into();
+        self
     }
 
     /// List of price portions
@@ -57,15 +55,14 @@ impl ShippingOption {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn prices<T: Into<Box<[crate::types::LabeledPrice]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.prices = this
+    pub fn prices<T: Into<Box<[crate::types::LabeledPrice]>>>(mut self, val: T) -> Self {
+        self.prices = self
             .prices
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// List of price portions
@@ -73,14 +70,13 @@ impl ShippingOption {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn price<T: Into<crate::types::LabeledPrice>>(self, val: T) -> Self {
-        let mut this = self;
-        this.prices = this
+    pub fn price<T: Into<crate::types::LabeledPrice>>(mut self, val: T) -> Self {
+        self.prices = self
             .prices
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

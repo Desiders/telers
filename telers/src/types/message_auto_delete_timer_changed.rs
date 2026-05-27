@@ -21,9 +21,8 @@ impl MessageAutoDeleteTimerChanged {
 
     /// New auto-delete time for messages in the chat; in seconds
     #[must_use]
-    pub fn message_auto_delete_time<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_auto_delete_time = val.into();
-        this
+    pub fn message_auto_delete_time<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_auto_delete_time = val.into();
+        self
     }
 }

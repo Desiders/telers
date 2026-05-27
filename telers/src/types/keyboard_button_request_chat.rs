@@ -64,173 +64,153 @@ impl KeyboardButtonRequestChat {
 
     /// Signed 32-bit identifier of the request, which will be received back in the [`crate::types::ChatShared`] object. Must be unique within the message
     #[must_use]
-    pub fn request_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.request_id = val.into();
-        this
+    pub fn request_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.request_id = val.into();
+        self
     }
 
     /// Pass `true` to request a channel chat, pass `false` to request a group or a supergroup chat.
     #[must_use]
-    pub fn chat_is_channel<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_is_channel = val.into();
-        this
+    pub fn chat_is_channel<T: Into<bool>>(mut self, val: T) -> Self {
+        self.chat_is_channel = val.into();
+        self
     }
 
     /// Pass `true` to request a forum supergroup, pass `false` to request a non-forum chat. If not specified, no additional restrictions are applied.
     #[must_use]
-    pub fn chat_is_forum<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_is_forum = Some(val.into());
-        this
+    pub fn chat_is_forum<T: Into<bool>>(mut self, val: T) -> Self {
+        self.chat_is_forum = Some(val.into());
+        self
     }
 
     /// Pass `true` to request a forum supergroup, pass `false` to request a non-forum chat. If not specified, no additional restrictions are applied.
     #[must_use]
-    pub fn chat_is_forum_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.chat_is_forum = val.map(Into::into);
-        this
+    pub fn chat_is_forum_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.chat_is_forum = val.map(Into::into);
+        self
     }
 
     /// Pass `true` to request a supergroup or a channel with a username, pass `false` to request a chat without a username. If not specified, no additional restrictions are applied.
     #[must_use]
-    pub fn chat_has_username<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_has_username = Some(val.into());
-        this
+    pub fn chat_has_username<T: Into<bool>>(mut self, val: T) -> Self {
+        self.chat_has_username = Some(val.into());
+        self
     }
 
     /// Pass `true` to request a supergroup or a channel with a username, pass `false` to request a chat without a username. If not specified, no additional restrictions are applied.
     #[must_use]
-    pub fn chat_has_username_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.chat_has_username = val.map(Into::into);
-        this
+    pub fn chat_has_username_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.chat_has_username = val.map(Into::into);
+        self
     }
 
     /// Pass `true` to request a chat owned by the user. Otherwise, no additional restrictions are applied.
     #[must_use]
-    pub fn chat_is_created<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_is_created = Some(val.into());
-        this
+    pub fn chat_is_created<T: Into<bool>>(mut self, val: T) -> Self {
+        self.chat_is_created = Some(val.into());
+        self
     }
 
     /// Pass `true` to request a chat owned by the user. Otherwise, no additional restrictions are applied.
     #[must_use]
-    pub fn chat_is_created_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.chat_is_created = val.map(Into::into);
-        this
+    pub fn chat_is_created_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.chat_is_created = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized object listing the required administrator rights of the user in the chat. The rights must be a superset of `bot_administrator_rights`. If not specified, no additional restrictions are applied.
     #[must_use]
     pub fn user_administrator_rights<T: Into<crate::types::ChatAdministratorRights>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.user_administrator_rights = Some(val.into());
-        this
+        self.user_administrator_rights = Some(val.into());
+        self
     }
 
     /// A JSON-serialized object listing the required administrator rights of the user in the chat. The rights must be a superset of `bot_administrator_rights`. If not specified, no additional restrictions are applied.
     #[must_use]
     pub fn user_administrator_rights_option<T: Into<crate::types::ChatAdministratorRights>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.user_administrator_rights = val.map(Into::into);
-        this
+        self.user_administrator_rights = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized object listing the required administrator rights of the bot in the chat. The rights must be a subset of `user_administrator_rights`. If not specified, no additional restrictions are applied.
     #[must_use]
     pub fn bot_administrator_rights<T: Into<crate::types::ChatAdministratorRights>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.bot_administrator_rights = Some(val.into());
-        this
+        self.bot_administrator_rights = Some(val.into());
+        self
     }
 
     /// A JSON-serialized object listing the required administrator rights of the bot in the chat. The rights must be a subset of `user_administrator_rights`. If not specified, no additional restrictions are applied.
     #[must_use]
     pub fn bot_administrator_rights_option<T: Into<crate::types::ChatAdministratorRights>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.bot_administrator_rights = val.map(Into::into);
-        this
+        self.bot_administrator_rights = val.map(Into::into);
+        self
     }
 
     /// Pass `true` to request a chat with the bot as a member. Otherwise, no additional restrictions are applied.
     #[must_use]
-    pub fn bot_is_member<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.bot_is_member = Some(val.into());
-        this
+    pub fn bot_is_member<T: Into<bool>>(mut self, val: T) -> Self {
+        self.bot_is_member = Some(val.into());
+        self
     }
 
     /// Pass `true` to request a chat with the bot as a member. Otherwise, no additional restrictions are applied.
     #[must_use]
-    pub fn bot_is_member_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.bot_is_member = val.map(Into::into);
-        this
+    pub fn bot_is_member_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.bot_is_member = val.map(Into::into);
+        self
     }
 
     /// Pass `true` to request the chat's title
     #[must_use]
-    pub fn request_title<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.request_title = Some(val.into());
-        this
+    pub fn request_title<T: Into<bool>>(mut self, val: T) -> Self {
+        self.request_title = Some(val.into());
+        self
     }
 
     /// Pass `true` to request the chat's title
     #[must_use]
-    pub fn request_title_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.request_title = val.map(Into::into);
-        this
+    pub fn request_title_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.request_title = val.map(Into::into);
+        self
     }
 
     /// Pass `true` to request the chat's username
     #[must_use]
-    pub fn request_username<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.request_username = Some(val.into());
-        this
+    pub fn request_username<T: Into<bool>>(mut self, val: T) -> Self {
+        self.request_username = Some(val.into());
+        self
     }
 
     /// Pass `true` to request the chat's username
     #[must_use]
-    pub fn request_username_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.request_username = val.map(Into::into);
-        this
+    pub fn request_username_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.request_username = val.map(Into::into);
+        self
     }
 
     /// Pass `true` to request the chat's photo
     #[must_use]
-    pub fn request_photo<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.request_photo = Some(val.into());
-        this
+    pub fn request_photo<T: Into<bool>>(mut self, val: T) -> Self {
+        self.request_photo = Some(val.into());
+        self
     }
 
     /// Pass `true` to request the chat's photo
     #[must_use]
-    pub fn request_photo_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.request_photo = val.map(Into::into);
-        this
+    pub fn request_photo_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.request_photo = val.map(Into::into);
+        self
     }
 }

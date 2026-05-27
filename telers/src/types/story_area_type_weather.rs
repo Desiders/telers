@@ -33,25 +33,22 @@ impl StoryAreaTypeWeather {
 
     /// Temperature, in degree Celsius
     #[must_use]
-    pub fn temperature<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.temperature = val.into();
-        this
+    pub fn temperature<T: Into<f64>>(mut self, val: T) -> Self {
+        self.temperature = val.into();
+        self
     }
 
     /// Emoji representing the weather
     #[must_use]
-    pub fn emoji<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.emoji = val.into();
-        this
+    pub fn emoji<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.emoji = val.into();
+        self
     }
 
     /// A color of the area background in the ARGB format
     #[must_use]
-    pub fn background_color<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.background_color = val.into();
-        this
+    pub fn background_color<T: Into<i64>>(mut self, val: T) -> Self {
+        self.background_color = val.into();
+        self
     }
 }

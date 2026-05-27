@@ -21,9 +21,8 @@ impl PaidMediaVideo {
 
     /// The video
     #[must_use]
-    pub fn video<T: Into<crate::types::Video>>(self, val: T) -> Self {
-        let mut this = self;
-        this.video = Box::new(val.into());
-        this
+    pub fn video<T: Into<crate::types::Video>>(mut self, val: T) -> Self {
+        self.video = Box::new(val.into());
+        self
     }
 }

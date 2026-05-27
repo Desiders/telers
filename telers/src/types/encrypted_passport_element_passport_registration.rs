@@ -44,15 +44,14 @@ impl EncryptedPassportElementPassportRegistration {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn files<T: Into<Box<[crate::types::PassportFile]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.files = this
+    pub fn files<T: Into<Box<[crate::types::PassportFile]>>>(mut self, val: T) -> Self {
+        self.files = self
             .files
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// Array of encrypted files with documents provided by the user; available only for `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`crate::types::EncryptedCredentials`].
@@ -60,15 +59,14 @@ impl EncryptedPassportElementPassportRegistration {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn file<T: Into<crate::types::PassportFile>>(self, val: T) -> Self {
-        let mut this = self;
-        this.files = this
+    pub fn file<T: Into<crate::types::PassportFile>>(mut self, val: T) -> Self {
+        self.files = self
             .files
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// Array of encrypted files with translated versions of documents provided by the user; available if requested for `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`crate::types::EncryptedCredentials`].
@@ -76,15 +74,14 @@ impl EncryptedPassportElementPassportRegistration {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn translations<T: Into<Box<[crate::types::PassportFile]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.translation = this
+    pub fn translations<T: Into<Box<[crate::types::PassportFile]>>>(mut self, val: T) -> Self {
+        self.translation = self
             .translation
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// Array of encrypted files with translated versions of documents provided by the user; available if requested for `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`crate::types::EncryptedCredentials`].
@@ -92,22 +89,20 @@ impl EncryptedPassportElementPassportRegistration {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn translation<T: Into<crate::types::PassportFile>>(self, val: T) -> Self {
-        let mut this = self;
-        this.translation = this
+    pub fn translation<T: Into<crate::types::PassportFile>>(mut self, val: T) -> Self {
+        self.translation = self
             .translation
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
     #[must_use]
-    pub fn hash<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.hash = val.into();
-        this
+    pub fn hash<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.hash = val.into();
+        self
     }
 }

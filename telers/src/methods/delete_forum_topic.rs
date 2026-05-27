@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `bool`
 #[derive(Clone, Debug, Serialize)]
 pub struct DeleteForumTopic {
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier for the target message thread of the forum topic
     pub message_thread_id: i64,
@@ -16,7 +16,7 @@ impl DeleteForumTopic {
     /// Creates a new `DeleteForumTopic`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup in the format @username
     /// * `message_thread_id` - Unique identifier for the target message thread of the forum topic
     #[must_use]
     pub fn new<T0: Into<crate::types::ChatIdKind>, T1: Into<i64>>(
@@ -29,20 +29,18 @@ impl DeleteForumTopic {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Unique identifier for the target message thread of the forum topic
     #[must_use]
-    pub fn message_thread_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_thread_id = val.into();
-        this
+    pub fn message_thread_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_thread_id = val.into();
+        self
     }
 }
 impl super::TelegramMethod for DeleteForumTopic {

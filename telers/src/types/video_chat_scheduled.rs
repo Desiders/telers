@@ -21,9 +21,8 @@ impl VideoChatScheduled {
 
     /// Point in time (Unix timestamp) when the video chat is supposed to be started by a chat administrator
     #[must_use]
-    pub fn start_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.start_date = val.into();
-        this
+    pub fn start_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.start_date = val.into();
+        self
     }
 }

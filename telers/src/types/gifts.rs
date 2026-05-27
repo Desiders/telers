@@ -26,15 +26,14 @@ impl Gifts {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn gifts<T: Into<Box<[crate::types::Gift]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.gifts = this
+    pub fn gifts<T: Into<Box<[crate::types::Gift]>>>(mut self, val: T) -> Self {
+        self.gifts = self
             .gifts
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// The list of gifts
@@ -42,14 +41,13 @@ impl Gifts {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn gift<T: Into<crate::types::Gift>>(self, val: T) -> Self {
-        let mut this = self;
-        this.gifts = this
+    pub fn gift<T: Into<crate::types::Gift>>(mut self, val: T) -> Self {
+        self.gifts = self
             .gifts
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

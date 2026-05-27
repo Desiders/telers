@@ -35,25 +35,22 @@ impl MessageEntityCustomEmoji {
 
     /// Offset in UTF-16 code units to the start of the entity
     #[must_use]
-    pub fn offset<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.offset = val.into();
-        this
+    pub fn offset<T: Into<i64>>(mut self, val: T) -> Self {
+        self.offset = val.into();
+        self
     }
 
     /// Length of the entity in UTF-16 code units
     #[must_use]
-    pub fn length<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.length = val.into();
-        this
+    pub fn length<T: Into<i64>>(mut self, val: T) -> Self {
+        self.length = val.into();
+        self
     }
 
     /// For `custom_emoji` only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker
     #[must_use]
-    pub fn custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.custom_emoji_id = val.into();
-        this
+    pub fn custom_emoji_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.custom_emoji_id = val.into();
+        self
     }
 }

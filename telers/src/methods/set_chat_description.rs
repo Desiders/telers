@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `bool`
 #[derive(Clone, Debug, Serialize)]
 pub struct SetChatDescription {
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// New chat description, 0-255 characters
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -17,7 +17,7 @@ impl SetChatDescription {
     /// Creates a new `SetChatDescription`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target channel in the format @username
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -29,28 +29,25 @@ impl SetChatDescription {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target channel in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// New chat description, 0-255 characters
     #[must_use]
-    pub fn description<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.description = Some(val.into());
-        this
+    pub fn description<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.description = Some(val.into());
+        self
     }
 
     /// New chat description, 0-255 characters
     #[must_use]
-    pub fn description_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.description = val.map(Into::into);
-        this
+    pub fn description_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.description = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for SetChatDescription {

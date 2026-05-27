@@ -38,57 +38,53 @@ impl TransactionPartnerUserInvoicePayment {
 
     /// Information about the user
     #[must_use]
-    pub fn user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user = Box::new(val.into());
-        this
+    pub fn user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.user = Box::new(val.into());
+        self
     }
 
     /// Information about the affiliate that received a commission via this transaction. Can be available only for `invoice_payment` and `paid_media_payment` transactions.
     #[must_use]
-    pub fn affiliate<T: Into<crate::types::AffiliateInfo>>(self, val: T) -> Self {
-        let mut this = self;
-        this.affiliate = Some(val.into());
-        this
+    pub fn affiliate<T: Into<crate::types::AffiliateInfo>>(mut self, val: T) -> Self {
+        self.affiliate = Some(val.into());
+        self
     }
 
     /// Information about the affiliate that received a commission via this transaction. Can be available only for `invoice_payment` and `paid_media_payment` transactions.
     #[must_use]
-    pub fn affiliate_option<T: Into<crate::types::AffiliateInfo>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.affiliate = val.map(Into::into);
-        this
+    pub fn affiliate_option<T: Into<crate::types::AffiliateInfo>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.affiliate = val.map(Into::into);
+        self
     }
 
     /// Bot-specified invoice payload. Can be available only for `invoice_payment` transactions.
     #[must_use]
-    pub fn invoice_payload<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.invoice_payload = Some(val.into());
-        this
+    pub fn invoice_payload<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.invoice_payload = Some(val.into());
+        self
     }
 
     /// Bot-specified invoice payload. Can be available only for `invoice_payment` transactions.
     #[must_use]
-    pub fn invoice_payload_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.invoice_payload = val.map(Into::into);
-        this
+    pub fn invoice_payload_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.invoice_payload = val.map(Into::into);
+        self
     }
 
     /// The duration of the paid subscription. Can be available only for `invoice_payment` transactions.
     #[must_use]
-    pub fn subscription_period<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.subscription_period = Some(val.into());
-        this
+    pub fn subscription_period<T: Into<i64>>(mut self, val: T) -> Self {
+        self.subscription_period = Some(val.into());
+        self
     }
 
     /// The duration of the paid subscription. Can be available only for `invoice_payment` transactions.
     #[must_use]
-    pub fn subscription_period_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.subscription_period = val.map(Into::into);
-        this
+    pub fn subscription_period_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.subscription_period = val.map(Into::into);
+        self
     }
 }

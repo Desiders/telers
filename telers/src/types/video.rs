@@ -80,58 +80,51 @@ impl Video {
 
     /// Identifier for this file, which can be used to download or reuse the file
     #[must_use]
-    pub fn file_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.file_id = val.into();
-        this
+    pub fn file_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.file_id = val.into();
+        self
     }
 
     /// Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
     #[must_use]
-    pub fn file_unique_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.file_unique_id = val.into();
-        this
+    pub fn file_unique_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.file_unique_id = val.into();
+        self
     }
 
     /// Video width as defined by the sender
     #[must_use]
-    pub fn width<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.width = val.into();
-        this
+    pub fn width<T: Into<i64>>(mut self, val: T) -> Self {
+        self.width = val.into();
+        self
     }
 
     /// Video height as defined by the sender
     #[must_use]
-    pub fn height<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.height = val.into();
-        this
+    pub fn height<T: Into<i64>>(mut self, val: T) -> Self {
+        self.height = val.into();
+        self
     }
 
     /// Duration of the video in seconds as defined by the sender
     #[must_use]
-    pub fn duration<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.duration = val.into();
-        this
+    pub fn duration<T: Into<i64>>(mut self, val: T) -> Self {
+        self.duration = val.into();
+        self
     }
 
     /// Video thumbnail
     #[must_use]
-    pub fn thumbnail<T: Into<crate::types::PhotoSize>>(self, val: T) -> Self {
-        let mut this = self;
-        this.thumbnail = Some(val.into());
-        this
+    pub fn thumbnail<T: Into<crate::types::PhotoSize>>(mut self, val: T) -> Self {
+        self.thumbnail = Some(val.into());
+        self
     }
 
     /// Video thumbnail
     #[must_use]
-    pub fn thumbnail_option<T: Into<crate::types::PhotoSize>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.thumbnail = val.map(Into::into);
-        this
+    pub fn thumbnail_option<T: Into<crate::types::PhotoSize>>(mut self, val: Option<T>) -> Self {
+        self.thumbnail = val.map(Into::into);
+        self
     }
 
     /// Available sizes of the cover of the video in the message
@@ -139,17 +132,16 @@ impl Video {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn covers<T: Into<Box<[crate::types::PhotoSize]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.cover = Some(
-            this.cover
+    pub fn covers<T: Into<Box<[crate::types::PhotoSize]>>>(mut self, val: T) -> Self {
+        self.cover = Some(
+            self.cover
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// Available sizes of the cover of the video in the message
@@ -157,17 +149,16 @@ impl Video {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn cover<T: Into<crate::types::PhotoSize>>(self, val: T) -> Self {
-        let mut this = self;
-        this.cover = Some(
-            this.cover
+    pub fn cover<T: Into<crate::types::PhotoSize>>(mut self, val: T) -> Self {
+        self.cover = Some(
+            self.cover
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// Available sizes of the cover of the video in the message
@@ -175,26 +166,23 @@ impl Video {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn cover_option<T: Into<Box<[crate::types::PhotoSize]>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.cover = val.map(Into::into);
-        this
+    pub fn cover_option<T: Into<Box<[crate::types::PhotoSize]>>>(mut self, val: Option<T>) -> Self {
+        self.cover = val.map(Into::into);
+        self
     }
 
     /// Timestamp in seconds from which the video will play in the message
     #[must_use]
-    pub fn start_timestamp<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.start_timestamp = Some(val.into());
-        this
+    pub fn start_timestamp<T: Into<i64>>(mut self, val: T) -> Self {
+        self.start_timestamp = Some(val.into());
+        self
     }
 
     /// Timestamp in seconds from which the video will play in the message
     #[must_use]
-    pub fn start_timestamp_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.start_timestamp = val.map(Into::into);
-        this
+    pub fn start_timestamp_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.start_timestamp = val.map(Into::into);
+        self
     }
 
     /// List of available qualities of the video
@@ -202,17 +190,16 @@ impl Video {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn qualities<T: Into<Box<[crate::types::VideoQuality]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.qualities = Some(
-            this.qualities
+    pub fn qualities<T: Into<Box<[crate::types::VideoQuality]>>>(mut self, val: T) -> Self {
+        self.qualities = Some(
+            self.qualities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// List of available qualities of the video
@@ -220,17 +207,16 @@ impl Video {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn quality<T: Into<crate::types::VideoQuality>>(self, val: T) -> Self {
-        let mut this = self;
-        this.qualities = Some(
-            this.qualities
+    pub fn quality<T: Into<crate::types::VideoQuality>>(mut self, val: T) -> Self {
+        self.qualities = Some(
+            self.qualities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// List of available qualities of the video
@@ -239,59 +225,52 @@ impl Video {
     /// Adds a single element.
     #[must_use]
     pub fn qualities_option<T: Into<Box<[crate::types::VideoQuality]>>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.qualities = val.map(Into::into);
-        this
+        self.qualities = val.map(Into::into);
+        self
     }
 
     /// Original filename as defined by the sender
     #[must_use]
-    pub fn file_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.file_name = Some(val.into());
-        this
+    pub fn file_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.file_name = Some(val.into());
+        self
     }
 
     /// Original filename as defined by the sender
     #[must_use]
-    pub fn file_name_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.file_name = val.map(Into::into);
-        this
+    pub fn file_name_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.file_name = val.map(Into::into);
+        self
     }
 
     /// MIME type of the file as defined by the sender
     #[must_use]
-    pub fn mime_type<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.mime_type = Some(val.into());
-        this
+    pub fn mime_type<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.mime_type = Some(val.into());
+        self
     }
 
     /// MIME type of the file as defined by the sender
     #[must_use]
-    pub fn mime_type_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.mime_type = val.map(Into::into);
-        this
+    pub fn mime_type_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.mime_type = val.map(Into::into);
+        self
     }
 
     /// File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
     #[must_use]
-    pub fn file_size<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.file_size = Some(val.into());
-        this
+    pub fn file_size<T: Into<i64>>(mut self, val: T) -> Self {
+        self.file_size = Some(val.into());
+        self
     }
 
     /// File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
     #[must_use]
-    pub fn file_size_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.file_size = val.map(Into::into);
-        this
+    pub fn file_size_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.file_size = val.map(Into::into);
+        self
     }
 }

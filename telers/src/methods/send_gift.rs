@@ -10,7 +10,7 @@ pub struct SendGift {
     /// Required if `chat_id` is not specified. Unique identifier of the target user who will receive the gift.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_id: Option<i64>,
-    /// Required if `user_id` is not specified. Unique identifier for the chat or username of the channel (in the format @channelusername) that will receive the gift.
+    /// Required if `user_id` is not specified. Unique identifier for the chat or username of the channel (in the format @username) that will receive the gift.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub chat_id: Option<crate::types::ChatIdKind>,
     /// Identifier of the gift; limited gifts can't be sent to channel chats
@@ -51,90 +51,79 @@ impl SendGift {
 
     /// Required if `chat_id` is not specified. Unique identifier of the target user who will receive the gift.
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = Some(val.into());
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = Some(val.into());
+        self
     }
 
     /// Required if `chat_id` is not specified. Unique identifier of the target user who will receive the gift.
     #[must_use]
-    pub fn user_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.user_id = val.map(Into::into);
-        this
+    pub fn user_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.user_id = val.map(Into::into);
+        self
     }
 
-    /// Required if `user_id` is not specified. Unique identifier for the chat or username of the channel (in the format @channelusername) that will receive the gift.
+    /// Required if `user_id` is not specified. Unique identifier for the chat or username of the channel (in the format @username) that will receive the gift.
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = Some(val.into());
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = Some(val.into());
+        self
     }
 
-    /// Required if `user_id` is not specified. Unique identifier for the chat or username of the channel (in the format @channelusername) that will receive the gift.
+    /// Required if `user_id` is not specified. Unique identifier for the chat or username of the channel (in the format @username) that will receive the gift.
     #[must_use]
-    pub fn chat_id_option<T: Into<crate::types::ChatIdKind>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.chat_id = val.map(Into::into);
-        this
+    pub fn chat_id_option<T: Into<crate::types::ChatIdKind>>(mut self, val: Option<T>) -> Self {
+        self.chat_id = val.map(Into::into);
+        self
     }
 
     /// Identifier of the gift; limited gifts can't be sent to channel chats
     #[must_use]
-    pub fn gift_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.gift_id = val.into();
-        this
+    pub fn gift_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.gift_id = val.into();
+        self
     }
 
     /// Pass `true` to pay for the gift upgrade from the bot's balance, thereby making the upgrade free for the receiver
     #[must_use]
-    pub fn pay_for_upgrade<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.pay_for_upgrade = Some(val.into());
-        this
+    pub fn pay_for_upgrade<T: Into<bool>>(mut self, val: T) -> Self {
+        self.pay_for_upgrade = Some(val.into());
+        self
     }
 
     /// Pass `true` to pay for the gift upgrade from the bot's balance, thereby making the upgrade free for the receiver
     #[must_use]
-    pub fn pay_for_upgrade_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.pay_for_upgrade = val.map(Into::into);
-        this
+    pub fn pay_for_upgrade_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.pay_for_upgrade = val.map(Into::into);
+        self
     }
 
     /// Text that will be shown along with the gift; 0-128 characters
     #[must_use]
-    pub fn text<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text = Some(val.into());
-        this
+    pub fn text<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.text = Some(val.into());
+        self
     }
 
     /// Text that will be shown along with the gift; 0-128 characters
     #[must_use]
-    pub fn text_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.text = val.map(Into::into);
-        this
+    pub fn text_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.text = val.map(Into::into);
+        self
     }
 
     /// Mode for parsing entities in the text. See formatting options for more details. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
     #[must_use]
-    pub fn text_parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text_parse_mode = Some(val.into());
-        this
+    pub fn text_parse_mode<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.text_parse_mode = Some(val.into());
+        self
     }
 
     /// Mode for parsing entities in the text. See formatting options for more details. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
     #[must_use]
-    pub fn text_parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.text_parse_mode = val.map(Into::into);
-        this
+    pub fn text_parse_mode_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.text_parse_mode = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of `text_parse_mode`. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
@@ -146,19 +135,18 @@ impl SendGift {
         TItem: Into<crate::types::MessageEntity>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.text_entities = Some(
-            this.text_entities
+        self.text_entities = Some(
+            self.text_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of `text_parse_mode`. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
@@ -166,17 +154,16 @@ impl SendGift {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn text_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text_entities = Some(
-            this.text_entities
+    pub fn text_entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.text_entities = Some(
+            self.text_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of `text_parse_mode`. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
@@ -188,12 +175,11 @@ impl SendGift {
         TItem: Into<crate::types::MessageEntity>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.text_entities = val.map(|v| v.into_iter().map(Into::into).collect());
-        this
+        self.text_entities = val.map(|v| v.into_iter().map(Into::into).collect());
+        self
     }
 }
 impl super::TelegramMethod for SendGift {

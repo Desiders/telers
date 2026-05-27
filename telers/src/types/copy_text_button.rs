@@ -21,9 +21,8 @@ impl CopyTextButton {
 
     /// The text to be copied to the clipboard; 1-256 characters
     #[must_use]
-    pub fn text<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text = val.into();
-        this
+    pub fn text<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.text = val.into();
+        self
     }
 }

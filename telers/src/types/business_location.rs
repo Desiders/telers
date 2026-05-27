@@ -28,25 +28,22 @@ impl BusinessLocation {
 
     /// Address of the business
     #[must_use]
-    pub fn address<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.address = val.into();
-        this
+    pub fn address<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.address = val.into();
+        self
     }
 
     /// Location of the business
     #[must_use]
-    pub fn location<T: Into<crate::types::Location>>(self, val: T) -> Self {
-        let mut this = self;
-        this.location = Some(val.into());
-        this
+    pub fn location<T: Into<crate::types::Location>>(mut self, val: T) -> Self {
+        self.location = Some(val.into());
+        self
     }
 
     /// Location of the business
     #[must_use]
-    pub fn location_option<T: Into<crate::types::Location>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.location = val.map(Into::into);
-        this
+    pub fn location_option<T: Into<crate::types::Location>>(mut self, val: Option<T>) -> Self {
+        self.location = val.map(Into::into);
+        self
     }
 }

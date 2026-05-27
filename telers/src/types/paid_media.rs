@@ -1,15 +1,17 @@
 use serde::{Deserialize, Serialize};
 /// This object describes paid media. Currently, it can be one of
-/// - [`crate::types::PaidMediaPreview`]
+/// - [`crate::types::PaidMediaLivePhoto`]
 /// - [`crate::types::PaidMediaPhoto`]
+/// - [`crate::types::PaidMediaPreview`]
 /// - [`crate::types::PaidMediaVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#paidmedia>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum PaidMedia {
-    Preview(crate::types::PaidMediaPreview),
+    LivePhoto(crate::types::PaidMediaLivePhoto),
     Photo(crate::types::PaidMediaPhoto),
+    Preview(crate::types::PaidMediaPreview),
     Video(crate::types::PaidMediaVideo),
 }
 impl PaidMedia {
@@ -31,6 +33,17 @@ impl PaidMedia {
     pub fn height(&self) -> Option<i64> {
         match self {
             Self::Preview(val) => val.height,
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `live_photo`.
+    ///
+    /// The photo
+    #[must_use]
+    pub fn live_photo(&self) -> Option<&crate::types::LivePhoto> {
+        match self {
+            Self::LivePhoto(val) => Some(&val.live_photo),
             _ => None,
         }
     }
@@ -84,6 +97,10 @@ impl PaidMedia {
     #[must_use]
     pub fn file_id(&self) -> Option<&str> {
         match self {
+            Self::LivePhoto(val) => {
+                let inner = &val.live_photo;
+                Some(inner.file_id.as_ref())
+            }
             Self::Video(val) => {
                 let inner = val.video.as_ref();
                 Some(inner.file_id.as_ref())
@@ -108,6 +125,10 @@ impl PaidMedia {
     #[must_use]
     pub fn file_size(&self) -> Option<i64> {
         match self {
+            Self::LivePhoto(val) => {
+                let inner = &val.live_photo;
+                inner.file_size
+            }
             Self::Video(val) => {
                 let inner = val.video.as_ref();
                 inner.file_size
@@ -120,6 +141,10 @@ impl PaidMedia {
     #[must_use]
     pub fn file_unique_id(&self) -> Option<&str> {
         match self {
+            Self::LivePhoto(val) => {
+                let inner = &val.live_photo;
+                Some(inner.file_unique_id.as_ref())
+            }
             Self::Video(val) => {
                 let inner = val.video.as_ref();
                 Some(inner.file_unique_id.as_ref())
@@ -132,6 +157,10 @@ impl PaidMedia {
     #[must_use]
     pub fn mime_type(&self) -> Option<&str> {
         match self {
+            Self::LivePhoto(val) => {
+                let inner = &val.live_photo;
+                inner.mime_type.as_deref()
+            }
             Self::Video(val) => {
                 let inner = val.video.as_ref();
                 inner.mime_type.as_deref()
@@ -176,21 +205,21 @@ impl PaidMedia {
         }
     }
 }
-impl From<crate::types::PaidMediaPreview> for PaidMedia {
-    fn from(val: crate::types::PaidMediaPreview) -> Self {
-        Self::Preview(val)
+impl From<crate::types::PaidMediaLivePhoto> for PaidMedia {
+    fn from(val: crate::types::PaidMediaLivePhoto) -> Self {
+        Self::LivePhoto(val)
     }
 }
-impl TryFrom<PaidMedia> for crate::types::PaidMediaPreview {
+impl TryFrom<PaidMedia> for crate::types::PaidMediaLivePhoto {
     type Error = crate::errors::ConvertToTypeError;
 
     fn try_from(val: PaidMedia) -> Result<Self, Self::Error> {
-        if let PaidMedia::Preview(inner) = val {
+        if let PaidMedia::LivePhoto(inner) = val {
             Ok(inner)
         } else {
             Err(Self::Error::new(
                 stringify!(PaidMedia),
-                stringify!(PaidMediaPreview),
+                stringify!(PaidMediaLivePhoto),
             ))
         }
     }
@@ -210,6 +239,25 @@ impl TryFrom<PaidMedia> for crate::types::PaidMediaPhoto {
             Err(Self::Error::new(
                 stringify!(PaidMedia),
                 stringify!(PaidMediaPhoto),
+            ))
+        }
+    }
+}
+impl From<crate::types::PaidMediaPreview> for PaidMedia {
+    fn from(val: crate::types::PaidMediaPreview) -> Self {
+        Self::Preview(val)
+    }
+}
+impl TryFrom<PaidMedia> for crate::types::PaidMediaPreview {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: PaidMedia) -> Result<Self, Self::Error> {
+        if let PaidMedia::Preview(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(PaidMedia),
+                stringify!(PaidMediaPreview),
             ))
         }
     }

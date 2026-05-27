@@ -29,34 +29,30 @@ impl SetMyDescription {
 
     /// New bot description; 0-512 characters. Pass an empty string to remove the dedicated description for the given language.
     #[must_use]
-    pub fn description<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.description = Some(val.into());
-        this
+    pub fn description<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.description = Some(val.into());
+        self
     }
 
     /// New bot description; 0-512 characters. Pass an empty string to remove the dedicated description for the given language.
     #[must_use]
-    pub fn description_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.description = val.map(Into::into);
-        this
+    pub fn description_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.description = val.map(Into::into);
+        self
     }
 
     /// A two-letter ISO 639-1 language code. If empty, the description will be applied to all users for whose language there is no dedicated description.
     #[must_use]
-    pub fn language_code<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.language_code = Some(val.into());
-        this
+    pub fn language_code<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.language_code = Some(val.into());
+        self
     }
 
     /// A two-letter ISO 639-1 language code. If empty, the description will be applied to all users for whose language there is no dedicated description.
     #[must_use]
-    pub fn language_code_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.language_code = val.map(Into::into);
-        this
+    pub fn language_code_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.language_code = val.map(Into::into);
+        self
     }
 }
 impl Default for SetMyDescription {

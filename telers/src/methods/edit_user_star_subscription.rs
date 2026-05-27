@@ -36,26 +36,23 @@ impl EditUserStarSubscription {
 
     /// Identifier of the user whose subscription will be edited
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// Telegram payment identifier for the subscription
     #[must_use]
-    pub fn telegram_payment_charge_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.telegram_payment_charge_id = val.into();
-        this
+    pub fn telegram_payment_charge_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.telegram_payment_charge_id = val.into();
+        self
     }
 
     /// Pass `true` to cancel extension of the user subscription; the subscription must be active up to the end of the current subscription period. Pass `false` to allow the user to re-enable a subscription that was previously canceled by the bot.
     #[must_use]
-    pub fn is_canceled<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_canceled = val.into();
-        this
+    pub fn is_canceled<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_canceled = val.into();
+        self
     }
 }
 impl super::TelegramMethod for EditUserStarSubscription {

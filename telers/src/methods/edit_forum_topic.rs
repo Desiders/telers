@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `bool`
 #[derive(Clone, Debug, Serialize)]
 pub struct EditForumTopic {
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier for the target message thread of the forum topic
     pub message_thread_id: i64,
@@ -22,7 +22,7 @@ impl EditForumTopic {
     /// Creates a new `EditForumTopic`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup in the format @username
     /// * `message_thread_id` - Unique identifier for the target message thread of the forum topic
     ///
     /// # Notes
@@ -40,52 +40,46 @@ impl EditForumTopic {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Unique identifier for the target message thread of the forum topic
     #[must_use]
-    pub fn message_thread_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_thread_id = val.into();
-        this
+    pub fn message_thread_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_thread_id = val.into();
+        self
     }
 
     /// New topic name, 0-128 characters. If not specified or empty, the current name of the topic will be kept
     #[must_use]
-    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.name = Some(val.into());
-        this
+    pub fn name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.name = Some(val.into());
+        self
     }
 
     /// New topic name, 0-128 characters. If not specified or empty, the current name of the topic will be kept
     #[must_use]
-    pub fn name_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.name = val.map(Into::into);
-        this
+    pub fn name_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.name = val.map(Into::into);
+        self
     }
 
     /// New unique identifier of the custom emoji shown as the topic icon. Use [`crate::methods::GetForumTopicIconStickers`] to get all allowed custom emoji identifiers. Pass an empty string to remove the icon. If not specified, the current icon will be kept
     #[must_use]
-    pub fn icon_custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.icon_custom_emoji_id = Some(val.into());
-        this
+    pub fn icon_custom_emoji_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.icon_custom_emoji_id = Some(val.into());
+        self
     }
 
     /// New unique identifier of the custom emoji shown as the topic icon. Use [`crate::methods::GetForumTopicIconStickers`] to get all allowed custom emoji identifiers. Pass an empty string to remove the icon. If not specified, the current icon will be kept
     #[must_use]
-    pub fn icon_custom_emoji_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.icon_custom_emoji_id = val.map(Into::into);
-        this
+    pub fn icon_custom_emoji_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.icon_custom_emoji_id = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for EditForumTopic {

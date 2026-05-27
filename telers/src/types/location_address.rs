@@ -36,57 +36,50 @@ impl LocationAddress {
 
     /// The two-letter ISO 3166-1 alpha-2 country code of the country where the location is located
     #[must_use]
-    pub fn country_code<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.country_code = val.into();
-        this
+    pub fn country_code<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.country_code = val.into();
+        self
     }
 
     /// State of the location
     #[must_use]
-    pub fn state<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.state = Some(val.into());
-        this
+    pub fn state<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.state = Some(val.into());
+        self
     }
 
     /// State of the location
     #[must_use]
-    pub fn state_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.state = val.map(Into::into);
-        this
+    pub fn state_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.state = val.map(Into::into);
+        self
     }
 
     /// City of the location
     #[must_use]
-    pub fn city<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.city = Some(val.into());
-        this
+    pub fn city<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.city = Some(val.into());
+        self
     }
 
     /// City of the location
     #[must_use]
-    pub fn city_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.city = val.map(Into::into);
-        this
+    pub fn city_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.city = val.map(Into::into);
+        self
     }
 
     /// Street address of the location
     #[must_use]
-    pub fn street<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.street = Some(val.into());
-        this
+    pub fn street<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.street = Some(val.into());
+        self
     }
 
     /// Street address of the location
     #[must_use]
-    pub fn street_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.street = val.map(Into::into);
-        this
+    pub fn street_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.street = val.map(Into::into);
+        self
     }
 }

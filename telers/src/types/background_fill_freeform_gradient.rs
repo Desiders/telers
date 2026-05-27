@@ -24,15 +24,14 @@ impl BackgroundFillFreeformGradient {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn colors<T: Into<Box<[i64]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.colors = this
+    pub fn colors<T: Into<Box<[i64]>>>(mut self, val: T) -> Self {
+        self.colors = self
             .colors
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// A list of the 3 or 4 base colors that are used to generate the freeform gradient in the RGB24 format
@@ -40,14 +39,13 @@ impl BackgroundFillFreeformGradient {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn color<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.colors = this
+    pub fn color<T: Into<i64>>(mut self, val: T) -> Self {
+        self.colors = self
             .colors
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

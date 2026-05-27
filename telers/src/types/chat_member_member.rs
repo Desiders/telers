@@ -32,41 +32,36 @@ impl ChatMemberMember {
 
     /// Tag of the member
     #[must_use]
-    pub fn tag<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.tag = Some(val.into());
-        this
+    pub fn tag<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.tag = Some(val.into());
+        self
     }
 
     /// Tag of the member
     #[must_use]
-    pub fn tag_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.tag = val.map(Into::into);
-        this
+    pub fn tag_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.tag = val.map(Into::into);
+        self
     }
 
     /// Information about the user
     #[must_use]
-    pub fn user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user = Box::new(val.into());
-        this
+    pub fn user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.user = Box::new(val.into());
+        self
     }
 
     /// Date when the user's subscription will expire; Unix time
     #[must_use]
-    pub fn until_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.until_date = Some(val.into());
-        this
+    pub fn until_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.until_date = Some(val.into());
+        self
     }
 
     /// Date when the user's subscription will expire; Unix time
     #[must_use]
-    pub fn until_date_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.until_date = val.map(Into::into);
-        this
+    pub fn until_date_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.until_date = val.map(Into::into);
+        self
     }
 }

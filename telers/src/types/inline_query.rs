@@ -54,65 +54,57 @@ impl InlineQuery {
 
     /// Unique identifier for this query
     #[must_use]
-    pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 
     /// Sender
     #[must_use]
-    pub fn from<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.from = Box::new(val.into());
-        this
+    pub fn from<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.from = Box::new(val.into());
+        self
     }
 
     /// Text of the query (up to 256 characters)
     #[must_use]
-    pub fn query<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.query = val.into();
-        this
+    pub fn query<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.query = val.into();
+        self
     }
 
     /// Offset of the results to be returned, can be controlled by the bot
     #[must_use]
-    pub fn offset<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.offset = val.into();
-        this
+    pub fn offset<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.offset = val.into();
+        self
     }
 
     /// Type of the chat from which the inline query was sent. Can be either `sender` for a private chat with the inline query sender, `private`, `group`, `supergroup`, or `channel`. The chat type should be always known for requests sent from official clients and most third-party clients, unless the request was sent from a secret chat
     #[must_use]
-    pub fn chat_type<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_type = Some(val.into());
-        this
+    pub fn chat_type<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.chat_type = Some(val.into());
+        self
     }
 
     /// Type of the chat from which the inline query was sent. Can be either `sender` for a private chat with the inline query sender, `private`, `group`, `supergroup`, or `channel`. The chat type should be always known for requests sent from official clients and most third-party clients, unless the request was sent from a secret chat
     #[must_use]
-    pub fn chat_type_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.chat_type = val.map(Into::into);
-        this
+    pub fn chat_type_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.chat_type = val.map(Into::into);
+        self
     }
 
     /// Sender location, only for bots that request user location
     #[must_use]
-    pub fn location<T: Into<crate::types::Location>>(self, val: T) -> Self {
-        let mut this = self;
-        this.location = Some(val.into());
-        this
+    pub fn location<T: Into<crate::types::Location>>(mut self, val: T) -> Self {
+        self.location = Some(val.into());
+        self
     }
 
     /// Sender location, only for bots that request user location
     #[must_use]
-    pub fn location_option<T: Into<crate::types::Location>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.location = val.map(Into::into);
-        this
+    pub fn location_option<T: Into<crate::types::Location>>(mut self, val: Option<T>) -> Self {
+        self.location = val.map(Into::into);
+        self
     }
 }

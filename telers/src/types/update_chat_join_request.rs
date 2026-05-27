@@ -30,18 +30,16 @@ impl UpdateChatJoinRequest {
 
     /// The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
     #[must_use]
-    pub fn update_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.update_id = val.into();
-        this
+    pub fn update_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.update_id = val.into();
+        self
     }
 
     /// A request to join the chat has been sent. The bot must have the `can_invite_users` administrator right in the chat to receive these updates.
     #[must_use]
-    pub fn chat_join_request<T: Into<crate::types::ChatJoinRequest>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_join_request = val.into();
-        this
+    pub fn chat_join_request<T: Into<crate::types::ChatJoinRequest>>(mut self, val: T) -> Self {
+        self.chat_join_request = val.into();
+        self
     }
 }
 impl From<UpdateChatJoinRequest> for crate::types::ChatJoinRequest {

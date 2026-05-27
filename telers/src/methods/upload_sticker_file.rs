@@ -36,26 +36,23 @@ impl UploadStickerFile {
 
     /// User identifier of sticker file owner
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// A file with the sticker in .WEBP, .PNG, .TGS, or .WEBM format. See <https://core.telegram.org/stickers> for technical requirements. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
-    pub fn sticker<T: Into<crate::types::InputFile>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sticker = val.into();
-        this
+    pub fn sticker<T: Into<crate::types::InputFile>>(mut self, val: T) -> Self {
+        self.sticker = val.into();
+        self
     }
 
     /// Format of the sticker, must be one of `static`, `animated`, `video`
     #[must_use]
-    pub fn sticker_format<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sticker_format = val.into();
-        this
+    pub fn sticker_format<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.sticker_format = val.into();
+        self
     }
 }
 impl super::TelegramMethod for UploadStickerFile {

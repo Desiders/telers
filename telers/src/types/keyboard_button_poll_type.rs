@@ -22,18 +22,16 @@ impl KeyboardButtonPollType {
 
     /// If quiz is passed, the user will be allowed to create only polls in the quiz mode. If regular is passed, only regular polls will be allowed. Otherwise, the user will be allowed to create a poll of any type.
     #[must_use]
-    pub fn r#type<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.r#type = Some(val.into());
-        this
+    pub fn r#type<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.r#type = Some(val.into());
+        self
     }
 
     /// If quiz is passed, the user will be allowed to create only polls in the quiz mode. If regular is passed, only regular polls will be allowed. Otherwise, the user will be allowed to create a poll of any type.
     #[must_use]
-    pub fn type_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.r#type = val.map(Into::into);
-        this
+    pub fn type_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.r#type = val.map(Into::into);
+        self
     }
 }
 impl Default for KeyboardButtonPollType {

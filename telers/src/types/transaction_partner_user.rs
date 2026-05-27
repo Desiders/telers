@@ -388,6 +388,15 @@ impl TransactionPartnerUser {
         }
     }
 
+    /// Helper method for nested field `supports_guest_queries`.
+    #[must_use]
+    pub fn supports_guest_queries(&self) -> Option<bool> {
+        {
+            let inner = self.user();
+            inner.supports_guest_queries
+        }
+    }
+
     /// Helper method for nested field `supports_inline_queries`.
     #[must_use]
     pub fn supports_inline_queries(&self) -> Option<bool> {

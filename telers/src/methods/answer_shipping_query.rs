@@ -39,18 +39,16 @@ impl AnswerShippingQuery {
 
     /// Unique identifier for the query to be answered
     #[must_use]
-    pub fn shipping_query_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.shipping_query_id = val.into();
-        this
+    pub fn shipping_query_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.shipping_query_id = val.into();
+        self
     }
 
     /// Pass `true` if delivery to the specified address is possible and `false` if there are any problems (for example, if delivery to the specified address is not possible)
     #[must_use]
-    pub fn ok<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.ok = val.into();
-        this
+    pub fn ok<T: Into<bool>>(mut self, val: T) -> Self {
+        self.ok = val.into();
+        self
     }
 
     /// Required if ok is `true`. A JSON-serialized array of available shipping options.
@@ -62,19 +60,18 @@ impl AnswerShippingQuery {
         TItem: Into<crate::types::ShippingOption>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.shipping_options = Some(
-            this.shipping_options
+        self.shipping_options = Some(
+            self.shipping_options
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
         );
-        this
+        self
     }
 
     /// Required if ok is `true`. A JSON-serialized array of available shipping options.
@@ -82,17 +79,16 @@ impl AnswerShippingQuery {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn shipping_option<T: Into<crate::types::ShippingOption>>(self, val: T) -> Self {
-        let mut this = self;
-        this.shipping_options = Some(
-            this.shipping_options
+    pub fn shipping_option<T: Into<crate::types::ShippingOption>>(mut self, val: T) -> Self {
+        self.shipping_options = Some(
+            self.shipping_options
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// Required if ok is `true`. A JSON-serialized array of available shipping options.
@@ -104,28 +100,25 @@ impl AnswerShippingQuery {
         TItem: Into<crate::types::ShippingOption>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.shipping_options = val.map(|v| v.into_iter().map(Into::into).collect());
-        this
+        self.shipping_options = val.map(|v| v.into_iter().map(Into::into).collect());
+        self
     }
 
     /// Required if ok is `false`. Error message in human readable form that explains why it is impossible to complete the order (e.g. `Sorry, delivery to your desired address is unavailable`). Telegram will display this message to the user.
     #[must_use]
-    pub fn error_message<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.error_message = Some(val.into());
-        this
+    pub fn error_message<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.error_message = Some(val.into());
+        self
     }
 
     /// Required if ok is `false`. Error message in human readable form that explains why it is impossible to complete the order (e.g. `Sorry, delivery to your desired address is unavailable`). Telegram will display this message to the user.
     #[must_use]
-    pub fn error_message_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.error_message = val.map(Into::into);
-        this
+    pub fn error_message_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.error_message = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for AnswerShippingQuery {

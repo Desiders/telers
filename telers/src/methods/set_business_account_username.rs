@@ -31,26 +31,23 @@ impl SetBusinessAccountUsername {
 
     /// Unique identifier of the business connection
     #[must_use]
-    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection_id = val.into();
-        this
+    pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.business_connection_id = val.into();
+        self
     }
 
     /// The new value of the username for the business account; 0-32 characters
     #[must_use]
-    pub fn username<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.username = Some(val.into());
-        this
+    pub fn username<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.username = Some(val.into());
+        self
     }
 
     /// The new value of the username for the business account; 0-32 characters
     #[must_use]
-    pub fn username_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.username = val.map(Into::into);
-        this
+    pub fn username_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.username = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for SetBusinessAccountUsername {

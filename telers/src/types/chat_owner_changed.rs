@@ -21,9 +21,8 @@ impl ChatOwnerChanged {
 
     /// The new owner of the chat
     #[must_use]
-    pub fn new_owner<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.new_owner = Box::new(val.into());
-        this
+    pub fn new_owner<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.new_owner = Box::new(val.into());
+        self
     }
 }
