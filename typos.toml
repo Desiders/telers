@@ -1,4 +1,5 @@
 [files]
 extend-exclude = [
     "telers/src/filters/text.rs",
+    "examples/dialogs_mega/src/dialogs/scrolls.rs"
 ]
