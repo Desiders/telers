@@ -5,6 +5,22 @@ use super::Text;
 use crate::entities::DataMap;
 use async_trait::async_trait;
 
+/// Render a list of items pulled from render data and joined by a separator.
+///
+/// `items_getter` is invoked with the current [`DataMap`] and returns any
+/// `IntoIterator`. `item_renderer` formats each item and the rendered strings
+/// are joined by the configured separator (default `"\n"`).
+///
+/// # Example
+///
+/// ```ignore
+/// use telers_dialog::widgets::ListText;
+///
+/// let text = ListText::builder()
+///     .items_getter(|_data| ["espresso", "filter"])
+///     .item_renderer(|item, _data| format!("- {item}"))
+///     .build();
+/// ```
 pub struct ListText<ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr> {
     items_getter: ItemsGetter,
     item_renderer: ItemRenderer,
@@ -17,6 +33,7 @@ pub struct ListText<ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr> {
 impl<ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr>
     ListText<ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr>
 {
+    /// Build a list-text widget.
     #[builder]
     #[must_use]
     pub fn new(

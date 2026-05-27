@@ -16,6 +16,7 @@ mod callback;
 mod click;
 mod group;
 mod inline_keyboard;
+mod macros;
 mod pager;
 mod request;
 mod select;

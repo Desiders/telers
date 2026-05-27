@@ -6,15 +6,21 @@ use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::debug;
 
 use super::super::{
-    format_callback_data, parse_callback_data, render_button_row, when::is_allowed, Button,
-    ButtonAction, ClickContext, Keyboard, WhenCondition,
+    format_callback_data, macros::impl_button_row_helpers, parse_callback_data, render_button_row,
+    when::is_allowed, Button, ButtonAction, ClickContext, Keyboard, WhenCondition,
 };
 use crate::{
     entities::{Context, DataMap, RenderContext},
     widgets::Text,
 };
 
-/// Single-button boolean selector stored in `widget_data`.
+/// Single-button boolean toggle stored in `widget_data`.
+///
+/// The button label switches between `checked_text` and `unchecked_text` based
+/// on the boolean stored under `widget_id`. The widget writes back the toggled
+/// value as a [`ButtonAction::SetWidgetValue`] when clicked.
+///
+/// [`ButtonAction::SetWidgetValue`]: crate::widgets::ButtonAction::SetWidgetValue
 pub struct Checkbox<WidgetId, CheckedText, UncheckedText> {
     id: WidgetId,
     checked_text: CheckedText,
@@ -64,35 +70,7 @@ where
     CheckedText: Text,
     UncheckedText: Text,
 {
-    /// Append a full header row before the checkbox button.
-    pub fn header_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
-        self.header_rows.push(buttons.into_iter().collect());
-        self
-    }
-
-    /// Append a button to the last header row, or create one if absent.
-    pub fn header_push(mut self, button: Button) -> Self {
-        match self.header_rows.last_mut() {
-            Some(row) => row.push(button),
-            None => self.header_rows.push(vec![button]),
-        }
-        self
-    }
-
-    /// Append a full footer row after the checkbox button.
-    pub fn footer_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
-        self.footer_rows.push(buttons.into_iter().collect());
-        self
-    }
-
-    /// Append a button to the last footer row, or create one if absent.
-    pub fn footer_push(mut self, button: Button) -> Self {
-        match self.footer_rows.last_mut() {
-            Some(row) => row.push(button),
-            None => self.footer_rows.push(vec![button]),
-        }
-        self
-    }
+    impl_button_row_helpers!();
 }
 
 #[async_trait]

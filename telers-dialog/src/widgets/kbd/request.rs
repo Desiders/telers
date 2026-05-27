@@ -1,3 +1,15 @@
+//! Reply-keyboard request widgets and `ForceReply`.
+//!
+//! These widgets render Telegram reply markup that asks the user to share a
+//! piece of native data (contact, location, or a fresh poll) or that forces the
+//! user's next message to be a reply. They do not produce callback data, so
+//! their [`Keyboard::handle_callback`] implementations always return `None`;
+//! the surrounding window typically pairs them with a [`MessageInput`] to read
+//! whatever the user submits.
+//!
+//! [`Keyboard::handle_callback`]: super::Keyboard::handle_callback
+//! [`MessageInput`]: crate::widgets::MessageInput
+
 use async_trait::async_trait;
 use bon::bon;
 use std::borrow::Cow;
@@ -10,12 +22,20 @@ use telers::{
     },
 };
 
-use super::{when::is_allowed, ButtonAction, ClickContext, Keyboard, WhenCondition};
+use super::{
+    macros::impl_reply_keyboard_options_setters, when::is_allowed, ButtonAction, ClickContext,
+    Keyboard, WhenCondition,
+};
 use crate::{
     entities::{Context, DataMap, RenderContext},
     widgets::Text,
 };
 
+/// Layout flags shared by reply-keyboard request widgets.
+///
+/// Each flag mirrors a field on Telegram's `ReplyKeyboardMarkup`; `None` keeps
+/// the Telegram default. Built and mutated by the helpers injected through
+/// [`impl_reply_keyboard_options_setters!`](super::macros::impl_reply_keyboard_options_setters).
 #[derive(Default)]
 pub struct ReplyKeyboardOptions {
     is_persistent: Option<bool>,
@@ -36,7 +56,24 @@ impl ReplyKeyboardOptions {
     }
 }
 
-/// Reply keyboard button that requests the user's contact.
+/// Reply-keyboard button that asks the user to share their Telegram contact.
+///
+/// When the user taps the button, Telegram sends a [`MessageContact`] update;
+/// pair this with a [`MessageInput`] to consume it.
+///
+/// # Example
+///
+/// ```ignore
+/// use telers_dialog::widgets::RequestContact;
+///
+/// let kbd = RequestContact::builder("Share contact")
+///     .resize_keyboard(true)
+///     .one_time_keyboard(true)
+///     .build();
+/// ```
+///
+/// [`MessageContact`]: telers::types::MessageContact
+/// [`MessageInput`]: crate::widgets::MessageInput
 pub struct RequestContact<ButtonText> {
     text: ButtonText,
     options: ReplyKeyboardOptions,
@@ -45,7 +82,7 @@ pub struct RequestContact<ButtonText> {
 
 #[bon]
 impl<ButtonText> RequestContact<ButtonText> {
-    /// Create a one-button reply keyboard that asks the user to share a contact.
+    /// Create a single-button reply keyboard that asks for the user's contact.
     #[builder]
     #[must_use]
     pub fn new(
@@ -64,41 +101,12 @@ impl<ButtonText> RequestContact<ButtonText> {
     }
 }
 
-#[allow(clippy::wrong_self_convention)]
 impl<ButtonText, S> RequestContactBuilder<ButtonText, S>
 where
     S: request_contact_builder::State,
     ButtonText: Text,
 {
-    /// Set the persistent-keyboard flag.
-    pub fn is_persistent(mut self, value: bool) -> Self {
-        self.options.is_persistent = Some(value);
-        self
-    }
-
-    /// Set the resize-keyboard flag.
-    pub fn resize_keyboard(mut self, value: bool) -> Self {
-        self.options.resize_keyboard = Some(value);
-        self
-    }
-
-    /// Set the one-time-keyboard flag.
-    pub fn one_time_keyboard(mut self, value: bool) -> Self {
-        self.options.one_time_keyboard = Some(value);
-        self
-    }
-
-    /// Set the input placeholder shown while the reply keyboard is active.
-    pub fn input_field_placeholder(mut self, value: impl Into<Cow<'static, str>>) -> Self {
-        self.options.input_field_placeholder = Some(value.into());
-        self
-    }
-
-    /// Set whether the reply keyboard is selective.
-    pub fn selective(mut self, value: bool) -> Self {
-        self.options.selective = Some(value);
-        self
-    }
+    impl_reply_keyboard_options_setters!();
 }
 
 #[async_trait]
@@ -131,7 +139,13 @@ where
     }
 }
 
-/// Reply keyboard button that requests the user's current location.
+/// Reply-keyboard button that asks the user to share their current location.
+///
+/// When the user taps the button, Telegram sends a [`MessageLocation`] update;
+/// pair this with a [`MessageInput`] to consume it.
+///
+/// [`MessageLocation`]: telers::types::MessageLocation
+/// [`MessageInput`]: crate::widgets::MessageInput
 pub struct RequestLocation<ButtonText> {
     text: ButtonText,
     options: ReplyKeyboardOptions,
@@ -140,7 +154,7 @@ pub struct RequestLocation<ButtonText> {
 
 #[bon]
 impl<ButtonText> RequestLocation<ButtonText> {
-    /// Create a one-button reply keyboard that asks the user to share a location.
+    /// Create a single-button reply keyboard that asks for the user's location.
     #[builder]
     #[must_use]
     pub fn new(
@@ -159,41 +173,12 @@ impl<ButtonText> RequestLocation<ButtonText> {
     }
 }
 
-#[allow(clippy::wrong_self_convention)]
 impl<ButtonText, S> RequestLocationBuilder<ButtonText, S>
 where
     S: request_location_builder::State,
     ButtonText: Text,
 {
-    /// Set the persistent-keyboard flag.
-    pub fn is_persistent(mut self, value: bool) -> Self {
-        self.options.is_persistent = Some(value);
-        self
-    }
-
-    /// Set the resize-keyboard flag.
-    pub fn resize_keyboard(mut self, value: bool) -> Self {
-        self.options.resize_keyboard = Some(value);
-        self
-    }
-
-    /// Set the one-time-keyboard flag.
-    pub fn one_time_keyboard(mut self, value: bool) -> Self {
-        self.options.one_time_keyboard = Some(value);
-        self
-    }
-
-    /// Set the input placeholder shown while the reply keyboard is active.
-    pub fn input_field_placeholder(mut self, value: impl Into<Cow<'static, str>>) -> Self {
-        self.options.input_field_placeholder = Some(value.into());
-        self
-    }
-
-    /// Set whether the reply keyboard is selective.
-    pub fn selective(mut self, value: bool) -> Self {
-        self.options.selective = Some(value);
-        self
-    }
+    impl_reply_keyboard_options_setters!();
 }
 
 #[async_trait]
@@ -226,7 +211,14 @@ where
     }
 }
 
-/// Reply keyboard button that requests the user to create and send a poll.
+/// Reply-keyboard button that asks the user to create and send a poll.
+///
+/// `poll_type` controls whether Telegram offers a regular poll, a quiz, or lets
+/// the user choose. When the user submits the poll the bot receives a
+/// [`MessagePoll`] update; pair this with a [`MessageInput`] to consume it.
+///
+/// [`MessagePoll`]: telers::types::MessagePoll
+/// [`MessageInput`]: crate::widgets::MessageInput
 pub struct RequestPoll<ButtonText> {
     text: ButtonText,
     options: ReplyKeyboardOptions,
@@ -236,7 +228,7 @@ pub struct RequestPoll<ButtonText> {
 
 #[bon]
 impl<ButtonText> RequestPoll<ButtonText> {
-    /// Create a one-button reply keyboard that asks the user to create a poll.
+    /// Create a single-button reply keyboard that asks the user to create a poll.
     #[builder]
     #[must_use]
     pub fn new(
@@ -257,41 +249,12 @@ impl<ButtonText> RequestPoll<ButtonText> {
     }
 }
 
-#[allow(clippy::wrong_self_convention)]
 impl<ButtonText, S> RequestPollBuilder<ButtonText, S>
 where
     S: request_poll_builder::State,
     ButtonText: Text,
 {
-    /// Set the persistent-keyboard flag.
-    pub fn is_persistent(mut self, value: bool) -> Self {
-        self.options.is_persistent = Some(value);
-        self
-    }
-
-    /// Set the resize-keyboard flag.
-    pub fn resize_keyboard(mut self, value: bool) -> Self {
-        self.options.resize_keyboard = Some(value);
-        self
-    }
-
-    /// Set the one-time-keyboard flag.
-    pub fn one_time_keyboard(mut self, value: bool) -> Self {
-        self.options.one_time_keyboard = Some(value);
-        self
-    }
-
-    /// Set the input placeholder shown while the reply keyboard is active.
-    pub fn input_field_placeholder(mut self, value: impl Into<Cow<'static, str>>) -> Self {
-        self.options.input_field_placeholder = Some(value.into());
-        self
-    }
-
-    /// Set whether the reply keyboard is selective.
-    pub fn selective(mut self, value: bool) -> Self {
-        self.options.selective = Some(value);
-        self
-    }
+    impl_reply_keyboard_options_setters!();
 }
 
 #[async_trait]
@@ -326,7 +289,7 @@ where
     }
 }
 
-/// Options for ForceReply widget.
+/// Options for [`ForceReply`] reply markup.
 #[derive(Default)]
 pub struct ForceReplyOptions {
     input_field_placeholder: Option<Cow<'static, str>>,
@@ -341,11 +304,11 @@ impl ForceReplyOptions {
     }
 }
 
-/// Reply markup that forces the user to reply to the bot's message.
+/// Reply markup that forces the user's next message to be a reply.
 ///
-/// Upon receiving a message with this markup, Telegram clients will display
-/// a reply interface to the user (as if the user has selected the bot's message
-/// and tapped 'Reply').
+/// Upon receiving a message with this markup, Telegram clients display a reply
+/// interface as if the user had selected the bot's message and tapped *Reply*.
+/// Pair this with a [`MessageInput`] (or [`TextInput`]) to consume the reply.
 ///
 /// # Example
 ///
@@ -357,6 +320,9 @@ impl ForceReplyOptions {
 ///     .selective(true)
 ///     .build();
 /// ```
+///
+/// [`MessageInput`]: crate::widgets::MessageInput
+/// [`TextInput`]: crate::widgets::TextInput
 pub struct ForceReply {
     options: ForceReplyOptions,
     when: Option<WhenCondition>,
@@ -364,7 +330,7 @@ pub struct ForceReply {
 
 #[bon]
 impl ForceReply {
-    /// Create a force reply widget.
+    /// Create a force-reply widget.
     #[builder]
     #[must_use]
     pub fn new(
@@ -378,18 +344,17 @@ impl ForceReply {
     }
 }
 
-#[allow(clippy::wrong_self_convention)]
 impl<S> ForceReplyBuilder<S>
 where
     S: force_reply_builder::State,
 {
-    /// Set the input placeholder shown when the reply is active.
+    /// Set the input-field placeholder shown while the reply is active.
     pub fn input_field_placeholder(mut self, value: impl Into<Cow<'static, str>>) -> Self {
         self.options.input_field_placeholder = Some(value.into());
         self
     }
 
-    /// Set whether to force reply from specific users only.
+    /// Restrict the force-reply prompt to the message reply target or mentioned users only.
     pub fn selective(mut self, value: bool) -> Self {
         self.options.selective = Some(value);
         self

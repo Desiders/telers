@@ -76,13 +76,12 @@ fn registry() -> DialogRegistry {
                             "show_preview",
                             "Open preview",
                             ButtonAction::chain([
-                                ButtonAction::set_dialog_value("cafe_name", "North Roast"),
-                                ButtonAction::set_dialog_value(
-                                    "campaign_title",
-                                    "Weekend Espresso Sale",
-                                ),
-                                ButtonAction::set_dialog_value("week_label", "April 8-14"),
-                                ButtonAction::set_dialog_value("bonus", "free oat milk upgrade"),
+                                ButtonAction::extend_dialog_data([
+                                    ("cafe_name", "North Roast"),
+                                    ("campaign_title", "Weekend Espresso Sale"),
+                                    ("week_label", "April 8-14"),
+                                    ("bonus", "free oat milk upgrade"),
+                                ]),
                                 ButtonAction::next(),
                             ]),
                         ))

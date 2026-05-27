@@ -1,3 +1,10 @@
+//! Link-preview widget rendering Telegram `LinkPreviewOptions` for a window.
+//!
+//! Use [`LinkPreview`] in a window to disable the auto-detected preview, force
+//! a small/large media bias, or render a specific URL extracted from dialog
+//! data. The runtime forwards the resulting [`LinkPreviewOptions`] to the
+//! message manager when the window is shown.
+
 use async_trait::async_trait;
 use bon::bon;
 use telers::types::LinkPreviewOptions;
@@ -6,10 +13,11 @@ use telers::types::LinkPreviewOptions;
 use crate::entities::{ChatEvent, EventContext};
 use crate::{entities::RenderContext, widgets::Text};
 
-/// Widget that renders link preview options for a window.
+/// Widget that renders [`LinkPreviewOptions`] for a window.
 #[async_trait]
 pub trait LinkPreviewWidget: Send + Sync + 'static {
-    /// Render link preview options for the current data snapshot.
+    /// Produce link-preview options for the current render context, or `None`
+    /// when no preview should be configured.
     async fn render_link_preview(&self, render_ctx: &RenderContext) -> Option<LinkPreviewOptions>;
 
     #[cfg(test)]
@@ -35,7 +43,24 @@ pub trait LinkPreviewWidget: Send + Sync + 'static {
     }
 }
 
-/// Configurable link preview widget.
+/// Configurable link-preview widget.
+///
+/// All flags default to `false`, matching Telegram's default behaviour. Set
+/// [`url`](LinkPreviewBuilder::url) to render a preview for a URL computed
+/// from dialog data (the value is rendered as text), or leave it unset to let
+/// Telegram pick the URL from the message text.
+///
+/// # Example
+///
+/// ```ignore
+/// use telers_dialog::widgets::LinkPreview;
+///
+/// let preview = LinkPreview::builder()
+///     .url("https://example.com/menu")
+///     .prefer_large_media(true)
+///     .show_above_text(true)
+///     .build();
+/// ```
 #[allow(clippy::struct_excessive_bools)]
 pub struct LinkPreview {
     url: Option<Box<dyn Text>>,

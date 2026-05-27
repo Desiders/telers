@@ -1,3 +1,10 @@
+//! Widget-kind tagging and short-hand widget builders for window declarations.
+//!
+//! [`WidgetKind`] is the boxed enum a window stores for each registered widget;
+//! the helper functions ([`text`], [`fn_text`], [`format_text`], [`keyboard`],
+//! [`input`], [`link_preview`], [`media`]) wrap a concrete widget into the
+//! correct variant so the window constructor stays declarative.
+
 use std::borrow::Cow;
 
 use super::{
@@ -9,6 +16,8 @@ use crate::{
     widgets::{text::MultiTextBuilder, FnText, FormatText},
 };
 
+/// Normalized widget slots for a single window: text (always present),
+/// keyboard, input, link preview, and media.
 pub type WindowWidgets = (
     Box<dyn Text>,
     Option<Box<dyn Keyboard>>,
@@ -17,20 +26,31 @@ pub type WindowWidgets = (
     Option<Box<dyn Media>>,
 );
 
+/// Tagged widget container used by [`window`](crate::window) declarations.
+///
+/// Each variant carries a boxed trait object so the window can accept a
+/// heterogeneous mix of widgets via a single iterator.
 pub enum WidgetKind {
+    /// Static or computed text rendered as the message body.
     Text(Box<dyn Text>),
+    /// Inline or reply keyboard attached to the message.
     Keyboard(Box<dyn Keyboard>),
+    /// Message-side input that consumes user replies.
     Input(Box<dyn Input>),
+    /// Link-preview options forwarded to Telegram with the message.
     LinkPreview(Box<dyn LinkPreviewWidget>),
+    /// Media attachment (photo, video, audio, document, animation, ...).
     Media(Box<dyn Media>),
 }
 
+/// Tag a [`Text`] implementation as a window widget.
 #[inline]
 #[must_use]
 pub fn text(val: impl Text) -> WidgetKind {
     WidgetKind::Text(Box::new(val))
 }
 
+/// Tag a closure rendering text from `dialog_data` as a window widget.
 #[inline]
 #[must_use]
 pub fn fn_text<Renderer, Item>(renderer: Renderer) -> WidgetKind
@@ -41,30 +61,35 @@ where
     WidgetKind::Text(Box::new(FnText::new(renderer)))
 }
 
+/// Tag a `{field}`-style template as a window widget.
 #[inline]
 #[must_use]
 pub fn format_text(template: impl Into<Cow<'static, str>>) -> WidgetKind {
     WidgetKind::Text(Box::new(FormatText::new(template)))
 }
 
+/// Tag a [`Keyboard`] implementation as a window widget.
 #[inline]
 #[must_use]
 pub fn keyboard(val: impl Keyboard) -> WidgetKind {
     WidgetKind::Keyboard(Box::new(val))
 }
 
+/// Tag an [`Input`] implementation as a window widget.
 #[inline]
 #[must_use]
 pub fn input(val: impl Input) -> WidgetKind {
     WidgetKind::Input(Box::new(val))
 }
 
+/// Tag a [`LinkPreviewWidget`] implementation as a window widget.
 #[inline]
 #[must_use]
 pub fn link_preview(val: impl LinkPreviewWidget) -> WidgetKind {
     WidgetKind::LinkPreview(Box::new(val))
 }
 
+/// Tag a [`Media`] implementation as a window widget.
 #[inline]
 #[must_use]
 pub fn media(val: impl Media) -> WidgetKind {

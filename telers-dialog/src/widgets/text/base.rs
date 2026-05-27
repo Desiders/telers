@@ -46,14 +46,21 @@ where
     }
 }
 
-pub(crate) struct FnText<Renderer> {
+/// Text widget that delegates rendering to a closure.
+///
+/// Use this to render small values from `dialog_data` as a [`Text`] (for
+/// example, the URL passed to [`Button::url_dynamic`]).
+///
+/// [`Button::url_dynamic`]: crate::widgets::Button::url_dynamic
+pub struct FnText<Renderer> {
     renderer: Renderer,
 }
 
 impl<Renderer> FnText<Renderer> {
+    /// Build a closure-backed text widget.
     #[inline]
     #[must_use]
-    pub(crate) const fn new(renderer: Renderer) -> Self {
+    pub const fn new(renderer: Renderer) -> Self {
         Self {
             renderer,
         }

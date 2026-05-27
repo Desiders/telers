@@ -407,6 +407,11 @@ impl<S: Storage> DialogManager<S> {
                     needs_show = true;
                     outcome.handled = true;
                 }
+                ButtonAction::ExtendDialogData(entries) => {
+                    self.extend_dialog_data(entries).await?;
+                    needs_show = true;
+                    outcome.handled = true;
+                }
                 ButtonAction::SetWidgetData(data) => {
                     self.set_widget_data(data).await?;
                     needs_show = true;
@@ -417,6 +422,11 @@ impl<S: Storage> DialogManager<S> {
                     value,
                 } => {
                     self.set_widget_value(key, value).await?;
+                    needs_show = true;
+                    outcome.handled = true;
+                }
+                ButtonAction::ExtendWidgetData(entries) => {
+                    self.extend_widget_data(entries).await?;
                     needs_show = true;
                     outcome.handled = true;
                 }
@@ -912,6 +922,74 @@ impl<S: Storage> DialogManager<S> {
             .get_mut(&id)
             .ok_or(DialogError::NoContext)?;
         ctx.widget_data.insert(key, value);
+        self.save_storage(storage).await?;
+        Ok(())
+    }
+
+    /// Merge many key/value pairs into dialog data with one storage round-trip.
+    ///
+    /// Each entry overwrites any existing value for the same key. Use this
+    /// instead of repeated [`set_dialog_value`] calls when seeding several
+    /// values at once.
+    ///
+    /// [`set_dialog_value`]: Self::set_dialog_value
+    ///
+    /// # Errors
+    /// - If there is no current context.
+    /// - If storage error occurs.
+    pub async fn extend_dialog_data<I, K>(&self, entries: I) -> Result<(), DialogError>
+    where
+        I: IntoIterator<Item = (K, Data)>,
+        K: Into<String>,
+    {
+        let entries: Vec<_> = entries
+            .into_iter()
+            .map(|(key, value)| (key.into(), value))
+            .collect();
+        debug!(keys = entries.len(), "Extend dialog data");
+        let mut storage = self.load_storage().await?;
+        let stack = storage.current_stack_mut();
+        let id = stack
+            .last_intent_id()
+            .ok_or(DialogError::NoContext)?
+            .to_string();
+        let ctx = storage
+            .contexts
+            .get_mut(&id)
+            .ok_or(DialogError::NoContext)?;
+        ctx.dialog_data.extend(entries);
+        self.save_storage(storage).await?;
+        Ok(())
+    }
+
+    /// Merge many key/value pairs into widget data with one storage round-trip.
+    ///
+    /// Each entry overwrites any existing value for the same key.
+    ///
+    /// # Errors
+    /// - If there is no current context.
+    /// - If storage error occurs.
+    pub async fn extend_widget_data<I, K>(&self, entries: I) -> Result<(), DialogError>
+    where
+        I: IntoIterator<Item = (K, Data)>,
+        K: Into<String>,
+    {
+        let entries: Vec<_> = entries
+            .into_iter()
+            .map(|(key, value)| (key.into(), value))
+            .collect();
+        debug!(keys = entries.len(), "Extend widget data");
+        let mut storage = self.load_storage().await?;
+        let stack = storage.current_stack_mut();
+        let id = stack
+            .last_intent_id()
+            .ok_or(DialogError::NoContext)?
+            .to_string();
+        let ctx = storage
+            .contexts
+            .get_mut(&id)
+            .ok_or(DialogError::NoContext)?;
+        ctx.widget_data.extend(entries);
         self.save_storage(storage).await?;
         Ok(())
     }

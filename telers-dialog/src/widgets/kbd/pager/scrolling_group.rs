@@ -15,6 +15,14 @@ use crate::{
 
 type PageRows = Option<(Vec<Box<[InlineKeyboardButton]>>, usize)>;
 
+/// Paginated keyboard layout backed by a single inner keyboard.
+///
+/// `ScrollingGroup` renders the inner keyboard, flattens its inline rows, and
+/// slices them into pages. When `width > 0`, buttons are packed into rows of
+/// `width` and padded with `filler_text`; otherwise rows are kept as-is and
+/// `height` controls the number of rows per page. A pager strip is appended
+/// unless `hide_pager` is set, or `hide_on_single_page` is true and the
+/// content fits a single page.
 #[derive(Clone)]
 pub struct ScrollingGroup<Kbd> {
     base_scroll: BaseScroll,
@@ -29,6 +37,7 @@ pub struct ScrollingGroup<Kbd> {
 
 #[bon]
 impl<Kbd> ScrollingGroup<Kbd> {
+    /// Build a [`ScrollingGroup`] wrapping `kbd`.
     #[builder]
     #[must_use]
     pub fn new(

@@ -11,12 +11,22 @@ use crate::{entities::Context, future::BoxFuture, widgets::ButtonAction};
 type TextInputErrorHandler<ParserErr> =
     dyn Fn(TextInputContext, ParserErr) -> BoxFuture<'static, ButtonAction> + Send + Sync;
 
+/// Runtime inputs available to [`TextInput`] success and error handlers.
 #[derive(Clone, Debug)]
 pub struct TextInputContext {
     /// Stored dialog context for the active intent.
     pub context: Arc<Context>,
 }
 
+/// Input widget that parses message text into a typed value via [`FromStr`] or
+/// a custom parser closure.
+///
+/// On a successful parse, the raw message text is stored in `widget_data[id]`
+/// and `on_success` is invoked with the parsed value. When the parser fails,
+/// the optional `on_error` handler runs; if it is not set the widget returns
+/// `None` so other inputs on the window may still claim the message.
+///
+/// [`FromStr`]: std::str::FromStr
 pub struct TextInput<WidgetId, ParserOk, ParserErr, OnSuccess> {
     id: WidgetId,
     #[allow(clippy::type_complexity)]
@@ -32,6 +42,7 @@ impl<WidgetId, ParserOk, ParserErr, OnSuccess> TextInput<WidgetId, ParserOk, Par
 where
     WidgetId: Display,
 {
+    /// Build a text-input widget bound to a widget id.
     #[allow(clippy::type_complexity)]
     #[builder]
     #[must_use]
@@ -79,6 +90,7 @@ where
         + AsyncFn2<TextInputContext, ParserOk, Output = ButtonAction>,
     <OnSuccess as AsyncFn2<TextInputContext, ParserOk>>::OutputFuture: Send + 'static,
 {
+    /// Register an async handler invoked when the parser returns `Err`.
     pub fn on_error<F>(mut self, on_error: F) -> Self
     where
         ParserErr: Send + 'static,

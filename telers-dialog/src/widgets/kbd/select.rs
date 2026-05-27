@@ -6,8 +6,8 @@ use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::debug;
 
 use super::{
-    format_callback_data, parse_callback_data, when::is_allowed, Button, ButtonAction,
-    ClickContext, Keyboard, WhenCondition,
+    format_callback_data, macros::impl_button_row_helpers, parse_callback_data, when::is_allowed,
+    Button, ButtonAction, ClickContext, Keyboard, WhenCondition,
 };
 use crate::{
     entities::{Context, DataMap, RenderContext},
@@ -85,7 +85,25 @@ impl SelectAction {
 /// Stateless list of selectable items.
 ///
 /// Each rendered item produces a callback payload derived from `id_getter`, and
-/// that payload is converted into a [`ButtonAction`] by `action` or `on_click`.
+/// that payload is converted into a [`ButtonAction`] by either `action` (which
+/// receives only the payload) or `on_click` (which also receives the click
+/// context). The widget does not persist any state itself — write any
+/// selected value back into `dialog_data` or `widget_data` from the handler.
+///
+/// # Example
+///
+/// ```ignore
+/// use telers_dialog::widgets::{ButtonAction, Select};
+///
+/// let select = Select::builder("fruit")
+///     .items_getter(|_data| ["apple", "pear", "plum"])
+///     .item_renderer(|item, _data| item.to_owned())
+///     .id_getter(|item| item)
+///     .action(|payload: String| async move {
+///         ButtonAction::set_dialog_value("fruit", payload)
+///     })
+///     .build();
+/// ```
 #[derive(Clone)]
 pub struct Select<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id> {
     id: WidgetId,
@@ -104,9 +122,17 @@ pub struct Select<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr,
 impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id>
     Select<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id>
 {
+    /// Build a [`Select`] widget.
+    ///
+    /// At least one of [`action`](SelectBuilder::action) or
+    /// [`on_click`](SelectBuilder::on_click) must be provided; `on_click`
+    /// wins when both are set. Header and footer rows render around the
+    /// dynamic item buttons.
+    ///
+    /// # Panics
+    /// Builds will panic at runtime if neither `action` nor `on_click` is supplied.
     #[builder]
     #[must_use]
-    /// Build a [`Select`] widget.
     pub fn new(
         #[builder(start_fn)] id: WidgetId,
         #[builder(field)] header_rows: Vec<Vec<Button>>,
@@ -156,6 +182,9 @@ where
     IdGetter: Fn(Item) -> Id,
     Id: Display,
 {
+    impl_button_row_helpers!();
+
+    /// Register an async handler that receives the selected item's payload string.
     pub fn action<F>(mut self, action: F) -> Self
     where
         F: AsyncFn(String) -> ButtonAction
@@ -169,6 +198,8 @@ where
         self
     }
 
+    /// Register an async handler that receives the full click context plus the
+    /// selected item's payload string.
     pub fn on_click<F>(mut self, on_click: F) -> Self
     where
         F: AsyncFn(SelectClickContext) -> ButtonAction
@@ -179,36 +210,6 @@ where
         <F as AsyncFn1<SelectClickContext>>::OutputFuture: Send + 'static,
     {
         self.on_click = Some(SelectAction::click(on_click));
-        self
-    }
-
-    /// Append a full header row before the selectable items.
-    pub fn header_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
-        self.header_rows.push(buttons.into_iter().collect());
-        self
-    }
-
-    /// Append a button to the last header row, or create one if absent.
-    pub fn header_push(mut self, button: Button) -> Self {
-        match self.header_rows.last_mut() {
-            Some(row) => row.push(button),
-            None => self.header_rows.push(vec![button]),
-        }
-        self
-    }
-
-    /// Append a full footer row after the selectable items.
-    pub fn footer_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
-        self.footer_rows.push(buttons.into_iter().collect());
-        self
-    }
-
-    /// Append a button to the last footer row, or create one if absent.
-    pub fn footer_push(mut self, button: Button) -> Self {
-        match self.footer_rows.last_mut() {
-            Some(row) => row.push(button),
-            None => self.footer_rows.push(vec![button]),
-        }
         self
     }
 }

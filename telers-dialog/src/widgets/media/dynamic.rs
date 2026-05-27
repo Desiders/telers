@@ -12,19 +12,17 @@ use crate::entities::{DataMap, RenderContext};
 /// A function that selects media from render data.
 pub type MediaSelector = Arc<dyn Fn(&DataMap) -> Option<MediaAttachment> + Send + Sync + 'static>;
 
-/// A dynamic media widget that reads media attachment from render data.
+/// A dynamic media widget that reads a media attachment from render data.
 ///
-/// This allows the media to be determined at runtime based on dialog state
-/// or other dynamic data.
+/// The selector receives render data and returns an optional [`MediaAttachment`],
+/// so the media source can be chosen at runtime from dialog state.
 pub struct DynamicMedia {
     selector: MediaSelector,
 }
 
 #[bon]
 impl DynamicMedia {
-    /// Create a dynamic media widget with a selector function.
-    ///
-    /// The selector receives render data and returns an optional `MediaAttachment`.
+    /// Build a dynamic media widget around an arbitrary selector closure.
     #[builder]
     #[must_use]
     pub fn new<F>(#[builder(start_fn)] selector: F) -> Self
@@ -36,9 +34,7 @@ impl DynamicMedia {
         }
     }
 
-    /// Create a dynamic media widget that reads from a specific data field.
-    ///
-    /// The field should contain a JSON object with media attachment fields.
+    /// Read a full [`MediaAttachment`] JSON object from `field`.
     #[must_use]
     pub fn from_field(field: impl Into<String>) -> Self {
         let field = field.into();
@@ -50,15 +46,13 @@ impl DynamicMedia {
         .build()
     }
 
-    /// Create a dynamic media widget that reads URL from a data field.
-    ///
-    /// The field should contain a string URL.
+    /// Read a URL string from `field` and wrap it as `content_type` media.
     #[must_use]
-    pub fn photo_url_from_field(field: impl Into<String>) -> Self {
+    pub fn from_url_field(content_type: MediaContentType, field: impl Into<String>) -> Self {
         let field = field.into();
         Self::builder(move |data| {
             data.get(&field).and_then(Value::as_str).map(|url| {
-                MediaAttachment::builder(MediaContentType::Photo)
+                MediaAttachment::builder(content_type)
                     .url(url.to_owned())
                     .build()
             })
@@ -66,71 +60,13 @@ impl DynamicMedia {
         .build()
     }
 
-    /// Create a dynamic media widget that reads file ID from a data field.
-    ///
-    /// The field should contain a string file ID.
+    /// Read a Telegram file id string from `field` and wrap it as `content_type` media.
     #[must_use]
-    pub fn photo_id_from_field(field: impl Into<String>) -> Self {
+    pub fn from_file_id_field(content_type: MediaContentType, field: impl Into<String>) -> Self {
         let field = field.into();
         Self::builder(move |data| {
             data.get(&field).and_then(Value::as_str).map(|id| {
-                MediaAttachment::builder(MediaContentType::Photo)
-                    .file_id(MediaId::new(id.to_owned()))
-                    .build()
-            })
-        })
-        .build()
-    }
-
-    /// Create a dynamic media widget that reads video URL from a data field.
-    #[must_use]
-    pub fn video_url_from_field(field: impl Into<String>) -> Self {
-        let field = field.into();
-        Self::builder(move |data| {
-            data.get(&field).and_then(Value::as_str).map(|url| {
-                MediaAttachment::builder(MediaContentType::Video)
-                    .url(url.to_owned())
-                    .build()
-            })
-        })
-        .build()
-    }
-
-    /// Create a dynamic media widget that reads video file ID from a data field.
-    #[must_use]
-    pub fn video_id_from_field(field: impl Into<String>) -> Self {
-        let field = field.into();
-        Self::builder(move |data| {
-            data.get(&field).and_then(Value::as_str).map(|id| {
-                MediaAttachment::builder(MediaContentType::Video)
-                    .file_id(MediaId::new(id.to_owned()))
-                    .build()
-            })
-        })
-        .build()
-    }
-
-    /// Create a dynamic media widget that reads document URL from a data field.
-    #[must_use]
-    pub fn document_url_from_field(field: impl Into<String>) -> Self {
-        let field = field.into();
-        Self::builder(move |data| {
-            data.get(&field).and_then(Value::as_str).map(|url| {
-                MediaAttachment::builder(MediaContentType::Document)
-                    .url(url.to_owned())
-                    .build()
-            })
-        })
-        .build()
-    }
-
-    /// Create a dynamic media widget that reads document file ID from a data field.
-    #[must_use]
-    pub fn document_id_from_field(field: impl Into<String>) -> Self {
-        let field = field.into();
-        Self::builder(move |data| {
-            data.get(&field).and_then(Value::as_str).map(|id| {
-                MediaAttachment::builder(MediaContentType::Document)
+                MediaAttachment::builder(content_type)
                     .file_id(MediaId::new(id.to_owned()))
                     .build()
             })
@@ -146,7 +82,6 @@ impl Media for DynamicMedia {
     }
 }
 
-/// Helper struct for deserializing media attachment from JSON.
 #[derive(Deserialize)]
 struct MediaAttachmentData {
     content_type: String,

@@ -131,11 +131,13 @@ fn registry() -> DialogRegistry {
                             "pickup",
                             "Pickup from cafe",
                             ButtonAction::chain([
-                                ButtonAction::set_dialog_value("delivery_method", "pickup"),
-                                ButtonAction::set_dialog_value(
-                                    "cart_notice",
-                                    "Pickup selected. The order is ready to place.",
-                                ),
+                                ButtonAction::extend_dialog_data([
+                                    ("delivery_method", "pickup"),
+                                    (
+                                        "cart_notice",
+                                        "Pickup selected. The order is ready to place.",
+                                    ),
+                                ]),
                                 ButtonAction::switch_to("cart"),
                             ]),
                         )])
@@ -143,11 +145,13 @@ fn registry() -> DialogRegistry {
                             "courier",
                             "Courier delivery",
                             ButtonAction::chain([
-                                ButtonAction::set_dialog_value("delivery_method", "courier"),
-                                ButtonAction::set_dialog_value(
-                                    "cart_notice",
-                                    "Courier delivery selected. The order is ready to place.",
-                                ),
+                                ButtonAction::extend_dialog_data([
+                                    ("delivery_method", "courier"),
+                                    (
+                                        "cart_notice",
+                                        "Courier delivery selected. The order is ready to place.",
+                                    ),
+                                ]),
                                 ButtonAction::switch_to("cart"),
                             ]),
                         )])

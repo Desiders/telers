@@ -13,7 +13,9 @@ async fn static_media_renders_photo_url() {
     let ctx = Context::new("", "state", serde_json::Value::Null);
     let data = DataMap::new();
 
-    let media = StaticMedia::photo_url("https://example.com/image.jpg");
+    let media = StaticMedia::builder(MediaContentType::Photo)
+        .url("https://example.com/image.jpg")
+        .build();
     let attachment = media.render_media_for_test(&ctx, &data).await;
 
     assert!(attachment.is_some());
@@ -31,9 +33,11 @@ async fn static_media_renders_video_with_caption() {
     let ctx = Context::new("", "state", serde_json::Value::Null);
     let data = DataMap::new();
 
-    let media = StaticMedia::video_url("https://example.com/video.mp4")
-        .with_caption("My video")
-        .with_parse_mode("HTML");
+    let media = StaticMedia::builder(MediaContentType::Video)
+        .url("https://example.com/video.mp4")
+        .caption("My video")
+        .parse_mode("HTML")
+        .build();
 
     let attachment = media.render_media_for_test(&ctx, &data).await;
 
@@ -49,7 +53,7 @@ async fn static_media_returns_none_without_source() {
     let ctx = Context::new("", "state", serde_json::Value::Null);
     let data = DataMap::new();
 
-    let media = StaticMedia::builder().build();
+    let media = StaticMedia::builder(MediaContentType::Photo).build();
     let attachment = media.render_media_for_test(&ctx, &data).await;
 
     assert!(attachment.is_none());
@@ -61,7 +65,7 @@ async fn dynamic_media_reads_url_from_field() {
     let mut data = DataMap::new();
     data.insert("image_url".into(), json!("https://example.com/dynamic.jpg"));
 
-    let media = DynamicMedia::photo_url_from_field("image_url");
+    let media = DynamicMedia::from_url_field(MediaContentType::Photo, "image_url");
     let attachment = media.render_media_for_test(&ctx, &data).await;
 
     assert!(attachment.is_some());
@@ -78,7 +82,7 @@ async fn dynamic_media_returns_none_when_field_missing() {
     let ctx = Context::new("", "state", serde_json::Value::Null);
     let data = DataMap::new();
 
-    let media = DynamicMedia::photo_url_from_field("missing_field");
+    let media = DynamicMedia::from_url_field(MediaContentType::Photo, "missing_field");
     let attachment = media.render_media_for_test(&ctx, &data).await;
 
     assert!(attachment.is_none());
@@ -121,10 +125,9 @@ async fn media_scroll_renders_current_page() {
         ]),
     );
 
-    // Set current page to 1 (second image)
     ctx.widget_data.insert("gallery".into(), json!(1));
 
-    let media = MediaScroll::photo_urls_from_field("gallery", "images");
+    let media = MediaScroll::from_url_array_field("gallery", MediaContentType::Photo, "images");
     let attachment = media.render_media_for_test(&ctx, &data).await;
 
     assert!(attachment.is_some());
@@ -138,7 +141,7 @@ async fn media_scroll_handles_empty_items() {
     let mut data = DataMap::new();
     data.insert("images".into(), json!([]));
 
-    let media = MediaScroll::photo_urls_from_field("gallery", "images");
+    let media = MediaScroll::from_url_array_field("gallery", MediaContentType::Photo, "images");
     let attachment = media.render_media_for_test(&ctx, &data).await;
 
     assert!(attachment.is_none());
@@ -150,15 +153,13 @@ async fn media_scroll_clamps_page_to_bounds() {
     let mut data = DataMap::new();
     data.insert("images".into(), json!(["https://example.com/only.jpg"]));
 
-    // Set page beyond bounds
     ctx.widget_data.insert("gallery".into(), json!(10));
 
-    let media = MediaScroll::photo_urls_from_field("gallery", "images");
+    let media = MediaScroll::from_url_array_field("gallery", MediaContentType::Photo, "images");
     let attachment = media.render_media_for_test(&ctx, &data).await;
 
     assert!(attachment.is_some());
     let attachment = attachment.unwrap();
-    // Should clamp to last item (index 0)
     assert_eq!(
         attachment.url.as_deref(),
         Some("https://example.com/only.jpg")
@@ -273,7 +274,11 @@ async fn multi_media_bon_builder_returns_first_rendered_attachment() {
 
     let media = MultiMedia::builder()
         .media(DynamicMedia::from_field("missing"))
-        .media(StaticMedia::photo_url("https://example.com/fallback.jpg"))
+        .media(
+            StaticMedia::builder(MediaContentType::Photo)
+                .url("https://example.com/fallback.jpg")
+                .build(),
+        )
         .build();
 
     let attachment = media.render_media_for_test(&ctx, &data).await.unwrap();

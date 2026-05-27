@@ -30,10 +30,14 @@ pub enum ButtonAction {
     SetDialogData(DataMap),
     /// Set one value in `dialog_data` for the current context.
     SetDialogValue { key: Cow<'static, str>, value: Data },
+    /// Merge several entries into `dialog_data` for the current context.
+    ExtendDialogData(DataMap),
     /// Replace the whole `widget_data` map for the current context.
     SetWidgetData(DataMap),
     /// Set one value in `widget_data` for the current context.
     SetWidgetValue { key: Cow<'static, str>, value: Data },
+    /// Merge several entries into `widget_data` for the current context.
+    ExtendWidgetData(DataMap),
     /// Execute several actions in order.
     Chain(Box<[ButtonAction]>),
 }
@@ -122,6 +126,38 @@ impl ButtonAction {
             key: key.into(),
             value: value.into(),
         }
+    }
+
+    /// Create a [`ButtonAction::ExtendDialogData`] action from key/value pairs.
+    #[must_use]
+    pub fn extend_dialog_data<I, K, V>(entries: I) -> Self
+    where
+        I: IntoIterator<Item = (K, V)>,
+        K: Into<String>,
+        V: Into<Data>,
+    {
+        Self::ExtendDialogData(
+            entries
+                .into_iter()
+                .map(|(key, value)| (key.into(), value.into()))
+                .collect(),
+        )
+    }
+
+    /// Create a [`ButtonAction::ExtendWidgetData`] action from key/value pairs.
+    #[must_use]
+    pub fn extend_widget_data<I, K, V>(entries: I) -> Self
+    where
+        I: IntoIterator<Item = (K, V)>,
+        K: Into<String>,
+        V: Into<Data>,
+    {
+        Self::ExtendWidgetData(
+            entries
+                .into_iter()
+                .map(|(key, value)| (key.into(), value.into()))
+                .collect(),
+        )
     }
 
     /// Create a [`ButtonAction::Chain`] action.

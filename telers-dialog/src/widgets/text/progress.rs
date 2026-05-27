@@ -1,10 +1,27 @@
+use bon::bon;
 use std::borrow::Cow;
 
 use super::Text;
 use crate::entities::{Data, DataMap};
 use async_trait::async_trait;
 
-/// Render a textual progress bar from a percentage field in `DataMap`.
+/// Render a textual progress bar from a percentage value in `DataMap`.
+///
+/// The widget reads `field` from the render data, clamps it to `[0, 100]`, and
+/// fills `width` cells in proportion to the percentage. Both the filled and
+/// empty glyphs are configurable.
+///
+/// # Example
+///
+/// ```ignore
+/// use telers_dialog::widgets::Progress;
+///
+/// let bar = Progress::builder("download_percent")
+///     .width(20)
+///     .filled("█")
+///     .empty("░")
+///     .build();
+/// ```
 pub struct Progress {
     field: Cow<'static, str>,
     width: usize,
@@ -12,37 +29,23 @@ pub struct Progress {
     empty: Cow<'static, str>,
 }
 
+#[bon]
 impl Progress {
-    /// Create a new progress widget reading percent from `field`.
+    /// Create a progress widget that reads percent from `field`.
+    #[builder]
     #[must_use]
-    pub fn new(field: impl Into<Cow<'static, str>>) -> Self {
+    pub fn new(
+        #[builder(start_fn, into)] field: Cow<'static, str>,
+        #[builder(default = 10)] width: usize,
+        #[builder(default = Cow::Borrowed("#"), into)] filled: Cow<'static, str>,
+        #[builder(default = Cow::Borrowed("-"), into)] empty: Cow<'static, str>,
+    ) -> Self {
         Self {
-            field: field.into(),
-            width: 10,
-            filled: "#".into(),
-            empty: "-".into(),
+            field,
+            width,
+            filled,
+            empty,
         }
-    }
-
-    /// Set the progress bar width in cells.
-    #[must_use]
-    pub fn width(mut self, width: usize) -> Self {
-        self.width = width;
-        self
-    }
-
-    /// Set the filled-cell glyph.
-    #[must_use]
-    pub fn filled(mut self, filled: impl Into<Cow<'static, str>>) -> Self {
-        self.filled = filled.into();
-        self
-    }
-
-    /// Set the empty-cell glyph.
-    #[must_use]
-    pub fn empty(mut self, empty: impl Into<Cow<'static, str>>) -> Self {
-        self.empty = empty.into();
-        self
     }
 }
 

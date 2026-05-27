@@ -6,6 +6,28 @@ use super::{when::is_allowed, ButtonAction, ClickContext, Keyboard, WhenConditio
 use crate::entities::{Context, DataMap, RenderContext};
 
 /// Layout wrapper that regroups inline keyboard buttons into fixed-width rows.
+///
+/// The wrapped keyboard renders normally; `Group` flattens the resulting inline
+/// markup and re-chunks the buttons into rows of `items_per_row` (clamped to
+/// at least `1`). Non-inline reply markups pass through unchanged.
+///
+/// # Example
+///
+/// ```ignore
+/// use telers_dialog::widgets::{Button, ButtonAction, Group, InlineKeyboard};
+///
+/// let grouped = Group::builder(
+///     InlineKeyboard::builder()
+///         .row([
+///             Button::action("a", "A", ButtonAction::noop()),
+///             Button::action("b", "B", ButtonAction::noop()),
+///             Button::action("c", "C", ButtonAction::noop()),
+///         ])
+///         .build(),
+/// )
+/// .items_per_row(2)
+/// .build();
+/// ```
 pub struct Group<Kbd> {
     kbd: Kbd,
     items_per_row: usize,

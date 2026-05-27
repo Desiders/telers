@@ -7,7 +7,6 @@ mod widget;
 
 pub(super) use input::MultiInput;
 pub(super) use kbd::MultiKeyboard;
-pub(crate) use text::{FnText, FormatText};
 pub(crate) use widget::ensure_widgets;
 
 pub use input::{Input, MessageInput, MessageInputContext, TextInput, TextInputContext};
@@ -26,7 +25,7 @@ pub use link_preview::{LinkPreview, LinkPreviewWidget};
 pub use media::{
     DynamicMedia, Media, MediaAttachment, MediaContentType, MediaId, MediaScroll, StaticMedia,
 };
-pub use text::{Case, ListText, MultiText, Progress, ScrollingText, Text};
+pub use text::{Case, FnText, FormatText, ListText, MultiText, Progress, ScrollingText, Text};
 #[cfg(feature = "template")]
 pub use text::{TemplateEnvBuilder, TemplateText};
 pub use widget::{fn_text, format_text, input, keyboard, link_preview, media, text, WidgetKind};

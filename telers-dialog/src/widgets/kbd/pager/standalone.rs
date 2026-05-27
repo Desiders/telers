@@ -121,6 +121,11 @@ fn resolve_pager_binding(
     )
 }
 
+/// Single-button pager that jumps in a fixed [`PageDirection`].
+///
+/// Useful when you need a stand-alone next/prev/first/last button outside of
+/// the dedicated [`FirstPage`] / [`PrevPage`] / [`NextPage`] / [`LastPage`]
+/// shortcuts (for example with a custom label renderer).
 pub struct SwitchPage<LabelRenderer, Label> {
     id: Cow<'static, str>,
     direction: PageDirection,
@@ -134,6 +139,7 @@ pub struct SwitchPage<LabelRenderer, Label> {
 
 #[bon]
 impl<LabelRenderer, Label> SwitchPage<LabelRenderer, Label> {
+    /// Build a directional pager button.
     #[builder]
     #[must_use]
     pub fn new(
@@ -352,6 +358,8 @@ fixed_pager_type!(
     ">>"
 );
 
+/// Single-button pager that displays the current page index and lets the user
+/// stay on it (clicking re-stores the same page).
 pub struct CurrentPage {
     id: Cow<'static, str>,
     page_count_getter: PageCountSource,
@@ -361,6 +369,7 @@ pub struct CurrentPage {
 
 #[bon]
 impl CurrentPage {
+    /// Build a current-page indicator.
     #[builder]
     #[must_use]
     pub fn new(
@@ -443,6 +452,12 @@ impl Keyboard for CurrentPage {
     }
 }
 
+/// Numbered pager that renders every page as its own button.
+///
+/// `page_renderer` produces the label for non-current pages; `current_page_renderer`
+/// produces the label for the currently selected page (typically wrapped in
+/// brackets). `length` limits the number of buttons per row; when unset all
+/// pages render on one row.
 pub struct NumberedPager<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPageLabel> {
     id: Cow<'static, str>,
     page_count_getter: PageCountSource,
@@ -459,6 +474,7 @@ pub struct NumberedPager<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPa
 impl<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPageLabel>
     NumberedPager<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPageLabel>
 {
+    /// Build a numbered pager.
     #[builder]
     #[must_use]
     pub fn new(

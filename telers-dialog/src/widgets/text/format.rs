@@ -4,13 +4,21 @@ use super::Text;
 use crate::entities::{Data, DataMap};
 use async_trait::async_trait;
 
-pub(crate) struct FormatText {
+/// Text widget that renders a `{field}`-style template against `dialog_data`.
+///
+/// Useful as the dynamic argument for button helpers like
+/// [`Button::url_dynamic`] and [`Button::copy_text_dynamic`].
+///
+/// [`Button::url_dynamic`]: crate::widgets::Button::url_dynamic
+/// [`Button::copy_text_dynamic`]: crate::widgets::Button::copy_text_dynamic
+pub struct FormatText {
     template: Cow<'static, str>,
 }
 
 impl FormatText {
+    /// Create a new format-text widget from a template string.
     #[must_use]
-    pub(crate) fn new(template: impl Into<Cow<'static, str>>) -> Self {
+    pub fn new(template: impl Into<Cow<'static, str>>) -> Self {
         Self {
             template: template.into(),
         }

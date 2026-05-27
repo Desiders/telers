@@ -16,6 +16,11 @@ use crate::{
 type ButtonClickHandler =
     dyn Fn(ClickContext) -> BoxFuture<'static, ButtonAction> + Send + Sync + 'static;
 
+/// Distinguishes the underlying Telegram action carried by a [`Button`].
+///
+/// Callback variants ([`ButtonKind::Callback`], [`ButtonKind::OnClick`]) carry
+/// a widget id used to match the callback data; all other variants are passive
+/// (the Telegram client handles them) and never produce a [`ButtonAction`].
 #[derive(Clone)]
 enum ButtonKind {
     Callback(ButtonAction),
@@ -29,24 +34,31 @@ enum ButtonKind {
     CopyText(Arc<dyn Text>),
 }
 
-/// Button style for Telegram inline keyboard buttons.
+impl ButtonKind {
+    /// Returns true when this kind is resolved via a callback data round-trip
+    /// (and therefore needs a stable widget id).
+    #[inline]
+    fn is_callback(&self) -> bool {
+        matches!(self, Self::Callback(_) | Self::OnClick(_))
+    }
+}
+
+/// Visual style for an inline keyboard button.
 ///
-/// These map directly to Telegram's button styles:
-/// - `Danger`: Red-tinted button (for destructive actions)
-/// - `Success`: Green-tinted button (for confirmation actions)
-/// - `Primary`: Blue-tinted button (default styling emphasis)
+/// Maps directly onto the optional `style` field supported by telers'
+/// [`InlineKeyboardButton`].
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ButtonStyle {
-    /// Red-tinted button for destructive/dangerous actions.
+    /// Red-tinted button for destructive or dangerous actions.
     Danger,
-    /// Green-tinted button for success/confirmation actions.
+    /// Green-tinted button for success or confirmation actions.
     Success,
     /// Blue-tinted button for primary actions.
     Primary,
 }
 
 impl ButtonStyle {
-    /// Convert to the string value expected by Telegram API.
+    /// String value expected by the Telegram client.
     #[must_use]
     pub const fn as_str(&self) -> &'static str {
         match self {
@@ -57,35 +69,68 @@ impl ButtonStyle {
     }
 }
 
-/// Inline keyboard button with a stable widget id.
+/// Inline-keyboard button rendered inside an [`InlineKeyboard`] row.
 ///
-/// Most constructors are thin convenience helpers over [`ButtonAction`].
-/// Supports optional `style` and `icon_custom_emoji_id` for visual customization.
+/// Construct a button via one of the typed constructors:
+/// - callback-style: [`Button::action`], [`Button::on_click`], plus the
+///   convenience wrappers ([`Button::next`], [`Button::back`],
+///   [`Button::switch_to`], [`Button::start`], [`Button::done`],
+///   [`Button::done_with_result`], [`Button::set_dialog_value`]);
+/// - passive: [`Button::url`] / [`Button::url_dynamic`],
+///   [`Button::web_app`] / [`Button::web_app_dynamic`], [`Button::login_url`],
+///   the `switch_inline_query*` family, and
+///   [`Button::copy_text`] / [`Button::copy_text_dynamic`].
+///
+/// Callback buttons require a stable widget id (`id`) so [`InlineKeyboard`] can
+/// dispatch the callback back to the right button. Passive buttons are
+/// resolved entirely on the Telegram client and have no id.
+///
+/// Visual styling is applied with [`Button::style`] (or one of the shortcuts
+/// [`Button::danger`], [`Button::success`], [`Button::primary`]) and
+/// [`Button::icon_custom_emoji_id`].
+///
+/// [`InlineKeyboard`]: crate::widgets::InlineKeyboard
 #[derive(Clone)]
 pub struct Button {
-    id: Cow<'static, str>,
+    id: Option<Cow<'static, str>>,
     text: Arc<dyn Text>,
     kind: ButtonKind,
-    /// Optional button style (danger, success, primary).
     style: Option<ButtonStyle>,
-    /// Optional custom emoji ID to display before button text.
     icon_custom_emoji_id: Option<Cow<'static, str>>,
 }
 
 impl Button {
-    /// Create a callback button with an explicit action.
-    #[must_use]
-    pub fn action(id: impl Into<Cow<'static, str>>, text: impl Text, action: ButtonAction) -> Self {
+    #[inline]
+    fn callback(id: Cow<'static, str>, text: Arc<dyn Text>, kind: ButtonKind) -> Self {
+        debug_assert!(kind.is_callback(), "non-callback kind used with widget id");
         Self {
-            id: id.into(),
-            text: Arc::new(text),
-            kind: ButtonKind::Callback(action),
+            id: Some(id),
+            text,
+            kind,
             style: None,
             icon_custom_emoji_id: None,
         }
     }
 
-    /// Create a callback button with an async click handler.
+    #[inline]
+    fn passive(text: Arc<dyn Text>, kind: ButtonKind) -> Self {
+        debug_assert!(!kind.is_callback(), "callback kind missing a widget id");
+        Self {
+            id: None,
+            text,
+            kind,
+            style: None,
+            icon_custom_emoji_id: None,
+        }
+    }
+
+    /// Create a callback button bound to an explicit [`ButtonAction`].
+    #[must_use]
+    pub fn action(id: impl Into<Cow<'static, str>>, text: impl Text, action: ButtonAction) -> Self {
+        Self::callback(id.into(), Arc::new(text), ButtonKind::Callback(action))
+    }
+
+    /// Create a callback button whose action is produced by an async closure.
     #[must_use]
     pub fn on_click<F>(id: impl Into<Cow<'static, str>>, text: impl Text, handler: F) -> Self
     where
@@ -97,33 +142,28 @@ impl Button {
         <F as AsyncFn1<ClickContext>>::OutputFuture: Send + 'static,
     {
         let handler = Arc::new(handler);
-        Self {
-            id: id.into(),
-            text: Arc::new(text),
-            kind: ButtonKind::OnClick(Arc::new(move |click| {
-                let handler = handler.clone();
-                Box::pin(async move { handler(click).await })
-            })),
-            style: None,
-            icon_custom_emoji_id: None,
-        }
+        let kind = ButtonKind::OnClick(Arc::new(move |click| {
+            let handler = handler.clone();
+            Box::pin(async move { handler(click).await })
+        }));
+        Self::callback(id.into(), Arc::new(text), kind)
     }
 
-    /// Create a button that moves to the next dialog state.
+    /// Create a button that advances to the next dialog state.
     #[inline]
     #[must_use]
     pub fn next(id: impl Into<Cow<'static, str>>, text: impl Text) -> Self {
         Self::action(id, text, ButtonAction::next())
     }
 
-    /// Create a button that moves to the previous dialog state.
+    /// Create a button that returns to the previous dialog state.
     #[inline]
     #[must_use]
     pub fn back(id: impl Into<Cow<'static, str>>, text: impl Text) -> Self {
         Self::action(id, text, ButtonAction::back())
     }
 
-    /// Create a button that switches to a specific state in the current dialog.
+    /// Create a button that switches to a specific state inside the current dialog.
     #[inline]
     #[must_use]
     pub fn switch_to(
@@ -134,7 +174,7 @@ impl Button {
         Self::action(id, text, ButtonAction::switch_to(state))
     }
 
-    /// Create a button that starts another dialog state.
+    /// Create a button that starts another dialog state with start data and a stack mode.
     #[inline]
     #[must_use]
     pub fn start(
@@ -154,7 +194,7 @@ impl Button {
         Self::action(id, text, ButtonAction::done())
     }
 
-    /// Create a button that closes the current dialog and returns a result.
+    /// Create a button that closes the dialog and forwards a result to its parent.
     #[inline]
     #[must_use]
     pub fn done_with_result(
@@ -165,7 +205,7 @@ impl Button {
         Self::action(id, text, ButtonAction::done_with_result(result))
     }
 
-    /// Create a button that writes one value into `dialog_data`.
+    /// Create a button that writes a single value into `dialog_data`.
     #[inline]
     #[must_use]
     pub fn set_dialog_value(
@@ -183,16 +223,10 @@ impl Button {
         Self::url_dynamic(text, url.into().to_string())
     }
 
-    /// Create a URL button with a dynamic URL rendered from data.
+    /// Create a URL button whose target is rendered from dialog data.
     #[must_use]
     pub fn url_dynamic(text: impl Text, url: impl Text) -> Self {
-        Self {
-            id: String::new().into(),
-            text: Arc::new(text),
-            kind: ButtonKind::Url(Arc::new(url)),
-            style: None,
-            icon_custom_emoji_id: None,
-        }
+        Self::passive(Arc::new(text), ButtonKind::Url(Arc::new(url)))
     }
 
     /// Create a Web App button with a static URL.
@@ -202,28 +236,16 @@ impl Button {
         Self::web_app_dynamic(text, url)
     }
 
-    /// Create a Web App button with a dynamic URL rendered from data.
+    /// Create a Web App button whose URL is rendered from dialog data.
     #[must_use]
     pub fn web_app_dynamic(text: impl Text, url: impl Text) -> Self {
-        Self {
-            id: String::new().into(),
-            text: Arc::new(text),
-            kind: ButtonKind::WebApp(Arc::new(url)),
-            style: None,
-            icon_custom_emoji_id: None,
-        }
+        Self::passive(Arc::new(text), ButtonKind::WebApp(Arc::new(url)))
     }
 
-    /// Create a login URL button.
+    /// Create a login-URL button.
     #[must_use]
     pub fn login_url(text: impl Text, login_url: impl Into<LoginUrl>) -> Self {
-        Self {
-            id: String::new().into(),
-            text: Arc::new(text),
-            kind: ButtonKind::LoginUrl(login_url.into()),
-            style: None,
-            icon_custom_emoji_id: None,
-        }
+        Self::passive(Arc::new(text), ButtonKind::LoginUrl(login_url.into()))
     }
 
     /// Create a button that opens inline mode in another chat with a static query.
@@ -235,13 +257,10 @@ impl Button {
     /// Create a button that opens inline mode in another chat with a dynamic query.
     #[must_use]
     pub fn switch_inline_query_dynamic(text: impl Text, query: impl Text) -> Self {
-        Self {
-            id: String::new().into(),
-            text: Arc::new(text),
-            kind: ButtonKind::SwitchInlineQuery(Arc::new(query)),
-            style: None,
-            icon_custom_emoji_id: None,
-        }
+        Self::passive(
+            Arc::new(text),
+            ButtonKind::SwitchInlineQuery(Arc::new(query)),
+        )
     }
 
     /// Create a button that opens inline mode in the current chat with a static query.
@@ -256,13 +275,10 @@ impl Button {
     /// Create a button that opens inline mode in the current chat with a dynamic query.
     #[must_use]
     pub fn switch_inline_query_current_chat_dynamic(text: impl Text, query: impl Text) -> Self {
-        Self {
-            id: String::new().into(),
-            text: Arc::new(text),
-            kind: ButtonKind::SwitchInlineQueryCurrentChat(Arc::new(query)),
-            style: None,
-            icon_custom_emoji_id: None,
-        }
+        Self::passive(
+            Arc::new(text),
+            ButtonKind::SwitchInlineQueryCurrentChat(Arc::new(query)),
+        )
     }
 
     /// Create a button that opens inline mode in a chosen chat.
@@ -271,13 +287,10 @@ impl Button {
         text: impl Text,
         query: impl Into<SwitchInlineQueryChosenChat>,
     ) -> Self {
-        Self {
-            id: String::new().into(),
-            text: Arc::new(text),
-            kind: ButtonKind::SwitchInlineQueryChosenChat(query.into()),
-            style: None,
-            icon_custom_emoji_id: None,
-        }
+        Self::passive(
+            Arc::new(text),
+            ButtonKind::SwitchInlineQueryChosenChat(query.into()),
+        )
     }
 
     /// Create a button that copies static text to the clipboard.
@@ -290,41 +303,38 @@ impl Button {
     /// Create a button that copies dynamic text to the clipboard.
     #[must_use]
     pub fn copy_text_dynamic(text: impl Text, copy_text: impl Text) -> Self {
-        Self {
-            id: String::new().into(),
-            text: Arc::new(text),
-            kind: ButtonKind::CopyText(Arc::new(copy_text)),
-            style: None,
-            icon_custom_emoji_id: None,
-        }
+        Self::passive(Arc::new(text), ButtonKind::CopyText(Arc::new(copy_text)))
     }
 
-    /// Set the button style.
+    /// Apply the given style to this button.
     #[must_use]
     pub fn style(mut self, style: ButtonStyle) -> Self {
         self.style = Some(style);
         self
     }
 
-    /// Set the button to danger style (red-tinted).
+    /// Style this button as a destructive (red) action.
+    #[inline]
     #[must_use]
     pub fn danger(self) -> Self {
         self.style(ButtonStyle::Danger)
     }
 
-    /// Set the button to success style (green-tinted).
+    /// Style this button as a success (green) action.
+    #[inline]
     #[must_use]
     pub fn success(self) -> Self {
         self.style(ButtonStyle::Success)
     }
 
-    /// Set the button to primary style (blue-tinted).
+    /// Style this button as a primary (blue) action.
+    #[inline]
     #[must_use]
     pub fn primary(self) -> Self {
         self.style(ButtonStyle::Primary)
     }
 
-    /// Set the custom emoji ID to display before button text.
+    /// Set the custom emoji shown before the button text.
     #[must_use]
     pub fn icon_custom_emoji_id(mut self, emoji_id: impl Into<Cow<'static, str>>) -> Self {
         self.icon_custom_emoji_id = Some(emoji_id.into());
@@ -344,7 +354,8 @@ impl Button {
 
             match &self.kind {
                 ButtonKind::Callback(_) | ButtonKind::OnClick(_) => {
-                    button.callback_data(format_callback_data(ctx, &self.id, None))
+                    let id = self.id.as_deref().unwrap_or("");
+                    button.callback_data(format_callback_data(ctx, id, None))
                 }
                 ButtonKind::Url(url) => {
                     let rendered_url = url.render_text_in_context(render_ctx).await;
@@ -379,18 +390,19 @@ impl Button {
         click: &'a ClickContext,
     ) -> BoxFuture<'a, Option<ButtonAction>> {
         Box::pin(async move {
+            let id = self.id.as_deref()?;
             let ctx = click.context.as_ref();
             let parsed = parse_callback_data(ctx, click.callback_data.as_str())?;
-            if parsed.target_id != self.id.as_ref() || parsed.payload.is_some() {
+            if parsed.target_id != id || parsed.payload.is_some() {
                 return None;
             }
             match &self.kind {
                 ButtonKind::Callback(action) => {
-                    debug!(context_id = %ctx.id, button_id = %self.id, "Resolved button callback");
+                    debug!(context_id = %ctx.id, button_id = %id, "Resolved button callback");
                     Some(action.clone())
                 }
                 ButtonKind::OnClick(handler) => {
-                    debug!(context_id = %ctx.id, button_id = %self.id, "Resolved button click handler");
+                    debug!(context_id = %ctx.id, button_id = %id, "Resolved button click handler");
                     Some(handler(click.clone()).await)
                 }
                 ButtonKind::Url(_)

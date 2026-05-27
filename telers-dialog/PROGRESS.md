@@ -1,6 +1,6 @@
 # telers-dialog Progress
 
-Updated: 2026-04-24 (UTC)
+Updated: 2026-05-16 (UTC)
 
 ## Goal
 - Focused Rust dialog framework for `telers`, borrowing `aiogram-dialog` behavior only where useful.
@@ -16,6 +16,10 @@ Updated: 2026-04-24 (UTC)
 ## Implemented
 - `DialogRegistry` indexes by state and rejects duplicates.
 - `DialogManager` supports start/switch/next/back/done/result/show plus callback/message handling.
+- Manager and action APIs include single-value (`set_dialog_value`, `set_widget_value`) and batched (`extend_dialog_data`, `extend_widget_data`) helpers, mirrored on `ButtonAction`.
+- Widget builders share canonical helpers via internal macros: `impl_button_row_helpers!` covers `header_row` / `header_push` / `footer_row` / `footer_push` on `Select`, `Checkbox`, `Counter`, `Multiselect`, `Radio`, `Toggle`; `impl_reply_keyboard_options_setters!` covers the reply-keyboard option setters on `RequestContact`, `RequestLocation`, `RequestPoll`.
+- `Button` stores its widget id as `Option<Cow<'static, str>>`; only callback-style buttons (`Button::action`, `Button::on_click` and friends) carry an id, and `resolve_callback` short-circuits on `None`.
+- `Progress` and `Case` text widgets use `#[bon]` builders for consistency with the rest of the widget surface.
 - Launch modes: `Root`, `Exclusive`, `SingleTop`.
 - `ShowMode::Auto`, message cleanup/reuse, parent result propagation.
 - `dialog_data` and `widget_data` mutation/read helpers.
@@ -40,24 +44,11 @@ Updated: 2026-04-24 (UTC)
   - `LinkPreview` widget renders `LinkPreviewOptions` from static or dynamic text data.
 
 ## Existing Examples
-- Current dialog examples cover button actions, calendar, message input, pager widgets, request widgets, select, stateful select, sync scroll, and text widgets.
-- Missing example coverage is now the main gap for the newer widget/API work listed below.
+- Current dialog examples cover button actions, calendar, message input, pager widgets, request widgets, select, stateful select, sync scroll, text widgets, media widgets (static/dynamic/scroll), inline button styles + dynamic payloads, template text (default and custom env), and `ForceReply` prompt flow.
 
 ## Missing Examples
-- Media:
-  - Static media from URL/file id.
-  - Dynamic media from render data.
-  - Media scrolling with pager controls.
-- Inline button additions:
-  - Danger/success/primary styled buttons.
-  - Custom emoji button.
-  - Dynamic URL/copy/switch-inline/web-app payloads from render data.
-- Template text:
-  - `TemplateText` with the `template` feature enabled.
-  - Custom `TemplateEnvBuilder` filter/global example.
 - Reply markup:
-  - Plain reply-keyboard rows beyond request-only widgets, if/when implemented.
-  - `ForceReply` prompt flow.
+  - Plain reply-keyboard rows beyond request-only widgets — pending the underlying widget (see Known Gaps).
 
 ## Known Gaps
 - Generic plain reply-keyboard row builder/factory beyond request-only widgets is still missing.
@@ -69,6 +60,8 @@ Updated: 2026-04-24 (UTC)
 - Different: explicit `telers` middleware integration, typed Rust actions/builders, smaller widget set, no managed wrapper types.
 
 ## Validation Snapshot
-- Current validation after style cleanup: `cargo check -p telers-dialog`, `cargo test -p telers-dialog`, and `git diff --check`.
-- `cargo fmt --check` could not run because `rustfmt` is not installed for toolchain `1.95.0-x86_64-unknown-linux-gnu`.
-- `cargo clippy` could not run because `clippy` is not installed for toolchain `1.95.0-x86_64-unknown-linux-gnu`.
+- `cargo check -p telers-dialog --all-features`: passes.
+- `cargo test -p telers-dialog --all-features`: 154 unit tests pass, 1 doc test passes, 15 doc tests ignored.
+- `cargo check --workspace --all-features`: passes (covers all 13 dialog example crates).
+- `cargo fmt --check` not run; `rustfmt` not installed for the current toolchain.
+- `cargo clippy` not run; `clippy` not installed for the current toolchain.

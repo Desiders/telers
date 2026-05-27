@@ -5,11 +5,16 @@ use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::debug;
 
 use super::super::{
-    format_callback_data, parse_callback_data, render_button_row, when::is_allowed, Button,
-    ButtonAction, ClickContext, Keyboard, WhenCondition,
+    format_callback_data, macros::impl_button_row_helpers, parse_callback_data, render_button_row,
+    when::is_allowed, Button, ButtonAction, ClickContext, Keyboard, WhenCondition,
 };
 use crate::entities::{Context, DataMap, RenderContext};
 
+/// Single-button cyclic toggle backed by `widget_data`.
+///
+/// The widget displays only the currently selected item; clicking it stores
+/// the next item id from `items_getter`. When no value is stored yet, the
+/// first item is shown.
 pub struct Toggle<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id> {
     id: WidgetId,
     items_getter: ItemsGetter,
@@ -26,6 +31,7 @@ pub struct Toggle<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr,
 impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id>
     Toggle<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id>
 {
+    /// Build a [`Toggle`] widget.
     #[builder]
     #[must_use]
     pub fn new(
@@ -71,31 +77,7 @@ where
     IdGetter: Fn(&Item) -> Id,
     Id: Display,
 {
-    pub fn header_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
-        self.header_rows.push(buttons.into_iter().collect());
-        self
-    }
-
-    pub fn header_push(mut self, button: Button) -> Self {
-        match self.header_rows.last_mut() {
-            Some(row) => row.push(button),
-            None => self.header_rows.push(vec![button]),
-        }
-        self
-    }
-
-    pub fn footer_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
-        self.footer_rows.push(buttons.into_iter().collect());
-        self
-    }
-
-    pub fn footer_push(mut self, button: Button) -> Self {
-        match self.footer_rows.last_mut() {
-            Some(row) => row.push(button),
-            None => self.footer_rows.push(vec![button]),
-        }
-        self
-    }
+    impl_button_row_helpers!();
 }
 
 #[async_trait]

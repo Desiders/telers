@@ -52,19 +52,21 @@ async fn case_selects_matching_variant() {
     let mut data = DataMap::new();
     data.insert("status".into(), json!("paid"));
 
-    let text = Case::new(|data: &DataMap| data.get("status").cloned())
+    let text = Case::builder(|data: &DataMap| data.get("status").cloned())
         .when(Some(json!("draft")), "Draft order")
         .when(Some(json!("paid")), "Paid order")
-        .default("Unknown");
+        .default("Unknown")
+        .build();
 
     assert_eq!(&*text.render_text(&data).await, "Paid order");
 }
 
 #[tokio::test]
 async fn case_uses_default_when_key_missing() {
-    let text = Case::new(|data: &DataMap| data.get("status").cloned())
+    let text = Case::builder(|data: &DataMap| data.get("status").cloned())
         .when(Some(json!("draft")), "Draft order")
-        .default("Unknown");
+        .default("Unknown")
+        .build();
 
     assert_eq!(&*text.render_text(&DataMap::new()).await, "Unknown");
 }
@@ -74,7 +76,7 @@ async fn progress_renders_bar_from_percentage_field() {
     let mut data = DataMap::new();
     data.insert("percent".into(), json!(35));
 
-    let text = Progress::new("percent").width(10);
+    let text = Progress::builder("percent").width(10).build();
 
     assert_eq!(&*text.render_text(&data).await, "####------  35%");
 }
@@ -84,7 +86,11 @@ async fn progress_clamps_and_supports_custom_symbols() {
     let mut data = DataMap::new();
     data.insert("percent".into(), json!(120));
 
-    let text = Progress::new("percent").width(4).filled("=").empty(".");
+    let text = Progress::builder("percent")
+        .width(4)
+        .filled("=")
+        .empty(".")
+        .build();
 
     assert_eq!(&*text.render_text(&data).await, "==== 100%");
 }

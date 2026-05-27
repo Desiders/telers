@@ -6,12 +6,18 @@ use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::debug;
 
 use super::super::{
-    format_callback_data, parse_callback_data, render_button_row, when::is_allowed, Button,
-    ButtonAction, ClickContext, Keyboard, WhenCondition,
+    format_callback_data, macros::impl_button_row_helpers, parse_callback_data, render_button_row,
+    when::is_allowed, Button, ButtonAction, ClickContext, Keyboard, WhenCondition,
 };
 use crate::entities::{Context, DataMap, RenderContext};
 
 /// Numeric counter widget stored in `widget_data`.
+///
+/// The counter renders a `[−] value [+]` triplet. The value is clamped to
+/// `[min, max]` and incremented or decremented by `increment` on each click.
+/// When `cycle` is `true`, hitting either bound wraps around to the opposite
+/// bound instead of clamping in place. Setting `plus_hidden` / `minus_hidden`
+/// to `true` removes the corresponding direction button.
 pub struct Counter<WidgetId> {
     id: WidgetId,
     plus_text: Cow<'static, str>,
@@ -74,35 +80,7 @@ where
     S: counter_builder::State,
     WidgetId: Display,
 {
-    /// Append a full header row before the counter row.
-    pub fn header_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
-        self.header_rows.push(buttons.into_iter().collect());
-        self
-    }
-
-    /// Append a button to the last header row, or create one if absent.
-    pub fn header_push(mut self, button: Button) -> Self {
-        match self.header_rows.last_mut() {
-            Some(row) => row.push(button),
-            None => self.header_rows.push(vec![button]),
-        }
-        self
-    }
-
-    /// Append a full footer row after the counter row.
-    pub fn footer_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
-        self.footer_rows.push(buttons.into_iter().collect());
-        self
-    }
-
-    /// Append a button to the last footer row, or create one if absent.
-    pub fn footer_push(mut self, button: Button) -> Self {
-        match self.footer_rows.last_mut() {
-            Some(row) => row.push(button),
-            None => self.footer_rows.push(vec![button]),
-        }
-        self
-    }
+    impl_button_row_helpers!();
 }
 
 #[async_trait]

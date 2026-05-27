@@ -73,11 +73,10 @@ fn registry() -> DialogRegistry {
                             None => format!("{}", message.contact.first_name),
                         };
                         ButtonAction::chain([
-                            ButtonAction::set_dialog_value("lead_name", full_name),
-                            ButtonAction::set_dialog_value(
-                                "lead_phone",
-                                format!("{}", message.contact.phone_number),
-                            ),
+                            ButtonAction::extend_dialog_data([
+                                ("lead_name", full_name),
+                                ("lead_phone", format!("{}", message.contact.phone_number)),
+                            ]),
                             ButtonAction::next(),
                         ])
                     },
@@ -135,14 +134,10 @@ fn registry() -> DialogRegistry {
                 ),
                 input(MessageInput::new(|_ctx, message: MessagePoll| async move {
                     ButtonAction::chain([
-                        ButtonAction::set_dialog_value(
-                            "poll_question",
-                            format!("{}", message.poll.question()),
-                        ),
-                        ButtonAction::set_dialog_value(
-                            "poll_options",
-                            format!("{}", message.poll.options().len()),
-                        ),
+                        ButtonAction::extend_dialog_data([
+                            ("poll_question", format!("{}", message.poll.question())),
+                            ("poll_options", format!("{}", message.poll.options().len())),
+                        ]),
                         ButtonAction::next(),
                     ])
                 })),

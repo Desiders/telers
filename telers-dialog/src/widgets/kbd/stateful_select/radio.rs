@@ -5,11 +5,19 @@ use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::debug;
 
 use super::super::{
-    format_callback_data, parse_callback_data, render_button_row, when::is_allowed, Button,
-    ButtonAction, ClickContext, Keyboard, WhenCondition,
+    format_callback_data, macros::impl_button_row_helpers, parse_callback_data, render_button_row,
+    when::is_allowed, Button, ButtonAction, ClickContext, Keyboard, WhenCondition,
 };
 use crate::entities::{Context, DataMap, RenderContext};
 
+/// Inline-keyboard radio group that stores one selected item id in `widget_data`.
+///
+/// On click the widget writes the picked item id under its own `widget_id`
+/// using [`ButtonAction::SetWidgetValue`]. The next render compares stored id
+/// against each item's id and picks either `checked_renderer` or
+/// `unchecked_renderer` for the label.
+///
+/// [`ButtonAction::SetWidgetValue`]: crate::widgets::ButtonAction::SetWidgetValue
 pub struct Radio<
     WidgetId,
     ItemsGetter,
@@ -57,6 +65,7 @@ impl<
         Id,
     >
 {
+    /// Build a [`Radio`] widget.
     #[builder]
     #[must_use]
     pub fn new(
@@ -128,31 +137,7 @@ where
     IdGetter: Fn(&Item) -> Id,
     Id: Display,
 {
-    pub fn header_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
-        self.header_rows.push(buttons.into_iter().collect());
-        self
-    }
-
-    pub fn header_push(mut self, button: Button) -> Self {
-        match self.header_rows.last_mut() {
-            Some(row) => row.push(button),
-            None => self.header_rows.push(vec![button]),
-        }
-        self
-    }
-
-    pub fn footer_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
-        self.footer_rows.push(buttons.into_iter().collect());
-        self
-    }
-
-    pub fn footer_push(mut self, button: Button) -> Self {
-        match self.footer_rows.last_mut() {
-            Some(row) => row.push(button),
-            None => self.footer_rows.push(vec![button]),
-        }
-        self
-    }
+    impl_button_row_helpers!();
 }
 
 #[async_trait]

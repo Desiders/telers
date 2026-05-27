@@ -1,40 +1,67 @@
+use bon::bon;
+
 use super::Text;
 use crate::entities::{DataMap, RenderContext};
 use async_trait::async_trait;
 
-/// Select one of several text variants based on a computed key.
+/// Render one of several text variants chosen by a selector closure.
+///
+/// The selector receives the current render data and returns a key. The first
+/// variant whose registered key equals the selector's result is rendered.
+/// When no variant matches, the optional [`default`](CaseBuilder::default)
+/// variant renders; otherwise the widget produces an empty string.
+///
+/// # Example
+///
+/// ```ignore
+/// use telers_dialog::widgets::Case;
+///
+/// let case = Case::builder(|data| data.get("plan").is_some())
+///     .when(true, "Active subscription")
+///     .when(false, "Free tier")
+///     .build();
+/// ```
 pub struct Case<Selector, Key> {
     selector: Selector,
     variants: Vec<(Key, Box<dyn Text>)>,
     default: Option<Box<dyn Text>>,
 }
 
+#[bon]
 impl<Selector, Key> Case<Selector, Key> {
-    /// Create a new conditional text widget.
+    /// Build a [`Case`] widget bound to the given selector.
+    #[builder]
     #[must_use]
-    pub const fn new(selector: Selector) -> Self {
+    pub fn new(
+        #[builder(start_fn)] selector: Selector,
+        #[builder(field)] variants: Vec<(Key, Box<dyn Text>)>,
+        #[builder(field)] default: Option<Box<dyn Text>>,
+    ) -> Self
+    where
+        Selector: Fn(&DataMap) -> Key,
+        Key: PartialEq,
+    {
         Self {
             selector,
-            variants: Vec::new(),
-            default: None,
+            variants,
+            default,
         }
     }
 }
 
-impl<Selector, Key> Case<Selector, Key>
+impl<Selector, Key, S> CaseBuilder<Selector, Key, S>
 where
+    S: case_builder::State,
     Selector: Fn(&DataMap) -> Key,
     Key: PartialEq,
 {
-    /// Add a keyed text variant.
-    #[must_use]
+    /// Register a keyed text variant; rendered when the selector returns `key`.
     pub fn when(mut self, key: Key, text: impl Text) -> Self {
         self.variants.push((key, Box::new(text)));
         self
     }
 
-    /// Add a default text variant used when no keyed variant matches.
-    #[must_use]
+    /// Register the fallback text rendered when no keyed variant matches.
     pub fn default(mut self, text: impl Text) -> Self {
         self.default = Some(Box::new(text));
         self

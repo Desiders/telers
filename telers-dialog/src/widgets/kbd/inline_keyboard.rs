@@ -5,6 +5,25 @@ use telers::types::{InlineKeyboardMarkup, ReplyMarkup};
 use super::{when::is_allowed, Button, ButtonAction, ClickContext, Keyboard, WhenCondition};
 use crate::entities::{Context, DataMap, RenderContext};
 
+/// Inline-keyboard widget composed of explicit rows of [`Button`]s.
+///
+/// Build the keyboard via [`InlineKeyboard::builder`], using
+/// [`row`](InlineKeyboardBuilder::row) for full rows and
+/// [`push`](InlineKeyboardBuilder::push) for incremental additions. The
+/// optional [`when`](InlineKeyboardBuilder::when) condition hides both the
+/// rendered markup and any callback dispatch for the keyboard when it returns
+/// `false`.
+///
+/// # Example
+///
+/// ```ignore
+/// use telers_dialog::widgets::{Button, InlineKeyboard};
+///
+/// let kbd = InlineKeyboard::builder()
+///     .row([Button::next("next", "Next")])
+///     .push(Button::back("back", "Back"))
+///     .build();
+/// ```
 #[derive(Clone, Default)]
 pub struct InlineKeyboard {
     rows: Vec<Vec<Button>>,
@@ -13,6 +32,8 @@ pub struct InlineKeyboard {
 
 #[bon]
 impl InlineKeyboard {
+    /// Create a new inline keyboard; populate it via [`row`](InlineKeyboardBuilder::row)
+    /// or [`push`](InlineKeyboardBuilder::push).
     #[builder]
     #[must_use]
     pub fn new(
@@ -30,12 +51,13 @@ impl<S> InlineKeyboardBuilder<S>
 where
     S: inline_keyboard_builder::State,
 {
+    /// Append a full row of buttons to the keyboard.
     pub fn row(mut self, row: impl IntoIterator<Item = Button>) -> Self {
         self.rows.push(row.into_iter().collect());
         self
     }
 
-    /// Add a button to the last row or create a new row if the last row not found
+    /// Append a button to the last row, creating a new row when none exists.
     pub fn push(mut self, button: Button) -> Self {
         match self.rows.last_mut() {
             Some(row) => row.push(button),

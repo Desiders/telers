@@ -3,8 +3,14 @@ use telers::types::Message;
 use crate::{entities::Context, widgets::ButtonAction};
 use async_trait::async_trait;
 
+/// Widget that consumes an incoming user [`Message`] for the active dialog.
+///
+/// Implementations decide whether they can interpret the message; returning
+/// `None` means "this widget did not claim the message" and the runtime falls
+/// through to other inputs registered on the window.
 #[async_trait]
 pub trait Input: Send + Sync + 'static {
+    /// Attempt to handle `message` and emit a [`ButtonAction`] when claimed.
     async fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction>;
 
     #[cfg(test)]

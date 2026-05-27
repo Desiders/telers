@@ -7,18 +7,36 @@ use telers::types::Message;
 use super::Input;
 use crate::{entities::Context, widgets::ButtonAction};
 
+/// Runtime inputs available to a [`MessageInput`] handler.
 #[derive(Clone, Debug)]
 pub struct MessageInputContext {
     /// Stored dialog context for the active intent.
     pub context: Arc<Context>,
 }
 
+/// Input widget that forwards strongly-typed incoming messages to an async handler.
+///
+/// `MessageType` is any value implementing [`TryFrom<Message>`]; the widget
+/// attempts the conversion and silently skips messages that don't match, so
+/// other input widgets on the same window can still claim them.
+///
+/// # Example
+///
+/// ```ignore
+/// use telers::types::MessageContact;
+/// use telers_dialog::widgets::{ButtonAction, MessageInput};
+///
+/// let input = MessageInput::new(|_ctx, message: MessageContact| async move {
+///     ButtonAction::set_dialog_value("phone", message.contact.phone_number)
+/// });
+/// ```
 pub struct MessageInput<Handler, MessageType> {
     handler: Handler,
     marker: PhantomData<fn() -> MessageType>,
 }
 
 impl<Handler, MessageType> MessageInput<Handler, MessageType> {
+    /// Create a new message-input widget bound to `handler`.
     #[inline]
     #[must_use]
     pub const fn new(handler: Handler) -> Self

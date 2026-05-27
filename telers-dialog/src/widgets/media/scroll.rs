@@ -62,55 +62,54 @@ where
 }
 
 impl MediaScroll<String> {
-    /// Create a media scroll that reads URLs from a data field array.
-    ///
-    /// Each URL becomes a photo attachment.
+    /// Read a string array from `field` and render each entry as a URL-sourced
+    /// attachment with `content_type`.
     #[must_use]
-    pub fn photo_urls_from_field(id: impl Into<String>, field: impl Into<String>) -> Self {
+    pub fn from_url_array_field(
+        id: impl Into<String>,
+        content_type: MediaContentType,
+        field: impl Into<String>,
+    ) -> Self {
         let field = field.into();
         MediaScroll::builder(id)
-            .items_getter(move |data: &DataMap| {
-                data.get(&field)
-                    .and_then(Value::as_array)
-                    .map(|val| {
-                        val.iter()
-                            .filter_map(|item| item.as_str().map(String::from))
-                            .collect()
-                    })
-                    .unwrap_or_default()
-            })
-            .item_renderer(|url, _data| {
-                MediaAttachment::builder(MediaContentType::Photo)
+            .items_getter(move |data: &DataMap| string_array_from_field(data, &field))
+            .item_renderer(move |url, _data| {
+                MediaAttachment::builder(content_type)
                     .url(url.clone())
                     .build()
             })
             .build()
     }
 
-    /// Create a media scroll that reads file IDs from a data field array.
-    ///
-    /// Each file ID becomes a photo attachment.
+    /// Read a string array from `field` and render each entry as a file-id-sourced
+    /// attachment with `content_type`.
     #[must_use]
-    pub fn photo_ids_from_field(id: impl Into<String>, field: impl Into<String>) -> Self {
+    pub fn from_file_id_array_field(
+        id: impl Into<String>,
+        content_type: MediaContentType,
+        field: impl Into<String>,
+    ) -> Self {
         let field = field.into();
         MediaScroll::builder(id)
-            .items_getter(move |data: &DataMap| {
-                data.get(&field)
-                    .and_then(Value::as_array)
-                    .map(|val| {
-                        val.iter()
-                            .filter_map(|item| item.as_str().map(String::from))
-                            .collect()
-                    })
-                    .unwrap_or_default()
-            })
-            .item_renderer(|file_id, _data| {
-                MediaAttachment::builder(MediaContentType::Photo)
+            .items_getter(move |data: &DataMap| string_array_from_field(data, &field))
+            .item_renderer(move |file_id, _data| {
+                MediaAttachment::builder(content_type)
                     .file_id(MediaId::new(file_id.clone()))
                     .build()
             })
             .build()
     }
+}
+
+fn string_array_from_field(data: &DataMap, field: &str) -> Vec<String> {
+    data.get(field)
+        .and_then(Value::as_array)
+        .map(|val| {
+            val.iter()
+                .filter_map(|item| item.as_str().map(String::from))
+                .collect()
+        })
+        .unwrap_or_default()
 }
 
 #[async_trait]
