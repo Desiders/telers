@@ -42,7 +42,7 @@ pub fn dialog() -> impl Dialog {
                     .row([link("m_calendar", "📅 Calendar & time", calendar::STATE)])
                     .row([link("m_switch", "🔢 Multi-step input", switch::STATE)])
                     .row([link("m_reply", "⌨️ Reply keyboard", reply_kbd::STATE)])
-                    .row([link("m_inputs", "✍️ Text input", inputs::STATE)])
+                    .row([link("m_inputs", "✍️ Text & force reply", inputs::STATE)])
                     .row([link("m_buttons", "🎨 Button styles", buttons::STATE)])
                     .row([link(
                         "m_actions",

@@ -1,11 +1,17 @@
-//! `TextInput`: typed parsing of a sent message with an error branch.
+//! Text-driven inputs: `TextInput` (typed parsing with an error branch) and
+//! `ForceReply` (a reply-markup widget paired with a `MessageInput`).
 //!
-//! `TextInput` parses the message text into the type expected by `on_success`;
-//! a value that fails to parse takes the `on_error` branch instead. (Free-form
-//! message handling is shown by `MessageInput` in the reply-keyboard dialog.)
+//! `ForceReply` only opens the reply UI when its message is *sent* (Telegram
+//! ignores it on an edit), so it is reached through a message transition: the
+//! `TextInput` window carries no inline keyboard, and sending the number sends
+//! the `ForceReply` window fresh.
 
+use telers::types::MessageText;
 use telers_dialog::{
-    widgets::{format_text, input, keyboard, ButtonAction, InlineKeyboard, TextInput},
+    widgets::{
+        format_text, input, keyboard, text, ButtonAction, ForceReply, InlineKeyboard, MessageInput,
+        TextInput,
+    },
     window, Dialog,
 };
 
@@ -19,9 +25,9 @@ pub fn dialog() -> impl Dialog {
             STATE,
             [
                 format_text(
-                    "Text input\n\nSend a whole number (an age). `TextInput` parses it into an \
-                     `i64`; text that is not a number takes the error branch.\n\nAge: \
-                     {age}\n{input_error}",
+                    "Text & force reply\n\nStep 1 of 2. Send a whole number (an age). `TextInput` \
+                     parses it into an `i64`; text that is not a number takes the error \
+                     branch.\n\nAge: {age}\n{input_error}",
                 ),
                 input(
                     TextInput::builder("age_input")
@@ -42,15 +48,35 @@ pub fn dialog() -> impl Dialog {
                         })
                         .build(),
                 ),
-                keyboard(InlineKeyboard::builder().row([main_menu_button()]).build()),
+            ],
+        ),
+        window(
+            "inputs_force",
+            [
+                text(
+                    "Text & force reply\n\nStep 2 of 2. Telegram auto-opens the reply UI with the \
+                     placeholder. Send a nickname; the `MessageInput` stores it.",
+                ),
+                keyboard(
+                    ForceReply::builder()
+                        .input_field_placeholder("Type a nickname")
+                        .build(),
+                ),
+                input(MessageInput::new(|_ctx, message: MessageText| async move {
+                    ButtonAction::chain([
+                        ButtonAction::set_dialog_value("nickname", message.text.to_string()),
+                        ButtonAction::next(),
+                    ])
+                })),
             ],
         ),
         window(
             "inputs_done",
             [
                 format_text(
-                    "Text input\n\nStored age: {age}\n\n`TextInput` parsed the message into a \
-                     typed value, and the chained action advanced the dialog.",
+                    "Text & force reply\n\nAge: {age}\nNickname: {nickname}\n\n`TextInput` parses \
+                     typed values with an error branch; `ForceReply` only owns the reply markup \
+                     while a `MessageInput` consumes the reply.",
                 ),
                 keyboard(InlineKeyboard::builder().row([main_menu_button()]).build()),
             ],
