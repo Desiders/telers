@@ -40,6 +40,7 @@ const BOXED_TYPES: &[&str] = &[
     "Venue",
     "Video",
     "Document",
+    "RichText",
 ];
 
 #[derive(Debug, Deserialize, Serialize)]
