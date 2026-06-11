@@ -142,39 +142,47 @@ impl<'a> PartialEq<&'a str> for RichTextType {
         self.as_ref() == *other
     }
 }
-impl<'a> From<&'a RichText> for RichTextType {
-    fn from(val: &'a RichText) -> Self {
+impl<'a> TryFrom<&'a RichText> for RichTextType {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: &'a RichText) -> Result<Self, Self::Error> {
         match val {
-            RichText::Bold(_) => RichTextType::Bold,
-            RichText::Italic(_) => RichTextType::Italic,
-            RichText::Underline(_) => RichTextType::Underline,
-            RichText::Strikethrough(_) => RichTextType::Strikethrough,
-            RichText::Spoiler(_) => RichTextType::Spoiler,
-            RichText::DateTime(_) => RichTextType::DateTime,
-            RichText::TextMention(_) => RichTextType::TextMention,
-            RichText::Subscript(_) => RichTextType::Subscript,
-            RichText::Superscript(_) => RichTextType::Superscript,
-            RichText::Marked(_) => RichTextType::Marked,
-            RichText::Code(_) => RichTextType::Code,
-            RichText::CustomEmoji(_) => RichTextType::CustomEmoji,
-            RichText::MathematicalExpression(_) => RichTextType::MathematicalExpression,
-            RichText::Url(_) => RichTextType::Url,
-            RichText::EmailAddress(_) => RichTextType::EmailAddress,
-            RichText::PhoneNumber(_) => RichTextType::PhoneNumber,
-            RichText::BankCardNumber(_) => RichTextType::BankCardNumber,
-            RichText::Mention(_) => RichTextType::Mention,
-            RichText::Hashtag(_) => RichTextType::Hashtag,
-            RichText::Cashtag(_) => RichTextType::Cashtag,
-            RichText::BotCommand(_) => RichTextType::BotCommand,
-            RichText::Anchor(_) => RichTextType::Anchor,
-            RichText::AnchorLink(_) => RichTextType::AnchorLink,
-            RichText::Reference(_) => RichTextType::Reference,
-            RichText::ReferenceLink(_) => RichTextType::ReferenceLink,
+            RichText::Bold(_) => Ok(RichTextType::Bold),
+            RichText::Italic(_) => Ok(RichTextType::Italic),
+            RichText::Underline(_) => Ok(RichTextType::Underline),
+            RichText::Strikethrough(_) => Ok(RichTextType::Strikethrough),
+            RichText::Spoiler(_) => Ok(RichTextType::Spoiler),
+            RichText::DateTime(_) => Ok(RichTextType::DateTime),
+            RichText::TextMention(_) => Ok(RichTextType::TextMention),
+            RichText::Subscript(_) => Ok(RichTextType::Subscript),
+            RichText::Superscript(_) => Ok(RichTextType::Superscript),
+            RichText::Marked(_) => Ok(RichTextType::Marked),
+            RichText::Code(_) => Ok(RichTextType::Code),
+            RichText::CustomEmoji(_) => Ok(RichTextType::CustomEmoji),
+            RichText::MathematicalExpression(_) => Ok(RichTextType::MathematicalExpression),
+            RichText::Url(_) => Ok(RichTextType::Url),
+            RichText::EmailAddress(_) => Ok(RichTextType::EmailAddress),
+            RichText::PhoneNumber(_) => Ok(RichTextType::PhoneNumber),
+            RichText::BankCardNumber(_) => Ok(RichTextType::BankCardNumber),
+            RichText::Mention(_) => Ok(RichTextType::Mention),
+            RichText::Hashtag(_) => Ok(RichTextType::Hashtag),
+            RichText::Cashtag(_) => Ok(RichTextType::Cashtag),
+            RichText::BotCommand(_) => Ok(RichTextType::BotCommand),
+            RichText::Anchor(_) => Ok(RichTextType::Anchor),
+            RichText::AnchorLink(_) => Ok(RichTextType::AnchorLink),
+            RichText::Reference(_) => Ok(RichTextType::Reference),
+            RichText::ReferenceLink(_) => Ok(RichTextType::ReferenceLink),
+            _ => Err(Self::Error::new(
+                stringify!(RichText),
+                stringify!(RichTextType),
+            )),
         }
     }
 }
-impl From<RichText> for RichTextType {
-    fn from(val: RichText) -> Self {
-        RichTextType::from(&val)
+impl TryFrom<RichText> for RichTextType {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: RichText) -> Result<Self, Self::Error> {
+        RichTextType::try_from(&val)
     }
 }

@@ -1,4 +1,5 @@
 use crate::types::BackgroundFill;
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes the way a background is filled based on the selected colors. Currently, it can be one of
 /// - [`crate::types::BackgroundFillSolid`]
@@ -6,7 +7,20 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::BackgroundFillFreeformGradient`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#backgroundfill>
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum BackgroundFillType {
     #[strum(serialize = "solid")]
     Solid,

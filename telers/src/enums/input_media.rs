@@ -1,4 +1,5 @@
 use crate::types::InputMedia;
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents the content of a media message to be sent. It should be one of
 /// - [`crate::types::InputMediaAnimation`]
@@ -9,7 +10,20 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::InputMediaVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmedia>
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum InputMediaType {
     #[strum(serialize = "animation")]
     Animation,

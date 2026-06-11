@@ -55,6 +55,12 @@ pub enum RichText {
     AnchorLink(crate::types::RichTextAnchorLink),
     Reference(crate::types::RichTextReference),
     ReferenceLink(crate::types::RichTextReferenceLink),
+    /// Plain text
+    #[serde(untagged)]
+    Plain(Box<str>),
+    /// Multiple parts concatenated together
+    #[serde(untagged)]
+    Multiple(Box<[crate::types::RichText]>),
 }
 impl RichText {
     /// Helper method for field `alternative_text`.
@@ -484,6 +490,31 @@ impl RichText {
             }
             _ => None,
         }
+    }
+}
+impl From<Box<str>> for RichText {
+    fn from(val: Box<str>) -> Self {
+        Self::Plain(val)
+    }
+}
+impl From<String> for RichText {
+    fn from(val: String) -> Self {
+        Self::Plain(val.into())
+    }
+}
+impl From<&str> for RichText {
+    fn from(val: &str) -> Self {
+        Self::Plain(val.into())
+    }
+}
+impl From<Box<[RichText]>> for RichText {
+    fn from(val: Box<[RichText]>) -> Self {
+        Self::Multiple(val)
+    }
+}
+impl From<Vec<RichText>> for RichText {
+    fn from(val: Vec<RichText>) -> Self {
+        Self::Multiple(val.into())
     }
 }
 impl From<crate::types::RichTextBold> for RichText {

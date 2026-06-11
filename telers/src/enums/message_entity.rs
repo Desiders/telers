@@ -1,4 +1,5 @@
 use crate::types::MessageEntity;
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc.
 /// Currently, it can be one of
@@ -24,7 +25,20 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::MessageEntityUrl`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#messageentity>
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum MessageEntityType {
     #[strum(serialize = "mention")]
     Mention,

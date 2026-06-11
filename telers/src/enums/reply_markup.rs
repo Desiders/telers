@@ -1,4 +1,5 @@
 use crate::types::ReplyMarkup;
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents available reply markup variants.
 /// Currently, it can be one of
@@ -8,7 +9,20 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::ReplyKeyboardRemove`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api>
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum ReplyMarkupType {
     #[strum(serialize = "reply_keyboard_markup")]
     ReplyKeyboardMarkup,

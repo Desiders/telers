@@ -1,4 +1,5 @@
 use crate::types::GiveawayWinners;
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents a message about the completion of a giveaway with public winners.
 /// Currently, it can be one of
@@ -6,7 +7,20 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::GiveawayWinnersStar`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#giveawaywinners>
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum GiveawayWinnersType {
     #[strum(serialize = "premium")]
     Premium,

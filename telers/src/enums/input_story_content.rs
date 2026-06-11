@@ -1,11 +1,25 @@
 use crate::types::InputStoryContent;
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes the content of a story to post. Currently, it can be one of
 /// - [`crate::types::InputStoryContentPhoto`]
 /// - [`crate::types::InputStoryContentVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputstorycontent>
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum InputStoryContentType {
     #[strum(serialize = "photo")]
     Photo,

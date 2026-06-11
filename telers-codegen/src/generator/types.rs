@@ -13,8 +13,8 @@ use crate::{
         type_utils::{HelperFieldSource, collect_common_fields},
     },
     parser::api::{
-        IntegerKind, NormalizedField, NormalizedSchema, NormalizedSubtypeVariant, NormalizedType,
-        SubtypeKind, TypeKindInField,
+        ExtraSubtypeVariant, IntegerKind, NormalizedField, NormalizedSchema,
+        NormalizedSubtypeVariant, NormalizedType, SubtypeKind, TypeKindInField,
     },
 };
 
@@ -191,12 +191,38 @@ fn tokenize_type_definition(type_quote: &NormalizedType, ctx: &TypeDocContext<'_
             None => quote! {},
         };
         let subtypes = type_quote.subtypes.iter();
+        // Untagged variants must be declared after the tagged ones,
+        // so serde falls back to them only when the tag is absent.
+        let needs_untagged_attr = matches!(
+            &type_quote.subtype_kind,
+            Some(SubtypeKind::Tagged { .. } | SubtypeKind::UntaggedInTagged { .. })
+        );
+        let extra_variants = type_quote.extra_variants().into_iter().map(|extra| {
+            let untagged_attr = if needs_untagged_attr {
+                quote! { #[serde(untagged)] }
+            } else {
+                quote! {}
+            };
+            match extra {
+                ExtraSubtypeVariant::PlainText => quote! {
+                    #[doc = " Plain text"]
+                    #untagged_attr
+                    Plain(Box<str>),
+                },
+                ExtraSubtypeVariant::ArrayOfSelf => quote! {
+                    #[doc = " Multiple parts concatenated together"]
+                    #untagged_attr
+                    Multiple(Box<[crate::types::#name]>),
+                },
+            }
+        });
         quote! {
             #( #[doc = #doc_lines] )*
             #( #derive_quotes )*
             #serde_attr
             pub enum #name {
                 #( #subtypes )*
+                #( #extra_variants )*
             }
         }
     }
@@ -245,9 +271,43 @@ fn link_prefixed_type_mentions(lines: Vec<String>, prefix: &str) -> Vec<String> 
 #[must_use]
 pub fn get_from_impls_for_subtypes(type_quote: &NormalizedType) -> Vec<TokenStream> {
     let name = format_ident!("{}", type_quote.name);
-    let variant_count = type_quote.subtypes.len();
+    let extra_variants = type_quote.extra_variants();
+    let variant_count = type_quote.subtypes.len() + extra_variants.len();
 
     let mut impl_quotes = vec![];
+    for extra in extra_variants {
+        match extra {
+            ExtraSubtypeVariant::PlainText => impl_quotes.push(quote! {
+                impl From<Box<str>> for #name {
+                    fn from(val: Box<str>) -> Self {
+                        Self::Plain(val)
+                    }
+                }
+                impl From<String> for #name {
+                    fn from(val: String) -> Self {
+                        Self::Plain(val.into())
+                    }
+                }
+                impl From<&str> for #name {
+                    fn from(val: &str) -> Self {
+                        Self::Plain(val.into())
+                    }
+                }
+            }),
+            ExtraSubtypeVariant::ArrayOfSelf => impl_quotes.push(quote! {
+                impl From<Box<[#name]>> for #name {
+                    fn from(val: Box<[#name]>) -> Self {
+                        Self::Multiple(val)
+                    }
+                }
+                impl From<Vec<#name>> for #name {
+                    fn from(val: Vec<#name>) -> Self {
+                        Self::Multiple(val.into())
+                    }
+                }
+            }),
+        }
+    }
     for subtype in &type_quote.subtypes {
         let subtype_name = format_ident!("{}", subtype.ty_name);
         let subtype_path = quote! { crate::types::#subtype_name };
@@ -257,7 +317,7 @@ pub fn get_from_impls_for_subtypes(type_quote: &NormalizedType) -> Vec<TokenStre
                 let #name::#subtype_variant(inner) = val;
                 Ok(inner)
             }
-        } else if variant_count == 2 {
+        } else if variant_count == 2 && type_quote.subtypes.len() == 2 {
             let other_variant = type_quote
                 .subtypes
                 .iter()

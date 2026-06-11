@@ -1,4 +1,5 @@
 use crate::types::ReactionType;
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes the type of a reaction. Currently, it can be one of
 /// - [`crate::types::ReactionTypeEmoji`]
@@ -6,7 +7,20 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::ReactionTypePaid`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#reactiontype>
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum ReactionTypeType {
     #[strum(serialize = "emoji")]
     Emoji,

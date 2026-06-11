@@ -2,7 +2,9 @@
 
 use crate::{
     generator::helpers::camel_to_snake,
-    parser::api::{IntegerKind, NormalizedSchema, NormalizedType, TypeKindInField},
+    parser::api::{
+        ExtraSubtypeVariant, IntegerKind, NormalizedSchema, NormalizedType, TypeKindInField,
+    },
 };
 
 use proc_macro2::{Span, TokenStream};
@@ -309,6 +311,14 @@ fn generate_field_json_value(
         }
         TypeKindInField::Telegram(name) => {
             let ty = schema.types.get(name)?;
+            // Types like `RichText` can be a plain string; prefer it in field values
+            // to break the otherwise endless recursion of nested rich texts.
+            if ty
+                .extra_variants()
+                .contains(&ExtraSubtypeVariant::PlainText)
+            {
+                return Some(quote! { "test" });
+            }
             Some(generate_type_json_value(ty, schema, visiting, forced_tag))
         }
         TypeKindInField::Either(left, _right) => {

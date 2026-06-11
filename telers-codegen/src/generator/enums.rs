@@ -64,25 +64,56 @@ pub fn tokenize_kind_enum(type_quote: &NormalizedType) -> Option<TokenStream> {
         })
         .collect();
 
-    let from_type_impl = quote! {
-        impl<'a> From<&'a #type_name> for #kind_name {
-            fn from(val: &'a #type_name) -> Self {
-                match val {
-                    #( #from_type_arms, )*
+    let try_from_type_arms: Box<[_]> = type_quote
+        .subtypes
+        .iter()
+        .map(|subtype| {
+            let variant = format_ident!("{}", subtype.variant);
+            quote! { #type_name::#variant(_) => Ok(#kind_name::#variant) }
+        })
+        .collect();
+
+    // Variants that aren't Telegram object types (e.g. plain text) have no kind,
+    // so the conversion to the kind enum is fallible for such types.
+    let from_type_impl = if type_quote.extra_variants().is_empty() {
+        quote! {
+            impl<'a> From<&'a #type_name> for #kind_name {
+                fn from(val: &'a #type_name) -> Self {
+                    match val {
+                        #( #from_type_arms, )*
+                    }
+                }
+            }
+
+            impl From<#type_name> for #kind_name {
+                fn from(val: #type_name) -> Self {
+                    #kind_name::from(&val)
                 }
             }
         }
+    } else {
+        quote! {
+            impl<'a> TryFrom<&'a #type_name> for #kind_name {
+                type Error = crate::errors::ConvertToTypeError;
+                fn try_from(val: &'a #type_name) -> Result<Self, Self::Error> {
+                    match val {
+                        #( #try_from_type_arms, )*
+                        _ => Err(Self::Error::new(stringify!(#type_name), stringify!(#kind_name))),
+                    }
+                }
+            }
 
-        impl From<#type_name> for #kind_name {
-            fn from(val: #type_name) -> Self {
-                #kind_name::from(&val)
+            impl TryFrom<#type_name> for #kind_name {
+                type Error = crate::errors::ConvertToTypeError;
+                fn try_from(val: #type_name) -> Result<Self, Self::Error> {
+                    #kind_name::try_from(&val)
+                }
             }
         }
     };
 
-    let (strum_import, strum_derives, string_impls) = (
-        quote! { use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr}; },
-        quote! { #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)] },
+    let (strum_derives, string_impls) = (
+        quote! { #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr, Deserialize, Serialize)] },
         quote! {
             impl From<#kind_name> for Box<str> {
                 fn from(val: #kind_name) -> Self {
@@ -105,7 +136,8 @@ pub fn tokenize_kind_enum(type_quote: &NormalizedType) -> Option<TokenStream> {
     );
 
     Some(quote! {
-        #strum_import
+        use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
+        use serde::{Deserialize, Serialize};
 
         #( #[doc = #doc_lines] )*
         #strum_derives
@@ -220,11 +252,12 @@ pub fn tokenize_enum_parse_mode() -> TokenStream {
 
     quote! {
         use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
+        use serde::{Deserialize, Serialize};
 
         /// This enum represents all possible types of the parse mode
         /// # Documentation
         /// <https://core.telegram.org/bots/api#formatting-options>
-        #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+        #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr, Deserialize, Serialize)]
         pub enum ParseMode {
             #( #enum_variants )*
         }
@@ -329,11 +362,12 @@ pub fn tokenize_enum_telegram_observer_type() -> TokenStream {
 
     quote! {
         use crate::{enums::UpdateType, types::Update};
+        use serde::{Deserialize, Serialize};
         use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 
         /// This enum represents all possible telegram observer types.
         /// It contains all [`UpdateType`] variants plus `Update`.
-        #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+        #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr, Deserialize, Serialize)]
         pub enum TelegramObserverType {
             #( #enum_variants )*
         }

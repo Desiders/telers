@@ -5622,9 +5622,7 @@ fn test_revenue_withdrawal_state_failed_serialize_deserialize() {
 }
 #[test]
 fn test_rich_block_serialize_deserialize() {
-    let value = serde_json::json!(
-        { "type" : "paragraph", "text" : { "type" : "bold", "text" : {} } }
-    );
+    let value = serde_json::json!({ "type" : "paragraph", "text" : "test" });
     let parsed: RichBlock = must_parse(stringify!(RichBlock), &value);
     let parsed_value = must_to_value(stringify!(RichBlock), &parsed);
     assert_json_subset(&parsed_value, &value);
@@ -5684,8 +5682,7 @@ fn test_rich_block_audio_serialize_deserialize() {
 #[test]
 fn test_rich_block_block_quotation_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "blockquote", "blocks" : [{ "type" : "paragraph", "text" : { "type" :
-        "bold", "text" : {} } }] }
+        { "type" : "blockquote", "blocks" : [{ "type" : "paragraph", "text" : "test" }] }
     );
     let parsed: RichBlock = must_parse(stringify!(RichBlock), &value);
     assert!(
@@ -5701,7 +5698,7 @@ fn test_rich_block_block_quotation_serialize_deserialize() {
 }
 #[test]
 fn test_rich_block_caption_serialize_deserialize() {
-    let value = serde_json::json!({ "text" : { "type" : "bold", "text" : {} } });
+    let value = serde_json::json!({ "text" : "test" });
     let parsed: RichBlockCaption = must_parse(stringify!(RichBlockCaption), &value);
     let parsed_value = must_to_value(stringify!(RichBlockCaption), &parsed);
     assert_json_subset(&parsed_value, &value);
@@ -5710,8 +5707,7 @@ fn test_rich_block_caption_serialize_deserialize() {
 #[test]
 fn test_rich_block_collage_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "collage", "blocks" : [{ "type" : "paragraph", "text" : { "type" :
-        "bold", "text" : {} } }] }
+        { "type" : "collage", "blocks" : [{ "type" : "paragraph", "text" : "test" }] }
     );
     let parsed: RichBlock = must_parse(stringify!(RichBlock), &value);
     assert!(
@@ -5728,8 +5724,8 @@ fn test_rich_block_collage_serialize_deserialize() {
 #[test]
 fn test_rich_block_details_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "details", "summary" : { "type" : "bold", "text" : {} }, "blocks" : [{
-        "type" : "paragraph", "text" : { "type" : "bold", "text" : {} } }] }
+        { "type" : "details", "summary" : "test", "blocks" : [{ "type" : "paragraph",
+        "text" : "test" }] }
     );
     let parsed: RichBlock = must_parse(stringify!(RichBlock), &value);
     assert!(
@@ -5760,9 +5756,7 @@ fn test_rich_block_divider_serialize_deserialize() {
 }
 #[test]
 fn test_rich_block_footer_serialize_deserialize() {
-    let value = serde_json::json!(
-        { "type" : "footer", "text" : { "type" : "bold", "text" : {} } }
-    );
+    let value = serde_json::json!({ "type" : "footer", "text" : "test" });
     let parsed: RichBlock = must_parse(stringify!(RichBlock), &value);
     assert!(
         matches!(&parsed, RichBlock::Footer(_)),
@@ -5779,7 +5773,7 @@ fn test_rich_block_footer_serialize_deserialize() {
 fn test_rich_block_list_serialize_deserialize() {
     let value = serde_json::json!(
         { "type" : "list", "items" : [{ "label" : "test", "blocks" : [{ "type" :
-        "paragraph", "text" : { "type" : "bold", "text" : {} } }] }] }
+        "paragraph", "text" : "test" }] }] }
     );
     let parsed: RichBlock = must_parse(stringify!(RichBlock), &value);
     assert!(
@@ -5796,8 +5790,7 @@ fn test_rich_block_list_serialize_deserialize() {
 #[test]
 fn test_rich_block_list_item_serialize_deserialize() {
     let value = serde_json::json!(
-        { "label" : "test", "blocks" : [{ "type" : "paragraph", "text" : { "type" :
-        "bold", "text" : {} } }] }
+        { "label" : "test", "blocks" : [{ "type" : "paragraph", "text" : "test" }] }
     );
     let parsed: RichBlockListItem = must_parse(stringify!(RichBlockListItem), &value);
     let parsed_value = must_to_value(stringify!(RichBlockListItem), &parsed);
@@ -5841,9 +5834,7 @@ fn test_rich_block_mathematical_expression_serialize_deserialize() {
 }
 #[test]
 fn test_rich_block_paragraph_serialize_deserialize() {
-    let value = serde_json::json!(
-        { "type" : "paragraph", "text" : { "type" : "bold", "text" : {} } }
-    );
+    let value = serde_json::json!({ "type" : "paragraph", "text" : "test" });
     let parsed: RichBlock = must_parse(stringify!(RichBlock), &value);
     assert!(
         matches!(&parsed, RichBlock::Paragraph(_)),
@@ -5876,9 +5867,7 @@ fn test_rich_block_photo_serialize_deserialize() {
 }
 #[test]
 fn test_rich_block_preformatted_serialize_deserialize() {
-    let value = serde_json::json!(
-        { "type" : "pre", "text" : { "type" : "bold", "text" : {} } }
-    );
+    let value = serde_json::json!({ "type" : "pre", "text" : "test" });
     let parsed: RichBlock = must_parse(stringify!(RichBlock), &value);
     assert!(
         matches!(&parsed, RichBlock::Pre(_)),
@@ -5893,9 +5882,7 @@ fn test_rich_block_preformatted_serialize_deserialize() {
 }
 #[test]
 fn test_rich_block_pull_quotation_serialize_deserialize() {
-    let value = serde_json::json!(
-        { "type" : "pullquote", "text" : { "type" : "bold", "text" : {} } }
-    );
+    let value = serde_json::json!({ "type" : "pullquote", "text" : "test" });
     let parsed: RichBlock = must_parse(stringify!(RichBlock), &value);
     assert!(
         matches!(&parsed, RichBlock::Pullquote(_)),
@@ -5910,9 +5897,7 @@ fn test_rich_block_pull_quotation_serialize_deserialize() {
 }
 #[test]
 fn test_rich_block_section_heading_serialize_deserialize() {
-    let value = serde_json::json!(
-        { "type" : "heading", "text" : { "type" : "bold", "text" : {} }, "size" : 1 }
-    );
+    let value = serde_json::json!({ "type" : "heading", "text" : "test", "size" : 1 });
     let parsed: RichBlock = must_parse(stringify!(RichBlock), &value);
     assert!(
         matches!(&parsed, RichBlock::Heading(_)),
@@ -5928,8 +5913,7 @@ fn test_rich_block_section_heading_serialize_deserialize() {
 #[test]
 fn test_rich_block_slideshow_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "slideshow", "blocks" : [{ "type" : "paragraph", "text" : { "type" :
-        "bold", "text" : {} } }] }
+        { "type" : "slideshow", "blocks" : [{ "type" : "paragraph", "text" : "test" }] }
     );
     let parsed: RichBlock = must_parse(stringify!(RichBlock), &value);
     assert!(
@@ -5970,9 +5954,7 @@ fn test_rich_block_table_cell_serialize_deserialize() {
 }
 #[test]
 fn test_rich_block_thinking_serialize_deserialize() {
-    let value = serde_json::json!(
-        { "type" : "thinking", "text" : { "type" : "bold", "text" : {} } }
-    );
+    let value = serde_json::json!({ "type" : "thinking", "text" : "test" });
     let parsed: RichBlock = must_parse(stringify!(RichBlock), &value);
     assert!(
         matches!(&parsed, RichBlock::Thinking(_)),
@@ -6024,8 +6006,7 @@ fn test_rich_block_voice_note_serialize_deserialize() {
 #[test]
 fn test_rich_message_serialize_deserialize() {
     let value = serde_json::json!(
-        { "blocks" : [{ "type" : "paragraph", "text" : { "type" : "bold", "text" : {} }
-        }] }
+        { "blocks" : [{ "type" : "paragraph", "text" : "test" }] }
     );
     let parsed: RichMessage = must_parse(stringify!(RichMessage), &value);
     let parsed_value = must_to_value(stringify!(RichMessage), &parsed);
@@ -6034,7 +6015,7 @@ fn test_rich_message_serialize_deserialize() {
 }
 #[test]
 fn test_rich_text_serialize_deserialize() {
-    let value = serde_json::json!({ "type" : "bold", "text" : {} });
+    let value = serde_json::json!({ "type" : "bold", "text" : "test" });
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     let parsed_value = must_to_value(stringify!(RichText), &parsed);
     assert_json_subset(&parsed_value, &value);
@@ -6058,8 +6039,7 @@ fn test_rich_text_anchor_serialize_deserialize() {
 #[test]
 fn test_rich_text_anchor_link_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "anchor_link", "text" : { "type" : "bold", "text" : {} },
-        "anchor_name" : "test" }
+        { "type" : "anchor_link", "text" : "test", "anchor_name" : "test" }
     );
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
@@ -6076,8 +6056,7 @@ fn test_rich_text_anchor_link_serialize_deserialize() {
 #[test]
 fn test_rich_text_bank_card_number_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "bank_card_number", "text" : { "type" : "bold", "text" : {} },
-        "bank_card_number" : "test" }
+        { "type" : "bank_card_number", "text" : "test", "bank_card_number" : "test" }
     );
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
@@ -6093,7 +6072,7 @@ fn test_rich_text_bank_card_number_serialize_deserialize() {
 }
 #[test]
 fn test_rich_text_bold_serialize_deserialize() {
-    let value = serde_json::json!({ "type" : "bold", "text" : {} });
+    let value = serde_json::json!({ "type" : "bold", "text" : "test" });
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
         matches!(&parsed, RichText::Bold(_)),
@@ -6109,8 +6088,7 @@ fn test_rich_text_bold_serialize_deserialize() {
 #[test]
 fn test_rich_text_bot_command_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "bot_command", "text" : { "type" : "bold", "text" : {} },
-        "bot_command" : "test" }
+        { "type" : "bot_command", "text" : "test", "bot_command" : "test" }
     );
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
@@ -6127,8 +6105,7 @@ fn test_rich_text_bot_command_serialize_deserialize() {
 #[test]
 fn test_rich_text_cashtag_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "cashtag", "text" : { "type" : "bold", "text" : {} }, "cashtag" :
-        "test" }
+        { "type" : "cashtag", "text" : "test", "cashtag" : "test" }
     );
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
@@ -6144,9 +6121,7 @@ fn test_rich_text_cashtag_serialize_deserialize() {
 }
 #[test]
 fn test_rich_text_code_serialize_deserialize() {
-    let value = serde_json::json!(
-        { "type" : "code", "text" : { "type" : "bold", "text" : {} } }
-    );
+    let value = serde_json::json!({ "type" : "code", "text" : "test" });
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
         matches!(&parsed, RichText::Code(_)),
@@ -6180,8 +6155,8 @@ fn test_rich_text_custom_emoji_serialize_deserialize() {
 #[test]
 fn test_rich_text_date_time_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "date_time", "text" : { "type" : "bold", "text" : {} }, "unix_time" :
-        1, "date_time_format" : "test" }
+        { "type" : "date_time", "text" : "test", "unix_time" : 1, "date_time_format" :
+        "test" }
     );
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
@@ -6198,8 +6173,7 @@ fn test_rich_text_date_time_serialize_deserialize() {
 #[test]
 fn test_rich_text_email_address_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "email_address", "text" : { "type" : "bold", "text" : {} },
-        "email_address" : "test" }
+        { "type" : "email_address", "text" : "test", "email_address" : "test" }
     );
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
@@ -6216,8 +6190,7 @@ fn test_rich_text_email_address_serialize_deserialize() {
 #[test]
 fn test_rich_text_hashtag_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "hashtag", "text" : { "type" : "bold", "text" : {} }, "hashtag" :
-        "test" }
+        { "type" : "hashtag", "text" : "test", "hashtag" : "test" }
     );
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
@@ -6233,9 +6206,7 @@ fn test_rich_text_hashtag_serialize_deserialize() {
 }
 #[test]
 fn test_rich_text_italic_serialize_deserialize() {
-    let value = serde_json::json!(
-        { "type" : "italic", "text" : { "type" : "bold", "text" : {} } }
-    );
+    let value = serde_json::json!({ "type" : "italic", "text" : "test" });
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
         matches!(&parsed, RichText::Italic(_)),
@@ -6250,9 +6221,7 @@ fn test_rich_text_italic_serialize_deserialize() {
 }
 #[test]
 fn test_rich_text_marked_serialize_deserialize() {
-    let value = serde_json::json!(
-        { "type" : "marked", "text" : { "type" : "bold", "text" : {} } }
-    );
+    let value = serde_json::json!({ "type" : "marked", "text" : "test" });
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
         matches!(&parsed, RichText::Marked(_)),
@@ -6285,8 +6254,7 @@ fn test_rich_text_mathematical_expression_serialize_deserialize() {
 #[test]
 fn test_rich_text_mention_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "mention", "text" : { "type" : "bold", "text" : {} }, "username" :
-        "test" }
+        { "type" : "mention", "text" : "test", "username" : "test" }
     );
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
@@ -6303,8 +6271,7 @@ fn test_rich_text_mention_serialize_deserialize() {
 #[test]
 fn test_rich_text_phone_number_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "phone_number", "text" : { "type" : "bold", "text" : {} },
-        "phone_number" : "test" }
+        { "type" : "phone_number", "text" : "test", "phone_number" : "test" }
     );
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
@@ -6321,8 +6288,7 @@ fn test_rich_text_phone_number_serialize_deserialize() {
 #[test]
 fn test_rich_text_reference_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "reference", "text" : { "type" : "bold", "text" : {} }, "name" :
-        "test" }
+        { "type" : "reference", "text" : "test", "name" : "test" }
     );
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
@@ -6339,8 +6305,7 @@ fn test_rich_text_reference_serialize_deserialize() {
 #[test]
 fn test_rich_text_reference_link_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "reference_link", "text" : { "type" : "bold", "text" : {} },
-        "reference_name" : "test" }
+        { "type" : "reference_link", "text" : "test", "reference_name" : "test" }
     );
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
@@ -6356,9 +6321,7 @@ fn test_rich_text_reference_link_serialize_deserialize() {
 }
 #[test]
 fn test_rich_text_spoiler_serialize_deserialize() {
-    let value = serde_json::json!(
-        { "type" : "spoiler", "text" : { "type" : "bold", "text" : {} } }
-    );
+    let value = serde_json::json!({ "type" : "spoiler", "text" : "test" });
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
         matches!(&parsed, RichText::Spoiler(_)),
@@ -6373,9 +6336,7 @@ fn test_rich_text_spoiler_serialize_deserialize() {
 }
 #[test]
 fn test_rich_text_strikethrough_serialize_deserialize() {
-    let value = serde_json::json!(
-        { "type" : "strikethrough", "text" : { "type" : "bold", "text" : {} } }
-    );
+    let value = serde_json::json!({ "type" : "strikethrough", "text" : "test" });
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
         matches!(&parsed, RichText::Strikethrough(_)),
@@ -6390,9 +6351,7 @@ fn test_rich_text_strikethrough_serialize_deserialize() {
 }
 #[test]
 fn test_rich_text_subscript_serialize_deserialize() {
-    let value = serde_json::json!(
-        { "type" : "subscript", "text" : { "type" : "bold", "text" : {} } }
-    );
+    let value = serde_json::json!({ "type" : "subscript", "text" : "test" });
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
         matches!(&parsed, RichText::Subscript(_)),
@@ -6407,9 +6366,7 @@ fn test_rich_text_subscript_serialize_deserialize() {
 }
 #[test]
 fn test_rich_text_superscript_serialize_deserialize() {
-    let value = serde_json::json!(
-        { "type" : "superscript", "text" : { "type" : "bold", "text" : {} } }
-    );
+    let value = serde_json::json!({ "type" : "superscript", "text" : "test" });
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
         matches!(&parsed, RichText::Superscript(_)),
@@ -6425,8 +6382,8 @@ fn test_rich_text_superscript_serialize_deserialize() {
 #[test]
 fn test_rich_text_text_mention_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "text_mention", "text" : { "type" : "bold", "text" : {} }, "user" : {
-        "id" : 1, "is_bot" : true, "first_name" : "test" } }
+        { "type" : "text_mention", "text" : "test", "user" : { "id" : 1, "is_bot" : true,
+        "first_name" : "test" } }
     );
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
@@ -6442,9 +6399,7 @@ fn test_rich_text_text_mention_serialize_deserialize() {
 }
 #[test]
 fn test_rich_text_underline_serialize_deserialize() {
-    let value = serde_json::json!(
-        { "type" : "underline", "text" : { "type" : "bold", "text" : {} } }
-    );
+    let value = serde_json::json!({ "type" : "underline", "text" : "test" });
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
         matches!(&parsed, RichText::Underline(_)),
@@ -6459,9 +6414,7 @@ fn test_rich_text_underline_serialize_deserialize() {
 }
 #[test]
 fn test_rich_text_url_serialize_deserialize() {
-    let value = serde_json::json!(
-        { "type" : "url", "text" : { "type" : "bold", "text" : {} }, "url" : "test" }
-    );
+    let value = serde_json::json!({ "type" : "url", "text" : "test", "url" : "test" });
     let parsed: RichText = must_parse(stringify!(RichText), &value);
     assert!(
         matches!(&parsed, RichText::Url(_)),

@@ -416,6 +416,14 @@ impl SubtypeKind {
 pub type SubtypeTaggedValue = String;
 pub type SubtypeTaggedValues = HashMap<String, SubtypeTaggedValue>;
 
+/// Variants of a sum type that aren't Telegram object types,
+/// e.g. `RichText` can also be a plain `String` or an `Array of RichText`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ExtraSubtypeVariant {
+    PlainText,
+    ArrayOfSelf,
+}
+
 #[derive(Debug)]
 pub struct NormalizedSubtypeVariant {
     pub variant: TelegramTypeName,
@@ -435,6 +443,31 @@ pub struct NormalizedType {
 }
 
 impl NormalizedType {
+    /// Detects sum type variants that aren't Telegram object types from the description,
+    /// e.g. "it can be either a String for plain text, an Array of `RichText`, or any of the following types".
+    #[must_use]
+    pub fn extra_variants(&self) -> Vec<ExtraSubtypeVariant> {
+        if self.subtypes.is_empty() {
+            return vec![];
+        }
+
+        let array_of_self_marker = format!("an Array of {}", self.name);
+        let mut variants = vec![];
+        for line in &self.description {
+            if line.contains("a String for plain text")
+                && !variants.contains(&ExtraSubtypeVariant::PlainText)
+            {
+                variants.push(ExtraSubtypeVariant::PlainText);
+            }
+            if line.contains(&array_of_self_marker)
+                && !variants.contains(&ExtraSubtypeVariant::ArrayOfSelf)
+            {
+                variants.push(ExtraSubtypeVariant::ArrayOfSelf);
+            }
+        }
+        variants
+    }
+
     #[must_use]
     pub fn get_paths(&self) -> Vec<Path> {
         self.fields
