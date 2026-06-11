@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::PollMediaAnimation`]
 /// - [`crate::types::PollMediaAudio`]
 /// - [`crate::types::PollMediaDocument`]
+/// - [`crate::types::PollMediaLink`]
 /// - [`crate::types::PollMediaLivePhoto`]
 /// - [`crate::types::PollMediaLocation`]
 /// - [`crate::types::PollMediaPhoto`]
@@ -18,6 +19,7 @@ pub enum PollMedia {
     Animation(crate::types::PollMediaAnimation),
     Audio(crate::types::PollMediaAudio),
     Document(crate::types::PollMediaDocument),
+    Link(crate::types::PollMediaLink),
     LivePhoto(crate::types::PollMediaLivePhoto),
     Location(crate::types::PollMediaLocation),
     Photo(crate::types::PollMediaPhoto),
@@ -55,6 +57,17 @@ impl PollMedia {
     pub fn document(&self) -> Option<&crate::types::Document> {
         match self {
             Self::Document(val) => Some(val.document.as_ref()),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `link`.
+    ///
+    /// The HTTP link attached to the poll option
+    #[must_use]
+    pub fn link(&self) -> Option<&crate::types::Link> {
+        match self {
+            Self::Link(val) => Some(&val.link),
             _ => None,
         }
     }
@@ -641,6 +654,18 @@ impl PollMedia {
         }
     }
 
+    /// Helper method for nested field `url`.
+    #[must_use]
+    pub fn url(&self) -> Option<&str> {
+        match self {
+            Self::Link(val) => {
+                let inner = &val.link;
+                Some(inner.url.as_ref())
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `width`.
     #[must_use]
     pub fn width(&self) -> Option<i64> {
@@ -718,6 +743,25 @@ impl TryFrom<PollMedia> for crate::types::PollMediaDocument {
             Err(Self::Error::new(
                 stringify!(PollMedia),
                 stringify!(PollMediaDocument),
+            ))
+        }
+    }
+}
+impl From<crate::types::PollMediaLink> for PollMedia {
+    fn from(val: crate::types::PollMediaLink) -> Self {
+        Self::Link(val)
+    }
+}
+impl TryFrom<PollMedia> for crate::types::PollMediaLink {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: PollMedia) -> Result<Self, Self::Error> {
+        if let PollMedia::Link(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(PollMedia),
+                stringify!(PollMediaLink),
             ))
         }
     }

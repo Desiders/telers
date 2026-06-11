@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+/// The paid media is a live photo.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#paidmedialivephoto>
 #[derive(Clone, Debug, Serialize, Deserialize)]

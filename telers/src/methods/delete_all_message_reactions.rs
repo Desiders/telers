@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `bool`
 #[derive(Clone, Debug, Serialize)]
 pub struct DeleteAllMessageReactions {
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @username)
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Identifier of the user whose reactions will be removed, if the reactions were added by a user
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -20,7 +20,7 @@ impl DeleteAllMessageReactions {
     /// Creates a new `DeleteAllMessageReactions`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup (in the format @username)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup in the format @username
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -33,7 +33,7 @@ impl DeleteAllMessageReactions {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @username)
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
         self.chat_id = val.into();

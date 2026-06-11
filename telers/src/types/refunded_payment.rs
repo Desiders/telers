@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#refundedpayment>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RefundedPayment {
-    /// Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram Stars. Currently, always `XTR`
+    /// Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram Stars. Currently, always `XTR`.
     pub currency: Box<str>,
     /// Total refunded price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45, `total_amount` = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
     pub total_amount: i64,
@@ -20,7 +20,7 @@ impl RefundedPayment {
     /// Creates a new `RefundedPayment`.
     ///
     /// # Arguments
-    /// * `currency` - Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram Stars. Currently, always `XTR`
+    /// * `currency` - Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram Stars. Currently, always `XTR`.
     /// * `total_amount` - Total refunded price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45, `total_amount` = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
     /// * `invoice_payload` - Bot-specified invoice payload
     /// * `telegram_payment_charge_id` - Telegram payment identifier
@@ -43,7 +43,7 @@ impl RefundedPayment {
         }
     }
 
-    /// Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram Stars. Currently, always `XTR`
+    /// Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram Stars. Currently, always `XTR`.
     #[must_use]
     pub fn currency<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.currency = val.into();

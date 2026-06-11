@@ -18,7 +18,7 @@ pub struct SendDice {
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
     #[serde(skip_serializing_if = "Option::is_none")]
     pub direct_messages_topic_id: Option<i64>,
-    /// Emoji on which the dice throw animation is based. Currently, must be one of `🎲`, `🎯`, `🏀`, `⚽`, `🎳`, or `🎰`. Dice can have values 1-6 for `🎲`, `🎯` and `🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`
+    /// Emoji on which the dice throw animation is based. Currently, must be one of `🎲`, `🎯`, `🏀`, `⚽`, `🎳`, or `🎰`. Dice can have values 1-6 for `🎲`, `🎯` and `🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub emoji: Option<Box<str>>,
     /// Sends the message silently. Users will receive a notification with no sound.
@@ -39,7 +39,7 @@ pub struct SendDice {
     /// Description of the message to reply to
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_parameters: Option<crate::types::ReplyParameters>,
-    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
+    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<crate::types::ReplyMarkup>,
 }
@@ -118,14 +118,14 @@ impl SendDice {
         self
     }
 
-    /// Emoji on which the dice throw animation is based. Currently, must be one of `🎲`, `🎯`, `🏀`, `⚽`, `🎳`, or `🎰`. Dice can have values 1-6 for `🎲`, `🎯` and `🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`
+    /// Emoji on which the dice throw animation is based. Currently, must be one of `🎲`, `🎯`, `🏀`, `⚽`, `🎳`, or `🎰`. Dice can have values 1-6 for `🎲`, `🎯` and `🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`.
     #[must_use]
     pub fn emoji<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.emoji = Some(val.into());
         self
     }
 
-    /// Emoji on which the dice throw animation is based. Currently, must be one of `🎲`, `🎯`, `🏀`, `⚽`, `🎳`, or `🎰`. Dice can have values 1-6 for `🎲`, `🎯` and `🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`
+    /// Emoji on which the dice throw animation is based. Currently, must be one of `🎲`, `🎯`, `🏀`, `⚽`, `🎳`, or `🎰`. Dice can have values 1-6 for `🎲`, `🎯` and `🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`.
     #[must_use]
     pub fn emoji_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.emoji = val.map(Into::into);
@@ -225,14 +225,14 @@ impl SendDice {
         self
     }
 
-    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
+    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user.
     #[must_use]
     pub fn reply_markup<T: Into<crate::types::ReplyMarkup>>(mut self, val: T) -> Self {
         self.reply_markup = Some(val.into());
         self
     }
 
-    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
+    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user.
     #[must_use]
     pub fn reply_markup_option<T: Into<crate::types::ReplyMarkup>>(
         mut self,

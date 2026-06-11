@@ -144,7 +144,7 @@ impl InlineQueryResultGifKind {
 
     /// Helper method for field `thumbnail_mime_type`.
     ///
-    /// MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`, or `video/mp4`. Defaults to `image/jpeg`
+    /// MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`, or `video/mp4`. Defaults to `image/jpeg`.
     #[must_use]
     pub fn thumbnail_mime_type(&self) -> Option<&str> {
         match self {
@@ -411,6 +411,13 @@ impl InlineQueryResultGifKind {
     pub fn proximity_alert_radius(&self) -> Option<u32> {
         self.input_message_content()
             .and_then(crate::types::InputMessageContent::proximity_alert_radius)
+    }
+
+    /// Helper method for nested field `rich_message`.
+    #[must_use]
+    pub fn rich_message(&self) -> Option<&crate::types::InputRichMessage> {
+        self.input_message_content()
+            .and_then(crate::types::InputMessageContent::rich_message)
     }
 
     /// Helper method for nested field `send_email_to_provider`.

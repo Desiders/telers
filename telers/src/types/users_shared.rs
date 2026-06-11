@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct UsersShared {
     /// Identifier of the request
     pub request_id: i64,
-    /// Information about users shared with the bot.
+    /// Information about users shared with the bot
     pub users: Box<[crate::types::SharedUser]>,
 }
 impl UsersShared {
@@ -14,7 +14,7 @@ impl UsersShared {
     ///
     /// # Arguments
     /// * `request_id` - Identifier of the request
-    /// * `users` - Information about users shared with the bot.
+    /// * `users` - Information about users shared with the bot
     #[must_use]
     pub fn new<
         T0: Into<i64>,
@@ -37,7 +37,7 @@ impl UsersShared {
         self
     }
 
-    /// Information about users shared with the bot.
+    /// Information about users shared with the bot
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -52,7 +52,7 @@ impl UsersShared {
         self
     }
 
-    /// Information about users shared with the bot.
+    /// Information about users shared with the bot
     ///
     /// # Notes
     /// Adds a single element.

@@ -10,7 +10,7 @@ pub struct BackgroundTypePattern {
     pub fill: crate::types::BackgroundFill,
     /// Intensity of the pattern when it is shown above the filled background; 0-100
     pub intensity: u8,
-    /// `true`, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only
+    /// `true`, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_inverted: Option<bool>,
     /// `true`, if the background moves slightly when the device is tilted
@@ -67,14 +67,14 @@ impl BackgroundTypePattern {
         self
     }
 
-    /// `true`, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only
+    /// `true`, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only.
     #[must_use]
     pub fn is_inverted<T: Into<bool>>(mut self, val: T) -> Self {
         self.is_inverted = Some(val.into());
         self
     }
 
-    /// `true`, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only
+    /// `true`, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only.
     #[must_use]
     pub fn is_inverted_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.is_inverted = val.map(Into::into);

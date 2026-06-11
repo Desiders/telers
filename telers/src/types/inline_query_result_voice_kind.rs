@@ -362,6 +362,13 @@ impl InlineQueryResultVoiceKind {
             .and_then(crate::types::InputMessageContent::proximity_alert_radius)
     }
 
+    /// Helper method for nested field `rich_message`.
+    #[must_use]
+    pub fn rich_message(&self) -> Option<&crate::types::InputRichMessage> {
+        self.input_message_content()
+            .and_then(crate::types::InputMessageContent::rich_message)
+    }
+
     /// Helper method for nested field `send_email_to_provider`.
     #[must_use]
     pub fn send_email_to_provider(&self) -> Option<bool> {

@@ -12,12 +12,15 @@ pub struct ChatJoinRequest {
     pub user_chat_id: i64,
     /// Date the request was sent in Unix time
     pub date: i64,
-    /// Bio of the user.
+    /// Bio of the user
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bio: Option<Box<str>>,
     /// Chat invite link that was used by the user to send the join request
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invite_link: Option<crate::types::ChatInviteLink>,
+    /// Identifier of the join request query. If present, then the bot must call sendChatJoinRequestWebApp or directly call answerChatJoinRequestQuery within 10 seconds.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub query_id: Option<Box<str>>,
 }
 impl ChatJoinRequest {
     /// Creates a new `ChatJoinRequest`.
@@ -49,6 +52,7 @@ impl ChatJoinRequest {
             date: date.into(),
             bio: None,
             invite_link: None,
+            query_id: None,
         }
     }
 
@@ -80,14 +84,14 @@ impl ChatJoinRequest {
         self
     }
 
-    /// Bio of the user.
+    /// Bio of the user
     #[must_use]
     pub fn bio<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.bio = Some(val.into());
         self
     }
 
-    /// Bio of the user.
+    /// Bio of the user
     #[must_use]
     pub fn bio_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.bio = val.map(Into::into);
@@ -108,6 +112,20 @@ impl ChatJoinRequest {
         val: Option<T>,
     ) -> Self {
         self.invite_link = val.map(Into::into);
+        self
+    }
+
+    /// Identifier of the join request query. If present, then the bot must call sendChatJoinRequestWebApp or directly call answerChatJoinRequestQuery within 10 seconds.
+    #[must_use]
+    pub fn query_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.query_id = Some(val.into());
+        self
+    }
+
+    /// Identifier of the join request query. If present, then the bot must call sendChatJoinRequestWebApp or directly call answerChatJoinRequestQuery within 10 seconds.
+    #[must_use]
+    pub fn query_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.query_id = val.map(Into::into);
         self
     }
 }

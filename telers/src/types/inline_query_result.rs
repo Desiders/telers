@@ -387,7 +387,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `live_period`.
     ///
-    /// Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely.
+    /// Period in seconds during which the location can be updated, must be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely
     #[must_use]
     pub fn live_period(&self) -> Option<u32> {
         match self {
@@ -541,7 +541,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `thumbnail_mime_type`.
     ///
-    /// MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`, or `video/mp4`. Defaults to `image/jpeg`
+    /// MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`, or `video/mp4`. Defaults to `image/jpeg`.
     #[must_use]
     pub fn thumbnail_mime_type(&self) -> Option<&str> {
         match self {
@@ -1554,6 +1554,52 @@ impl InlineQueryResult {
                 .input_message_content
                 .as_ref()
                 .and_then(crate::types::InputMessageContent::provider_token),
+            Self::Game(_) => None,
+        }
+    }
+
+    /// Helper method for nested field `rich_message`.
+    #[must_use]
+    pub fn rich_message(&self) -> Option<&crate::types::InputRichMessage> {
+        match self {
+            Self::Audio(val) => {
+                crate::types::InlineQueryResultAudioKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::rich_message)
+            }
+            Self::Document(val) => {
+                crate::types::InlineQueryResultDocumentKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::rich_message)
+            }
+            Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
+                .and_then(crate::types::InputMessageContent::rich_message),
+            Self::Sticker(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::rich_message),
+            Self::Video(val) => {
+                crate::types::InlineQueryResultVideoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::rich_message)
+            }
+            Self::Voice(val) => {
+                crate::types::InlineQueryResultVoiceKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::rich_message)
+            }
+            Self::Article(val) => {
+                let inner = &val.input_message_content;
+                crate::types::InputMessageContent::rich_message(inner)
+            }
+            Self::Contact(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::rich_message),
+            Self::Location(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::rich_message),
+            Self::Venue(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::rich_message),
             Self::Game(_) => None,
         }
     }

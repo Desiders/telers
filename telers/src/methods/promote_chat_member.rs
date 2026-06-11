@@ -23,7 +23,7 @@ pub struct PromoteChatMember {
     /// Pass `true` if the administrator can manage video chats
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_video_chats: Option<bool>,
-    /// Pass `true` if the administrator can restrict, ban or unban chat members, or access supergroup statistics. For backward compatibility, defaults to `true` for promotions of channel administrators
+    /// Pass `true` if the administrator can restrict, ban or unban chat members, or access supergroup statistics. For backward compatibility, defaults to `true` for promotions of channel administrators.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_restrict_members: Option<bool>,
     /// Pass `true` if the administrator can add new administrators with a subset of their own privileges or demote administrators that they have promoted, directly or indirectly (promoted by administrators that were appointed by him)
@@ -170,14 +170,14 @@ impl PromoteChatMember {
         self
     }
 
-    /// Pass `true` if the administrator can restrict, ban or unban chat members, or access supergroup statistics. For backward compatibility, defaults to `true` for promotions of channel administrators
+    /// Pass `true` if the administrator can restrict, ban or unban chat members, or access supergroup statistics. For backward compatibility, defaults to `true` for promotions of channel administrators.
     #[must_use]
     pub fn can_restrict_members<T: Into<bool>>(mut self, val: T) -> Self {
         self.can_restrict_members = Some(val.into());
         self
     }
 
-    /// Pass `true` if the administrator can restrict, ban or unban chat members, or access supergroup statistics. For backward compatibility, defaults to `true` for promotions of channel administrators
+    /// Pass `true` if the administrator can restrict, ban or unban chat members, or access supergroup statistics. For backward compatibility, defaults to `true` for promotions of channel administrators.
     #[must_use]
     pub fn can_restrict_members_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.can_restrict_members = val.map(Into::into);

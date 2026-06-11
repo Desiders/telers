@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct PreparedInlineMessage {
     /// Unique identifier of the prepared message
     pub id: Box<str>,
-    /// Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used
+    /// Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used.
     pub expiration_date: i64,
 }
 impl PreparedInlineMessage {
@@ -14,7 +14,7 @@ impl PreparedInlineMessage {
     ///
     /// # Arguments
     /// * `id` - Unique identifier of the prepared message
-    /// * `expiration_date` - Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used
+    /// * `expiration_date` - Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used.
     #[must_use]
     pub fn new<T0: Into<Box<str>>, T1: Into<i64>>(id: T0, expiration_date: T1) -> Self {
         Self {
@@ -30,7 +30,7 @@ impl PreparedInlineMessage {
         self
     }
 
-    /// Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used
+    /// Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used.
     #[must_use]
     pub fn expiration_date<T: Into<i64>>(mut self, val: T) -> Self {
         self.expiration_date = val.into();

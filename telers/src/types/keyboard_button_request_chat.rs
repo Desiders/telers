@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#keyboardbuttonrequestchat>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct KeyboardButtonRequestChat {
-    /// Signed 32-bit identifier of the request, which will be received back in the [`crate::types::ChatShared`] object. Must be unique within the message
+    /// Signed 32-bit identifier of the request, which will be received back in the [`crate::types::ChatShared`] object. Must be unique within the message.
     pub request_id: i64,
-    /// Pass `true` to request a channel chat, pass `false` to request a group or a supergroup chat.
+    /// Pass `true` to request a channel chat, pass `false` to request a group or a supergroup chat
     pub chat_is_channel: bool,
     /// Pass `true` to request a forum supergroup, pass `false` to request a non-forum chat. If not specified, no additional restrictions are applied.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -40,8 +40,8 @@ impl KeyboardButtonRequestChat {
     /// Creates a new `KeyboardButtonRequestChat`.
     ///
     /// # Arguments
-    /// * `request_id` - Signed 32-bit identifier of the request, which will be received back in the [`crate::types::ChatShared`] object. Must be unique within the message
-    /// * `chat_is_channel` - Pass `true` to request a channel chat, pass `false` to request a group or a supergroup chat.
+    /// * `request_id` - Signed 32-bit identifier of the request, which will be received back in the [`crate::types::ChatShared`] object. Must be unique within the message.
+    /// * `chat_is_channel` - Pass `true` to request a channel chat, pass `false` to request a group or a supergroup chat
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -62,14 +62,14 @@ impl KeyboardButtonRequestChat {
         }
     }
 
-    /// Signed 32-bit identifier of the request, which will be received back in the [`crate::types::ChatShared`] object. Must be unique within the message
+    /// Signed 32-bit identifier of the request, which will be received back in the [`crate::types::ChatShared`] object. Must be unique within the message.
     #[must_use]
     pub fn request_id<T: Into<i64>>(mut self, val: T) -> Self {
         self.request_id = val.into();
         self
     }
 
-    /// Pass `true` to request a channel chat, pass `false` to request a group or a supergroup chat.
+    /// Pass `true` to request a channel chat, pass `false` to request a group or a supergroup chat
     #[must_use]
     pub fn chat_is_channel<T: Into<bool>>(mut self, val: T) -> Self {
         self.chat_is_channel = val.into();

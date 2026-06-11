@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct InlineQueryResultPhoto {
     /// Unique identifier for this result, 1-64 bytes
     pub id: Box<str>,
-    /// A valid URL of the photo. Photo must be in JPEG format. Photo size must not exceed 5MB
+    /// A valid URL of the photo. Photo must be in JPEG format. Photo size must not exceed 5MB.
     pub photo_url: Box<str>,
     /// URL of the thumbnail for the photo
     pub thumbnail_url: Box<str>,
@@ -46,7 +46,7 @@ impl InlineQueryResultPhoto {
     ///
     /// # Arguments
     /// * `id` - Unique identifier for this result, 1-64 bytes
-    /// * `photo_url` - A valid URL of the photo. Photo must be in JPEG format. Photo size must not exceed 5MB
+    /// * `photo_url` - A valid URL of the photo. Photo must be in JPEG format. Photo size must not exceed 5MB.
     /// * `thumbnail_url` - URL of the thumbnail for the photo
     ///
     /// # Notes
@@ -81,7 +81,7 @@ impl InlineQueryResultPhoto {
         self
     }
 
-    /// A valid URL of the photo. Photo must be in JPEG format. Photo size must not exceed 5MB
+    /// A valid URL of the photo. Photo must be in JPEG format. Photo size must not exceed 5MB.
     #[must_use]
     pub fn photo_url<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.photo_url = val.into();

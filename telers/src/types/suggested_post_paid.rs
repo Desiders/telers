@@ -7,7 +7,7 @@ pub struct SuggestedPostPaid {
     /// Message containing the suggested post. Note that the Message object in this field will not contain the `reply_to_message` field even if it itself is a reply.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub suggested_post_message: Option<Box<crate::types::Message>>,
-    /// Currency in which the payment was made. Currently, one of `XTR` for Telegram Stars or `TON` for toncoins
+    /// Currency in which the payment was made. Currently, one of `XTR` for Telegram Stars or `TON` for toncoins.
     pub currency: Box<str>,
     /// The amount of the currency that was received by the channel in nanotoncoins; for payments in toncoins only
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -20,7 +20,7 @@ impl SuggestedPostPaid {
     /// Creates a new `SuggestedPostPaid`.
     ///
     /// # Arguments
-    /// * `currency` - Currency in which the payment was made. Currently, one of `XTR` for Telegram Stars or `TON` for toncoins
+    /// * `currency` - Currency in which the payment was made. Currently, one of `XTR` for Telegram Stars or `TON` for toncoins.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -51,7 +51,7 @@ impl SuggestedPostPaid {
         self
     }
 
-    /// Currency in which the payment was made. Currently, one of `XTR` for Telegram Stars or `TON` for toncoins
+    /// Currency in which the payment was made. Currently, one of `XTR` for Telegram Stars or `TON` for toncoins.
     #[must_use]
     pub fn currency<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.currency = val.into();

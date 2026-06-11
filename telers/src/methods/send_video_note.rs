@@ -18,7 +18,7 @@ pub struct SendVideoNote {
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
     #[serde(skip_serializing_if = "Option::is_none")]
     pub direct_messages_topic_id: Option<i64>,
-    /// Video note to send. Pass a `file_id` as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending video notes by a URL is currently unsupported
+    /// Video note to send. Pass a `file_id` as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending video notes by a URL is currently unsupported.
     pub video_note: crate::types::InputFile,
     /// Duration of sent video in seconds
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -47,7 +47,7 @@ pub struct SendVideoNote {
     /// Description of the message to reply to
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_parameters: Option<crate::types::ReplyParameters>,
-    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
+    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<crate::types::ReplyMarkup>,
 }
@@ -56,7 +56,7 @@ impl SendVideoNote {
     ///
     /// # Arguments
     /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
-    /// * `video_note` - Video note to send. Pass a `file_id` as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending video notes by a URL is currently unsupported
+    /// * `video_note` - Video note to send. Pass a `file_id` as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending video notes by a URL is currently unsupported.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -133,7 +133,7 @@ impl SendVideoNote {
         self
     }
 
-    /// Video note to send. Pass a `file_id` as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending video notes by a URL is currently unsupported
+    /// Video note to send. Pass a `file_id` as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending video notes by a URL is currently unsupported.
     #[must_use]
     pub fn video_note<T: Into<crate::types::InputFile>>(mut self, val: T) -> Self {
         self.video_note = val.into();
@@ -275,14 +275,14 @@ impl SendVideoNote {
         self
     }
 
-    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
+    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user.
     #[must_use]
     pub fn reply_markup<T: Into<crate::types::ReplyMarkup>>(mut self, val: T) -> Self {
         self.reply_markup = Some(val.into());
         self
     }
 
-    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
+    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user.
     #[must_use]
     pub fn reply_markup_option<T: Into<crate::types::ReplyMarkup>>(
         mut self,

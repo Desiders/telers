@@ -1,10 +1,12 @@
 use crate::types::PollMedia;
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// At most one of the optional fields can be present in any given object.
 /// Currently, it can be one of
 /// - [`crate::types::PollMediaAnimation`]
 /// - [`crate::types::PollMediaAudio`]
 /// - [`crate::types::PollMediaDocument`]
+/// - [`crate::types::PollMediaLink`]
 /// - [`crate::types::PollMediaLivePhoto`]
 /// - [`crate::types::PollMediaLocation`]
 /// - [`crate::types::PollMediaPhoto`]
@@ -13,7 +15,20 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::PollMediaVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#pollmedia>
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum PollMediaType {
     #[strum(serialize = "animation")]
     Animation,
@@ -21,6 +36,8 @@ pub enum PollMediaType {
     Audio,
     #[strum(serialize = "document")]
     Document,
+    #[strum(serialize = "link")]
+    Link,
     #[strum(serialize = "live_photo")]
     LivePhoto,
     #[strum(serialize = "location")]
@@ -36,11 +53,12 @@ pub enum PollMediaType {
 }
 impl PollMediaType {
     #[must_use]
-    pub const fn all() -> [PollMediaType; 9usize] {
+    pub const fn all() -> [PollMediaType; 10usize] {
         [
             PollMediaType::Animation,
             PollMediaType::Audio,
             PollMediaType::Document,
+            PollMediaType::Link,
             PollMediaType::LivePhoto,
             PollMediaType::Location,
             PollMediaType::Photo,
@@ -71,6 +89,7 @@ impl<'a> From<&'a PollMedia> for PollMediaType {
             PollMedia::Animation(_) => PollMediaType::Animation,
             PollMedia::Audio(_) => PollMediaType::Audio,
             PollMedia::Document(_) => PollMediaType::Document,
+            PollMedia::Link(_) => PollMediaType::Link,
             PollMedia::LivePhoto(_) => PollMediaType::LivePhoto,
             PollMedia::Location(_) => PollMediaType::Location,
             PollMedia::Photo(_) => PollMediaType::Photo,

@@ -19,7 +19,7 @@ pub struct InlineQueryResultGif {
     pub gif_duration: Option<i64>,
     /// URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
     pub thumbnail_url: Box<str>,
-    /// MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`, or `video/mp4`. Defaults to `image/jpeg`
+    /// MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`, or `video/mp4`. Defaults to `image/jpeg`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub thumbnail_mime_type: Option<Box<str>>,
     /// Title for the result
@@ -141,14 +141,14 @@ impl InlineQueryResultGif {
         self
     }
 
-    /// MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`, or `video/mp4`. Defaults to `image/jpeg`
+    /// MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`, or `video/mp4`. Defaults to `image/jpeg`.
     #[must_use]
     pub fn thumbnail_mime_type<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.thumbnail_mime_type = Some(val.into());
         self
     }
 
-    /// MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`, or `video/mp4`. Defaults to `image/jpeg`
+    /// MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`, or `video/mp4`. Defaults to `image/jpeg`.
     #[must_use]
     pub fn thumbnail_mime_type_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.thumbnail_mime_type = val.map(Into::into);

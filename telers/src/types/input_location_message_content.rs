@@ -11,7 +11,7 @@ pub struct InputLocationMessageContent {
     /// The radius of uncertainty for the location, measured in meters; 0-1500
     #[serde(skip_serializing_if = "Option::is_none")]
     pub horizontal_accuracy: Option<f64>,
-    /// Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely.
+    /// Period in seconds during which the location can be updated, must be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely
     #[serde(skip_serializing_if = "Option::is_none")]
     pub live_period: Option<u32>,
     /// For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
@@ -70,14 +70,14 @@ impl InputLocationMessageContent {
         self
     }
 
-    /// Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely.
+    /// Period in seconds during which the location can be updated, must be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely
     #[must_use]
     pub fn live_period<T: Into<u32>>(mut self, val: T) -> Self {
         self.live_period = Some(val.into());
         self
     }
 
-    /// Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely.
+    /// Period in seconds during which the location can be updated, must be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely
     #[must_use]
     pub fn live_period_option<T: Into<u32>>(mut self, val: Option<T>) -> Self {
         self.live_period = val.map(Into::into);

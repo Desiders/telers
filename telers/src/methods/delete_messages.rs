@@ -9,7 +9,7 @@ use serde::Serialize;
 pub struct DeleteMessages {
     /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
-    /// A JSON-serialized list of 1-100 identifiers of messages to delete. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted
+    /// A JSON-serialized list of 1-100 identifiers of messages to delete. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted.
     pub message_ids: Box<[u8]>,
 }
 impl DeleteMessages {
@@ -17,7 +17,7 @@ impl DeleteMessages {
     ///
     /// # Arguments
     /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
-    /// * `message_ids` - A JSON-serialized list of 1-100 identifiers of messages to delete. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted
+    /// * `message_ids` - A JSON-serialized list of 1-100 identifiers of messages to delete. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted.
     #[must_use]
     pub fn new<
         T0: Into<crate::types::ChatIdKind>,
@@ -40,7 +40,7 @@ impl DeleteMessages {
         self
     }
 
-    /// A JSON-serialized list of 1-100 identifiers of messages to delete. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted
+    /// A JSON-serialized list of 1-100 identifiers of messages to delete. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -55,7 +55,7 @@ impl DeleteMessages {
         self
     }
 
-    /// A JSON-serialized list of 1-100 identifiers of messages to delete. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted
+    /// A JSON-serialized list of 1-100 identifiers of messages to delete. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted.
     ///
     /// # Notes
     /// Adds a single element.

@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#keyboardbutton>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct KeyboardButton {
-    /// Text of the button. If none of the fields other than text, `icon_custom_emoji_id`, and style are used, it will be sent as a message when the button is pressed
+    /// Text of the button. If none of the fields other than text, `icon_custom_emoji_id`, and style are used, it will be sent as a message when the button is pressed.
     pub text: Box<str>,
     /// Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -38,7 +38,7 @@ impl KeyboardButton {
     /// Creates a new `KeyboardButton`.
     ///
     /// # Arguments
-    /// * `text` - Text of the button. If none of the fields other than text, `icon_custom_emoji_id`, and style are used, it will be sent as a message when the button is pressed
+    /// * `text` - Text of the button. If none of the fields other than text, `icon_custom_emoji_id`, and style are used, it will be sent as a message when the button is pressed.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -58,7 +58,7 @@ impl KeyboardButton {
         }
     }
 
-    /// Text of the button. If none of the fields other than text, `icon_custom_emoji_id`, and style are used, it will be sent as a message when the button is pressed
+    /// Text of the button. If none of the fields other than text, `icon_custom_emoji_id`, and style are used, it will be sent as a message when the button is pressed.
     #[must_use]
     pub fn text<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.text = val.into();

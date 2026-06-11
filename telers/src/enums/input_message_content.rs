@@ -1,7 +1,8 @@
 use crate::types::InputMessageContent;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
-/// This object represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following 5 types:
+/// This object represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following types:
 /// - [`crate::types::InputTextMessageContent`]
+/// - [`crate::types::InputRichMessageContent`]
 /// - [`crate::types::InputLocationMessageContent`]
 /// - [`crate::types::InputVenueMessageContent`]
 /// - [`crate::types::InputContactMessageContent`]
@@ -20,16 +21,19 @@ pub enum InputMessageContentType {
     InputContactMessageContent,
     #[strum(serialize = "input_text_message_content")]
     InputTextMessageContent,
+    #[strum(serialize = "input_rich_message_content")]
+    InputRichMessageContent,
 }
 impl InputMessageContentType {
     #[must_use]
-    pub const fn all() -> [InputMessageContentType; 5usize] {
+    pub const fn all() -> [InputMessageContentType; 6usize] {
         [
             InputMessageContentType::InputInvoiceMessageContent,
             InputMessageContentType::InputVenueMessageContent,
             InputMessageContentType::InputLocationMessageContent,
             InputMessageContentType::InputContactMessageContent,
             InputMessageContentType::InputTextMessageContent,
+            InputMessageContentType::InputRichMessageContent,
         ]
     }
 }
@@ -65,6 +69,9 @@ impl<'a> From<&'a InputMessageContent> for InputMessageContentType {
             }
             InputMessageContent::InputTextMessageContent(_) => {
                 InputMessageContentType::InputTextMessageContent
+            }
+            InputMessageContent::InputRichMessageContent(_) => {
+                InputMessageContentType::InputRichMessageContent
             }
         }
     }

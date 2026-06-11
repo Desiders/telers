@@ -75,9 +75,12 @@ pub struct ChatFullInfoChannel {
     /// The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unique_gift_colors: Option<crate::types::UniqueGiftColors>,
-    /// The number of Telegram Stars a general user have to pay to send a message to the chat
+    /// The number of Telegram Stars a general user has to pay to send a message to the chat
     #[serde(skip_serializing_if = "Option::is_none")]
     pub paid_message_star_count: Option<i64>,
+    /// The bot that processes join request queries in the chat. The field is only available to chat administrators.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guard_bot: Option<Box<crate::types::User>>,
 }
 impl ChatFullInfoChannel {
     /// Creates a new `ChatFullInfoChannel`.
@@ -121,6 +124,7 @@ impl ChatFullInfoChannel {
             linked_chat_id: None,
             unique_gift_colors: None,
             paid_message_star_count: None,
+            guard_bot: None,
         }
     }
 
@@ -511,17 +515,31 @@ impl ChatFullInfoChannel {
         self
     }
 
-    /// The number of Telegram Stars a general user have to pay to send a message to the chat
+    /// The number of Telegram Stars a general user has to pay to send a message to the chat
     #[must_use]
     pub fn paid_message_star_count<T: Into<i64>>(mut self, val: T) -> Self {
         self.paid_message_star_count = Some(val.into());
         self
     }
 
-    /// The number of Telegram Stars a general user have to pay to send a message to the chat
+    /// The number of Telegram Stars a general user has to pay to send a message to the chat
     #[must_use]
     pub fn paid_message_star_count_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.paid_message_star_count = val.map(Into::into);
+        self
+    }
+
+    /// The bot that processes join request queries in the chat. The field is only available to chat administrators.
+    #[must_use]
+    pub fn guard_bot<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.guard_bot = Some(Box::new(val.into()));
+        self
+    }
+
+    /// The bot that processes join request queries in the chat. The field is only available to chat administrators.
+    #[must_use]
+    pub fn guard_bot_option<T: Into<crate::types::User>>(mut self, val: Option<T>) -> Self {
+        self.guard_bot = val.map(|val| Box::new(val.into()));
         self
     }
 }

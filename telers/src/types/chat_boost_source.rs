@@ -159,6 +159,13 @@ impl ChatBoostSource {
         self.user().and_then(|inner| inner.supports_inline_queries)
     }
 
+    /// Helper method for nested field `supports_join_request_queries`.
+    #[must_use]
+    pub fn supports_join_request_queries(&self) -> Option<bool> {
+        self.user()
+            .and_then(|inner| inner.supports_join_request_queries)
+    }
+
     /// Helper method for nested field `username`.
     #[must_use]
     pub fn username(&self) -> Option<&str> {

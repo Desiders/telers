@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
-/// This object represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following 5 types:
+/// This object represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following types:
 /// - [`crate::types::InputTextMessageContent`]
+/// - [`crate::types::InputRichMessageContent`]
 /// - [`crate::types::InputLocationMessageContent`]
 /// - [`crate::types::InputVenueMessageContent`]
 /// - [`crate::types::InputContactMessageContent`]
@@ -15,6 +16,7 @@ pub enum InputMessageContent {
     InputLocationMessageContent(crate::types::InputLocationMessageContent),
     InputContactMessageContent(crate::types::InputContactMessageContent),
     InputTextMessageContent(crate::types::InputTextMessageContent),
+    InputRichMessageContent(crate::types::InputRichMessageContent),
 }
 impl InputMessageContent {
     /// Helper method for field `address`.
@@ -187,7 +189,7 @@ impl InputMessageContent {
 
     /// Helper method for field `live_period`.
     ///
-    /// Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely.
+    /// Period in seconds during which the location can be updated, must be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely
     #[must_use]
     pub fn live_period(&self) -> Option<u32> {
         match self {
@@ -397,6 +399,17 @@ impl InputMessageContent {
         }
     }
 
+    /// Helper method for field `rich_message`.
+    ///
+    /// The message to be sent
+    #[must_use]
+    pub fn rich_message(&self) -> Option<&crate::types::InputRichMessage> {
+        match self {
+            Self::InputRichMessageContent(val) => Some(&val.rich_message),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `send_email_to_provider`.
     ///
     /// Pass `true` if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars.
@@ -455,6 +468,18 @@ impl InputMessageContent {
         }
     }
 
+    /// Helper method for nested field `html`.
+    #[must_use]
+    pub fn html(&self) -> Option<&str> {
+        match self {
+            Self::InputRichMessageContent(val) => {
+                let inner = &val.rich_message;
+                inner.html.as_deref()
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `is_disabled`.
     #[must_use]
     pub fn is_disabled(&self) -> Option<bool> {
@@ -463,6 +488,30 @@ impl InputMessageContent {
                 .link_preview_options
                 .as_ref()
                 .and_then(|inner| inner.is_disabled),
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `is_rtl`.
+    #[must_use]
+    pub fn is_rtl(&self) -> Option<bool> {
+        match self {
+            Self::InputRichMessageContent(val) => {
+                let inner = &val.rich_message;
+                inner.is_rtl
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `markdown`.
+    #[must_use]
+    pub fn markdown(&self) -> Option<&str> {
+        match self {
+            Self::InputRichMessageContent(val) => {
+                let inner = &val.rich_message;
+                inner.markdown.as_deref()
+            }
             _ => None,
         }
     }
@@ -499,6 +548,18 @@ impl InputMessageContent {
                 .link_preview_options
                 .as_ref()
                 .and_then(|inner| inner.show_above_text),
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `skip_entity_detection`.
+    #[must_use]
+    pub fn skip_entity_detection(&self) -> Option<bool> {
+        match self {
+            Self::InputRichMessageContent(val) => {
+                let inner = &val.rich_message;
+                inner.skip_entity_detection
+            }
             _ => None,
         }
     }
@@ -606,6 +667,25 @@ impl TryFrom<InputMessageContent> for crate::types::InputTextMessageContent {
             Err(Self::Error::new(
                 stringify!(InputMessageContent),
                 stringify!(InputTextMessageContent),
+            ))
+        }
+    }
+}
+impl From<crate::types::InputRichMessageContent> for InputMessageContent {
+    fn from(val: crate::types::InputRichMessageContent) -> Self {
+        Self::InputRichMessageContent(val)
+    }
+}
+impl TryFrom<InputMessageContent> for crate::types::InputRichMessageContent {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: InputMessageContent) -> Result<Self, Self::Error> {
+        if let InputMessageContent::InputRichMessageContent(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(InputMessageContent),
+                stringify!(InputRichMessageContent),
             ))
         }
     }

@@ -11,7 +11,7 @@ pub struct CallbackQuery {
     /// Message sent by the bot with the callback button that originated the query
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message: Option<Box<crate::types::MaybeInaccessibleMessage>>,
-    /// Identifier of the message sent via the bot in inline mode, that originated the query.
+    /// Identifier of the message sent via the bot in inline mode, that originated the query
     #[serde(skip_serializing_if = "Option::is_none")]
     pub inline_message_id: Option<Box<str>>,
     /// Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent. Useful for high scores in games.
@@ -81,14 +81,14 @@ impl CallbackQuery {
         self
     }
 
-    /// Identifier of the message sent via the bot in inline mode, that originated the query.
+    /// Identifier of the message sent via the bot in inline mode, that originated the query
     #[must_use]
     pub fn inline_message_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.inline_message_id = Some(val.into());
         self
     }
 
-    /// Identifier of the message sent via the bot in inline mode, that originated the query.
+    /// Identifier of the message sent via the bot in inline mode, that originated the query
     #[must_use]
     pub fn inline_message_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.inline_message_id = val.map(Into::into);

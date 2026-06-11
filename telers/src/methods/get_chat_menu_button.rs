@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `crate::types::MenuButton`
 #[derive(Clone, Debug, Serialize)]
 pub struct GetChatMenuButton {
-    /// Unique identifier for the target private chat. If not specified, default bot's menu button will be returned
+    /// Unique identifier for the target private chat. If not specified, the bot's default menu button will be returned.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub chat_id: Option<i64>,
 }
@@ -23,14 +23,14 @@ impl GetChatMenuButton {
         }
     }
 
-    /// Unique identifier for the target private chat. If not specified, default bot's menu button will be returned
+    /// Unique identifier for the target private chat. If not specified, the bot's default menu button will be returned.
     #[must_use]
     pub fn chat_id<T: Into<i64>>(mut self, val: T) -> Self {
         self.chat_id = Some(val.into());
         self
     }
 
-    /// Unique identifier for the target private chat. If not specified, default bot's menu button will be returned
+    /// Unique identifier for the target private chat. If not specified, the bot's default menu button will be returned.
     #[must_use]
     pub fn chat_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.chat_id = val.map(Into::into);

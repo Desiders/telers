@@ -9,7 +9,7 @@ use serde::Serialize;
 pub struct AnswerCallbackQuery {
     /// Unique identifier for the query to be answered
     pub callback_query_id: Box<str>,
-    /// Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters
+    /// Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<Box<str>>,
     /// If `true`, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to false.
@@ -48,14 +48,14 @@ impl AnswerCallbackQuery {
         self
     }
 
-    /// Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters
+    /// Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters.
     #[must_use]
     pub fn text<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.text = Some(val.into());
         self
     }
 
-    /// Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters
+    /// Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters.
     #[must_use]
     pub fn text_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.text = val.map(Into::into);

@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct UniqueGiftInfo {
     /// Information about the gift
     pub gift: Box<crate::types::UniqueGift>,
-    /// Origin of the gift. Currently, either `upgrade` for gifts upgraded from regular gifts, `transfer` for gifts transferred from other users or channels, `resale` for gifts bought from other users, `gifted_upgrade` for upgrades purchased after the gift was sent, or `offer` for gifts bought or sold through gift purchase offers
+    /// Origin of the gift. Currently, either `upgrade` for gifts upgraded from regular gifts, `transfer` for gifts transferred from other users or channels, `resale` for gifts bought from other users, `gifted_upgrade` for upgrades purchased after the gift was sent, or `offer` for gifts bought or sold through gift purchase offers.
     pub origin: Box<str>,
     /// For gifts bought from other users, the currency in which the payment for the gift was done. Currently, one of `XTR` for Telegram Stars or `TON` for toncoins.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -20,7 +20,7 @@ pub struct UniqueGiftInfo {
     /// Number of Telegram Stars that must be paid to transfer the gift; omitted if the bot cannot transfer the gift
     #[serde(skip_serializing_if = "Option::is_none")]
     pub transfer_star_count: Option<i64>,
-    /// Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now
+    /// Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub next_transfer_date: Option<i64>,
 }
@@ -29,7 +29,7 @@ impl UniqueGiftInfo {
     ///
     /// # Arguments
     /// * `gift` - Information about the gift
-    /// * `origin` - Origin of the gift. Currently, either `upgrade` for gifts upgraded from regular gifts, `transfer` for gifts transferred from other users or channels, `resale` for gifts bought from other users, `gifted_upgrade` for upgrades purchased after the gift was sent, or `offer` for gifts bought or sold through gift purchase offers
+    /// * `origin` - Origin of the gift. Currently, either `upgrade` for gifts upgraded from regular gifts, `transfer` for gifts transferred from other users or channels, `resale` for gifts bought from other users, `gifted_upgrade` for upgrades purchased after the gift was sent, or `offer` for gifts bought or sold through gift purchase offers.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -56,7 +56,7 @@ impl UniqueGiftInfo {
         self
     }
 
-    /// Origin of the gift. Currently, either `upgrade` for gifts upgraded from regular gifts, `transfer` for gifts transferred from other users or channels, `resale` for gifts bought from other users, `gifted_upgrade` for upgrades purchased after the gift was sent, or `offer` for gifts bought or sold through gift purchase offers
+    /// Origin of the gift. Currently, either `upgrade` for gifts upgraded from regular gifts, `transfer` for gifts transferred from other users or channels, `resale` for gifts bought from other users, `gifted_upgrade` for upgrades purchased after the gift was sent, or `offer` for gifts bought or sold through gift purchase offers.
     #[must_use]
     pub fn origin<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.origin = val.into();
@@ -119,14 +119,14 @@ impl UniqueGiftInfo {
         self
     }
 
-    /// Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now
+    /// Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now.
     #[must_use]
     pub fn next_transfer_date<T: Into<i64>>(mut self, val: T) -> Self {
         self.next_transfer_date = Some(val.into());
         self
     }
 
-    /// Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now
+    /// Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now.
     #[must_use]
     pub fn next_transfer_date_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.next_transfer_date = val.map(Into::into);

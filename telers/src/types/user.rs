@@ -52,6 +52,9 @@ pub struct User {
     /// `true`, if other bots can be created to be controlled by the bot. Returned only in getMe.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_bots: Option<bool>,
+    /// `true`, if the bot supports join request queries and can be assigned to process them. Returned only in getMe.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supports_join_request_queries: Option<bool>,
 }
 impl User {
     /// Creates a new `User`.
@@ -87,6 +90,7 @@ impl User {
             has_topics_enabled: None,
             allows_users_to_create_topics: None,
             can_manage_bots: None,
+            supports_join_request_queries: None,
         }
     }
 
@@ -304,6 +308,20 @@ impl User {
     #[must_use]
     pub fn can_manage_bots_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.can_manage_bots = val.map(Into::into);
+        self
+    }
+
+    /// `true`, if the bot supports join request queries and can be assigned to process them. Returned only in getMe.
+    #[must_use]
+    pub fn supports_join_request_queries<T: Into<bool>>(mut self, val: T) -> Self {
+        self.supports_join_request_queries = Some(val.into());
+        self
+    }
+
+    /// `true`, if the bot supports join request queries and can be assigned to process them. Returned only in getMe.
+    #[must_use]
+    pub fn supports_join_request_queries_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.supports_join_request_queries = val.map(Into::into);
         self
     }
 }

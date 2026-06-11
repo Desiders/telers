@@ -345,6 +345,18 @@ impl MessageOrigin {
         }
     }
 
+    /// Helper method for nested field `supports_join_request_queries`.
+    #[must_use]
+    pub fn supports_join_request_queries(&self) -> Option<bool> {
+        match self {
+            Self::User(val) => {
+                let inner = val.sender_user.as_ref();
+                inner.supports_join_request_queries
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `title`.
     #[must_use]
     pub fn title(&self) -> Option<&str> {

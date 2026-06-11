@@ -8,7 +8,7 @@ pub struct UniqueGift {
     pub gift_id: Box<str>,
     /// Human-readable name of the regular gift from which this unique gift was upgraded
     pub base_name: Box<str>,
-    /// Unique name of the gift. This name can be used in <https://t.me/nft/>... links and story areas
+    /// Unique name of the gift. This name can be used in <https://t.me/nft/>... links and story areas.
     pub name: Box<str>,
     /// Unique number of the upgraded gift among gifts upgraded from the same regular gift
     pub number: i64,
@@ -40,7 +40,7 @@ impl UniqueGift {
     /// # Arguments
     /// * `gift_id` - Identifier of the regular gift from which the gift was upgraded
     /// * `base_name` - Human-readable name of the regular gift from which this unique gift was upgraded
-    /// * `name` - Unique name of the gift. This name can be used in <https://t.me/nft/>... links and story areas
+    /// * `name` - Unique name of the gift. This name can be used in <https://t.me/nft/>... links and story areas.
     /// * `number` - Unique number of the upgraded gift among gifts upgraded from the same regular gift
     /// * `model` - Model of the gift
     /// * `symbol` - Symbol of the gift
@@ -96,7 +96,7 @@ impl UniqueGift {
         self
     }
 
-    /// Unique name of the gift. This name can be used in <https://t.me/nft/>... links and story areas
+    /// Unique name of the gift. This name can be used in <https://t.me/nft/>... links and story areas.
     #[must_use]
     pub fn name<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.name = val.into();

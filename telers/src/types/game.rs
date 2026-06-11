@@ -8,7 +8,7 @@ pub struct Game {
     pub title: Box<str>,
     /// Description of the game
     pub description: Box<str>,
-    /// Photo that will be displayed in the game message in chats.
+    /// Photo that will be displayed in the game message in chats
     pub photo: Box<[crate::types::PhotoSize]>,
     /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls setGameScore, or manually edited using editMessageText. 0-4096 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -16,7 +16,7 @@ pub struct Game {
     /// Special entities that appear in text, such as usernames, URLs, bot commands, etc.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text_entities: Option<Box<[crate::types::MessageEntity]>>,
-    /// Animation that will be displayed in the game message in chats. Upload via `BotFather`
+    /// Animation that will be displayed in the game message in chats. Upload via `BotFather`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub animation: Option<Box<crate::types::Animation>>,
 }
@@ -26,7 +26,7 @@ impl Game {
     /// # Arguments
     /// * `title` - Title of the game
     /// * `description` - Description of the game
-    /// * `photo` - Photo that will be displayed in the game message in chats.
+    /// * `photo` - Photo that will be displayed in the game message in chats
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -65,7 +65,7 @@ impl Game {
         self
     }
 
-    /// Photo that will be displayed in the game message in chats.
+    /// Photo that will be displayed in the game message in chats
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -80,7 +80,7 @@ impl Game {
         self
     }
 
-    /// Photo that will be displayed in the game message in chats.
+    /// Photo that will be displayed in the game message in chats
     ///
     /// # Notes
     /// Adds a single element.
@@ -156,14 +156,14 @@ impl Game {
         self
     }
 
-    /// Animation that will be displayed in the game message in chats. Upload via `BotFather`
+    /// Animation that will be displayed in the game message in chats. Upload via `BotFather`.
     #[must_use]
     pub fn animation<T: Into<crate::types::Animation>>(mut self, val: T) -> Self {
         self.animation = Some(Box::new(val.into()));
         self
     }
 
-    /// Animation that will be displayed in the game message in chats. Upload via `BotFather`
+    /// Animation that will be displayed in the game message in chats. Upload via `BotFather`.
     #[must_use]
     pub fn animation_option<T: Into<crate::types::Animation>>(mut self, val: Option<T>) -> Self {
         self.animation = val.map(|val| Box::new(val.into()));

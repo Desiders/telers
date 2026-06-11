@@ -8,7 +8,7 @@ pub struct OwnedGifts {
     pub total_count: i64,
     /// The list of gifts
     pub gifts: Box<[crate::types::OwnedGift]>,
-    /// Offset for the next request. If empty, then there are no more results
+    /// Offset for the next request. If empty, then there are no more results.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub next_offset: Option<Box<str>>,
 }
@@ -74,14 +74,14 @@ impl OwnedGifts {
         self
     }
 
-    /// Offset for the next request. If empty, then there are no more results
+    /// Offset for the next request. If empty, then there are no more results.
     #[must_use]
     pub fn next_offset<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.next_offset = Some(val.into());
         self
     }
 
-    /// Offset for the next request. If empty, then there are no more results
+    /// Offset for the next request. If empty, then there are no more results.
     #[must_use]
     pub fn next_offset_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.next_offset = val.map(Into::into);

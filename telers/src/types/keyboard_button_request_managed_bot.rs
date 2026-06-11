@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#keyboardbuttonrequestmanagedbot>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct KeyboardButtonRequestManagedBot {
-    /// Signed 32-bit identifier of the request. Must be unique within the message
+    /// Signed 32-bit identifier of the request. Must be unique within the message.
     pub request_id: i64,
     /// Suggested name for the bot
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -17,7 +17,7 @@ impl KeyboardButtonRequestManagedBot {
     /// Creates a new `KeyboardButtonRequestManagedBot`.
     ///
     /// # Arguments
-    /// * `request_id` - Signed 32-bit identifier of the request. Must be unique within the message
+    /// * `request_id` - Signed 32-bit identifier of the request. Must be unique within the message.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -30,7 +30,7 @@ impl KeyboardButtonRequestManagedBot {
         }
     }
 
-    /// Signed 32-bit identifier of the request. Must be unique within the message
+    /// Signed 32-bit identifier of the request. Must be unique within the message.
     #[must_use]
     pub fn request_id<T: Into<i64>>(mut self, val: T) -> Self {
         self.request_id = val.into();

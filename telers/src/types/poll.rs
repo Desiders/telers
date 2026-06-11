@@ -58,7 +58,7 @@ impl Poll {
 
     /// Helper method for field `country_codes`.
     ///
-    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. If omitted, then users from any country can participate in the poll.
+    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. The country code `FT` is used for users with anonymous numbers. If omitted, then users from any country can participate in the poll.
     #[must_use]
     pub fn country_codes(&self) -> Option<&[Box<str>]> {
         match self {

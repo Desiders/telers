@@ -9,7 +9,7 @@ use serde::Serialize;
 pub struct SavePreparedKeyboardButton {
     /// Unique identifier of the target user that can use the button
     pub user_id: i64,
-    /// A JSON-serialized object describing the button to be saved. The button must be of the type `request_users`, `request_chat`, or `request_managed_bot`
+    /// A JSON-serialized object describing the button to be saved. The button must be of the type `request_users`, `request_chat`, or `request_managed_bot`.
     pub button: crate::types::KeyboardButton,
 }
 impl SavePreparedKeyboardButton {
@@ -17,7 +17,7 @@ impl SavePreparedKeyboardButton {
     ///
     /// # Arguments
     /// * `user_id` - Unique identifier of the target user that can use the button
-    /// * `button` - A JSON-serialized object describing the button to be saved. The button must be of the type `request_users`, `request_chat`, or `request_managed_bot`
+    /// * `button` - A JSON-serialized object describing the button to be saved. The button must be of the type `request_users`, `request_chat`, or `request_managed_bot`.
     #[must_use]
     pub fn new<T0: Into<i64>, T1: Into<crate::types::KeyboardButton>>(
         user_id: T0,
@@ -36,7 +36,7 @@ impl SavePreparedKeyboardButton {
         self
     }
 
-    /// A JSON-serialized object describing the button to be saved. The button must be of the type `request_users`, `request_chat`, or `request_managed_bot`
+    /// A JSON-serialized object describing the button to be saved. The button must be of the type `request_users`, `request_chat`, or `request_managed_bot`.
     #[must_use]
     pub fn button<T: Into<crate::types::KeyboardButton>>(mut self, val: T) -> Self {
         self.button = val.into();

@@ -14,17 +14,17 @@ pub struct EditMessageLiveLocation {
     /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub chat_id: Option<crate::types::ChatIdKind>,
-    /// Required if `inline_message_id` is not specified. Identifier of the message to edit
+    /// Required if `inline_message_id` is not specified. Identifier of the message to edit.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message_id: Option<i64>,
-    /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
+    /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub inline_message_id: Option<Box<str>>,
     /// Latitude of new location
     pub latitude: f64,
     /// Longitude of new location
     pub longitude: f64,
-    /// New period in seconds during which the location can be updated, starting from the message send date. If 0x7FFFFFFF is specified, then the location can be updated forever. Otherwise, the new value must not exceed the current `live_period` by more than a day, and the live location expiration date must remain within the next 90 days. If not specified, then `live_period` remains unchanged
+    /// New period in seconds during which the location can be updated, starting from the message send date. If 0x7FFFFFFF is specified, then the location can be updated forever. Otherwise, the new value must not exceed the current `live_period` by more than a day, and the live location expiration date must remain within the next 90 days. If not specified, then `live_period` remains unchanged.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub live_period: Option<i64>,
     /// The radius of uncertainty for the location, measured in meters; 0-1500
@@ -36,7 +36,7 @@ pub struct EditMessageLiveLocation {
     /// The maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub proximity_alert_radius: Option<u32>,
-    /// A JSON-serialized object for a new inline keyboard.
+    /// A JSON-serialized object for a new inline keyboard
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
 }
@@ -94,28 +94,28 @@ impl EditMessageLiveLocation {
         self
     }
 
-    /// Required if `inline_message_id` is not specified. Identifier of the message to edit
+    /// Required if `inline_message_id` is not specified. Identifier of the message to edit.
     #[must_use]
     pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
         self.message_id = Some(val.into());
         self
     }
 
-    /// Required if `inline_message_id` is not specified. Identifier of the message to edit
+    /// Required if `inline_message_id` is not specified. Identifier of the message to edit.
     #[must_use]
     pub fn message_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.message_id = val.map(Into::into);
         self
     }
 
-    /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
+    /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message.
     #[must_use]
     pub fn inline_message_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.inline_message_id = Some(val.into());
         self
     }
 
-    /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
+    /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message.
     #[must_use]
     pub fn inline_message_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.inline_message_id = val.map(Into::into);
@@ -136,14 +136,14 @@ impl EditMessageLiveLocation {
         self
     }
 
-    /// New period in seconds during which the location can be updated, starting from the message send date. If 0x7FFFFFFF is specified, then the location can be updated forever. Otherwise, the new value must not exceed the current `live_period` by more than a day, and the live location expiration date must remain within the next 90 days. If not specified, then `live_period` remains unchanged
+    /// New period in seconds during which the location can be updated, starting from the message send date. If 0x7FFFFFFF is specified, then the location can be updated forever. Otherwise, the new value must not exceed the current `live_period` by more than a day, and the live location expiration date must remain within the next 90 days. If not specified, then `live_period` remains unchanged.
     #[must_use]
     pub fn live_period<T: Into<i64>>(mut self, val: T) -> Self {
         self.live_period = Some(val.into());
         self
     }
 
-    /// New period in seconds during which the location can be updated, starting from the message send date. If 0x7FFFFFFF is specified, then the location can be updated forever. Otherwise, the new value must not exceed the current `live_period` by more than a day, and the live location expiration date must remain within the next 90 days. If not specified, then `live_period` remains unchanged
+    /// New period in seconds during which the location can be updated, starting from the message send date. If 0x7FFFFFFF is specified, then the location can be updated forever. Otherwise, the new value must not exceed the current `live_period` by more than a day, and the live location expiration date must remain within the next 90 days. If not specified, then `live_period` remains unchanged.
     #[must_use]
     pub fn live_period_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.live_period = val.map(Into::into);
@@ -192,14 +192,14 @@ impl EditMessageLiveLocation {
         self
     }
 
-    /// A JSON-serialized object for a new inline keyboard.
+    /// A JSON-serialized object for a new inline keyboard
     #[must_use]
     pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(mut self, val: T) -> Self {
         self.reply_markup = Some(val.into());
         self
     }
 
-    /// A JSON-serialized object for a new inline keyboard.
+    /// A JSON-serialized object for a new inline keyboard
     #[must_use]
     pub fn reply_markup_option<T: Into<crate::types::InlineKeyboardMarkup>>(
         mut self,

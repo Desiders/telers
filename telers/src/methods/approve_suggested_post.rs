@@ -11,7 +11,7 @@ pub struct ApproveSuggestedPost {
     pub chat_id: i64,
     /// Identifier of a suggested post message to approve
     pub message_id: i64,
-    /// Point in time (Unix timestamp) when the post is expected to be published; omit if the date has already been specified when the suggested post was created. If specified, then the date must be not more than 2678400 seconds (30 days) in the future
+    /// Point in time (Unix timestamp) when the post is expected to be published; omit if the date has already been specified when the suggested post was created. If specified, then the date must be not more than 2678400 seconds (30 days) in the future.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub send_date: Option<i64>,
 }
@@ -47,14 +47,14 @@ impl ApproveSuggestedPost {
         self
     }
 
-    /// Point in time (Unix timestamp) when the post is expected to be published; omit if the date has already been specified when the suggested post was created. If specified, then the date must be not more than 2678400 seconds (30 days) in the future
+    /// Point in time (Unix timestamp) when the post is expected to be published; omit if the date has already been specified when the suggested post was created. If specified, then the date must be not more than 2678400 seconds (30 days) in the future.
     #[must_use]
     pub fn send_date<T: Into<i64>>(mut self, val: T) -> Self {
         self.send_date = Some(val.into());
         self
     }
 
-    /// Point in time (Unix timestamp) when the post is expected to be published; omit if the date has already been specified when the suggested post was created. If specified, then the date must be not more than 2678400 seconds (30 days) in the future
+    /// Point in time (Unix timestamp) when the post is expected to be published; omit if the date has already been specified when the suggested post was created. If specified, then the date must be not more than 2678400 seconds (30 days) in the future.
     #[must_use]
     pub fn send_date_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.send_date = val.map(Into::into);

@@ -79,7 +79,7 @@ impl BackgroundType {
 
     /// Helper method for field `is_inverted`.
     ///
-    /// `true`, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only
+    /// `true`, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only.
     #[must_use]
     pub fn is_inverted(&self) -> Option<bool> {
         match self {

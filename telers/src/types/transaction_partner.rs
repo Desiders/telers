@@ -578,6 +578,22 @@ impl TransactionPartner {
         }
     }
 
+    /// Helper method for nested field `supports_join_request_queries`.
+    #[must_use]
+    pub fn supports_join_request_queries(&self) -> Option<bool> {
+        match self {
+            Self::AffiliateProgram(val) => val
+                .sponsor_user
+                .as_deref()
+                .and_then(|inner| inner.supports_join_request_queries),
+            Self::User(val) => {
+                let inner = crate::types::TransactionPartnerUser::user(val);
+                inner.supports_join_request_queries
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `title`.
     #[must_use]
     pub fn title(&self) -> Option<&str> {

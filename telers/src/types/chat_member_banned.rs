@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct ChatMemberBanned {
     /// Information about the user
     pub user: Box<crate::types::User>,
-    /// Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever
+    /// Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever.
     pub until_date: i64,
 }
 impl ChatMemberBanned {
@@ -14,7 +14,7 @@ impl ChatMemberBanned {
     ///
     /// # Arguments
     /// * `user` - Information about the user
-    /// * `until_date` - Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever
+    /// * `until_date` - Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever.
     #[must_use]
     pub fn new<T0: Into<crate::types::User>, T1: Into<i64>>(user: T0, until_date: T1) -> Self {
         Self {
@@ -30,7 +30,7 @@ impl ChatMemberBanned {
         self
     }
 
-    /// Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever
+    /// Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever.
     #[must_use]
     pub fn until_date<T: Into<i64>>(mut self, val: T) -> Self {
         self.until_date = val.into();

@@ -271,7 +271,7 @@ impl ChatMember {
 
     /// Helper method for field `can_send_messages`.
     ///
-    /// `true`, if the user is allowed to send text messages, contacts, giveaways, giveaway winners, invoices, locations and venues
+    /// `true`, if the user is allowed to send text messages, rich messages, contacts, giveaways, giveaway winners, invoices, locations and venues
     #[must_use]
     pub fn can_send_messages(&self) -> Option<bool> {
         match self {
@@ -397,8 +397,8 @@ impl ChatMember {
     ///
     /// # Variants
     /// - `ChatMemberMember`. Date when the user's subscription will expire; Unix time
-    /// - `ChatMemberRestricted`. Date when restrictions will be lifted for this user; Unix time. If 0, then the user is restricted forever
-    /// - `ChatMemberBanned`. Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever
+    /// - `ChatMemberRestricted`. Date when restrictions will be lifted for this user; Unix time. If 0, then the user is restricted forever.
+    /// - `ChatMemberBanned`. Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever.
     #[must_use]
     pub fn until_date(&self) -> Option<i64> {
         match self {
@@ -565,6 +565,15 @@ impl ChatMember {
         {
             let inner = self.user();
             inner.supports_inline_queries
+        }
+    }
+
+    /// Helper method for nested field `supports_join_request_queries`.
+    #[must_use]
+    pub fn supports_join_request_queries(&self) -> Option<bool> {
+        {
+            let inner = self.user();
+            inner.supports_join_request_queries
         }
     }
 

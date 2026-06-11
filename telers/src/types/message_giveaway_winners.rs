@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#message>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MessageGiveawayWinners {
-    /// Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
+    /// Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     pub message_id: i64,
     /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -14,7 +14,7 @@ pub struct MessageGiveawayWinners {
     /// Information about the direct messages chat topic that contains the message
     #[serde(skip_serializing_if = "Option::is_none")]
     pub direct_messages_topic: Option<crate::types::DirectMessagesTopic>,
-    /// Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
+    /// Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub from: Option<Box<crate::types::User>>,
     /// Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
@@ -108,6 +108,9 @@ pub struct MessageGiveawayWinners {
     /// Unique identifier of the message effect added to the message
     #[serde(skip_serializing_if = "Option::is_none")]
     pub effect_id: Option<Box<str>>,
+    /// Message is a rich formatted message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rich_message: Option<crate::types::RichMessage>,
     /// Caption for the animation, audio, document, paid media, photo, video or voice
     #[serde(skip_serializing_if = "Option::is_none")]
     pub caption: Option<Box<str>>,
@@ -130,7 +133,7 @@ impl MessageGiveawayWinners {
     /// Creates a new `MessageGiveawayWinners`.
     ///
     /// # Arguments
-    /// * `message_id` - Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
+    /// * `message_id` - Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     /// * `date` - Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     /// * `chat` - Chat the message belongs to
     /// * `giveaway_winners` - A giveaway with public winners was completed
@@ -185,6 +188,7 @@ impl MessageGiveawayWinners {
             link_preview_options: None,
             suggested_post_info: None,
             effect_id: None,
+            rich_message: None,
             caption: None,
             caption_entities: None,
             show_caption_above_media: None,
@@ -194,7 +198,7 @@ impl MessageGiveawayWinners {
         }
     }
 
-    /// Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
+    /// Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     #[must_use]
     pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
         self.message_id = val.into();
@@ -235,14 +239,14 @@ impl MessageGiveawayWinners {
         self
     }
 
-    /// Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
+    /// Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats.
     #[must_use]
     pub fn from<T: Into<crate::types::User>>(mut self, val: T) -> Self {
         self.from = Some(Box::new(val.into()));
         self
     }
 
-    /// Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
+    /// Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats.
     #[must_use]
     pub fn from_option<T: Into<crate::types::User>>(mut self, val: Option<T>) -> Self {
         self.from = val.map(|val| Box::new(val.into()));
@@ -726,6 +730,23 @@ impl MessageGiveawayWinners {
     #[must_use]
     pub fn effect_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.effect_id = val.map(Into::into);
+        self
+    }
+
+    /// Message is a rich formatted message
+    #[must_use]
+    pub fn rich_message<T: Into<crate::types::RichMessage>>(mut self, val: T) -> Self {
+        self.rich_message = Some(val.into());
+        self
+    }
+
+    /// Message is a rich formatted message
+    #[must_use]
+    pub fn rich_message_option<T: Into<crate::types::RichMessage>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.rich_message = val.map(Into::into);
         self
     }
 

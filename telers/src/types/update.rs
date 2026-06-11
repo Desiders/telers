@@ -270,7 +270,7 @@ impl Update {
 
     /// Helper method for field `poll`.
     ///
-    /// New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot
+    /// New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot.
     #[must_use]
     pub fn poll(&self) -> Option<&crate::types::Poll> {
         match self {
@@ -292,7 +292,7 @@ impl Update {
 
     /// Helper method for field `pre_checkout_query`.
     ///
-    /// New incoming pre-checkout query. Contains full information about checkout
+    /// New incoming pre-checkout query. Contains full information about checkout.
     #[must_use]
     pub fn pre_checkout_query(&self) -> Option<&crate::types::PreCheckoutQuery> {
         match self {
@@ -325,7 +325,7 @@ impl Update {
 
     /// Helper method for field `shipping_query`.
     ///
-    /// New incoming shipping query. Only for invoices with flexible price
+    /// New incoming shipping query. Only for invoices with flexible price.
     #[must_use]
     pub fn shipping_query(&self) -> Option<&crate::types::ShippingQuery> {
         match self {
@@ -3818,6 +3818,18 @@ impl Update {
         }
     }
 
+    /// Helper method for nested field `query_id`.
+    #[must_use]
+    pub fn query_id(&self) -> Option<&str> {
+        match self {
+            Self::ChatJoinRequest(val) => {
+                let inner = &val.chat_join_request;
+                inner.query_id.as_deref()
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `question`.
     #[must_use]
     pub fn question(&self) -> Option<&str> {
@@ -4125,6 +4137,42 @@ impl Update {
             Self::ChosenInlineResult(val) => {
                 let inner = &val.chosen_inline_result;
                 Some(inner.result_id.as_ref())
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `rich_message`.
+    #[must_use]
+    pub fn rich_message(&self) -> Option<&crate::types::RichMessage> {
+        match self {
+            Self::BusinessMessage(val) => {
+                let inner = val.business_message.as_ref();
+                crate::types::Message::rich_message(inner)
+            }
+            Self::ChannelPost(val) => {
+                let inner = val.channel_post.as_ref();
+                crate::types::Message::rich_message(inner)
+            }
+            Self::EditedBusinessMessage(val) => {
+                let inner = val.edited_business_message.as_ref();
+                crate::types::Message::rich_message(inner)
+            }
+            Self::EditedChannelPost(val) => {
+                let inner = val.edited_channel_post.as_ref();
+                crate::types::Message::rich_message(inner)
+            }
+            Self::EditedMessage(val) => {
+                let inner = val.edited_message.as_ref();
+                crate::types::Message::rich_message(inner)
+            }
+            Self::GuestMessage(val) => {
+                let inner = val.guest_message.as_ref();
+                crate::types::Message::rich_message(inner)
+            }
+            Self::Message(val) => {
+                let inner = val.message.as_ref();
+                crate::types::Message::rich_message(inner)
             }
             _ => None,
         }

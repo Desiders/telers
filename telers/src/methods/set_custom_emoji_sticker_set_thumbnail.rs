@@ -9,7 +9,7 @@ use serde::Serialize;
 pub struct SetCustomEmojiStickerSetThumbnail {
     /// Sticker set name
     pub name: Box<str>,
-    /// Custom emoji identifier of a sticker from the sticker set; pass an empty string to drop the thumbnail and use the first sticker as the thumbnail.
+    /// Custom emoji identifier of a sticker from the sticker set; pass an empty string to drop the thumbnail and use the first sticker as the thumbnail
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_emoji_id: Option<Box<str>>,
 }
@@ -36,14 +36,14 @@ impl SetCustomEmojiStickerSetThumbnail {
         self
     }
 
-    /// Custom emoji identifier of a sticker from the sticker set; pass an empty string to drop the thumbnail and use the first sticker as the thumbnail.
+    /// Custom emoji identifier of a sticker from the sticker set; pass an empty string to drop the thumbnail and use the first sticker as the thumbnail
     #[must_use]
     pub fn custom_emoji_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.custom_emoji_id = Some(val.into());
         self
     }
 
-    /// Custom emoji identifier of a sticker from the sticker set; pass an empty string to drop the thumbnail and use the first sticker as the thumbnail.
+    /// Custom emoji identifier of a sticker from the sticker set; pass an empty string to drop the thumbnail and use the first sticker as the thumbnail
     #[must_use]
     pub fn custom_emoji_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.custom_emoji_id = val.map(Into::into);

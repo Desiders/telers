@@ -406,6 +406,15 @@ impl TransactionPartnerUser {
         }
     }
 
+    /// Helper method for nested field `supports_join_request_queries`.
+    #[must_use]
+    pub fn supports_join_request_queries(&self) -> Option<bool> {
+        {
+            let inner = self.user();
+            inner.supports_join_request_queries
+        }
+    }
+
     /// Helper method for nested field `total_count`.
     #[must_use]
     pub fn total_count(&self) -> Option<i64> {

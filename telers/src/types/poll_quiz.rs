@@ -27,7 +27,7 @@ pub struct PollQuiz {
     pub allows_revoting: bool,
     /// `true` if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
     pub members_only: bool,
-    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. If omitted, then users from any country can participate in the poll.
+    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. The country code `FT` is used for users with anonymous numbers. If omitted, then users from any country can participate in the poll.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub country_codes: Option<Box<[Box<str>]>>,
     /// Array of 0-based identifiers of the correct answer options. Available only for polls in quiz mode which are closed or were sent (not forwarded) by the bot or to the private chat with the bot.
@@ -257,7 +257,7 @@ impl PollQuiz {
         self
     }
 
-    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. If omitted, then users from any country can participate in the poll.
+    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. The country code `FT` is used for users with anonymous numbers. If omitted, then users from any country can participate in the poll.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -274,7 +274,7 @@ impl PollQuiz {
         self
     }
 
-    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. If omitted, then users from any country can participate in the poll.
+    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. The country code `FT` is used for users with anonymous numbers. If omitted, then users from any country can participate in the poll.
     ///
     /// # Notes
     /// Adds a single element.
@@ -291,7 +291,7 @@ impl PollQuiz {
         self
     }
 
-    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. If omitted, then users from any country can participate in the poll.
+    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. The country code `FT` is used for users with anonymous numbers. If omitted, then users from any country can participate in the poll.
     ///
     /// # Notes
     /// Adds a single element.

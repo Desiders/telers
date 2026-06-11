@@ -7,13 +7,13 @@ use serde::{Deserialize, Serialize};
 pub struct LoginUrl {
     /// An HTTPS URL to be opened with user authorization data added to the query string when the button is pressed. If the user refuses to provide authorization data, the original URL without information about the user will be opened. The data added is the same as described in Receiving authorization data. NOTE: You must always check the hash of the received data to verify the authentication and the integrity of the data as described in Checking authorization.
     pub url: Box<str>,
-    /// New text of the button in forwarded messages.
+    /// New text of the button in forwarded messages
     #[serde(skip_serializing_if = "Option::is_none")]
     pub forward_text: Option<Box<str>>,
     /// Username of a bot, which will be used for user authorization. See Setting up a bot for more details. If not specified, the current bot's username will be assumed. The url's domain must be the same as the domain linked with the bot. See Linking your domain to the bot for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bot_username: Option<Box<str>>,
-    /// Pass `true` to request the permission for your bot to send messages to the user.
+    /// Pass `true` to request the permission for your bot to send messages to the user
     #[serde(skip_serializing_if = "Option::is_none")]
     pub request_write_access: Option<bool>,
 }
@@ -42,14 +42,14 @@ impl LoginUrl {
         self
     }
 
-    /// New text of the button in forwarded messages.
+    /// New text of the button in forwarded messages
     #[must_use]
     pub fn forward_text<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.forward_text = Some(val.into());
         self
     }
 
-    /// New text of the button in forwarded messages.
+    /// New text of the button in forwarded messages
     #[must_use]
     pub fn forward_text_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.forward_text = val.map(Into::into);
@@ -70,14 +70,14 @@ impl LoginUrl {
         self
     }
 
-    /// Pass `true` to request the permission for your bot to send messages to the user.
+    /// Pass `true` to request the permission for your bot to send messages to the user
     #[must_use]
     pub fn request_write_access<T: Into<bool>>(mut self, val: T) -> Self {
         self.request_write_access = Some(val.into());
         self
     }
 
-    /// Pass `true` to request the permission for your bot to send messages to the user.
+    /// Pass `true` to request the permission for your bot to send messages to the user
     #[must_use]
     pub fn request_write_access_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.request_write_access = val.map(Into::into);

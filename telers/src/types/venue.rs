@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#venue>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Venue {
-    /// Venue location. Can't be a live location
+    /// Venue location. Can't be a live location.
     pub location: crate::types::Location,
     /// Name of the venue
     pub title: Box<str>,
@@ -27,7 +27,7 @@ impl Venue {
     /// Creates a new `Venue`.
     ///
     /// # Arguments
-    /// * `location` - Venue location. Can't be a live location
+    /// * `location` - Venue location. Can't be a live location.
     /// * `title` - Name of the venue
     /// * `address` - Address of the venue
     ///
@@ -50,7 +50,7 @@ impl Venue {
         }
     }
 
-    /// Venue location. Can't be a live location
+    /// Venue location. Can't be a live location.
     #[must_use]
     pub fn location<T: Into<crate::types::Location>>(mut self, val: T) -> Self {
         self.location = val.into();

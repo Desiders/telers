@@ -9,13 +9,13 @@ use serde::Serialize;
 pub struct GetGameHighScores {
     /// Target user id
     pub user_id: i64,
-    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat
+    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub chat_id: Option<i64>,
-    /// Required if `inline_message_id` is not specified. Identifier of the sent message
+    /// Required if `inline_message_id` is not specified. Identifier of the sent message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message_id: Option<i64>,
-    /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
+    /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub inline_message_id: Option<Box<str>>,
 }
@@ -44,42 +44,42 @@ impl GetGameHighScores {
         self
     }
 
-    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat
+    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat.
     #[must_use]
     pub fn chat_id<T: Into<i64>>(mut self, val: T) -> Self {
         self.chat_id = Some(val.into());
         self
     }
 
-    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat
+    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat.
     #[must_use]
     pub fn chat_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.chat_id = val.map(Into::into);
         self
     }
 
-    /// Required if `inline_message_id` is not specified. Identifier of the sent message
+    /// Required if `inline_message_id` is not specified. Identifier of the sent message.
     #[must_use]
     pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
         self.message_id = Some(val.into());
         self
     }
 
-    /// Required if `inline_message_id` is not specified. Identifier of the sent message
+    /// Required if `inline_message_id` is not specified. Identifier of the sent message.
     #[must_use]
     pub fn message_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.message_id = val.map(Into::into);
         self
     }
 
-    /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
+    /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message.
     #[must_use]
     pub fn inline_message_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.inline_message_id = Some(val.into());
         self
     }
 
-    /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
+    /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message.
     #[must_use]
     pub fn inline_message_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.inline_message_id = val.map(Into::into);

@@ -6,10 +6,10 @@ use serde::{Deserialize, Serialize};
 pub struct InputPollOption {
     /// Option text, 1-100 characters
     pub text: Box<str>,
-    /// Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed
+    /// Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text_parse_mode: Option<Box<str>>,
-    /// A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of `text_parse_mode`
+    /// A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of `text_parse_mode`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text_entities: Option<Box<[crate::types::MessageEntity]>>,
     /// Media added to the poll option
@@ -41,21 +41,21 @@ impl InputPollOption {
         self
     }
 
-    /// Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed
+    /// Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed.
     #[must_use]
     pub fn text_parse_mode<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.text_parse_mode = Some(val.into());
         self
     }
 
-    /// Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed
+    /// Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed.
     #[must_use]
     pub fn text_parse_mode_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.text_parse_mode = val.map(Into::into);
         self
     }
 
-    /// A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of `text_parse_mode`
+    /// A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of `text_parse_mode`.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -72,7 +72,7 @@ impl InputPollOption {
         self
     }
 
-    /// A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of `text_parse_mode`
+    /// A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of `text_parse_mode`.
     ///
     /// # Notes
     /// Adds a single element.
@@ -89,7 +89,7 @@ impl InputPollOption {
         self
     }
 
-    /// A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of `text_parse_mode`
+    /// A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of `text_parse_mode`.
     ///
     /// # Notes
     /// Adds a single element.

@@ -33,7 +33,7 @@ pub struct InlineKeyboardButton {
     /// If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent in channel direct messages chats and on behalf of a business account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub switch_inline_query_chosen_chat: Option<crate::types::SwitchInlineQueryChosenChat>,
-    /// Description of the button that copies the specified text to the clipboard.
+    /// Description of the button that copies the specified text to the clipboard
     #[serde(skip_serializing_if = "Option::is_none")]
     pub copy_text: Option<crate::types::CopyTextButton>,
     /// Description of the game that will be launched when the user presses the button. NOTE: This type of button must always be the first button in the first row.
@@ -214,14 +214,14 @@ impl InlineKeyboardButton {
         self
     }
 
-    /// Description of the button that copies the specified text to the clipboard.
+    /// Description of the button that copies the specified text to the clipboard
     #[must_use]
     pub fn copy_text<T: Into<crate::types::CopyTextButton>>(mut self, val: T) -> Self {
         self.copy_text = Some(val.into());
         self
     }
 
-    /// Description of the button that copies the specified text to the clipboard.
+    /// Description of the button that copies the specified text to the clipboard
     #[must_use]
     pub fn copy_text_option<T: Into<crate::types::CopyTextButton>>(
         mut self,

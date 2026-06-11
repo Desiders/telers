@@ -22,7 +22,7 @@ pub struct CopyMessage {
     /// New start timestamp for the copied video in the message
     #[serde(skip_serializing_if = "Option::is_none")]
     pub video_start_timestamp: Option<i64>,
-    /// New caption for media, 0-1024 characters after entities parsing. If not specified, the original caption is kept
+    /// New caption for media, 0-1024 characters after entities parsing. If not specified, the original caption is kept.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub caption: Option<Box<str>>,
     /// Mode for parsing entities in the new caption. See formatting options for more details.
@@ -52,7 +52,7 @@ pub struct CopyMessage {
     /// Description of the message to reply to
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_parameters: Option<crate::types::ReplyParameters>,
-    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
+    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<crate::types::ReplyMarkup>,
 }
@@ -160,14 +160,14 @@ impl CopyMessage {
         self
     }
 
-    /// New caption for media, 0-1024 characters after entities parsing. If not specified, the original caption is kept
+    /// New caption for media, 0-1024 characters after entities parsing. If not specified, the original caption is kept.
     #[must_use]
     pub fn caption<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.caption = Some(val.into());
         self
     }
 
-    /// New caption for media, 0-1024 characters after entities parsing. If not specified, the original caption is kept
+    /// New caption for media, 0-1024 characters after entities parsing. If not specified, the original caption is kept.
     #[must_use]
     pub fn caption_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.caption = val.map(Into::into);
@@ -351,14 +351,14 @@ impl CopyMessage {
         self
     }
 
-    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
+    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user.
     #[must_use]
     pub fn reply_markup<T: Into<crate::types::ReplyMarkup>>(mut self, val: T) -> Self {
         self.reply_markup = Some(val.into());
         self
     }
 
-    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
+    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user.
     #[must_use]
     pub fn reply_markup_option<T: Into<crate::types::ReplyMarkup>>(
         mut self,

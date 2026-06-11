@@ -11,7 +11,7 @@ pub struct ChatMemberRestricted {
     pub user: Box<crate::types::User>,
     /// `true`, if the user is a member of the chat at the moment of the request
     pub is_member: bool,
-    /// `true`, if the user is allowed to send text messages, contacts, giveaways, giveaway winners, invoices, locations and venues
+    /// `true`, if the user is allowed to send text messages, rich messages, contacts, giveaways, giveaway winners, invoices, locations and venues
     pub can_send_messages: bool,
     /// `true`, if the user is allowed to send audios
     pub can_send_audios: bool,
@@ -43,7 +43,7 @@ pub struct ChatMemberRestricted {
     pub can_pin_messages: bool,
     /// `true`, if the user is allowed to create forum topics
     pub can_manage_topics: bool,
-    /// Date when restrictions will be lifted for this user; Unix time. If 0, then the user is restricted forever
+    /// Date when restrictions will be lifted for this user; Unix time. If 0, then the user is restricted forever.
     pub until_date: i64,
 }
 impl ChatMemberRestricted {
@@ -52,7 +52,7 @@ impl ChatMemberRestricted {
     /// # Arguments
     /// * `user` - Information about the user
     /// * `is_member` - `true`, if the user is a member of the chat at the moment of the request
-    /// * `can_send_messages` - `true`, if the user is allowed to send text messages, contacts, giveaways, giveaway winners, invoices, locations and venues
+    /// * `can_send_messages` - `true`, if the user is allowed to send text messages, rich messages, contacts, giveaways, giveaway winners, invoices, locations and venues
     /// * `can_send_audios` - `true`, if the user is allowed to send audios
     /// * `can_send_documents` - `true`, if the user is allowed to send documents
     /// * `can_send_photos` - `true`, if the user is allowed to send photos
@@ -68,7 +68,7 @@ impl ChatMemberRestricted {
     /// * `can_invite_users` - `true`, if the user is allowed to invite new users to the chat
     /// * `can_pin_messages` - `true`, if the user is allowed to pin messages
     /// * `can_manage_topics` - `true`, if the user is allowed to create forum topics
-    /// * `until_date` - Date when restrictions will be lifted for this user; Unix time. If 0, then the user is restricted forever
+    /// * `until_date` - Date when restrictions will be lifted for this user; Unix time. If 0, then the user is restricted forever.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -166,7 +166,7 @@ impl ChatMemberRestricted {
         self
     }
 
-    /// `true`, if the user is allowed to send text messages, contacts, giveaways, giveaway winners, invoices, locations and venues
+    /// `true`, if the user is allowed to send text messages, rich messages, contacts, giveaways, giveaway winners, invoices, locations and venues
     #[must_use]
     pub fn can_send_messages<T: Into<bool>>(mut self, val: T) -> Self {
         self.can_send_messages = val.into();
@@ -278,7 +278,7 @@ impl ChatMemberRestricted {
         self
     }
 
-    /// Date when restrictions will be lifted for this user; Unix time. If 0, then the user is restricted forever
+    /// Date when restrictions will be lifted for this user; Unix time. If 0, then the user is restricted forever.
     #[must_use]
     pub fn until_date<T: Into<i64>>(mut self, val: T) -> Self {
         self.until_date = val.into();

@@ -7,10 +7,10 @@ use serde::Serialize;
 /// - `bool`
 #[derive(Clone, Debug, Serialize)]
 pub struct SetChatMenuButton {
-    /// Unique identifier for the target private chat. If not specified, default bot's menu button will be changed
+    /// Unique identifier for the target private chat. If not specified, the bot's default menu button will be changed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub chat_id: Option<i64>,
-    /// A JSON-serialized object for the bot's new menu button. Defaults to [`crate::types::MenuButtonDefault`]
+    /// A JSON-serialized object for the bot's new menu button. Defaults to [`crate::types::MenuButtonDefault`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub menu_button: Option<crate::types::MenuButton>,
 }
@@ -27,28 +27,28 @@ impl SetChatMenuButton {
         }
     }
 
-    /// Unique identifier for the target private chat. If not specified, default bot's menu button will be changed
+    /// Unique identifier for the target private chat. If not specified, the bot's default menu button will be changed.
     #[must_use]
     pub fn chat_id<T: Into<i64>>(mut self, val: T) -> Self {
         self.chat_id = Some(val.into());
         self
     }
 
-    /// Unique identifier for the target private chat. If not specified, default bot's menu button will be changed
+    /// Unique identifier for the target private chat. If not specified, the bot's default menu button will be changed.
     #[must_use]
     pub fn chat_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.chat_id = val.map(Into::into);
         self
     }
 
-    /// A JSON-serialized object for the bot's new menu button. Defaults to [`crate::types::MenuButtonDefault`]
+    /// A JSON-serialized object for the bot's new menu button. Defaults to [`crate::types::MenuButtonDefault`].
     #[must_use]
     pub fn menu_button<T: Into<crate::types::MenuButton>>(mut self, val: T) -> Self {
         self.menu_button = Some(val.into());
         self
     }
 
-    /// A JSON-serialized object for the bot's new menu button. Defaults to [`crate::types::MenuButtonDefault`]
+    /// A JSON-serialized object for the bot's new menu button. Defaults to [`crate::types::MenuButtonDefault`].
     #[must_use]
     pub fn menu_button_option<T: Into<crate::types::MenuButton>>(mut self, val: Option<T>) -> Self {
         self.menu_button = val.map(Into::into);

@@ -8,7 +8,7 @@ use serde::Serialize;
 /// - `bool`
 #[derive(Clone, Debug, Serialize)]
 pub struct SetWebhook {
-    /// HTTPS URL to send updates to. Use an empty string to remove webhook integration
+    /// HTTPS URL to send updates to. Use an empty string to remove webhook integration.
     pub url: Box<str>,
     /// Upload your public key certificate so that the root certificate in use can be checked. See our self-signed guide for details.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -33,7 +33,7 @@ impl SetWebhook {
     /// Creates a new `SetWebhook`.
     ///
     /// # Arguments
-    /// * `url` - HTTPS URL to send updates to. Use an empty string to remove webhook integration
+    /// * `url` - HTTPS URL to send updates to. Use an empty string to remove webhook integration.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -50,7 +50,7 @@ impl SetWebhook {
         }
     }
 
-    /// HTTPS URL to send updates to. Use an empty string to remove webhook integration
+    /// HTTPS URL to send updates to. Use an empty string to remove webhook integration.
     #[must_use]
     pub fn url<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.url = val.into();

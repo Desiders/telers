@@ -14,7 +14,7 @@ pub struct StopPoll {
     pub chat_id: crate::types::ChatIdKind,
     /// Identifier of the original message with the poll
     pub message_id: i64,
-    /// A JSON-serialized object for a new message inline keyboard.
+    /// A JSON-serialized object for a new message inline keyboard
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
 }
@@ -68,14 +68,14 @@ impl StopPoll {
         self
     }
 
-    /// A JSON-serialized object for a new message inline keyboard.
+    /// A JSON-serialized object for a new message inline keyboard
     #[must_use]
     pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(mut self, val: T) -> Self {
         self.reply_markup = Some(val.into());
         self
     }
 
-    /// A JSON-serialized object for a new message inline keyboard.
+    /// A JSON-serialized object for a new message inline keyboard
     #[must_use]
     pub fn reply_markup_option<T: Into<crate::types::InlineKeyboardMarkup>>(
         mut self,

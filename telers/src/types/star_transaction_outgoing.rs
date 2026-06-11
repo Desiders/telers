@@ -15,7 +15,7 @@ pub struct StarTransactionOutgoing {
     pub nanostar_amount: Option<u32>,
     /// Date the transaction was created in Unix time
     pub date: i64,
-    /// Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions
+    /// Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions.
     pub receiver: crate::types::TransactionPartner,
 }
 impl StarTransactionOutgoing {
@@ -25,7 +25,7 @@ impl StarTransactionOutgoing {
     /// * `id` - Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`crate::types::SuccessfulPayment`].`telegram_payment_charge_id` for successful incoming payments from users.
     /// * `amount` - Integer amount of Telegram Stars transferred by the transaction
     /// * `date` - Date the transaction was created in Unix time
-    /// * `receiver` - Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions
+    /// * `receiver` - Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -85,7 +85,7 @@ impl StarTransactionOutgoing {
         self
     }
 
-    /// Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions
+    /// Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions.
     #[must_use]
     pub fn receiver<T: Into<crate::types::TransactionPartner>>(mut self, val: T) -> Self {
         self.receiver = val.into();

@@ -90,7 +90,7 @@ impl OwnedGift {
 
     /// Helper method for field `next_transfer_date`.
     ///
-    /// Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now
+    /// Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now.
     #[must_use]
     pub fn next_transfer_date(&self) -> Option<i64> {
         match self {
@@ -169,7 +169,7 @@ impl OwnedGift {
 
     /// Helper method for field `unique_gift_number`.
     ///
-    /// Unique number reserved for this gift when upgraded. See the number field in [`crate::types::UniqueGift`]
+    /// Unique number reserved for this gift when upgraded. See the number field in [`crate::types::UniqueGift`].
     #[must_use]
     pub fn unique_gift_number(&self) -> Option<i64> {
         match self {
@@ -292,6 +292,13 @@ impl OwnedGift {
     pub fn supports_inline_queries(&self) -> Option<bool> {
         self.sender_user()
             .and_then(|inner| inner.supports_inline_queries)
+    }
+
+    /// Helper method for nested field `supports_join_request_queries`.
+    #[must_use]
+    pub fn supports_join_request_queries(&self) -> Option<bool> {
+        self.sender_user()
+            .and_then(|inner| inner.supports_join_request_queries)
     }
 
     /// Helper method for nested field `username`.

@@ -15,7 +15,7 @@ pub struct StarTransactionIncoming {
     pub nanostar_amount: Option<u32>,
     /// Date the transaction was created in Unix time
     pub date: i64,
-    /// Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions
+    /// Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions.
     pub source: crate::types::TransactionPartner,
 }
 impl StarTransactionIncoming {
@@ -25,7 +25,7 @@ impl StarTransactionIncoming {
     /// * `id` - Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`crate::types::SuccessfulPayment`].`telegram_payment_charge_id` for successful incoming payments from users.
     /// * `amount` - Integer amount of Telegram Stars transferred by the transaction
     /// * `date` - Date the transaction was created in Unix time
-    /// * `source` - Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions
+    /// * `source` - Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -85,7 +85,7 @@ impl StarTransactionIncoming {
         self
     }
 
-    /// Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions
+    /// Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions.
     #[must_use]
     pub fn source<T: Into<crate::types::TransactionPartner>>(mut self, val: T) -> Self {
         self.source = val.into();

@@ -18,7 +18,7 @@ pub struct CreateChatInviteLink {
     /// The maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
     #[serde(skip_serializing_if = "Option::is_none")]
     pub member_limit: Option<u32>,
-    /// `true`, if users joining the chat via the link need to be approved by chat administrators. If `true`, `member_limit` can't be specified
+    /// `true`, if users joining the chat via the link need to be approved by chat administrators. If `true`, `member_limit` can't be specified.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub creates_join_request: Option<bool>,
 }
@@ -90,14 +90,14 @@ impl CreateChatInviteLink {
         self
     }
 
-    /// `true`, if users joining the chat via the link need to be approved by chat administrators. If `true`, `member_limit` can't be specified
+    /// `true`, if users joining the chat via the link need to be approved by chat administrators. If `true`, `member_limit` can't be specified.
     #[must_use]
     pub fn creates_join_request<T: Into<bool>>(mut self, val: T) -> Self {
         self.creates_join_request = Some(val.into());
         self
     }
 
-    /// `true`, if users joining the chat via the link need to be approved by chat administrators. If `true`, `member_limit` can't be specified
+    /// `true`, if users joining the chat via the link need to be approved by chat administrators. If `true`, `member_limit` can't be specified.
     #[must_use]
     pub fn creates_join_request_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.creates_join_request = val.map(Into::into);

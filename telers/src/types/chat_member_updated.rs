@@ -14,7 +14,7 @@ pub struct ChatMemberUpdated {
     pub old_chat_member: crate::types::ChatMember,
     /// New information about the chat member
     pub new_chat_member: crate::types::ChatMember,
-    /// Chat invite link, which was used by the user to join the chat; for joining by invite link events only.
+    /// Chat invite link, which was used by the user to join the chat; for joining by invite link events only
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invite_link: Option<crate::types::ChatInviteLink>,
     /// `true`, if the user joined the chat after sending a direct join request without using an invite link and being approved by an administrator
@@ -97,14 +97,14 @@ impl ChatMemberUpdated {
         self
     }
 
-    /// Chat invite link, which was used by the user to join the chat; for joining by invite link events only.
+    /// Chat invite link, which was used by the user to join the chat; for joining by invite link events only
     #[must_use]
     pub fn invite_link<T: Into<crate::types::ChatInviteLink>>(mut self, val: T) -> Self {
         self.invite_link = Some(val.into());
         self
     }
 
-    /// Chat invite link, which was used by the user to join the chat; for joining by invite link events only.
+    /// Chat invite link, which was used by the user to join the chat; for joining by invite link events only
     #[must_use]
     pub fn invite_link_option<T: Into<crate::types::ChatInviteLink>>(
         mut self,

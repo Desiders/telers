@@ -13,7 +13,7 @@ pub enum MaybeInaccessibleMessage {
 impl MaybeInaccessibleMessage {
     /// Helper method for field `animation`.
     ///
-    /// Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set
+    /// Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set.
     #[must_use]
     pub fn animation(&self) -> Option<&crate::types::Animation> {
         match self {
@@ -380,7 +380,7 @@ impl MaybeInaccessibleMessage {
 
     /// Helper method for field `from`.
     ///
-    /// Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
+    /// Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats.
     #[must_use]
     pub fn from(&self) -> Option<&crate::types::User> {
         match self {
@@ -633,7 +633,7 @@ impl MaybeInaccessibleMessage {
 
     /// Helper method for field `live_photo`.
     ///
-    /// Message is a live photo, information about the live photo. For backward compatibility, when this field is set, the photo field will also be set
+    /// Message is a live photo, information about the live photo. For backward compatibility, when this field is set, the photo field will also be set.
     #[must_use]
     pub fn live_photo(&self) -> Option<&crate::types::LivePhoto> {
         match self {
@@ -692,7 +692,7 @@ impl MaybeInaccessibleMessage {
     ///
     /// # Variants
     /// - `InaccessibleMessage`. Unique message identifier inside the chat
-    /// - `Message`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
+    /// - `Message`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     #[must_use]
     pub fn message_id(&self) -> i64 {
         match self {
@@ -954,6 +954,17 @@ impl MaybeInaccessibleMessage {
         }
     }
 
+    /// Helper method for field `rich_message`.
+    ///
+    /// Message is a rich formatted message
+    #[must_use]
+    pub fn rich_message(&self) -> Option<&crate::types::RichMessage> {
+        match self {
+            Self::Message(val) => crate::types::Message::rich_message(val),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
     /// Helper method for field `sender_boost_count`.
     ///
     /// If the sender of the message boosted the chat, the number of boosts added by the user
@@ -1156,7 +1167,7 @@ impl MaybeInaccessibleMessage {
 
     /// Helper method for field `venue`.
     ///
-    /// Message is a venue, information about the venue. For backward compatibility, when this field is set, the location field will also be set
+    /// Message is a venue, information about the venue. For backward compatibility, when this field is set, the location field will also be set.
     #[must_use]
     pub fn venue(&self) -> Option<&crate::types::Venue> {
         match self {
@@ -1337,6 +1348,17 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::direct_message_price_changed(val)
                 .map(|inner| inner.are_direct_messages_enabled),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for nested field `blocks`.
+    #[must_use]
+    pub fn blocks(&self) -> Option<&[crate::types::RichBlock]> {
+        match self {
+            Self::Message(val) => {
+                crate::types::Message::rich_message(val).map(|inner| inner.blocks.as_ref())
+            }
             Self::InaccessibleMessage(_) => None,
         }
     }
@@ -1744,6 +1766,17 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => {
                 crate::types::Message::successful_payment(val).and_then(|inner| inner.is_recurring)
+            }
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for nested field `is_rtl`.
+    #[must_use]
+    pub fn is_rtl(&self) -> Option<bool> {
+        match self {
+            Self::Message(val) => {
+                crate::types::Message::rich_message(val).and_then(|inner| inner.is_rtl)
             }
             Self::InaccessibleMessage(_) => None,
         }

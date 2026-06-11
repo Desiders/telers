@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#chatpermissions>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ChatPermissions {
-    /// `true`, if the user is allowed to send text messages, contacts, giveaways, giveaway winners, invoices, locations and venues
+    /// `true`, if the user is allowed to send text messages, rich messages, contacts, giveaways, giveaway winners, invoices, locations and venues
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_send_messages: Option<bool>,
     /// `true`, if the user is allowed to send audios
@@ -40,16 +40,16 @@ pub struct ChatPermissions {
     /// `true`, if the user is allowed to edit their own tag. If omitted, defaults to the value of `can_pin_messages`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_edit_tag: Option<bool>,
-    /// `true`, if the user is allowed to change the chat title, photo and other settings. Ignored in public supergroups
+    /// `true`, if the user is allowed to change the chat title, photo and other settings. Ignored in public supergroups.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_change_info: Option<bool>,
     /// `true`, if the user is allowed to invite new users to the chat
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_invite_users: Option<bool>,
-    /// `true`, if the user is allowed to pin messages. Ignored in public supergroups
+    /// `true`, if the user is allowed to pin messages. Ignored in public supergroups.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_pin_messages: Option<bool>,
-    /// `true`, if the user is allowed to create forum topics. If omitted defaults to the value of `can_pin_messages`
+    /// `true`, if the user is allowed to create forum topics. If omitted defaults to the value of `can_pin_messages`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_topics: Option<bool>,
 }
@@ -80,14 +80,14 @@ impl ChatPermissions {
         }
     }
 
-    /// `true`, if the user is allowed to send text messages, contacts, giveaways, giveaway winners, invoices, locations and venues
+    /// `true`, if the user is allowed to send text messages, rich messages, contacts, giveaways, giveaway winners, invoices, locations and venues
     #[must_use]
     pub fn can_send_messages<T: Into<bool>>(mut self, val: T) -> Self {
         self.can_send_messages = Some(val.into());
         self
     }
 
-    /// `true`, if the user is allowed to send text messages, contacts, giveaways, giveaway winners, invoices, locations and venues
+    /// `true`, if the user is allowed to send text messages, rich messages, contacts, giveaways, giveaway winners, invoices, locations and venues
     #[must_use]
     pub fn can_send_messages_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.can_send_messages = val.map(Into::into);
@@ -248,14 +248,14 @@ impl ChatPermissions {
         self
     }
 
-    /// `true`, if the user is allowed to change the chat title, photo and other settings. Ignored in public supergroups
+    /// `true`, if the user is allowed to change the chat title, photo and other settings. Ignored in public supergroups.
     #[must_use]
     pub fn can_change_info<T: Into<bool>>(mut self, val: T) -> Self {
         self.can_change_info = Some(val.into());
         self
     }
 
-    /// `true`, if the user is allowed to change the chat title, photo and other settings. Ignored in public supergroups
+    /// `true`, if the user is allowed to change the chat title, photo and other settings. Ignored in public supergroups.
     #[must_use]
     pub fn can_change_info_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.can_change_info = val.map(Into::into);
@@ -276,28 +276,28 @@ impl ChatPermissions {
         self
     }
 
-    /// `true`, if the user is allowed to pin messages. Ignored in public supergroups
+    /// `true`, if the user is allowed to pin messages. Ignored in public supergroups.
     #[must_use]
     pub fn can_pin_messages<T: Into<bool>>(mut self, val: T) -> Self {
         self.can_pin_messages = Some(val.into());
         self
     }
 
-    /// `true`, if the user is allowed to pin messages. Ignored in public supergroups
+    /// `true`, if the user is allowed to pin messages. Ignored in public supergroups.
     #[must_use]
     pub fn can_pin_messages_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.can_pin_messages = val.map(Into::into);
         self
     }
 
-    /// `true`, if the user is allowed to create forum topics. If omitted defaults to the value of `can_pin_messages`
+    /// `true`, if the user is allowed to create forum topics. If omitted defaults to the value of `can_pin_messages`.
     #[must_use]
     pub fn can_manage_topics<T: Into<bool>>(mut self, val: T) -> Self {
         self.can_manage_topics = Some(val.into());
         self
     }
 
-    /// `true`, if the user is allowed to create forum topics. If omitted defaults to the value of `can_pin_messages`
+    /// `true`, if the user is allowed to create forum topics. If omitted defaults to the value of `can_pin_messages`.
     #[must_use]
     pub fn can_manage_topics_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.can_manage_topics = val.map(Into::into);

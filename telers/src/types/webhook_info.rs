@@ -25,7 +25,7 @@ pub struct WebhookInfo {
     /// The maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_connections: Option<i64>,
-    /// A list of update types the bot is subscribed to. Defaults to all update types except `chat_member`
+    /// A list of update types the bot is subscribed to. Defaults to all update types except `chat_member`, `message_reaction`, and `message_reaction_count`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allowed_updates: Option<Box<[Box<str>]>>,
 }
@@ -149,7 +149,7 @@ impl WebhookInfo {
         self
     }
 
-    /// A list of update types the bot is subscribed to. Defaults to all update types except `chat_member`
+    /// A list of update types the bot is subscribed to. Defaults to all update types except `chat_member`, `message_reaction`, and `message_reaction_count`.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -166,7 +166,7 @@ impl WebhookInfo {
         self
     }
 
-    /// A list of update types the bot is subscribed to. Defaults to all update types except `chat_member`
+    /// A list of update types the bot is subscribed to. Defaults to all update types except `chat_member`, `message_reaction`, and `message_reaction_count`.
     ///
     /// # Notes
     /// Adds a single element.
@@ -183,7 +183,7 @@ impl WebhookInfo {
         self
     }
 
-    /// A list of update types the bot is subscribed to. Defaults to all update types except `chat_member`
+    /// A list of update types the bot is subscribed to. Defaults to all update types except `chat_member`, `message_reaction`, and `message_reaction_count`.
     ///
     /// # Notes
     /// Adds a single element.

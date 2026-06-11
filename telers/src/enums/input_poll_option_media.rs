@@ -1,7 +1,9 @@
 use crate::types::InputPollOptionMedia;
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents the content of a poll option to be sent. It should be one of
 /// - [`crate::types::InputMediaAnimation`]
+/// - [`crate::types::InputMediaLink`]
 /// - [`crate::types::InputMediaLivePhoto`]
 /// - [`crate::types::InputMediaLocation`]
 /// - [`crate::types::InputMediaPhoto`]
@@ -10,10 +12,25 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::InputMediaVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputpolloptionmedia>
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum InputPollOptionMediaType {
     #[strum(serialize = "animation")]
     Animation,
+    #[strum(serialize = "link")]
+    Link,
     #[strum(serialize = "live_photo")]
     LivePhoto,
     #[strum(serialize = "location")]
@@ -29,9 +46,10 @@ pub enum InputPollOptionMediaType {
 }
 impl InputPollOptionMediaType {
     #[must_use]
-    pub const fn all() -> [InputPollOptionMediaType; 7usize] {
+    pub const fn all() -> [InputPollOptionMediaType; 8usize] {
         [
             InputPollOptionMediaType::Animation,
+            InputPollOptionMediaType::Link,
             InputPollOptionMediaType::LivePhoto,
             InputPollOptionMediaType::Location,
             InputPollOptionMediaType::Photo,
@@ -60,6 +78,7 @@ impl<'a> From<&'a InputPollOptionMedia> for InputPollOptionMediaType {
     fn from(val: &'a InputPollOptionMedia) -> Self {
         match val {
             InputPollOptionMedia::Animation(_) => InputPollOptionMediaType::Animation,
+            InputPollOptionMedia::Link(_) => InputPollOptionMediaType::Link,
             InputPollOptionMedia::LivePhoto(_) => InputPollOptionMediaType::LivePhoto,
             InputPollOptionMedia::Location(_) => InputPollOptionMediaType::Location,
             InputPollOptionMedia::Photo(_) => InputPollOptionMediaType::Photo,

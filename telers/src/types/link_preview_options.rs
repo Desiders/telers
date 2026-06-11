@@ -7,7 +7,7 @@ pub struct LinkPreviewOptions {
     /// `true`, if the link preview is disabled
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_disabled: Option<bool>,
-    /// URL to use for the link preview. If empty, then the first URL found in the message text will be used
+    /// URL to use for the link preview. If empty, then the first URL found in the message text will be used.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<Box<str>>,
     /// `true`, if the media in the link preview is supposed to be shrunk; ignored if the URL isn't explicitly specified or media size change isn't supported for the preview
@@ -50,14 +50,14 @@ impl LinkPreviewOptions {
         self
     }
 
-    /// URL to use for the link preview. If empty, then the first URL found in the message text will be used
+    /// URL to use for the link preview. If empty, then the first URL found in the message text will be used.
     #[must_use]
     pub fn url<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.url = Some(val.into());
         self
     }
 
-    /// URL to use for the link preview. If empty, then the first URL found in the message text will be used
+    /// URL to use for the link preview. If empty, then the first URL found in the message text will be used.
     #[must_use]
     pub fn url_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.url = val.map(Into::into);

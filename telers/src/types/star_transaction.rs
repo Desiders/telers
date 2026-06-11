@@ -58,7 +58,7 @@ impl StarTransaction {
 
     /// Helper method for field `receiver`.
     ///
-    /// Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions
+    /// Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions.
     #[must_use]
     pub fn receiver(&self) -> Option<&crate::types::TransactionPartner> {
         match self {
@@ -69,7 +69,7 @@ impl StarTransaction {
 
     /// Helper method for field `source`.
     ///
-    /// Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions
+    /// Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions.
     #[must_use]
     pub fn source(&self) -> Option<&crate::types::TransactionPartner> {
         match self {

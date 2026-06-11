@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#switchinlinequerychosenchat>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SwitchInlineQueryChosenChat {
-    /// The default inline query to be inserted in the input field. If left empty, only the bot's username will be inserted
+    /// The default inline query to be inserted in the input field. If left empty, only the bot's username will be inserted.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub query: Option<Box<str>>,
     /// `true`, if private chats with users can be chosen
@@ -36,14 +36,14 @@ impl SwitchInlineQueryChosenChat {
         }
     }
 
-    /// The default inline query to be inserted in the input field. If left empty, only the bot's username will be inserted
+    /// The default inline query to be inserted in the input field. If left empty, only the bot's username will be inserted.
     #[must_use]
     pub fn query<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.query = Some(val.into());
         self
     }
 
-    /// The default inline query to be inserted in the input field. If left empty, only the bot's username will be inserted
+    /// The default inline query to be inserted in the input field. If left empty, only the bot's username will be inserted.
     #[must_use]
     pub fn query_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.query = val.map(Into::into);

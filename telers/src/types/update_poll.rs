@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-/// New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot
+/// New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot.
 /// # Notes
 /// This object represents an update from original update field `poll`.
 /// # Documentation
@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 pub struct UpdatePoll {
     /// The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
     pub update_id: i64,
-    /// New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot
+    /// New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot.
     pub poll: Box<crate::types::Poll>,
 }
 impl UpdatePoll {
@@ -16,7 +16,7 @@ impl UpdatePoll {
     ///
     /// # Arguments
     /// * `update_id` - The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// * `poll` - New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot
+    /// * `poll` - New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot.
     #[must_use]
     pub fn new<T0: Into<i64>, T1: Into<crate::types::Poll>>(update_id: T0, poll: T1) -> Self {
         Self {
@@ -32,7 +32,7 @@ impl UpdatePoll {
         self
     }
 
-    /// New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot
+    /// New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot.
     #[must_use]
     pub fn poll<T: Into<crate::types::Poll>>(mut self, val: T) -> Self {
         self.poll = Box::new(val.into());

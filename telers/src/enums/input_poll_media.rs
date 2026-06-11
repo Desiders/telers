@@ -1,4 +1,5 @@
 use crate::types::InputPollMedia;
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents the content of a poll description or a quiz explanation to be sent. It should be one of
 /// - [`crate::types::InputMediaAnimation`]
@@ -11,7 +12,20 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::InputMediaVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputpollmedia>
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum InputPollMediaType {
     #[strum(serialize = "animation")]
     Animation,

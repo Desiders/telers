@@ -223,6 +223,19 @@ impl ChatFullInfo {
         }
     }
 
+    /// Helper method for field `guard_bot`.
+    ///
+    /// The bot that processes join request queries in the chat. The field is only available to chat administrators.
+    #[must_use]
+    pub fn guard_bot(&self) -> Option<&crate::types::User> {
+        match self {
+            Self::Private(val) => val.guard_bot.as_deref(),
+            Self::Group(val) => val.guard_bot.as_deref(),
+            Self::Supergroup(val) => val.guard_bot.as_deref(),
+            Self::Channel(val) => val.guard_bot.as_deref(),
+        }
+    }
+
     /// Helper method for field `has_aggressive_anti_spam_enabled`.
     ///
     /// `true`, if aggressive anti-spam checks are enabled in the supergroup. The field is only available to chat administrators.
@@ -428,7 +441,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `paid_message_star_count`.
     ///
-    /// The number of Telegram Stars a general user have to pay to send a message to the chat
+    /// The number of Telegram Stars a general user has to pay to send a message to the chat
     #[must_use]
     pub fn paid_message_star_count(&self) -> Option<i64> {
         match self {
@@ -607,6 +620,13 @@ impl ChatFullInfo {
         }
     }
 
+    /// Helper method for nested field `added_to_attachment_menu`.
+    #[must_use]
+    pub fn added_to_attachment_menu(&self) -> Option<bool> {
+        self.guard_bot()
+            .and_then(|inner| inner.added_to_attachment_menu)
+    }
+
     /// Helper method for nested field `address`.
     #[must_use]
     pub fn address(&self) -> Option<&str> {
@@ -618,6 +638,13 @@ impl ChatFullInfo {
             Self::Supergroup(val) => val.location.as_ref().map(|inner| inner.address.as_ref()),
             _ => None,
         }
+    }
+
+    /// Helper method for nested field `allows_users_to_create_topics`.
+    #[must_use]
+    pub fn allows_users_to_create_topics(&self) -> Option<bool> {
+        self.guard_bot()
+            .and_then(|inner| inner.allows_users_to_create_topics)
     }
 
     /// Helper method for nested field `animation`.
@@ -690,6 +717,13 @@ impl ChatFullInfo {
         }
     }
 
+    /// Helper method for nested field `can_connect_to_business`.
+    #[must_use]
+    pub fn can_connect_to_business(&self) -> Option<bool> {
+        self.guard_bot()
+            .and_then(|inner| inner.can_connect_to_business)
+    }
+
     /// Helper method for nested field `can_edit_tag`.
     #[must_use]
     pub fn can_edit_tag(&self) -> Option<bool> {
@@ -712,6 +746,18 @@ impl ChatFullInfo {
                 .and_then(|inner| inner.can_invite_users),
             _ => None,
         }
+    }
+
+    /// Helper method for nested field `can_join_groups`.
+    #[must_use]
+    pub fn can_join_groups(&self) -> Option<bool> {
+        self.guard_bot().and_then(|inner| inner.can_join_groups)
+    }
+
+    /// Helper method for nested field `can_manage_bots`.
+    #[must_use]
+    pub fn can_manage_bots(&self) -> Option<bool> {
+        self.guard_bot().and_then(|inner| inner.can_manage_bots)
     }
 
     /// Helper method for nested field `can_manage_topics`.
@@ -748,6 +794,13 @@ impl ChatFullInfo {
                 .and_then(|inner| inner.can_react_to_messages),
             _ => None,
         }
+    }
+
+    /// Helper method for nested field `can_read_all_group_messages`.
+    #[must_use]
+    pub fn can_read_all_group_messages(&self) -> Option<bool> {
+        self.guard_bot()
+            .and_then(|inner| inner.can_read_all_group_messages)
     }
 
     /// Helper method for nested field `can_send_audios`.
@@ -1250,11 +1303,23 @@ impl ChatFullInfo {
             .and_then(crate::types::Message::guest_query_id)
     }
 
+    /// Helper method for nested field `has_main_web_app`.
+    #[must_use]
+    pub fn has_main_web_app(&self) -> Option<bool> {
+        self.guard_bot().and_then(|inner| inner.has_main_web_app)
+    }
+
     /// Helper method for nested field `has_media_spoiler`.
     #[must_use]
     pub fn has_media_spoiler(&self) -> Option<bool> {
         self.pinned_message()
             .and_then(crate::types::Message::has_media_spoiler)
+    }
+
+    /// Helper method for nested field `has_topics_enabled`.
+    #[must_use]
+    pub fn has_topics_enabled(&self) -> Option<bool> {
+        self.guard_bot().and_then(|inner| inner.has_topics_enabled)
     }
 
     /// Helper method for nested field `invoice`.
@@ -1271,6 +1336,12 @@ impl ChatFullInfo {
             .and_then(crate::types::Message::is_automatic_forward)
     }
 
+    /// Helper method for nested field `is_bot`.
+    #[must_use]
+    pub fn is_bot(&self) -> Option<bool> {
+        self.guard_bot().map(|inner| inner.is_bot)
+    }
+
     /// Helper method for nested field `is_from_offline`.
     #[must_use]
     pub fn is_from_offline(&self) -> Option<bool> {
@@ -1285,11 +1356,24 @@ impl ChatFullInfo {
             .and_then(crate::types::Message::is_paid_post)
     }
 
+    /// Helper method for nested field `is_premium`.
+    #[must_use]
+    pub fn is_premium(&self) -> Option<bool> {
+        self.guard_bot().and_then(|inner| inner.is_premium)
+    }
+
     /// Helper method for nested field `is_topic_message`.
     #[must_use]
     pub fn is_topic_message(&self) -> Option<bool> {
         self.pinned_message()
             .and_then(crate::types::Message::is_topic_message)
+    }
+
+    /// Helper method for nested field `language_code`.
+    #[must_use]
+    pub fn language_code(&self) -> Option<&str> {
+        self.guard_bot()
+            .and_then(|inner| inner.language_code.as_deref())
     }
 
     /// Helper method for nested field `left_chat_member`.
@@ -1610,6 +1694,13 @@ impl ChatFullInfo {
             .and_then(crate::types::Message::reply_to_story)
     }
 
+    /// Helper method for nested field `rich_message`.
+    #[must_use]
+    pub fn rich_message(&self) -> Option<&crate::types::RichMessage> {
+        self.pinned_message()
+            .and_then(crate::types::Message::rich_message)
+    }
+
     /// Helper method for nested field `sender_boost_count`.
     #[must_use]
     pub fn sender_boost_count(&self) -> Option<i64> {
@@ -1720,6 +1811,27 @@ impl ChatFullInfo {
     pub fn supergroup_chat_created(&self) -> Option<bool> {
         self.pinned_message()
             .and_then(crate::types::Message::supergroup_chat_created)
+    }
+
+    /// Helper method for nested field `supports_guest_queries`.
+    #[must_use]
+    pub fn supports_guest_queries(&self) -> Option<bool> {
+        self.guard_bot()
+            .and_then(|inner| inner.supports_guest_queries)
+    }
+
+    /// Helper method for nested field `supports_inline_queries`.
+    #[must_use]
+    pub fn supports_inline_queries(&self) -> Option<bool> {
+        self.guard_bot()
+            .and_then(|inner| inner.supports_inline_queries)
+    }
+
+    /// Helper method for nested field `supports_join_request_queries`.
+    #[must_use]
+    pub fn supports_join_request_queries(&self) -> Option<bool> {
+        self.guard_bot()
+            .and_then(|inner| inner.supports_join_request_queries)
     }
 
     /// Helper method for nested field `symbol_custom_emoji_id`.

@@ -50,7 +50,7 @@ pub enum MessageEntity {
 impl MessageEntity {
     /// Helper method for field `custom_emoji_id`.
     ///
-    /// For `custom_emoji` only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker
+    /// For `custom_emoji` only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker.
     #[must_use]
     pub fn custom_emoji_id(&self) -> Option<&str> {
         match self {
@@ -359,6 +359,18 @@ impl MessageEntity {
             Self::TextMention(val) => {
                 let inner = val.user.as_ref();
                 inner.supports_inline_queries
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `supports_join_request_queries`.
+    #[must_use]
+    pub fn supports_join_request_queries(&self) -> Option<bool> {
+        match self {
+            Self::TextMention(val) => {
+                let inner = val.user.as_ref();
+                inner.supports_join_request_queries
             }
             _ => None,
         }

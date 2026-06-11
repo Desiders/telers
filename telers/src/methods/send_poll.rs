@@ -17,10 +17,10 @@ pub struct SendPoll {
     pub message_thread_id: Option<i64>,
     /// Poll question, 1-300 characters
     pub question: Box<str>,
-    /// Mode for parsing entities in the question. See formatting options for more details. Currently, only custom emoji entities are allowed
+    /// Mode for parsing entities in the question. See formatting options for more details. Currently, only custom emoji entities are allowed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub question_parse_mode: Option<Box<str>>,
-    /// A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of `question_parse_mode`
+    /// A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of `question_parse_mode`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub question_entities: Option<Box<[crate::types::MessageEntity]>>,
     /// A JSON-serialized list of 1-12 answer options
@@ -49,7 +49,7 @@ pub struct SendPoll {
     /// Pass `true`, if voting is limited to users who have been members of the chat where the poll is being sent for more than 24 hours; for channel chats only
     #[serde(skip_serializing_if = "Option::is_none")]
     pub members_only: Option<bool>,
-    /// A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. If omitted or empty, then users from any country can participate in the poll.
+    /// A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. Use `FT` as a country code to allow users with anonymous numbers to vote. If omitted or empty, then users from any country can participate in the poll.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub country_codes: Option<Box<[Box<str>]>>,
     /// A JSON-serialized list of monotonically increasing 0-based identifiers of the correct answer options, required for polls in quiz mode
@@ -61,7 +61,7 @@ pub struct SendPoll {
     /// Mode for parsing entities in the explanation. See formatting options for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub explanation_parse_mode: Option<Box<str>>,
-    /// A JSON-serialized list of special entities that appear in the poll explanation. It can be specified instead of `explanation_parse_mode`
+    /// A JSON-serialized list of special entities that appear in the poll explanation. It can be specified instead of `explanation_parse_mode`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub explanation_entities: Option<Box<[crate::types::MessageEntity]>>,
     /// Media added to the quiz explanation
@@ -103,7 +103,7 @@ pub struct SendPoll {
     /// Description of the message to reply to
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_parameters: Option<crate::types::ReplyParameters>,
-    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
+    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<crate::types::ReplyMarkup>,
 }
@@ -208,21 +208,21 @@ impl SendPoll {
         self
     }
 
-    /// Mode for parsing entities in the question. See formatting options for more details. Currently, only custom emoji entities are allowed
+    /// Mode for parsing entities in the question. See formatting options for more details. Currently, only custom emoji entities are allowed.
     #[must_use]
     pub fn question_parse_mode<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.question_parse_mode = Some(val.into());
         self
     }
 
-    /// Mode for parsing entities in the question. See formatting options for more details. Currently, only custom emoji entities are allowed
+    /// Mode for parsing entities in the question. See formatting options for more details. Currently, only custom emoji entities are allowed.
     #[must_use]
     pub fn question_parse_mode_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.question_parse_mode = val.map(Into::into);
         self
     }
 
-    /// A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of `question_parse_mode`
+    /// A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of `question_parse_mode`.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -245,7 +245,7 @@ impl SendPoll {
         self
     }
 
-    /// A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of `question_parse_mode`
+    /// A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of `question_parse_mode`.
     ///
     /// # Notes
     /// Adds a single element.
@@ -262,7 +262,7 @@ impl SendPoll {
         self
     }
 
-    /// A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of `question_parse_mode`
+    /// A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of `question_parse_mode`.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -423,7 +423,7 @@ impl SendPoll {
         self
     }
 
-    /// A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. If omitted or empty, then users from any country can participate in the poll.
+    /// A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. Use `FT` as a country code to allow users with anonymous numbers to vote. If omitted or empty, then users from any country can participate in the poll.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -443,7 +443,7 @@ impl SendPoll {
         self
     }
 
-    /// A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. If omitted or empty, then users from any country can participate in the poll.
+    /// A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. Use `FT` as a country code to allow users with anonymous numbers to vote. If omitted or empty, then users from any country can participate in the poll.
     ///
     /// # Notes
     /// Adds a single element.
@@ -460,7 +460,7 @@ impl SendPoll {
         self
     }
 
-    /// A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. If omitted or empty, then users from any country can participate in the poll.
+    /// A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. Use `FT` as a country code to allow users with anonymous numbers to vote. If omitted or empty, then users from any country can participate in the poll.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -551,7 +551,7 @@ impl SendPoll {
         self
     }
 
-    /// A JSON-serialized list of special entities that appear in the poll explanation. It can be specified instead of `explanation_parse_mode`
+    /// A JSON-serialized list of special entities that appear in the poll explanation. It can be specified instead of `explanation_parse_mode`.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -574,7 +574,7 @@ impl SendPoll {
         self
     }
 
-    /// A JSON-serialized list of special entities that appear in the poll explanation. It can be specified instead of `explanation_parse_mode`
+    /// A JSON-serialized list of special entities that appear in the poll explanation. It can be specified instead of `explanation_parse_mode`.
     ///
     /// # Notes
     /// Adds a single element.
@@ -591,7 +591,7 @@ impl SendPoll {
         self
     }
 
-    /// A JSON-serialized list of special entities that appear in the poll explanation. It can be specified instead of `explanation_parse_mode`
+    /// A JSON-serialized list of special entities that appear in the poll explanation. It can be specified instead of `explanation_parse_mode`.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -837,14 +837,14 @@ impl SendPoll {
         self
     }
 
-    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
+    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user.
     #[must_use]
     pub fn reply_markup<T: Into<crate::types::ReplyMarkup>>(mut self, val: T) -> Self {
         self.reply_markup = Some(val.into());
         self
     }
 
-    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
+    /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user.
     #[must_use]
     pub fn reply_markup_option<T: Into<crate::types::ReplyMarkup>>(
         mut self,

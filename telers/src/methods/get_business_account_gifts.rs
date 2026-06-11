@@ -36,7 +36,7 @@ pub struct GetBusinessAccountGifts {
     /// Offset of the first entry to return as received from the previous request; use empty string to get the first chunk of results
     #[serde(skip_serializing_if = "Option::is_none")]
     pub offset: Option<Box<str>>,
-    /// The maximum number of gifts to be returned; 1-100. Defaults to 100
+    /// The maximum number of gifts to be returned; 1-100. Defaults to 100.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<u8>,
 }
@@ -198,14 +198,14 @@ impl GetBusinessAccountGifts {
         self
     }
 
-    /// The maximum number of gifts to be returned; 1-100. Defaults to 100
+    /// The maximum number of gifts to be returned; 1-100. Defaults to 100.
     #[must_use]
     pub fn limit<T: Into<u8>>(mut self, val: T) -> Self {
         self.limit = Some(val.into());
         self
     }
 
-    /// The maximum number of gifts to be returned; 1-100. Defaults to 100
+    /// The maximum number of gifts to be returned; 1-100. Defaults to 100.
     #[must_use]
     pub fn limit_option<T: Into<u8>>(mut self, val: Option<T>) -> Self {
         self.limit = val.map(Into::into);

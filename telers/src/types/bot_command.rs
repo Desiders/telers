@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct BotCommand {
     /// Text of the command; 1-32 characters. Can contain only lowercase English letters, digits and underscores.
     pub command: Box<str>,
-    /// Description of the command; 1-256 characters.
+    /// Description of the command; 1-256 characters
     pub description: Box<str>,
 }
 impl BotCommand {
@@ -14,7 +14,7 @@ impl BotCommand {
     ///
     /// # Arguments
     /// * `command` - Text of the command; 1-32 characters. Can contain only lowercase English letters, digits and underscores.
-    /// * `description` - Description of the command; 1-256 characters.
+    /// * `description` - Description of the command; 1-256 characters
     #[must_use]
     pub fn new<T0: Into<Box<str>>, T1: Into<Box<str>>>(command: T0, description: T1) -> Self {
         Self {
@@ -30,7 +30,7 @@ impl BotCommand {
         self
     }
 
-    /// Description of the command; 1-256 characters.
+    /// Description of the command; 1-256 characters
     #[must_use]
     pub fn description<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.description = val.into();

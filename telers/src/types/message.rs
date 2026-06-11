@@ -158,7 +158,7 @@ pub enum Message {
 impl Message {
     /// Helper method for field `animation`.
     ///
-    /// Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set
+    /// Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set.
     #[must_use]
     pub fn animation(&self) -> Option<&crate::types::Animation> {
         match self {
@@ -1385,7 +1385,7 @@ impl Message {
 
     /// Helper method for field `from`.
     ///
-    /// Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
+    /// Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats.
     #[must_use]
     pub fn from(&self) -> Option<&crate::types::User> {
         match self {
@@ -2430,7 +2430,7 @@ impl Message {
 
     /// Helper method for field `live_photo`.
     ///
-    /// Message is a live photo, information about the live photo. For backward compatibility, when this field is set, the photo field will also be set
+    /// Message is a live photo, information about the live photo. For backward compatibility, when this field is set, the photo field will also be set.
     #[must_use]
     pub fn live_photo(&self) -> Option<&crate::types::LivePhoto> {
         match self {
@@ -2561,7 +2561,7 @@ impl Message {
 
     /// Helper method for field `message_id`.
     ///
-    /// Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
+    /// Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     #[must_use]
     pub fn message_id(&self) -> i64 {
         match self {
@@ -3471,6 +3471,89 @@ impl Message {
         }
     }
 
+    /// Helper method for field `rich_message`.
+    ///
+    /// Message is a rich formatted message
+    #[must_use]
+    pub fn rich_message(&self) -> Option<&crate::types::RichMessage> {
+        match self {
+            Self::Animation(val) => val.rich_message.as_ref(),
+            Self::Audio(val) => val.rich_message.as_ref(),
+            Self::BoostAdded(val) => val.rich_message.as_ref(),
+            Self::ChannelChatCreated(val) => val.rich_message.as_ref(),
+            Self::ChatBackgroundSet(val) => val.rich_message.as_ref(),
+            Self::ChatOwnerChanged(val) => val.rich_message.as_ref(),
+            Self::ChatOwnerLeft(val) => val.rich_message.as_ref(),
+            Self::ChatShared(val) => val.rich_message.as_ref(),
+            Self::Checklist(val) => val.rich_message.as_ref(),
+            Self::ChecklistTasksAdded(val) => val.rich_message.as_ref(),
+            Self::ChecklistTasksDone(val) => val.rich_message.as_ref(),
+            Self::ConnectedWebsite(val) => val.rich_message.as_ref(),
+            Self::Contact(val) => val.rich_message.as_ref(),
+            Self::DeleteChatPhoto(val) => val.rich_message.as_ref(),
+            Self::Dice(val) => val.rich_message.as_ref(),
+            Self::DirectMessagePriceChanged(val) => val.rich_message.as_ref(),
+            Self::Document(val) => val.rich_message.as_ref(),
+            Self::ForumTopicClosed(val) => val.rich_message.as_ref(),
+            Self::ForumTopicCreated(val) => val.rich_message.as_ref(),
+            Self::ForumTopicEdited(val) => val.rich_message.as_ref(),
+            Self::ForumTopicReopened(val) => val.rich_message.as_ref(),
+            Self::Game(val) => val.rich_message.as_ref(),
+            Self::GeneralForumTopicHidden(val) => val.rich_message.as_ref(),
+            Self::GeneralForumTopicUnhidden(val) => val.rich_message.as_ref(),
+            Self::Gift(val) => val.rich_message.as_ref(),
+            Self::GiftUpgradeSent(val) => val.rich_message.as_ref(),
+            Self::Giveaway(val) => val.rich_message.as_ref(),
+            Self::GiveawayCompleted(val) => val.rich_message.as_ref(),
+            Self::GiveawayCreated(val) => val.rich_message.as_ref(),
+            Self::GiveawayWinners(val) => val.rich_message.as_ref(),
+            Self::GroupChatCreated(val) => val.rich_message.as_ref(),
+            Self::Invoice(val) => val.rich_message.as_ref(),
+            Self::LeftChatMember(val) => val.rich_message.as_ref(),
+            Self::LivePhoto(val) => val.rich_message.as_ref(),
+            Self::Location(val) => val.rich_message.as_ref(),
+            Self::ManagedBotCreated(val) => val.rich_message.as_ref(),
+            Self::MessageAutoDeleteTimerChanged(val) => val.rich_message.as_ref(),
+            Self::MigrateFromChatId(val) => val.rich_message.as_ref(),
+            Self::MigrateToChatId(val) => val.rich_message.as_ref(),
+            Self::NewChatMembers(val) => val.rich_message.as_ref(),
+            Self::NewChatPhoto(val) => val.rich_message.as_ref(),
+            Self::NewChatTitle(val) => val.rich_message.as_ref(),
+            Self::PaidMedia(val) => val.rich_message.as_ref(),
+            Self::PaidMessagePriceChanged(val) => val.rich_message.as_ref(),
+            Self::PassportData(val) => val.rich_message.as_ref(),
+            Self::Photo(val) => val.rich_message.as_ref(),
+            Self::PinnedMessage(val) => val.rich_message.as_ref(),
+            Self::Poll(val) => val.rich_message.as_ref(),
+            Self::PollOptionAdded(val) => val.rich_message.as_ref(),
+            Self::PollOptionDeleted(val) => val.rich_message.as_ref(),
+            Self::ProximityAlertTriggered(val) => val.rich_message.as_ref(),
+            Self::RefundedPayment(val) => val.rich_message.as_ref(),
+            Self::Sticker(val) => val.rich_message.as_ref(),
+            Self::Story(val) => val.rich_message.as_ref(),
+            Self::SuccessfulPayment(val) => val.rich_message.as_ref(),
+            Self::SuggestedPostApprovalFailed(val) => val.rich_message.as_ref(),
+            Self::SuggestedPostApproved(val) => val.rich_message.as_ref(),
+            Self::SuggestedPostDeclined(val) => val.rich_message.as_ref(),
+            Self::SuggestedPostPaid(val) => val.rich_message.as_ref(),
+            Self::SuggestedPostRefunded(val) => val.rich_message.as_ref(),
+            Self::SupergroupChatCreated(val) => val.rich_message.as_ref(),
+            Self::Text(val) => val.rich_message.as_ref(),
+            Self::UniqueGift(val) => val.rich_message.as_ref(),
+            Self::UsersShared(val) => val.rich_message.as_ref(),
+            Self::Venue(val) => val.rich_message.as_ref(),
+            Self::Video(val) => val.rich_message.as_ref(),
+            Self::VideoChatEnded(val) => val.rich_message.as_ref(),
+            Self::VideoChatParticipantsInvited(val) => val.rich_message.as_ref(),
+            Self::VideoChatScheduled(val) => val.rich_message.as_ref(),
+            Self::VideoChatStarted(val) => val.rich_message.as_ref(),
+            Self::VideoNote(val) => val.rich_message.as_ref(),
+            Self::Voice(val) => val.rich_message.as_ref(),
+            Self::WebAppData(val) => val.rich_message.as_ref(),
+            Self::WriteAccessAllowed(val) => val.rich_message.as_ref(),
+        }
+    }
+
     /// Helper method for field `sender_boost_count`.
     ///
     /// If the sender of the message boosted the chat, the number of boosts added by the user
@@ -4105,7 +4188,7 @@ impl Message {
 
     /// Helper method for field `venue`.
     ///
-    /// Message is a venue, information about the venue. For backward compatibility, when this field is set, the location field will also be set
+    /// Message is a venue, information about the venue. For backward compatibility, when this field is set, the location field will also be set.
     #[must_use]
     pub fn venue(&self) -> Option<&crate::types::Venue> {
         match self {
@@ -4368,6 +4451,12 @@ impl Message {
             }
             _ => None,
         }
+    }
+
+    /// Helper method for nested field `blocks`.
+    #[must_use]
+    pub fn blocks(&self) -> Option<&[crate::types::RichBlock]> {
+        self.rich_message().map(|inner| inner.blocks.as_ref())
     }
 
     /// Helper method for nested field `boost_count`.
@@ -5184,6 +5273,12 @@ impl Message {
             }
             _ => None,
         }
+    }
+
+    /// Helper method for nested field `is_rtl`.
+    #[must_use]
+    pub fn is_rtl(&self) -> Option<bool> {
+        self.rich_message().and_then(|inner| inner.is_rtl)
     }
 
     /// Helper method for nested field `is_star_giveaway`.

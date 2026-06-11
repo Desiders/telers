@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 /// This object represents the content of a poll option to be sent. It should be one of
 /// - [`crate::types::InputMediaAnimation`]
+/// - [`crate::types::InputMediaLink`]
 /// - [`crate::types::InputMediaLivePhoto`]
 /// - [`crate::types::InputMediaLocation`]
 /// - [`crate::types::InputMediaPhoto`]
@@ -13,6 +14,7 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum InputPollOptionMedia {
     Animation(crate::types::InputMediaAnimation),
+    Link(crate::types::InputMediaLink),
     LivePhoto(crate::types::InputMediaLivePhoto),
     Location(crate::types::InputMediaLocation),
     Photo(crate::types::InputMediaPhoto),
@@ -317,6 +319,17 @@ impl InputPollOptionMedia {
         }
     }
 
+    /// Helper method for field `url`.
+    ///
+    /// HTTP URL of the link
+    #[must_use]
+    pub fn url(&self) -> Option<&str> {
+        match self {
+            Self::Link(val) => Some(val.url.as_ref()),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `width`.
     ///
     /// # Variants
@@ -346,6 +359,25 @@ impl TryFrom<InputPollOptionMedia> for crate::types::InputMediaAnimation {
             Err(Self::Error::new(
                 stringify!(InputPollOptionMedia),
                 stringify!(InputMediaAnimation),
+            ))
+        }
+    }
+}
+impl From<crate::types::InputMediaLink> for InputPollOptionMedia {
+    fn from(val: crate::types::InputMediaLink) -> Self {
+        Self::Link(val)
+    }
+}
+impl TryFrom<InputPollOptionMedia> for crate::types::InputMediaLink {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: InputPollOptionMedia) -> Result<Self, Self::Error> {
+        if let InputPollOptionMedia::Link(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(InputPollOptionMedia),
+                stringify!(InputMediaLink),
             ))
         }
     }
