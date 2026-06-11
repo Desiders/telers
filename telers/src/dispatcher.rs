@@ -570,14 +570,14 @@ where
     type IntoFuture = BoxFuture<'static, Self::Output>;
     type Output = Result<(), HandlerError>;
 
-    #[cfg(feature = "default_signal")]
+    #[cfg(feature = "default-signal")]
     fn into_future(self) -> Self::IntoFuture {
         use crate::utils::shutdown_signal;
 
         self.with_graceful_shutdown(shutdown_signal()).into_future()
     }
 
-    #[cfg(not(feature = "default_signal"))]
+    #[cfg(not(feature = "default-signal"))]
     fn into_future(self) -> Self::IntoFuture {
         if self.dispatcher.propagator.shutdown_handlers_len() != 0 {
             event!(
@@ -678,14 +678,14 @@ where
     type IntoFuture = BoxFuture<'static, Self::Output>;
     type Output = Result<(), HandlerError>;
 
-    #[cfg(feature = "default_signal")]
+    #[cfg(feature = "default-signal")]
     fn into_future(self) -> Self::IntoFuture {
         use crate::utils::shutdown_signal;
 
         self.with_graceful_shutdown(shutdown_signal()).into_future()
     }
 
-    #[cfg(not(feature = "default_signal"))]
+    #[cfg(not(feature = "default-signal"))]
     fn into_future(self) -> Self::IntoFuture {
         if self.dispatcher.propagator.shutdown_handlers_len() != 0 {
             event!(
