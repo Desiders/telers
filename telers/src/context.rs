@@ -148,3 +148,123 @@ impl fmt::Debug for Context {
         f.debug_struct("Context").finish()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Context;
+
+    #[test]
+    fn new_is_empty() {
+        let ctx = Context::new();
+
+        assert!(ctx.is_empty());
+        assert_eq!(ctx.len(), 0);
+        assert!(!ctx.contains_key("missing"));
+        assert!(ctx.get::<i32>("missing").is_none());
+    }
+
+    #[test]
+    fn insert_returns_previous_value() {
+        let mut ctx = Context::new();
+
+        assert_eq!(ctx.insert("k", 1_i32), None);
+        assert_eq!(ctx.len(), 1);
+        assert!(!ctx.is_empty());
+        assert!(ctx.contains_key("k"));
+
+        assert_eq!(ctx.insert("k", 2_i32), Some(1));
+        assert_eq!(ctx.get::<i32>("k"), Some(&2));
+        assert_eq!(ctx.len(), 1);
+    }
+
+    #[test]
+    fn get_respects_type() {
+        let mut ctx = Context::new();
+        ctx.insert("k", String::from("v"));
+
+        assert_eq!(ctx.get::<String>("k"), Some(&"v".to_owned()));
+        // A type mismatch reads as absent rather than panicking.
+        assert!(ctx.get::<i32>("k").is_none());
+    }
+
+    #[test]
+    fn get_mut_allows_in_place_mutation() {
+        let mut ctx = Context::new();
+        ctx.insert("count", 1_i32);
+
+        *ctx.get_mut::<i32>("count").expect("present") += 41;
+
+        assert_eq!(ctx.get::<i32>("count"), Some(&42));
+    }
+
+    #[test]
+    fn get_or_insert_with_only_inserts_when_absent() {
+        let mut ctx = Context::new();
+
+        assert_eq!(*ctx.get_or_insert_with("k", || 10_i32), 10);
+        assert_eq!(*ctx.get_or_insert_with("k", || 999_i32), 10);
+    }
+
+    #[test]
+    fn get_or_insert_variants() {
+        let mut ctx = Context::new();
+
+        assert_eq!(*ctx.get_or_insert("a", 5_i32), 5);
+        assert_eq!(*ctx.get_or_insert("a", 6_i32), 5);
+        assert_eq!(*ctx.get_or_insert_default::<i32>("b"), 0);
+        assert_eq!(*ctx.get_or_insert_default::<String>("c"), String::new());
+    }
+
+    #[test]
+    fn remove_returns_value_once() {
+        let mut ctx = Context::new();
+        ctx.insert("k", 7_i32);
+
+        assert_eq!(ctx.remove::<i32>("k"), Some(7));
+        assert_eq!(ctx.remove::<i32>("k"), None);
+        assert!(!ctx.contains_key("k"));
+    }
+
+    #[test]
+    fn clear_empties_the_context() {
+        let mut ctx = Context::new();
+        ctx.insert("a", 1_i32);
+        ctx.insert("b", 2_i32);
+
+        ctx.clear();
+
+        assert!(ctx.is_empty());
+        assert!(ctx.get::<i32>("a").is_none());
+    }
+
+    #[test]
+    fn extend_merges_and_overwrites() {
+        let mut base = Context::new();
+        base.insert("a", 1_i32);
+        base.insert("shared", 1_i32);
+
+        let mut other = Context::new();
+        other.insert("b", 2_i32);
+        other.insert("shared", 2_i32);
+
+        base.extend(other);
+
+        assert_eq!(base.get::<i32>("a"), Some(&1));
+        assert_eq!(base.get::<i32>("b"), Some(&2));
+        // Keys from the extending context overwrite existing ones.
+        assert_eq!(base.get::<i32>("shared"), Some(&2));
+    }
+
+    #[test]
+    fn extend_into_empty_adopts_other_map() {
+        let mut empty = Context::new();
+        let mut other = Context::new();
+        other.insert("a", 1_i32);
+
+        empty.extend(other);
+        assert_eq!(empty.get::<i32>("a"), Some(&1));
+
+        empty.extend(Context::new());
+        assert_eq!(empty.len(), 1);
+    }
+}

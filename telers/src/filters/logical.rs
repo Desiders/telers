@@ -60,3 +60,131 @@ where
         Ok(!self.0.check(request).await?)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{And, Invert, Or};
+    use crate::{
+        client::Reqwest,
+        filters::{Filter, FilterResult},
+        types::{ChatPrivate, MessageText, Update, UpdateMessage},
+        Bot, Context, Either, Extensions, Request,
+    };
+
+    use std::{convert::Infallible, future::Future, sync::Arc};
+
+    /// Filter that always returns a fixed result.
+    #[derive(Clone)]
+    struct Const(bool);
+
+    impl<Client: Send + Sync + 'static> Filter<Client> for Const {
+        type Error = Infallible;
+
+        fn check(
+            &mut self,
+            _request: &mut Request<Client>,
+        ) -> impl Future<Output = FilterResult<Self::Error>> + Send {
+            let res = self.0;
+            async move { Ok(res) }
+        }
+    }
+
+    /// Filter that always fails; used to detect whether it is evaluated.
+    #[derive(Clone)]
+    struct Boom;
+
+    impl<Client: Send + Sync + 'static> Filter<Client> for Boom {
+        type Error = anyhow::Error;
+
+        fn check(
+            &mut self,
+            _request: &mut Request<Client>,
+        ) -> impl Future<Output = FilterResult<Self::Error>> + Send {
+            async move { Err(anyhow::anyhow!("boom")) }
+        }
+    }
+
+    fn request() -> Request<Reqwest> {
+        Request {
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                0,
+                MessageText::new(0, 0, ChatPrivate::new(0), ""),
+            ))),
+            bot: Bot::default(),
+            context: Context::default(),
+            extensions: Extensions::default(),
+        }
+    }
+
+    #[tokio::test]
+    async fn and_truth_table() {
+        let mut req = request();
+
+        assert!(And(Const(true), Const(true)).check(&mut req).await.unwrap());
+        assert!(!And(Const(true), Const(false))
+            .check(&mut req)
+            .await
+            .unwrap());
+        assert!(!And(Const(false), Const(true))
+            .check(&mut req)
+            .await
+            .unwrap());
+    }
+
+    #[tokio::test]
+    async fn and_short_circuits_on_false() {
+        // A `false` left side must not evaluate the (failing) right side.
+        let mut req = request();
+        assert!(!And(Const(false), Boom).check(&mut req).await.unwrap());
+    }
+
+    #[tokio::test]
+    async fn and_propagates_errors_with_side() {
+        let mut req = request();
+
+        let left = And(Boom, Const(true)).check(&mut req).await;
+        assert!(matches!(left, Err(Either::Left(_))));
+
+        let right = And(Const(true), Boom).check(&mut req).await;
+        assert!(matches!(right, Err(Either::Right(_))));
+    }
+
+    #[tokio::test]
+    async fn or_truth_table() {
+        let mut req = request();
+
+        assert!(!Or(Const(false), Const(false))
+            .check(&mut req)
+            .await
+            .unwrap());
+        assert!(Or(Const(false), Const(true)).check(&mut req).await.unwrap());
+        assert!(Or(Const(true), Const(false)).check(&mut req).await.unwrap());
+    }
+
+    #[tokio::test]
+    async fn or_short_circuits_on_true() {
+        // A `true` left side must not evaluate the (failing) right side.
+        let mut req = request();
+        assert!(Or(Const(true), Boom).check(&mut req).await.unwrap());
+    }
+
+    #[tokio::test]
+    async fn or_propagates_errors_with_side() {
+        let mut req = request();
+
+        let left = Or(Boom, Const(false)).check(&mut req).await;
+        assert!(matches!(left, Err(Either::Left(_))));
+
+        let right = Or(Const(false), Boom).check(&mut req).await;
+        assert!(matches!(right, Err(Either::Right(_))));
+    }
+
+    #[tokio::test]
+    async fn invert_negates_and_forwards_errors() {
+        let mut req = request();
+
+        assert!(!Invert(Const(true)).check(&mut req).await.unwrap());
+        assert!(Invert(Const(false)).check(&mut req).await.unwrap());
+        assert!(Invert(Boom).check(&mut req).await.is_err());
+    }
+}

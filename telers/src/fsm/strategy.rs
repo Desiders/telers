@@ -166,3 +166,80 @@ impl Strategy {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Strategy;
+
+    #[test]
+    fn default_is_user_in_chat() {
+        assert_eq!(Strategy::default(), Strategy::UserInChat);
+    }
+
+    #[test]
+    fn display_matches_as_str() {
+        assert_eq!(Strategy::UserInChat.as_str(), "user_in_chat");
+        assert_eq!(
+            Strategy::ChatThreadAndConnection.as_str(),
+            "chat_thread_and_connection"
+        );
+        assert_eq!(Strategy::GlobalUser.to_string(), "global_user");
+    }
+
+    /// `(chat, user, thread, business)` applied through a strategy yields the
+    /// `(chat_id, user_id, message_thread_id, business_connection_id)` tuple.
+    fn applied(strategy: &Strategy) -> (i64, i64, Option<i64>, Option<String>) {
+        let pair = strategy.apply(1, 2, Some(3), Some("bc".to_owned()));
+        (
+            pair.chat_id,
+            pair.user_id,
+            pair.message_thread_id,
+            pair.business_connection_id,
+        )
+    }
+
+    #[test]
+    fn user_in_chat_keeps_chat_and_user_drops_thread_and_connection() {
+        assert_eq!(applied(&Strategy::UserInChat), (1, 2, None, None));
+        assert_eq!(
+            applied(&Strategy::UserInChatAndConnection),
+            (1, 2, None, Some("bc".to_owned()))
+        );
+    }
+
+    #[test]
+    fn chat_uses_chat_id_for_both_ids() {
+        assert_eq!(applied(&Strategy::Chat), (1, 1, None, None));
+        assert_eq!(
+            applied(&Strategy::ChatAndConnection),
+            (1, 1, None, Some("bc".to_owned()))
+        );
+    }
+
+    #[test]
+    fn global_user_uses_user_id_for_both_ids() {
+        assert_eq!(applied(&Strategy::GlobalUser), (2, 2, None, None));
+        assert_eq!(
+            applied(&Strategy::GlobalUserAndConnection),
+            (2, 2, None, Some("bc".to_owned()))
+        );
+    }
+
+    #[test]
+    fn user_in_thread_keeps_thread() {
+        assert_eq!(applied(&Strategy::UserInThread), (1, 2, Some(3), None));
+        assert_eq!(
+            applied(&Strategy::UserInThreadAndConnection),
+            (1, 2, Some(3), Some("bc".to_owned()))
+        );
+    }
+
+    #[test]
+    fn chat_thread_uses_chat_id_and_keeps_thread() {
+        assert_eq!(applied(&Strategy::ChatThread), (1, 1, Some(3), None));
+        assert_eq!(
+            applied(&Strategy::ChatThreadAndConnection),
+            (1, 1, Some(3), Some("bc".to_owned()))
+        );
+    }
+}
