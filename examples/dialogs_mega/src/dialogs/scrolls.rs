@@ -1,11 +1,11 @@
-//! Scrolling widgets: `ScrollingGroup`, `ScrollingText`, `StubScroll`, and
-//! synced scrolls.
+//! Scrolling widgets: `ScrollingGroup`, `ScrollingText`, a paged `ListText`,
+//! `StubScroll`, and synced scrolls.
 
 use telers_dialog::{
     async_trait,
     entities::{DataMap, RenderContext},
     widgets::{
-        format_text, keyboard, sync_scroll, text, Button, ButtonAction, InlineKeyboard,
+        format_text, keyboard, sync_scroll, text, Button, ButtonAction, InlineKeyboard, ListText,
         NumberedPager, ScrollingGroup, ScrollingText, Select, StubScroll, Text,
     },
     window, Dialog,
@@ -127,6 +127,11 @@ pub fn dialog() -> impl Dialog {
                             "scrolls_sync",
                         )])
                         .row([Button::switch_to(
+                            "s_list",
+                            "📝 List scroll",
+                            "scrolls_list",
+                        )])
+                        .row([Button::switch_to(
                             "s_stub",
                             "📟 Stub scroll",
                             "scrolls_stub",
@@ -191,6 +196,38 @@ pub fn dialog() -> impl Dialog {
                         .current_page_renderer(|page, _data| format!("[{}]", page + 1))
                         .length(5)
                         .build(),
+                ),
+                keyboard(back_nav()),
+            ],
+        ),
+        window(
+            "scrolls_list",
+            [
+                text(
+                    "List scroll\n\n`ListText` with `page_size` renders one page of items and \
+                     implements `Scroll`, so a `NumberedPager` can drive it directly.\n",
+                ),
+                text(
+                    ListText::builder()
+                        .id("list_scroll")
+                        .page_size(4)
+                        .items_getter(|_data| PRODUCTS)
+                        .item_renderer(|item, _data| format!("• {} — {}", item.0, item.1))
+                        .build(),
+                ),
+                keyboard(
+                    NumberedPager::builder(
+                        ListText::builder()
+                            .id("list_scroll")
+                            .page_size(4)
+                            .items_getter(|_data| PRODUCTS)
+                            .item_renderer(|item, _data| format!("• {} — {}", item.0, item.1))
+                            .build(),
+                    )
+                    .page_renderer(|page, _data| format!("{}", page + 1))
+                    .current_page_renderer(|page, _data| format!("[{}]", page + 1))
+                    .length(5)
+                    .build(),
                 ),
                 keyboard(back_nav()),
             ],
