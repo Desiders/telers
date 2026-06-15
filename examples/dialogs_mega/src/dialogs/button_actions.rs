@@ -17,6 +17,7 @@ fn value<'a>(data: &'a DataMap, key: &str, fallback: &'a str) -> &'a str {
     data.get(key).and_then(Value::as_str).unwrap_or(fallback)
 }
 
+#[allow(clippy::too_many_lines)]
 pub fn dialog() -> impl Dialog {
     telers_dialog::dialog([
         window(

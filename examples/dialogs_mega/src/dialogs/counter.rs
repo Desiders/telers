@@ -24,7 +24,11 @@ struct CounterProgress;
 impl CounterProgress {
     fn bar(value: f64) -> Box<str> {
         let width = 10usize;
-        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+        #[allow(
+            clippy::cast_possible_truncation,
+            clippy::cast_sign_loss,
+            clippy::cast_precision_loss
+        )]
         let filled = ((value / MAX_VALUE) * width as f64).round() as usize;
         let filled = filled.min(width);
         let percent = ((value / MAX_VALUE) * 100.0).round();

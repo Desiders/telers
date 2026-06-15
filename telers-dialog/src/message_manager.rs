@@ -382,7 +382,8 @@ impl MessageManager {
             };
         };
 
-        let input_media = Self::build_input_media(media, input_file, &new.text, &new.parse_mode);
+        let input_media =
+            Self::build_input_media(media, input_file, &new.text, new.parse_mode.as_deref());
 
         let mut m = EditMessageMedia::new(input_media)
             .chat_id(old.chat.id())
@@ -404,7 +405,7 @@ impl MessageManager {
         media: &MediaAttachment,
         input_file: InputFile,
         caption: &str,
-        parse_mode: &Option<Box<str>>,
+        parse_mode: Option<&str>,
     ) -> InputMedia {
         let caption_opt = (!caption.is_empty()).then_some(caption);
 
@@ -412,7 +413,7 @@ impl MessageManager {
             MediaContentType::Photo => {
                 let m = InputMediaPhoto::new(input_file)
                     .caption_option(caption_opt)
-                    .parse_mode_option(parse_mode.as_deref())
+                    .parse_mode_option(parse_mode)
                     .has_spoiler_option(media.has_spoiler)
                     .show_caption_above_media_option(media.show_caption_above_media);
                 InputMedia::Photo(m)
@@ -420,7 +421,7 @@ impl MessageManager {
             MediaContentType::Video => {
                 let m = InputMediaVideo::new(input_file)
                     .caption_option(caption_opt)
-                    .parse_mode_option(parse_mode.as_deref())
+                    .parse_mode_option(parse_mode)
                     .has_spoiler_option(media.has_spoiler)
                     .show_caption_above_media_option(media.show_caption_above_media)
                     .width_option(media.width)
@@ -432,7 +433,7 @@ impl MessageManager {
             MediaContentType::Audio => {
                 let m = InputMediaAudio::new(input_file)
                     .caption_option(caption_opt)
-                    .parse_mode_option(parse_mode.as_deref())
+                    .parse_mode_option(parse_mode)
                     .duration_option(media.duration)
                     .performer_option(media.performer.as_deref())
                     .title_option(media.title.as_deref());
@@ -441,13 +442,13 @@ impl MessageManager {
             MediaContentType::Document => {
                 let m = InputMediaDocument::new(input_file)
                     .caption_option(caption_opt)
-                    .parse_mode_option(parse_mode.as_deref());
+                    .parse_mode_option(parse_mode);
                 InputMedia::Document(m)
             }
             MediaContentType::Animation => {
                 let m = InputMediaAnimation::new(input_file)
                     .caption_option(caption_opt)
-                    .parse_mode_option(parse_mode.as_deref())
+                    .parse_mode_option(parse_mode)
                     .has_spoiler_option(media.has_spoiler)
                     .show_caption_above_media_option(media.show_caption_above_media)
                     .width_option(media.width)
@@ -459,7 +460,7 @@ impl MessageManager {
             MediaContentType::Voice | MediaContentType::VideoNote => {
                 let m = InputMediaPhoto::new(input_file)
                     .caption_option(caption_opt)
-                    .parse_mode_option(parse_mode.as_deref());
+                    .parse_mode_option(parse_mode);
                 InputMedia::Photo(m)
             }
         }
@@ -570,7 +571,8 @@ impl MessageManager {
                     .message_thread_id_option(msg.message_thread_id);
                 Ok(bot.send(m).await?)
             }
-            MediaContentType::Document => {
+            // Voice and VideoNote are not typically used in dialogs, fall back to document.
+            MediaContentType::Document | MediaContentType::Voice | MediaContentType::VideoNote => {
                 let m = SendDocument::new(msg.chat.id(), input_file)
                     .caption_option(caption)
                     .parse_mode_option(msg.parse_mode.clone())
@@ -589,17 +591,6 @@ impl MessageManager {
                     .width_option(media.width)
                     .height_option(media.height)
                     .duration_option(media.duration)
-                    .reply_markup_option(msg.reply_markup.clone())
-                    .protect_content_option(msg.protect_content)
-                    .business_connection_id_option(msg.business_connection_id.clone())
-                    .message_thread_id_option(msg.message_thread_id);
-                Ok(bot.send(m).await?)
-            }
-            // Voice and VideoNote are not typically used in dialogs, fall back to document
-            MediaContentType::Voice | MediaContentType::VideoNote => {
-                let m = SendDocument::new(msg.chat.id(), input_file)
-                    .caption_option(caption)
-                    .parse_mode_option(msg.parse_mode.clone())
                     .reply_markup_option(msg.reply_markup.clone())
                     .protect_content_option(msg.protect_content)
                     .business_connection_id_option(msg.business_connection_id.clone())

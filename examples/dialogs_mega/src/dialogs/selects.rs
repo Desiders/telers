@@ -19,6 +19,7 @@ fn back_nav() -> InlineKeyboard {
         .build()
 }
 
+#[allow(clippy::too_many_lines)]
 pub fn dialog() -> impl Dialog {
     telers_dialog::dialog([
         window(

@@ -118,7 +118,6 @@ struct MediaAttachmentData {
 impl MediaAttachmentData {
     fn into_attachment(self) -> MediaAttachment {
         let content_type = match self.content_type.to_lowercase().as_str() {
-            "photo" => MediaContentType::Photo,
             "video" => MediaContentType::Video,
             "audio" => MediaContentType::Audio,
             "document" => MediaContentType::Document,

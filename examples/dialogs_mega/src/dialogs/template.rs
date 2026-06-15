@@ -46,7 +46,7 @@ const RECEIPT_TEMPLATE: &str =
 pub fn dialog() -> impl Dialog {
     // Custom environment: a `currency` filter and a `brand` global.
     let env = TemplateEnvBuilder::new()
-        .add_filter("currency", |v: f64| format!("${:.2}", v))
+        .add_filter("currency", |v: f64| format!("${v:.2}"))
         .add_global("brand", "North Roast")
         .build();
     let receipt = TemplateText::builder(RECEIPT_TEMPLATE).env(env).build();

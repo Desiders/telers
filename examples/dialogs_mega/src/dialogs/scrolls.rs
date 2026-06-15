@@ -70,6 +70,7 @@ fn back_nav() -> InlineKeyboard {
         .build()
 }
 
+#[allow(clippy::too_many_lines)]
 pub fn dialog() -> impl Dialog {
     let preview = ScrollingText::builder("scroll_text")
         .text(LONG_TEXT)
