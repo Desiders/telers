@@ -258,7 +258,7 @@ mod tests {
         data.insert("price".into(), json!(42.5));
 
         let env = TemplateEnvBuilder::new()
-            .add_filter("currency", |v: f64| format!("${:.2}", v))
+            .add_filter("currency", |v: f64| format!("${v:.2}"))
             .build();
         let text = TemplateText::builder("Price: {{ price | currency }}")
             .env(env)

@@ -162,3 +162,179 @@ impl NewMessage {
         self.media.is_some()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{NewMessage, OldMessage};
+    use crate::entities::ShowMode;
+    use serde_json::json;
+    use telers::{
+        enums::{MessageType, ReplyMarkupType},
+        types::ChatPrivate,
+    };
+
+    #[test]
+    fn old_message_new_stores_every_field() {
+        let message = OldMessage::new(
+            ChatPrivate::new(1),
+            10,
+            Some("hi"),
+            Some(true),
+            Some(ReplyMarkupType::InlineKeyboardMarkup),
+            Some(json!({"k": "v"})),
+            Some("bc"),
+            Some(MessageType::Text),
+            Some(json!({"u": "x"})),
+        );
+
+        assert_eq!(message.chat.id(), 1);
+        assert_eq!(message.message_id, 10);
+        assert_eq!(message.text.as_deref(), Some("hi"));
+        assert_eq!(message.has_protected_content, Some(true));
+        assert_eq!(
+            message.reply_markup_type,
+            Some(ReplyMarkupType::InlineKeyboardMarkup)
+        );
+        assert_eq!(message.reply_markup_value, Some(json!({"k": "v"})));
+        assert_eq!(message.business_connection_id.as_deref(), Some("bc"));
+        assert_eq!(message.message_type, Some(MessageType::Text));
+        assert_eq!(message.link_preview_options_value, Some(json!({"u": "x"})));
+        assert!(!message.has_media());
+        assert!(message.media_file_id.is_none());
+        assert!(message.media_unique_id.is_none());
+        assert!(message.media_content_type.is_none());
+    }
+
+    #[test]
+    fn old_message_new_none_optionals() {
+        let message = OldMessage::new(
+            ChatPrivate::new(1),
+            5,
+            None::<&str>,
+            None,
+            None,
+            None,
+            None::<Box<str>>,
+            None,
+            None,
+        );
+
+        assert_eq!(message.message_id, 5);
+        assert!(message.text.is_none());
+        assert!(message.has_protected_content.is_none());
+        assert!(message.message_type.is_none());
+        assert!(message.business_connection_id.is_none());
+        assert!(!message.has_media());
+    }
+
+    #[test]
+    fn old_message_with_media_sets_fields() {
+        let message = OldMessage::new(
+            ChatPrivate::new(1),
+            10,
+            Some("hi"),
+            Some(true),
+            None,
+            None,
+            None::<Box<str>>,
+            Some(MessageType::Text),
+            None,
+        )
+        .with_media(Some("fileid"), Some("uniq"), Some(MessageType::Photo));
+
+        assert!(message.has_media());
+        assert_eq!(message.media_file_id.as_deref(), Some("fileid"));
+        assert_eq!(message.media_unique_id.as_deref(), Some("uniq"));
+        assert_eq!(message.media_content_type, Some(MessageType::Photo));
+        assert_eq!(message.message_id, 10);
+        assert_eq!(message.text.as_deref(), Some("hi"));
+    }
+
+    #[test]
+    fn old_message_with_media_none_keeps_no_media() {
+        let message = OldMessage::new(
+            ChatPrivate::new(1),
+            10,
+            Some("hi"),
+            None,
+            None,
+            None,
+            None::<Box<str>>,
+            Some(MessageType::Text),
+            None,
+        )
+        .with_media(None::<Box<str>>, None::<Box<str>>, None);
+
+        assert!(!message.has_media());
+        assert!(message.media_file_id.is_none());
+        assert!(message.media_unique_id.is_none());
+        assert!(message.media_content_type.is_none());
+    }
+
+    #[test]
+    fn new_message_new_basic_fields() {
+        let message = NewMessage::new(
+            ChatPrivate::new(1),
+            None,
+            None::<Box<str>>,
+            "text",
+            None::<telers::types::ReplyMarkup>,
+            None::<Box<str>>,
+            None,
+            ShowMode::Auto,
+            None,
+        );
+
+        assert_eq!(message.chat.id(), 1);
+        assert_eq!(&*message.text, "text");
+        assert_eq!(message.show_mode, ShowMode::Auto);
+        assert!(!message.has_media());
+        assert!(message.media.is_none());
+        assert!(message.message_thread_id.is_none());
+        assert!(message.business_connection_id.is_none());
+        assert!(message.reply_markup.is_none());
+        assert!(message.parse_mode.is_none());
+        assert!(message.protect_content.is_none());
+        assert!(message.link_preview_options.is_none());
+    }
+
+    #[test]
+    fn new_message_default_media_is_none() {
+        let message = NewMessage::new(
+            ChatPrivate::new(1),
+            Some(7),
+            None::<Box<str>>,
+            "hello",
+            None::<telers::types::ReplyMarkup>,
+            None::<Box<str>>,
+            Some(false),
+            ShowMode::Edit,
+            None,
+        );
+
+        assert!(!message.has_media());
+        assert_eq!(message.message_thread_id, Some(7));
+        assert_eq!(message.protect_content, Some(false));
+        assert_eq!(message.show_mode, ShowMode::Edit);
+    }
+
+    #[test]
+    fn new_message_with_media_none_keeps_no_media() {
+        let message = NewMessage::new(
+            ChatPrivate::new(1),
+            None,
+            None::<Box<str>>,
+            "text",
+            None::<telers::types::ReplyMarkup>,
+            None::<Box<str>>,
+            None,
+            ShowMode::Auto,
+            None,
+        )
+        .with_media(None);
+
+        assert!(!message.has_media());
+        assert!(message.media.is_none());
+        assert_eq!(&*message.text, "text");
+    }
+}

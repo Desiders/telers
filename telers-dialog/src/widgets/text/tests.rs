@@ -57,10 +57,8 @@ async fn list_text_paginates_when_page_size_set() {
         .separator(" | ")
         .build();
 
-    // Without context the widget renders the first page.
     assert_eq!(&*text.render_text(&DataMap::new()).await, "one | two");
 
-    // The current page comes from `widget_data[id]`.
     let mut ctx = Context::new("", "state", json!(null));
     ctx.widget_data.insert("catalog".into(), json!(2));
     assert_eq!(

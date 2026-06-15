@@ -246,7 +246,7 @@ impl Dialog for DialogImpl {
 #[cfg(test)]
 mod tests {
     use super::{dialog, Dialog};
-    use crate::{widgets::text, window};
+    use crate::{entities::LaunchMode, widgets::text, window};
 
     #[tokio::test]
     async fn dialog_knows_next_and_previous_states() {
@@ -260,5 +260,72 @@ mod tests {
         assert_eq!(dialog.prev_state("third"), Some("second"));
         assert_eq!(dialog.next_state("third"), None);
         assert_eq!(dialog.prev_state("first"), None);
+    }
+
+    #[test]
+    fn dialog_lists_states_in_order() {
+        let dialog = dialog([window("a", [text("x")]), window("b", [text("y")])]);
+
+        let states: Vec<String> = dialog.states().to_vec();
+        assert_eq!(states, vec!["a".to_owned(), "b".to_owned()]);
+    }
+
+    #[test]
+    fn dialog_contains_known_states_only() {
+        let dialog = dialog([window("a", [text("x")]), window("b", [text("y")])]);
+
+        assert!(dialog.contains_state("a"));
+        assert!(dialog.contains_state("b"));
+        assert!(!dialog.contains_state("z"));
+    }
+
+    #[test]
+    fn dialog_skips_duplicate_window_states() {
+        let dialog = dialog([
+            window("a", [text("x")]),
+            window("b", [text("y")]),
+            window("a", [text("z")]),
+        ]);
+
+        let states: Vec<String> = dialog.states().to_vec();
+        assert_eq!(states, vec!["a".to_owned(), "b".to_owned()]);
+    }
+
+    #[test]
+    fn dialog_default_launch_mode_is_standard() {
+        let dialog = dialog([window("a", [text("x")])]);
+
+        assert_eq!(dialog.launch_mode(), LaunchMode::Standard);
+        assert_eq!(dialog.launch_mode(), LaunchMode::default());
+    }
+
+    #[test]
+    fn dialog_with_root_launch_mode() {
+        let dialog = dialog([window("a", [text("x")])]).with_launch_mode(LaunchMode::Root);
+
+        assert_eq!(dialog.launch_mode(), LaunchMode::Root);
+    }
+
+    #[test]
+    fn dialog_with_exclusive_launch_mode() {
+        let dialog = dialog([window("a", [text("x")])]).with_launch_mode(LaunchMode::Exclusive);
+
+        assert_eq!(dialog.launch_mode(), LaunchMode::Exclusive);
+    }
+
+    #[test]
+    fn dialog_with_single_top_launch_mode() {
+        let dialog = dialog([window("a", [text("x")])]).with_launch_mode(LaunchMode::SingleTop);
+
+        assert_eq!(dialog.launch_mode(), LaunchMode::SingleTop);
+    }
+
+    #[test]
+    fn dialog_get_window_returns_some_for_known_state() {
+        let dialog = dialog([window("a", [text("x")]), window("b", [text("y")])]);
+
+        assert!(dialog.get_window("a").is_some());
+        assert!(dialog.get_window("b").is_some());
+        assert!(dialog.get_window("z").is_none());
     }
 }

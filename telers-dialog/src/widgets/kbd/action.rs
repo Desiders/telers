@@ -166,3 +166,154 @@ impl ButtonAction {
         Self::Chain(actions.into_iter().collect())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::ButtonAction;
+    use crate::entities::{DataMap, StartMode};
+    use serde_json::json;
+
+    #[test]
+    fn noop_constructs_noop() {
+        assert!(matches!(ButtonAction::noop(), ButtonAction::Noop));
+    }
+
+    #[test]
+    fn next_constructs_next() {
+        assert!(matches!(ButtonAction::next(), ButtonAction::Next));
+    }
+
+    #[test]
+    fn back_constructs_back() {
+        assert!(matches!(ButtonAction::back(), ButtonAction::Back));
+    }
+
+    #[test]
+    fn done_constructs_done() {
+        assert!(matches!(ButtonAction::done(), ButtonAction::Done));
+    }
+
+    #[test]
+    fn switch_to_holds_state() {
+        match ButtonAction::switch_to("s") {
+            ButtonAction::SwitchTo(state) => assert_eq!(state, "s"),
+            other => panic!("expected SwitchTo, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn start_holds_state_data_and_mode() {
+        match ButtonAction::start("s", json!(1), StartMode::NewStack) {
+            ButtonAction::Start {
+                state,
+                data,
+                mode,
+            } => {
+                assert_eq!(state, "s");
+                assert_eq!(data, json!(1));
+                assert_eq!(mode, StartMode::NewStack);
+            }
+            other => panic!("expected Start, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn done_with_result_holds_value() {
+        match ButtonAction::done_with_result(json!("r")) {
+            ButtonAction::DoneWithResult(result) => assert_eq!(result, json!("r")),
+            other => panic!("expected DoneWithResult, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn set_dialog_value_holds_key_and_value() {
+        match ButtonAction::set_dialog_value("k", "v") {
+            ButtonAction::SetDialogValue {
+                key,
+                value,
+            } => {
+                assert_eq!(key, "k");
+                assert_eq!(value, json!("v"));
+            }
+            other => panic!("expected SetDialogValue, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn set_widget_value_holds_key_and_value() {
+        match ButtonAction::set_widget_value("k", 3) {
+            ButtonAction::SetWidgetValue {
+                key,
+                value,
+            } => {
+                assert_eq!(key, "k");
+                assert_eq!(value, json!(3));
+            }
+            other => panic!("expected SetWidgetValue, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn extend_dialog_data_collects_entries() {
+        match ButtonAction::extend_dialog_data([("a", "1"), ("b", "2")]) {
+            ButtonAction::ExtendDialogData(map) => {
+                assert_eq!(map.len(), 2);
+                assert_eq!(map.get("a"), Some(&json!("1")));
+                assert_eq!(map.get("b"), Some(&json!("2")));
+            }
+            other => panic!("expected ExtendDialogData, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn extend_widget_data_collects_entries() {
+        match ButtonAction::extend_widget_data([("a", "1"), ("b", "2")]) {
+            ButtonAction::ExtendWidgetData(map) => {
+                assert_eq!(map.len(), 2);
+                assert_eq!(map.get("a"), Some(&json!("1")));
+                assert_eq!(map.get("b"), Some(&json!("2")));
+            }
+            other => panic!("expected ExtendWidgetData, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn set_dialog_data_holds_map() {
+        let mut data = DataMap::new();
+        data.insert("k".into(), json!("v"));
+        match ButtonAction::set_dialog_data(data) {
+            ButtonAction::SetDialogData(map) => assert_eq!(map.get("k"), Some(&json!("v"))),
+            other => panic!("expected SetDialogData, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn set_widget_data_holds_map() {
+        let mut data = DataMap::new();
+        data.insert("k".into(), json!(3));
+        match ButtonAction::set_widget_data(data) {
+            ButtonAction::SetWidgetData(map) => assert_eq!(map.get("k"), Some(&json!(3))),
+            other => panic!("expected SetWidgetData, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn chain_collects_actions_in_order() {
+        match ButtonAction::chain([ButtonAction::noop(), ButtonAction::next()]) {
+            ButtonAction::Chain(actions) => {
+                assert_eq!(actions.len(), 2);
+                assert!(matches!(actions[0], ButtonAction::Noop));
+                assert!(matches!(actions[1], ButtonAction::Next));
+            }
+            other => panic!("expected Chain, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn chain_from_empty_iterator_is_empty() {
+        match ButtonAction::chain(std::iter::empty()) {
+            ButtonAction::Chain(actions) => assert_eq!(actions.len(), 0),
+            other => panic!("expected Chain, got {other:?}"),
+        }
+    }
+}

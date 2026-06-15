@@ -101,4 +101,107 @@ mod tests {
 
         assert!(matches!(err, DialogError::DuplicateState(_)));
     }
+
+    #[tokio::test]
+    async fn registry_finds_registered_states() {
+        let registry = DialogRegistry::new()
+            .register(dialog([window("a", [text("x")]), window("b", [text("y")])]))
+            .expect("dialog with two states");
+
+        assert!(registry.find_by_state("a").is_some());
+        assert!(registry.find_by_state("b").is_some());
+        assert!(registry.find_by_state("missing").is_none());
+    }
+
+    #[tokio::test]
+    async fn registry_states_resolve_to_same_dialog() {
+        let registry = DialogRegistry::new()
+            .register(dialog([window("a", [text("x")]), window("b", [text("y")])]))
+            .expect("dialog with two states");
+
+        let from_a = registry.find_by_state("a").expect("dialog for state a");
+        let from_b = registry.find_by_state("b").expect("dialog for state b");
+
+        let states_a = from_a.states();
+        assert!(states_a.iter().any(|state| state == "a"));
+        assert!(states_a.iter().any(|state| state == "b"));
+
+        let states_b = from_b.states();
+        assert!(states_b.iter().any(|state| state == "a"));
+        assert!(states_b.iter().any(|state| state == "b"));
+    }
+
+    #[tokio::test]
+    async fn registry_finds_states_across_multiple_dialogs() {
+        let registry = DialogRegistry::new()
+            .register(dialog([window("a", [text("x")])]))
+            .expect("first dialog")
+            .register(dialog([window("b", [text("y")])]))
+            .expect("second dialog");
+
+        let from_a = registry.find_by_state("a").expect("dialog for a");
+        let from_b = registry.find_by_state("b").expect("dialog for b");
+        assert!(from_a.states().iter().any(|s| s == "a"));
+        assert!(!from_a.states().iter().any(|s| s == "b"));
+        assert!(from_b.states().iter().any(|s| s == "b"));
+        assert!(!from_b.states().iter().any(|s| s == "a"));
+        assert!(registry.find_by_state("c").is_none());
+    }
+
+    fn group_event() -> (
+        crate::entities::ChatEvent,
+        crate::entities::EventContext<telers::client::Reqwest>,
+    ) {
+        use telers::{
+            client::Reqwest,
+            types::{ChatGroup, MessageText, User},
+            Bot,
+        };
+
+        let event = crate::entities::ChatEvent::Message(
+            MessageText::new(1, 1, ChatGroup::new(100), "/x")
+                .from(User::new(8, false, "u"))
+                .into(),
+        );
+        let event_ctx =
+            crate::entities::EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        (event, event_ctx)
+    }
+
+    #[tokio::test]
+    async fn default_access_validator_allows_without_settings() {
+        use crate::entities::Stack;
+
+        let registry = DialogRegistry::new();
+        let (event, event_ctx) = group_event();
+
+        assert!(registry
+            .access_validator()
+            .is_allowed(&Stack::new(), None, &event, &event_ctx));
+    }
+
+    #[tokio::test]
+    async fn with_access_validator_replaces_default() {
+        use crate::entities::{ChatEvent, Context, EventContext, Stack, StackAccessValidator};
+
+        struct DenyAll;
+        impl StackAccessValidator for DenyAll {
+            fn is_allowed(
+                &self,
+                _: &Stack,
+                _: Option<&Context>,
+                _: &ChatEvent,
+                _: &EventContext,
+            ) -> bool {
+                false
+            }
+        }
+
+        let registry = DialogRegistry::new().with_access_validator(DenyAll);
+        let (event, event_ctx) = group_event();
+
+        assert!(!registry
+            .access_validator()
+            .is_allowed(&Stack::new(), None, &event, &event_ctx));
+    }
 }

@@ -268,7 +268,9 @@ impl Window for WindowImpl {
 mod tests {
     use super::{window, Window};
     use crate::{
-        entities::{ChatEvent, Context, DataMap, EventContext, RenderContext},
+        entities::{
+            ChatEvent, Context, DataMap, EventContext, RenderContext, ResultContext, ShowMode,
+        },
         widgets::{
             input, keyboard, link_preview, text, Button, ButtonAction, InlineKeyboard, LinkPreview,
             MessageInput, MessageInputContext,
@@ -363,5 +365,72 @@ mod tests {
             .await
             .expect("input action");
         assert!(matches!(input_action, ButtonAction::Noop));
+    }
+
+    #[tokio::test]
+    async fn window_with_only_text_renders_without_keyboard() {
+        let window = window("state", [text("Just a prompt")]);
+        let ctx = Context::new("", "state", Value::Null);
+        let data = DataMap::new();
+        let event = ChatEvent::Message(test_message("/start"));
+        let event_ctx = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        let render_ctx = RenderContext::new(&ctx, &data, &event, &event_ctx);
+
+        let rendered = window.render(&render_ctx).await;
+
+        assert!(rendered.reply_markup.is_none());
+        assert_eq!(rendered.text.as_ref(), "Just a prompt");
+    }
+
+    #[tokio::test]
+    async fn window_render_applies_message_options() {
+        let window = window("state", [text("Body")])
+            .parse_mode("HTML")
+            .protect_content(true)
+            .show_mode(ShowMode::Send);
+        let ctx = Context::new("", "state", Value::Null);
+        let data = DataMap::new();
+        let event = ChatEvent::Message(test_message("/start"));
+        let event_ctx = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        let render_ctx = RenderContext::new(&ctx, &data, &event, &event_ctx);
+
+        let rendered = window.render(&render_ctx).await;
+
+        assert_eq!(rendered.parse_mode.as_deref(), Some("HTML"));
+        assert_eq!(rendered.protect_content, Some(true));
+        assert_eq!(rendered.show_mode, ShowMode::Send);
+    }
+
+    #[tokio::test]
+    async fn handle_message_without_input_widget_returns_none() {
+        let window = window("state", [text("No input here")]);
+        let ctx = Context::new("", "state", Value::Null);
+
+        let action = window.handle_message(&ctx, test_message("anything")).await;
+
+        assert!(action.is_none());
+    }
+
+    #[tokio::test]
+    async fn process_result_without_handler_returns_none() {
+        let window = window("state", [text("Parent")]);
+        let ctx = Context::new("", "state", Value::Null);
+        let start_data = Value::Null;
+        let result = Value::Null;
+        let event = ChatEvent::Message(test_message("/done"));
+        let event_ctx = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        let runtime_context = telers::Context::default();
+        let result_ctx = ResultContext::new(
+            &ctx,
+            &start_data,
+            &result,
+            &event,
+            &event_ctx,
+            &runtime_context,
+        );
+
+        let action = window.process_result(result_ctx).await;
+
+        assert!(action.is_none());
     }
 }

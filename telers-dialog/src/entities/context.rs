@@ -145,4 +145,51 @@ mod tests {
             Some("pear".to_owned())
         );
     }
+
+    #[test]
+    fn context_new_sets_id_state_and_start_data() {
+        let ctx = Context::new("", "mystate", json!({"seed": 1}));
+
+        assert!(!ctx.id.is_empty());
+        assert_eq!(ctx.state, "mystate");
+        assert_eq!(ctx.stack_id, "");
+        assert_eq!(ctx.start_data, json!({"seed": 1}));
+        assert!(ctx.dialog_data.is_empty());
+        assert!(ctx.widget_data.is_empty());
+    }
+
+    #[test]
+    fn context_new_defaults_access_settings_to_none() {
+        let ctx = Context::new("", "state", serde_json::Value::Null);
+
+        assert!(ctx.access_settings.is_none());
+    }
+
+    #[test]
+    fn context_typed_value_missing_key_is_none() {
+        let ctx = Context::new("", "state", serde_json::Value::Null);
+
+        assert_eq!(ctx.dialog_value("count"), None);
+        assert_eq!(ctx.widget_value("sel"), None);
+        assert_eq!(ctx.dialog_value_as::<i64>("count"), None);
+        assert_eq!(ctx.widget_value_as::<String>("sel"), None);
+    }
+
+    #[test]
+    fn context_typed_value_wrong_type_is_none() {
+        let mut ctx = Context::new("", "state", serde_json::Value::Null);
+        ctx.dialog_data.insert("count".into(), json!(3));
+        ctx.widget_data.insert("sel".into(), json!("pear"));
+
+        assert_eq!(ctx.dialog_value_as::<String>("count"), None);
+        assert_eq!(ctx.widget_value_as::<i64>("sel"), None);
+    }
+
+    #[test]
+    fn context_new_generates_unique_ids() {
+        let first = Context::new("", "state", serde_json::Value::Null);
+        let second = Context::new("", "state", serde_json::Value::Null);
+
+        assert_ne!(first.id, second.id);
+    }
 }

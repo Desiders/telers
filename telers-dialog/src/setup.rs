@@ -375,8 +375,8 @@ mod tests {
     #[tokio::test]
     async fn dialog_observer_ext_marks_message_and_callback_observers_as_used() {
         let router = Router::<Reqwest>::new("dialogs")
-            .on_message(|observer| observer.setup_dialogs::<MemoryStorage>())
-            .on_callback_query(|observer| observer.setup_dialogs::<MemoryStorage>());
+            .on_message(DialogObserverExt::setup_dialogs::<MemoryStorage>)
+            .on_callback_query(DialogObserverExt::setup_dialogs::<MemoryStorage>);
 
         let update_types = router.resolve_used_update_types();
 

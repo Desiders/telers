@@ -416,3 +416,163 @@ impl Button {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use serde_json::{json, Value};
+
+    use super::ButtonStyle;
+    use crate::{
+        entities::{Context, DataMap},
+        widgets::{Button, ButtonAction, FormatText, InlineKeyboard, Keyboard},
+    };
+
+    /// Render a single button inside an [`InlineKeyboard`] and return the
+    /// resulting first-row, first-column [`InlineKeyboardButton`].
+    async fn render_single(
+        button: Button,
+        ctx: &Context,
+        data: &DataMap,
+    ) -> telers::types::InlineKeyboardButton {
+        let keyboard = InlineKeyboard::builder().row([button]).build();
+        let markup = keyboard
+            .render_keyboard_for_test(ctx, data)
+            .await
+            .expect("keyboard should be visible");
+        let rows = markup.inline_keyboard().expect("inline keyboard markup");
+        rows[0][0].clone()
+    }
+
+    #[test]
+    fn button_style_as_str_maps_each_variant() {
+        assert_eq!(ButtonStyle::Danger.as_str(), "danger");
+        assert_eq!(ButtonStyle::Success.as_str(), "success");
+        assert_eq!(ButtonStyle::Primary.as_str(), "primary");
+    }
+
+    #[tokio::test]
+    async fn danger_shortcut_renders_danger_style() {
+        let ctx = Context::new("", "state", Value::Null);
+        let button = Button::action("a", "A", ButtonAction::noop()).danger();
+
+        let rendered = render_single(button, &ctx, &DataMap::new()).await;
+
+        assert_eq!(rendered.style.as_deref(), Some("danger"));
+    }
+
+    #[tokio::test]
+    async fn success_shortcut_renders_success_style() {
+        let ctx = Context::new("", "state", Value::Null);
+        let button = Button::action("a", "A", ButtonAction::noop()).success();
+
+        let rendered = render_single(button, &ctx, &DataMap::new()).await;
+
+        assert_eq!(rendered.style.as_deref(), Some("success"));
+    }
+
+    #[tokio::test]
+    async fn primary_shortcut_renders_primary_style() {
+        let ctx = Context::new("", "state", Value::Null);
+        let button = Button::action("a", "A", ButtonAction::noop()).primary();
+
+        let rendered = render_single(button, &ctx, &DataMap::new()).await;
+
+        assert_eq!(rendered.style.as_deref(), Some("primary"));
+    }
+
+    #[tokio::test]
+    async fn style_method_renders_primary_style() {
+        let ctx = Context::new("", "state", Value::Null);
+        let button = Button::action("a", "A", ButtonAction::noop()).style(ButtonStyle::Primary);
+
+        let rendered = render_single(button, &ctx, &DataMap::new()).await;
+
+        assert_eq!(rendered.style.as_deref(), Some("primary"));
+    }
+
+    #[tokio::test]
+    async fn no_style_renders_none() {
+        let ctx = Context::new("", "state", Value::Null);
+        let button = Button::action("a", "A", ButtonAction::noop());
+
+        let rendered = render_single(button, &ctx, &DataMap::new()).await;
+
+        assert_eq!(rendered.style, None);
+    }
+
+    #[tokio::test]
+    async fn icon_custom_emoji_id_is_rendered() {
+        let ctx = Context::new("", "state", Value::Null);
+        let button = Button::action("a", "A", ButtonAction::noop()).icon_custom_emoji_id("123");
+
+        let rendered = render_single(button, &ctx, &DataMap::new()).await;
+
+        assert_eq!(rendered.icon_custom_emoji_id.as_deref(), Some("123"));
+    }
+
+    #[tokio::test]
+    async fn static_url_button_renders_url_without_callback() {
+        let ctx = Context::new("", "state", Value::Null);
+        let button = Button::url("Open", "https://x.test");
+
+        let rendered = render_single(button, &ctx, &DataMap::new()).await;
+
+        assert_eq!(rendered.url.as_deref(), Some("https://x.test"));
+        assert_eq!(rendered.callback_data, None);
+    }
+
+    #[tokio::test]
+    async fn dynamic_url_button_renders_from_data() {
+        let ctx = Context::new("", "state", Value::Null);
+        let mut data = DataMap::new();
+        data.insert("u".into(), json!("https://dyn.test"));
+        let button = Button::url_dynamic("Open", FormatText::new("{u}"));
+
+        let rendered = render_single(button, &ctx, &data).await;
+
+        assert_eq!(rendered.url.as_deref(), Some("https://dyn.test"));
+        assert_eq!(rendered.callback_data, None);
+    }
+
+    #[tokio::test]
+    async fn dynamic_copy_text_button_renders_from_data() {
+        let ctx = Context::new("", "state", Value::Null);
+        let mut data = DataMap::new();
+        data.insert("c".into(), json!("code123"));
+        let button = Button::copy_text_dynamic("C", FormatText::new("{c}"));
+
+        let rendered = render_single(button, &ctx, &data).await;
+
+        let copy_text = rendered.copy_text.expect("copy_text should be present");
+        assert_eq!(&*copy_text.text, "code123");
+        assert_eq!(rendered.callback_data, None);
+    }
+
+    #[tokio::test]
+    async fn passive_button_yields_no_callback_action() {
+        let ctx = Context::new("", "state", Value::Null);
+        let keyboard = InlineKeyboard::builder()
+            .row([Button::url("Open", "https://x.test")])
+            .build();
+
+        let action = keyboard
+            .handle_callback_for_test(&ctx, &format!("td:{}:anything", ctx.id))
+            .await;
+
+        assert!(action.is_none());
+    }
+
+    #[tokio::test]
+    async fn callback_button_resolves_done_action() {
+        let ctx = Context::new("", "state", Value::Null);
+        let keyboard = InlineKeyboard::builder()
+            .row([Button::done("close", "Close")])
+            .build();
+
+        let action = keyboard
+            .handle_callback_for_test(&ctx, &format!("td:{}:close", ctx.id))
+            .await;
+
+        assert!(matches!(action, Some(ButtonAction::Done)));
+    }
+}

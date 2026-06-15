@@ -23,7 +23,7 @@ async fn catalog_pages(render_ctx: RenderContext) -> usize {
         .data
         .get("items")
         .and_then(Value::as_u64)
-        .unwrap_or(0) as usize;
+        .unwrap_or(0);
     usize::try_from(items.div_ceil(3)).unwrap()
 }
 

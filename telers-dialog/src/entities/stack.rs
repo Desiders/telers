@@ -98,3 +98,104 @@ impl Stack {
         self.has_protected_content = None;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{Stack, DEFAULT_STACK_ID};
+    use serde_json::Value;
+
+    #[test]
+    fn new_is_empty_with_default_id() {
+        let stack = Stack::new();
+
+        assert_eq!(stack.id, DEFAULT_STACK_ID);
+        assert!(stack.is_empty());
+        assert_eq!(stack.last_intent_id(), None);
+        assert_eq!(stack.last_message_id, None);
+        assert_eq!(stack.last_text, None);
+        assert_eq!(stack.last_reply_markup_type, None);
+        assert_eq!(stack.last_reply_markup, None);
+        assert!(stack.access_settings.is_none());
+    }
+
+    #[test]
+    fn push_returns_context_and_tracks_intent() {
+        let mut stack = Stack::new();
+
+        let ctx = stack.push("a", Value::Null);
+
+        assert_eq!(ctx.state, "a");
+        assert!(!stack.is_empty());
+        assert_eq!(stack.last_intent_id(), Some(ctx.id.as_str()));
+    }
+
+    #[test]
+    fn push_propagates_stack_id_to_context() {
+        let mut stack = Stack::new();
+
+        let ctx = stack.push("a", Value::Null);
+
+        assert_eq!(ctx.stack_id, DEFAULT_STACK_ID);
+    }
+
+    #[test]
+    fn pop_returns_most_recent_intent() {
+        let mut stack = Stack::new();
+
+        let first = stack.push("a", Value::Null);
+        let second = stack.push("b", Value::Null);
+
+        assert_eq!(stack.pop(), Some(second.id.clone()));
+        assert_eq!(stack.last_intent_id(), Some(first.id.as_str()));
+    }
+
+    #[test]
+    fn pop_on_fresh_stack_is_none() {
+        let mut stack = Stack::new();
+
+        assert_eq!(stack.pop(), None);
+    }
+
+    #[test]
+    fn push_pop_behaves_as_lifo() {
+        let mut stack = Stack::new();
+
+        let a = stack.push("a", Value::Null);
+        let b = stack.push("b", Value::Null);
+        let c = stack.push("c", Value::Null);
+
+        assert_eq!(stack.pop(), Some(c.id));
+        assert_eq!(stack.pop(), Some(b.id));
+        assert_eq!(stack.last_intent_id(), Some(a.id.as_str()));
+        assert_eq!(stack.pop(), Some(a.id));
+        assert!(stack.is_empty());
+        assert_eq!(stack.pop(), None);
+    }
+
+    #[test]
+    fn clear_last_message_resets_all_fields() {
+        use telers::enums::ReplyMarkupType;
+
+        let mut stack = Stack::new();
+        stack.last_message_id = Some(5);
+        stack.last_text = Some("t".into());
+        stack.last_reply_markup_type = Some(ReplyMarkupType::InlineKeyboardMarkup);
+        stack.last_reply_markup = Some(serde_json::json!({}));
+        stack.last_media_id = Some("file".into());
+        stack.last_income_media_group_id = Some("group".into());
+        stack.has_protected_content = Some(true);
+
+        stack.clear_last_message();
+
+        assert_eq!(stack.last_message_id, None);
+        assert_eq!(stack.last_text, None);
+        assert_eq!(stack.last_reply_markup_type, None);
+        assert_eq!(stack.last_reply_markup, None);
+        assert_eq!(stack.last_media_id, None);
+        assert_eq!(stack.last_media_unique_id, None);
+        assert_eq!(stack.last_media_content_type, None);
+        assert_eq!(stack.last_income_media_group_id, None);
+        assert_eq!(stack.message_type, None);
+        assert_eq!(stack.has_protected_content, None);
+    }
+}

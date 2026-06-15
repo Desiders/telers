@@ -50,3 +50,23 @@ pub enum StartMode {
     /// useful when a new sequence of operations is to be started alongside the current one.
     NewStack,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{LaunchMode, ShowMode, StartMode};
+
+    #[test]
+    fn launch_mode_default_is_standard() {
+        assert_eq!(LaunchMode::default(), LaunchMode::Standard);
+    }
+
+    #[test]
+    fn show_mode_default_is_auto() {
+        assert_eq!(ShowMode::default(), ShowMode::Auto);
+    }
+
+    #[test]
+    fn start_mode_default_is_normal() {
+        assert_eq!(StartMode::default(), StartMode::Normal);
+    }
+}

@@ -96,3 +96,85 @@ fn is_truthy(value: &Data) -> bool {
         Data::Object(value) => !value.is_empty(),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{is_allowed, WhenCondition, WhenContext};
+    use crate::entities::{Context, DataMap};
+    use serde_json::{json, Value};
+
+    fn context() -> Context {
+        Context::new("", "state", Value::Null)
+    }
+
+    #[tokio::test]
+    async fn none_is_always_allowed() {
+        let ctx = context();
+        let data = DataMap::new();
+
+        assert!(is_allowed(None, &ctx, &data).await);
+    }
+
+    #[tokio::test]
+    async fn data_field_missing_is_false() {
+        let ctx = context();
+        let data = DataMap::new();
+        let condition = WhenCondition::data_field("f");
+
+        assert!(!is_allowed(Some(&condition), &ctx, &data).await);
+    }
+
+    #[tokio::test]
+    async fn data_field_truthiness_matrix() {
+        let ctx = context();
+        let condition = WhenCondition::data_field("f");
+
+        let cases = [
+            (json!(true), true),
+            (json!(false), false),
+            (json!(null), false),
+            (json!(0), false),
+            (json!(5), true),
+            (json!(""), false),
+            (json!("x"), true),
+            (json!([]), false),
+            (json!([1]), true),
+            (json!({}), false),
+            (json!({ "k": 1 }), true),
+        ];
+
+        for (value, expected) in cases {
+            let mut data = DataMap::new();
+            data.insert("f".into(), value.clone());
+
+            assert_eq!(
+                is_allowed(Some(&condition), &ctx, &data).await,
+                expected,
+                "value {value} should be {expected}",
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn custom_predicate_reads_when_context_data_present() {
+        let ctx = context();
+        let mut data = DataMap::new();
+        data.insert("go".into(), json!(true));
+
+        let condition =
+            WhenCondition::new(|wc: WhenContext| async move { wc.data.get("go").is_some() });
+
+        assert!(is_allowed(Some(&condition), &ctx, &data).await);
+    }
+
+    #[tokio::test]
+    async fn custom_predicate_reads_when_context_data_absent() {
+        let ctx = context();
+        let data = DataMap::new();
+
+        let condition =
+            WhenCondition::new(|wc: WhenContext| async move { wc.data.get("go").is_some() });
+
+        assert!(!is_allowed(Some(&condition), &ctx, &data).await);
+    }
+}
