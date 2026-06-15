@@ -336,7 +336,8 @@ impl MessageManager {
         }
 
         // Edit text message
-        let mut m = EditMessageText::new(new.text.clone())
+        let mut m = EditMessageText::new()
+            .text(new.text.clone())
             .chat_id(old.chat.id())
             .message_id(old.message_id)
             .business_connection_id_option(old.business_connection_id.clone())
@@ -366,7 +367,8 @@ impl MessageManager {
                 "No valid media source, falling back to text edit"
             );
             // Fall back to text edit if no valid media
-            let mut m = EditMessageText::new(new.text.clone())
+            let mut m = EditMessageText::new()
+                .text(new.text.clone())
                 .chat_id(old.chat.id())
                 .message_id(old.message_id)
                 .business_connection_id_option(old.business_connection_id.clone())
