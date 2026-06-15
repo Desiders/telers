@@ -1,6 +1,6 @@
 # telers-dialog Progress
 
-Updated: 2026-05-16 (UTC)
+Updated: 2026-06-15 (UTC)
 
 ## Goal
 - Focused Rust dialog framework for `telers`, borrowing `aiogram-dialog` behavior only where useful.
@@ -35,20 +35,29 @@ Updated: 2026-05-16 (UTC)
   - Dynamic URL, web app URL, copy text, and switch-inline payload constructors are available.
 - Text:
   - Static text, `FnText`, `FormatText`, `Case`, `MultiText`, `Progress`, `ScrollingText`, `ListText`.
+  - `ListText` supports optional `page_size` pagination: with an `id` it renders one page of items, stores the page in `widget_data[id]`, and implements `Scroll` so a `NumberedPager` can drive it.
   - Optional `template` feature provides `TemplateText` and `TemplateEnvBuilder` backed by `minijinja`.
 - Keyboard:
   - `InlineKeyboard`, `Group`, `Button`, `Select`, request keyboards, `ForceReply`, `WhenCondition`.
   - Stateful widgets: `Checkbox`, `Counter`, `TimeSelect`, `Radio`, `Toggle`, `Multiselect`.
+  - `Calendar` supports `CalendarConfig`, `CalendarAppearance` (label override via `text_renderer`), and `CalendarViews` (full scope replacement).
   - Pager/scroll: `ScrollingGroup`, `SwitchPage`, first/prev/current/next/last wrappers, `NumberedPager`, `StubScroll`, `sync_scroll`.
 - Link preview:
   - `LinkPreview` widget renders `LinkPreviewOptions` from static or dynamic text data.
+- Reply-markup transitions:
+  - The stack persists the real `last_reply_markup_type` (instead of a derived `last_reply_keyboard` flag), so `ForceReply` / `ReplyKeyboardRemove` messages are no longer misclassified as inline keyboards. Leaving a `ForceReply` window no longer triggers a bogus `editMessageReplyMarkup`.
 
 ## Existing Examples
-- Current dialog examples cover button actions, calendar, message input, pager widgets, request widgets, select, stateful select, sync scroll, text widgets, media widgets (static/dynamic/scroll), inline button styles + dynamic payloads, template text (default and custom env), and `ForceReply` prompt flow.
+- A single combined example crate, `examples/dialogs_mega`, bundles the previous standalone dialog examples into one bot. A root menu (`LaunchMode::Root`) starts each feature dialog and every screen returns to it with `Button::done`. Feature dialogs:
+  - text widgets (`FormatText`, `FnText`, `ListText`); template text (default + custom env).
+  - scrolling widgets (`ScrollingGroup`, `ScrollingText`, paged `ListText`, `StubScroll`, `sync_scroll`).
+  - keyboard layouts (`Group` row widths); selection widgets (`Select`, `Radio`, `Multiselect`, `Toggle`); combined stateful widgets.
+  - `Counter` + a `widget_data`-driven progress bar; `Calendar` (default + `CalendarAppearance` custom labels) and `TimeSelect`.
+  - multi-step input with `Case` summary; reply-keyboard request widgets; `TextInput` + `ForceReply`.
+  - inline button styles + dynamic payloads; `Button::on_click`/`action` handlers; `LinkPreview`; media (`StaticMedia`, `DynamicMedia`, `MediaScroll`).
 
 ## Missing Examples
-- Reply markup:
-  - Plain reply-keyboard rows beyond request-only widgets — pending the underlying widget (see Known Gaps).
+- Standalone pager buttons (`FirstPage` / `PrevPage` / `CurrentPage` / `NextPage` / `LastPage` / `SwitchPage`) are exported but not yet demonstrated in the mega example.
 
 ## Known Gaps
 - Generic plain reply-keyboard row builder/factory beyond request-only widgets is still missing.
@@ -61,7 +70,7 @@ Updated: 2026-05-16 (UTC)
 
 ## Validation Snapshot
 - `cargo check -p telers-dialog --all-features`: passes.
-- `cargo test -p telers-dialog --all-features`: 154 unit tests pass, 1 doc test passes, 15 doc tests ignored.
-- `cargo check --workspace --all-features`: passes (covers all 13 dialog example crates).
-- `cargo fmt --check` not run; `rustfmt` not installed for the current toolchain.
-- `cargo clippy` not run; `clippy` not installed for the current toolchain.
+- `cargo test -p telers-dialog --all-features`: 157 unit tests pass, 1 doc test passes, 15 doc tests ignored.
+- `cargo check --workspace --all-features`: passes (the sole dialog example crate is `dialogs_mega`).
+- `cargo fmt -p dialogs_mega`: applied.
+- `cargo clippy -p telers-dialog --all-features` and `cargo clippy -p dialogs_mega`: no warnings in either crate (3 pre-existing `map_or` warnings remain in the `telers` lib).
