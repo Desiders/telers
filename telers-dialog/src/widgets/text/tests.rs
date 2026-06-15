@@ -48,6 +48,66 @@ async fn list_text_renders_items_with_separator() {
 }
 
 #[tokio::test]
+async fn list_text_paginates_when_page_size_set() {
+    let text = ListText::builder()
+        .id("catalog")
+        .page_size(2)
+        .items_getter(|_data| ["one", "two", "three", "four", "five"])
+        .item_renderer(|&item, _data| item.to_owned())
+        .separator(" | ")
+        .build();
+
+    // Without context the widget renders the first page.
+    assert_eq!(&*text.render_text(&DataMap::new()).await, "one | two");
+
+    // The current page comes from `widget_data[id]`.
+    let mut ctx = Context::new("", "state", json!(null));
+    ctx.widget_data.insert("catalog".into(), json!(2));
+    assert_eq!(
+        &*text
+            .render_text_in_context_for_test(&ctx, &DataMap::new())
+            .await,
+        "five"
+    );
+}
+
+#[tokio::test]
+async fn list_text_without_page_size_renders_every_item() {
+    let text = ListText::builder()
+        .items_getter(|_data| ["one", "two", "three"])
+        .item_renderer(|&item, _data| item.to_owned())
+        .separator(",")
+        .build();
+
+    assert_eq!(&*text.render_text(&DataMap::new()).await, "one,two,three");
+}
+
+#[tokio::test]
+async fn list_text_can_drive_numbered_pager_via_scroll_trait() {
+    let text = ListText::builder()
+        .id("catalog")
+        .page_size(2)
+        .items_getter(|_data| ["one", "two", "three", "four", "five"])
+        .item_renderer(|&item, _data| item.to_owned())
+        .build();
+    let markup = NumberedPager::builder(text)
+        .page_renderer(|page, _data| format!("{}", page + 1))
+        .current_page_renderer(|page, _data| format!("[{}]", page + 1))
+        .length(5)
+        .build()
+        .render_keyboard_for_test(&Context::new("", "state", json!(null)), &DataMap::new())
+        .await
+        .unwrap();
+    let rows = markup.inline_keyboard().unwrap();
+
+    // 5 items / 2 per page = 3 pages.
+    assert_eq!(rows.len(), 1);
+    assert_eq!(rows[0].len(), 3);
+    assert_eq!(&*rows[0][0].text, "[1]");
+    assert_eq!(&*rows[0][2].text, "3");
+}
+
+#[tokio::test]
 async fn case_selects_matching_variant() {
     let mut data = DataMap::new();
     data.insert("status".into(), json!("paid"));
