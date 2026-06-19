@@ -10,7 +10,9 @@ all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
-default = []
+default = ["native-tls"]
+native-tls = ["telers/default-tls"]
+rustls-tls = ["telers/rustls-tls"]
 template = ["dep:minijinja"]
 
 [dependencies]
@@ -20,7 +22,7 @@ bon = "3.9"
 minijinja = { version = "2.0", optional = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-telers = { path = "../telers", version = "1.0.0-beta.1" }
+telers = { path = "../telers", version = "1.0.0-beta.1", default-features = false, features = ["std"] }
 thiserror = "2.0"
 time = { version = "0.3", features = ["macros"] }
 tracing = "0.1"
