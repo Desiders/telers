@@ -1,0 +1,22 @@
+# telers-dialog
+
+- Use `aiogram-dialog` only as behavior reference; keep Rust APIs idiomatic over `telers`.
+- Keep state `serde`-serializable for `telers::fsm::Context`.
+- Store shared dialog registration in `DialogRegistry` inside dispatcher extensions.
+- Prefer `DialogObserverExt::setup_dialogs::<S>()` for observer wiring.
+- Register command/custom handlers before `.setup_dialogs::<S>()` when they must win over dialog input.
+- `DialogContextMiddleware` must run before `DialogManagerMiddleware`.
+- Keep builder APIs owned (`self -> Self`) and hide internal wrapping like `Arc`.
+- Follow existing local construction patterns before adding new public APIs:
+  - prefer `#[bon]` on impl blocks over introducing new derive-builder styles;
+  - for hard cases (boxed trait objects, callbacks, internal wrapper fields), copy the existing repo pattern with custom builder-state methods instead of exposing internal storage details;
+  - do not keep old constructor APIs around just for compatibility unless that is explicitly requested.
+- Keep callback data stable and scoped: `td:{intent_id}:{button_id}[:payload]`.
+- Ignore stale callbacks from other intent ids.
+- Keep `DialogManager::done()` and `ShowMode::Auto` aligned with `aiogram-dialog` unless Rust design needs differ.
+- Do not run formatting unless asked.
+- When adding or changing public dialog features/widgets, add or update a runnable example under `examples/dialogs_*`. If an example cannot be added in the same change, record the exact missing example in `PROGRESS.md` under Missing Examples.
+- Do not mark feature work complete if examples are still missing; call that out explicitly in the final response.
+- Keep `PROGRESS.md` up to date after meaningful changes, including implemented features, known gaps, missing examples, and validation status.
+- Keep output short: changes, blockers, validation only.
+- Validate with `cargo check -p telers-dialog --all-features`; run tests/clippy only when relevant or requested.

@@ -1,0 +1,192 @@
+//! Widget-kind tagging and short-hand widget builders for window declarations.
+//!
+//! [`WidgetKind`] is the boxed enum a window stores for each registered widget;
+//! the helper functions ([`text`], [`fn_text`], [`format_text`], [`keyboard`],
+//! [`input`], [`link_preview`], [`media`]) wrap a concrete widget into the
+//! correct variant so the window constructor stays declarative.
+
+use std::borrow::Cow;
+
+use super::{
+    media::MultiMedia, Input, Keyboard, LinkPreviewWidget, Media, MultiInput, MultiKeyboard,
+    MultiText, Text,
+};
+use crate::{
+    entities::DataMap,
+    widgets::{text::MultiTextBuilder, FnText, FormatText},
+};
+
+/// Normalized widget slots for a single window: text (always present),
+/// keyboard, input, link preview, and media.
+pub type WindowWidgets = (
+    Box<dyn Text>,
+    Option<Box<dyn Keyboard>>,
+    Option<Box<dyn Input>>,
+    Option<Box<dyn LinkPreviewWidget>>,
+    Option<Box<dyn Media>>,
+);
+
+/// Tagged widget container used by [`window`](crate::window) declarations.
+///
+/// Each variant carries a boxed trait object so the window can accept a
+/// heterogeneous mix of widgets via a single iterator.
+pub enum WidgetKind {
+    /// Static or computed text rendered as the message body.
+    Text(Box<dyn Text>),
+    /// Inline or reply keyboard attached to the message.
+    Keyboard(Box<dyn Keyboard>),
+    /// Message-side input that consumes user replies.
+    Input(Box<dyn Input>),
+    /// Link-preview options forwarded to Telegram with the message.
+    LinkPreview(Box<dyn LinkPreviewWidget>),
+    /// Media attachment (photo, video, audio, document, animation, ...).
+    Media(Box<dyn Media>),
+}
+
+/// Tag a [`Text`] implementation as a window widget.
+#[inline]
+#[must_use]
+pub fn text(val: impl Text) -> WidgetKind {
+    WidgetKind::Text(Box::new(val))
+}
+
+/// Tag a closure rendering text from `dialog_data` as a window widget.
+#[inline]
+#[must_use]
+pub fn fn_text<Renderer, Item>(renderer: Renderer) -> WidgetKind
+where
+    Renderer: Fn(&DataMap) -> Item + Send + Sync + 'static,
+    Item: Into<Box<str>>,
+{
+    WidgetKind::Text(Box::new(FnText::new(renderer)))
+}
+
+/// Tag a `{field}`-style template as a window widget.
+#[inline]
+#[must_use]
+pub fn format_text(template: impl Into<Cow<'static, str>>) -> WidgetKind {
+    WidgetKind::Text(Box::new(FormatText::new(template)))
+}
+
+/// Tag a [`Keyboard`] implementation as a window widget.
+#[inline]
+#[must_use]
+pub fn keyboard(val: impl Keyboard) -> WidgetKind {
+    WidgetKind::Keyboard(Box::new(val))
+}
+
+/// Tag an [`Input`] implementation as a window widget.
+#[inline]
+#[must_use]
+pub fn input(val: impl Input) -> WidgetKind {
+    WidgetKind::Input(Box::new(val))
+}
+
+/// Tag a [`LinkPreviewWidget`] implementation as a window widget.
+#[inline]
+#[must_use]
+pub fn link_preview(val: impl LinkPreviewWidget) -> WidgetKind {
+    WidgetKind::LinkPreview(Box::new(val))
+}
+
+/// Tag a [`Media`] implementation as a window widget.
+#[inline]
+#[must_use]
+pub fn media(val: impl Media) -> WidgetKind {
+    WidgetKind::Media(Box::new(val))
+}
+
+/// Normalize a window widget list into the concrete slots used by `WindowImpl`.
+///
+/// # Panics
+/// Panics if no text widget is present.
+pub(crate) fn ensure_widgets(widgets: impl IntoIterator<Item = WidgetKind>) -> WindowWidgets {
+    let mut texts = Vec::new();
+    let mut kbds = Vec::new();
+    let mut inputs = Vec::new();
+    let mut link_previews = Vec::new();
+    let mut medias = Vec::new();
+    for widget in widgets {
+        match widget {
+            WidgetKind::Text(val) => texts.push(val),
+            WidgetKind::Keyboard(val) => kbds.push(val),
+            WidgetKind::Input(val) => inputs.push(val),
+            WidgetKind::LinkPreview(val) => link_previews.push(val),
+            WidgetKind::Media(val) => medias.push(val),
+        }
+    }
+    let text = match texts.len() {
+        0 => panic!("`Window` must have at least one `Text` widget"),
+        1 => texts.pop().unwrap(),
+        _ => Box::new(
+            texts
+                .into_iter()
+                .fold(MultiText::builder(), MultiTextBuilder::text_boxed)
+                .build(),
+        ),
+    };
+    let kbd: Option<_> = match kbds.len() {
+        0 => None,
+        1 => Some(kbds.pop().unwrap()),
+        _ => Some(Box::new(
+            kbds.into_iter()
+                .fold(MultiKeyboard::new(), MultiKeyboard::kbd_boxed),
+        )),
+    };
+    let input: Option<_> = match inputs.len() {
+        0 => None,
+        1 => Some(inputs.pop().expect("single input")),
+        _ => Some(Box::new(
+            inputs
+                .into_iter()
+                .fold(MultiInput::new(), MultiInput::input_boxed),
+        )),
+    };
+    let link_preview = link_previews.pop();
+    let media: Option<_> = match medias.len() {
+        0 => None,
+        1 => Some(medias.pop().expect("single media")),
+        _ => Some(Box::new(
+            medias
+                .into_iter()
+                .fold(MultiMedia::builder(), |builder, media| {
+                    builder.media_boxed(media)
+                })
+                .build(),
+        )),
+    };
+    (text, kbd, input, link_preview, media)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{input, keyboard, link_preview, text, WidgetKind};
+    use crate::widgets::{
+        Button, ButtonAction, InlineKeyboard, LinkPreview, TextInput, TextInputContext,
+    };
+
+    async fn noop_input(_ctx: TextInputContext, _val: i64) -> ButtonAction {
+        ButtonAction::noop()
+    }
+
+    #[tokio::test]
+    async fn shortcut_builders_return_expected_widget_kinds() {
+        assert!(matches!(text("hello"), WidgetKind::Text(_)));
+        assert!(matches!(
+            keyboard(
+                InlineKeyboard::builder()
+                    .row([Button::done("done", "Done")])
+                    .build()
+            ),
+            WidgetKind::Keyboard(_)
+        ));
+        assert!(matches!(
+            input(TextInput::builder("id").on_success(noop_input).build()),
+            WidgetKind::Input(_)
+        ));
+        assert!(matches!(
+            link_preview(LinkPreview::builder().is_disabled(true).build()),
+            WidgetKind::LinkPreview(_)
+        ));
+    }
+}

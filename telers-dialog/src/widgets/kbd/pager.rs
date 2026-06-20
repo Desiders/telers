@@ -1,0 +1,28 @@
+//! Pagination widgets and page-change helpers.
+//!
+//! The pager module contains:
+//! - [`ScrollingGroup`] for paged keyboard layouts
+//! - standalone pager controls such as [`SwitchPage`] and [`NumberedPager`]
+//! - synchronization helpers like [`sync_scroll`]
+
+mod common;
+mod scrolling_group;
+mod standalone;
+mod stub_scroll;
+
+use common::{
+    build_pager_row, handle_pager_callback, page_count_from_rows, read_page,
+    render_direction_button, render_fixed_width_page,
+};
+
+pub use common::{
+    sync_scroll, sync_scrolls, BaseScroll, OnPageChanged, PageChange, PageDirection, Scroll,
+};
+pub use scrolling_group::ScrollingGroup;
+pub use standalone::{
+    CurrentPage, FirstPage, LastPage, NextPage, NumberedPager, PagerBinding, PrevPage, SwitchPage,
+};
+pub use stub_scroll::{StubScroll, StubScrollPages};
+
+#[cfg(test)]
+mod tests;
