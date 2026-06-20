@@ -1,0 +1,22 @@
+name: cleanup-images
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+permissions:
+  packages: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          owner: ${{ github.repository_owner }}
+          packages: telers/dialogs-mega
+          keep-n-tagged: 3
+          exclude-tags: latest,dev-1.x,master
+          delete-untagged: true
