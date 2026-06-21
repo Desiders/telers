@@ -46,7 +46,13 @@ BOT_TOKEN=<your_bot_token> cargo run --package dialogs_mega
 
 ## Docker
 
-This example ships a [`Dockerfile`](Dockerfile) (Alpine + rustls). Build it from the repository root:
+### Run the published image (no build)
+
+```bash
+docker run --rm -e BOT_TOKEN=<your_bot_token> ghcr.io/desiders/telers/dialogs-mega:latest
+```
+
+### Build it yourself
 
 ```bash
 docker build -f examples/dialogs_mega/Dockerfile -t dialogs-mega .
