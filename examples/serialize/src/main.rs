@@ -1,10 +1,3 @@
-//! This example shows how to serialize Telegram types.
-//!
-//! You can run this example by setting `BOT_TOKEN` and running:
-//! ```bash
-//! BOT_TOKEN={your_bot_token} cargo run --package serialize
-//! ```
-
 use telers::{
     enums::{ParseMode, UpdateType},
     errors::HandlerError,

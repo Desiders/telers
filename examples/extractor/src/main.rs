@@ -1,16 +1,3 @@
-//! This example shows how to use [`Extractor`] to extract data and use it in handlers.
-//! Check out the documentation of the [`extractor module`] for more information
-//!
-//! You can run this example by setting `BOT_TOKEN` and running:
-//! ```bash
-//! BOT_TOKEN={your_bot_token} cargo run --package extractor
-//! ```
-//!
-//! [`Extractor`]: telers::Extractor
-//! [`FromEvent`]: telers::FromEvent
-//! [`FromContext`]: telers::FromContext
-//! [`extractor module`]: telers::extractor
-
 use std::convert::Infallible;
 use telers::{
     enums::UpdateType,

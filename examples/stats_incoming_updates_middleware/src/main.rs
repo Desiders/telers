@@ -1,13 +1,3 @@
-//! This example shows how to create a middleware that count incoming updates and processed handlers.
-//! [`IncomingUpdates`] middleware counter increments when an update arrives.
-//! [`ProcessedHandlers`] middleware counter increments when a handler successfully processed.
-//! Every counterer is passes to the handler in the context.
-//!
-//! You can run this example by setting `BOT_TOKEN` and running:
-//! ```bash
-//! BOT_TOKEN={your_bot_token} cargo run --package stats_incoming_updates_middleware
-//! ```
-
 use std::sync::{
     atomic::{AtomicUsize, Ordering},
     Arc,

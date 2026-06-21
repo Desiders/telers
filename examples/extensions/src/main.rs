@@ -1,15 +1,3 @@
-//! This example shows how to use [`Extensions`] to save data and use it in handlers as [`Extension`].
-//! Check out the documentation of the [`extensions module`] for more information.
-//!
-//! You can run this example by setting `BOT_TOKEN` and running:
-//! ```bash
-//! BOT_TOKEN={your_bot_token} cargo run --package extensions
-//! ```
-//!
-//! [`Extension`]: telers::Extension
-//! [`Extensions`]: telers::Extensions
-//! [`extensions module`]: telers::extensions
-
 use std::{convert::Infallible, future::Future};
 use telers::{
     enums::UpdateType,

@@ -1,14 +1,3 @@
-//! This example shows how to create a router tree.
-//! Router tree is a tree of routers, where each router can have multiple children routers.
-//! Each router can have multiple handlers for different update types and filters.
-//! When update is received, it is passed to the main router, which will pass it to the first child router, which can handle this update.
-//! If child router can't handle this update, it will pass it to the next child router, and so on.
-//!
-//! You can run this example by setting `BOT_TOKEN` and running:
-//! ```bash
-//! BOT_TOKEN={your_bot_token} cargo run --package router_tree
-//! ```
-
 use std::sync::{
     atomic::{AtomicUsize, Ordering},
     Arc,

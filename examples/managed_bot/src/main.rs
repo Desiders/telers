@@ -1,19 +1,3 @@
-//! This example shows how to create a managed bot that echoes all messages it receives,
-//! and handles managed bot creation events.
-//!
-//! The main bot listens for `ManagedBotCreated` messages and `ManagedBot` updates.
-//! When a new managed bot is created, it spawns a separate dispatcher for it,
-//! sharing the same router configuration and graceful shutdown signal.
-//!
-//! # Warning
-//! This example doesn't show how to save managed bot tokens, it's only for demonstration purposes.
-//! It's recommended to use a persistent storage to store managed bot tokens and run them in a separate process.
-//!
-//! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
-//! ```bash
-//! BOT_TOKEN={your_bot_token} cargo run --package managed_bot
-//! ```
-
 use std::sync::Arc;
 use telers::{
     enums,

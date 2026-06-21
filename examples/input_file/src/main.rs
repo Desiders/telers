@@ -1,10 +1,3 @@
-//! This example shows how to use [`InputFile`] and send files by the bot.
-//!
-//! You can run this example by setting `BOT_TOKEN` and running:
-//! ```bash
-//! BOT_TOKEN={your_bot_token} cargo run --package input_file
-//! ```
-
 use bytes::BytesMut;
 use futures::{TryFutureExt as _, TryStreamExt as _};
 use telers::{

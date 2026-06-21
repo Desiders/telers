@@ -1,11 +1,3 @@
-//! This example shows how to format text sending by the bot.
-//! In this example we use HTML formatting, but you can use Markdown formatting too, but you can't use both formatting in one message.
-//!
-//! You can run this example by setting `BOT_TOKEN` and running:
-//! ```bash
-//! BOT_TOKEN={your_bot_token} cargo run --package text_formatting
-//! ```
-
 use telers::{
     enums::{ParseMode, UpdateType},
     event::telegram::{Handler, HandlerResult},

@@ -1,22 +1,3 @@
-//! This example shows how to use [`FSMContextMiddleware`] and [`StateFilter`] to use a finite state machine with a user in business connection.
-//! In this example we will ask user for his name and language,
-//! if languase isn't "acceptable", we will ask him to choose another one.
-//! After that all steps will be finished and we will send a message with user's name and language to him and
-//! finish conversation.
-//!
-//! In this example we will use [`MemoryStorage`] as storage for [`FSMContextMiddleware`], but you can use any storage,
-//! which implements `Storage` trait.
-//! This storage isn't recommended for production use, because it doesn't persist data between restarts, but it's
-//! useful for testing and example purposes and easy to use.
-//! We the same use [`StateFilter`] to filter states and call handlers only when state is equal to some value.
-//!
-//! More information about FSM you can find in [`telers::fsm`] and [`FSMContextMiddleware`] documentation.
-//!
-//! You can run this example by setting `BOT_TOKEN` and running:
-//! ```bash
-//! BOT_TOKEN={your_bot_token} cargo run --package fsm_and_business_connection
-//! ```
-
 use telers::{
     enums::{MessageType::Text, UpdateType},
     event::telegram::{Handler, HandlerResult},

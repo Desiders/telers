@@ -1,30 +1,3 @@
-//! "Mega" demo bot for `telers-dialog`.
-//!
-//! This example combines the smaller `dialogs_*` examples into a single bot. A
-//! root *main menu* dialog starts each feature dialog with
-//! [`StartMode::Normal`], so every feature dialog is pushed on top of the menu
-//! and a `☰ Main menu` button ([`Button::done`]) pops back to it.
-//!
-//! Feature dialogs covered:
-//! - text widgets (`FormatText`, `FnText`, `ListText`)
-//! - template text (`TemplateText`, requires the `template` feature)
-//! - scrolling widgets (`ScrollingGroup`, `ScrollingText`, `StubScroll`, `sync_scroll`)
-//! - keyboard layouts (`Group` with different `items_per_row`)
-//! - selection widgets (`Select`, `Radio`, `Multiselect`, `Toggle`)
-//! - combined stateful widgets in one window
-//! - `Counter` paired with a `widget_data`-driven progress bar
-//! - `Calendar` and `TimeSelect`
-//! - step-by-step input with `Next`/`Back` and a `Case` summary
-//! - reply-keyboard request widgets (`RequestContact`, `RequestLocation`, `RequestPoll`)
-//! - inline button styles and dynamic payloads
-//! - link-preview options (`LinkPreview`)
-//! - media widgets (`StaticMedia`, `DynamicMedia`)
-//!
-//! Run with:
-//! ```bash
-//! BOT_TOKEN={your_bot_token} cargo run --package dialogs_mega
-//! ```
-
 mod common;
 mod dialogs;
 

@@ -1,10 +1,3 @@
-//! This example shows how to receive updates from business connections.
-//!
-//! You can run this example by setting `BOT_TOKEN` and running:
-//! ```bash
-//! BOT_TOKEN={your_bot_token} cargo run --package business_connection
-//! ```
-
 use telers::{
     event::telegram::{Handler, HandlerResult},
     methods::SendMessage,

@@ -1,11 +1,3 @@
-//! This example shows how to use the `Stickers` and `StickerSet`
-//! types and how to use the Telegram bot API methods for processing stickers.
-//!
-//! You can run this example by setting `BOT_TOKEN` and running:
-//! ```bash
-//! BOT_TOKEN={your_bot_token} cargo run --package random_sticker
-//! ```
-
 use rand::RngExt as _;
 use telers::{
     enums::{

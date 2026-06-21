@@ -1,10 +1,3 @@
-//! This example shows how to setup webhooks for a bot using `axum` server.
-//!
-//! You can run this example by setting `BOT_TOKEN` and running:
-//! ```bash
-//! BOT_TOKEN={your_bot_token} cargo run --package axum_webhook
-//! ```
-
 use std::fmt::Display;
 
 use axum::Router as AxumRouter;

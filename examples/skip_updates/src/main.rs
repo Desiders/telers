@@ -1,10 +1,3 @@
-//! This example shows how to create a bot that skips updates and only processes new updates.
-//!
-//! You can run this example by setting `BOT_TOKEN` and running:
-//! ```bash
-//! BOT_TOKEN={your_bot_token} cargo run --package skip_updates
-//! ```
-
 use telers::{
     enums::UpdateType,
     event::telegram::{Handler, HandlerResult},

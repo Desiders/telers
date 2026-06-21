@@ -1,11 +1,3 @@
-//! This example shows how to create text case filters.
-//! First filter checks if the message is uppercase, second filter checks if the message is lowercase, third filter checks if the message is any case.
-//!
-//! You can run this example by setting `BOT_TOKEN` and running:
-//! ```bash
-//! BOT_TOKEN={your_bot_token} cargo run --package text_case_filters
-//! ```
-
 use std::{convert::Infallible, future::Future};
 use telers::{
     enums::UpdateType,

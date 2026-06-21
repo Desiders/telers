@@ -1,10 +1,3 @@
-//! This example shows how to create an echo bot and how to run it concurrently with polling `axum` server.
-//!
-//! You can run this example by setting `BOT_TOKEN` and running:
-//! ```bash
-//! BOT_TOKEN={your_bot_token} cargo run --package axum_and_echo_bot
-//! ```
-
 use axum::{routing, Router as AxumRouter};
 use std::sync::Arc;
 use telers::{

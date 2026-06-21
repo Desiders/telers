@@ -1,14 +1,3 @@
-//! This example shows how to use [`Context`] to save data and use it in handlers.
-//! Check out the documentation of the [`context module`] for more information.
-//!
-//! You can run this example by setting `BOT_TOKEN` and running:
-//! ```bash
-//! BOT_TOKEN={your_bot_token} cargo run --package context
-//! ```
-//!
-//! [`Context`]: telers::Context
-//! [`context module`]: telers::context
-
 use telers::{
     enums::UpdateType,
     errors::EventErrorKind,
