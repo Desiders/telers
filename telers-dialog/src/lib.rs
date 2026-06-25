@@ -28,4 +28,5 @@ pub use manager::DialogManager;
 pub use message_manager::MessageManager;
 pub use registry::DialogRegistry;
 pub use setup::{DialogContextMiddleware, DialogManagerMiddleware, DialogObserverExt};
+pub use widgets::media::{InMemoryMediaIdStorage, MediaIdStorage};
 pub use window::{window, IntoWindow, Window};

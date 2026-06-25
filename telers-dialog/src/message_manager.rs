@@ -8,8 +8,8 @@ use telers::{
     client::Session,
     enums::{MessageType, ReplyMarkupType},
     methods::{
-        DeleteMessage, EditMessageMedia, EditMessageReplyMarkup, EditMessageText, SendAnimation,
-        SendAudio, SendDocument, SendMessage, SendPhoto, SendVideo,
+        DeleteMessage, EditMessageCaption, EditMessageMedia, EditMessageReplyMarkup,
+        EditMessageText, SendAnimation, SendAudio, SendDocument, SendMessage, SendPhoto, SendVideo,
     },
     types::{
         InputFile, InputMedia, InputMediaAnimation, InputMediaAudio, InputMediaDocument,
@@ -344,8 +344,10 @@ impl MessageManager {
             return Self::send_message(bot, new).await;
         }
 
-        // Edit media message
         if let Some(ref media) = new.media {
+            if Self::media_unchanged(media, old) {
+                return Self::edit_caption_message(bot, &new, old).await;
+            }
             return Self::edit_media_message(bot, &new, media, old).await;
         }
 
@@ -365,6 +367,35 @@ impl MessageManager {
             Either::Right(_) => {
                 unreachable!("EditMessageText should return Message")
             }
+        }
+    }
+
+    fn media_unchanged(media: &MediaAttachment, old: &OldMessage) -> bool {
+        match (media.get_file_id(), old.media_file_id.as_deref()) {
+            (Some(new_id), Some(old_id)) => new_id == old_id,
+            _ => false,
+        }
+    }
+
+    async fn edit_caption_message<Client: Session>(
+        bot: &Bot<Client>,
+        new: &NewMessage,
+        old: &OldMessage,
+    ) -> Result<telers::types::Message, DialogError> {
+        let mut m = EditMessageCaption::new()
+            .chat_id(old.chat.id())
+            .message_id(old.message_id)
+            .business_connection_id_option(old.business_connection_id.clone())
+            .parse_mode_option(new.parse_mode.clone());
+        if !new.text.is_empty() {
+            m = m.caption(new.text.clone());
+        }
+        if let Some(ReplyMarkup::InlineKeyboardMarkup(ref kb)) = new.reply_markup {
+            m = m.reply_markup(kb.clone());
+        }
+        match bot.send(m).await? {
+            Either::Left(msg) => Ok(msg),
+            Either::Right(_) => unreachable!("EditMessageCaption should return Message"),
         }
     }
 
@@ -753,6 +784,25 @@ mod tests {
             &new,
             &old_media_message(&old_media)
         ));
+    }
+
+    #[tokio::test]
+    async fn media_unchanged_matches_only_equal_file_ids() {
+        let media = MediaAttachment::builder(MediaContentType::Photo)
+            .file_id(MediaId::new("file-1"))
+            .build();
+        let old = old_media_message(&media);
+        assert!(MessageManager::media_unchanged(&media, &old));
+
+        let other = MediaAttachment::builder(MediaContentType::Photo)
+            .file_id(MediaId::new("file-2"))
+            .build();
+        assert!(!MessageManager::media_unchanged(&other, &old));
+
+        let url_media = MediaAttachment::builder(MediaContentType::Photo)
+            .url("http://x/a.jpg")
+            .build();
+        assert!(!MessageManager::media_unchanged(&url_media, &old));
     }
 
     #[tokio::test]

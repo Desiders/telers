@@ -2,6 +2,7 @@ use crate::{
     dialog::{Dialog, IntoDialog},
     entities::{DefaultAccessValidator, StackAccessValidator},
     errors::DialogError,
+    widgets::media::{InMemoryMediaIdStorage, MediaIdStorage},
 };
 use std::{collections::BTreeMap, sync::Arc};
 use tracing::warn;
@@ -14,6 +15,7 @@ pub struct DialogRegistry {
     dialogs: Vec<Arc<dyn Dialog>>,
     state_index: BTreeMap<String, usize>,
     access_validator: Arc<dyn StackAccessValidator>,
+    media_id_storage: Arc<dyn MediaIdStorage>,
 }
 
 impl Default for DialogRegistry {
@@ -22,6 +24,7 @@ impl Default for DialogRegistry {
             dialogs: Vec::new(),
             state_index: BTreeMap::new(),
             access_validator: Arc::new(DefaultAccessValidator),
+            media_id_storage: Arc::new(InMemoryMediaIdStorage::default()),
         }
     }
 }
@@ -32,6 +35,7 @@ impl Clone for DialogRegistry {
             dialogs: self.dialogs.clone(),
             state_index: self.state_index.clone(),
             access_validator: self.access_validator.clone(),
+            media_id_storage: self.media_id_storage.clone(),
         }
     }
 }
@@ -80,6 +84,19 @@ impl DialogRegistry {
     #[must_use]
     pub fn access_validator(&self) -> &dyn StackAccessValidator {
         self.access_validator.as_ref()
+    }
+
+    /// Replace the storage used to cache uploaded media `file_id`s.
+    #[must_use]
+    pub fn with_media_id_storage(mut self, storage: impl MediaIdStorage + 'static) -> Self {
+        self.media_id_storage = Arc::new(storage);
+        self
+    }
+
+    /// Access the storage used to reuse uploaded media `file_id`s across renders.
+    #[must_use]
+    pub fn media_id_storage(&self) -> &dyn MediaIdStorage {
+        self.media_id_storage.as_ref()
     }
 }
 
@@ -203,5 +220,64 @@ mod tests {
         assert!(!registry
             .access_validator()
             .is_allowed(&Stack::new(), None, &event, &event_ctx));
+    }
+
+    #[test]
+    fn default_registry_has_working_media_id_storage() {
+        use crate::widgets::media::{MediaContentType, MediaId};
+
+        let registry = DialogRegistry::new();
+        registry.media_id_storage().save_media_id(
+            None,
+            Some("u"),
+            MediaContentType::Photo,
+            MediaId::new("f"),
+        );
+
+        assert_eq!(
+            registry
+                .media_id_storage()
+                .get_media_id(None, Some("u"), MediaContentType::Photo),
+            Some(MediaId::new("f"))
+        );
+    }
+
+    #[test]
+    fn with_media_id_storage_replaces_default() {
+        use crate::widgets::media::{MediaContentType, MediaId, MediaIdStorage};
+
+        struct NoopStorage;
+        impl MediaIdStorage for NoopStorage {
+            fn get_media_id(
+                &self,
+                _: Option<&str>,
+                _: Option<&str>,
+                _: MediaContentType,
+            ) -> Option<MediaId> {
+                None
+            }
+
+            fn save_media_id(
+                &self,
+                _: Option<&str>,
+                _: Option<&str>,
+                _: MediaContentType,
+                _: MediaId,
+            ) {
+            }
+        }
+
+        let registry = DialogRegistry::new().with_media_id_storage(NoopStorage);
+        registry.media_id_storage().save_media_id(
+            None,
+            Some("u"),
+            MediaContentType::Photo,
+            MediaId::new("f"),
+        );
+
+        assert!(registry
+            .media_id_storage()
+            .get_media_id(None, Some("u"), MediaContentType::Photo)
+            .is_none());
     }
 }

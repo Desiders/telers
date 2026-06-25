@@ -11,11 +11,13 @@ mod base;
 mod dynamic;
 mod scroll;
 mod r#static;
+mod storage;
 
 pub use base::{Media, MediaAttachment, MediaContentType, MediaId, MultiMedia};
 pub use dynamic::DynamicMedia;
 pub use r#static::StaticMedia;
 pub use scroll::MediaScroll;
+pub use storage::{InMemoryMediaIdStorage, MediaIdStorage};
 
 #[cfg(test)]
 mod tests;

@@ -6,7 +6,7 @@ use crate::{
     errors::DialogError,
     message_manager::MessageManager,
     registry::DialogRegistry,
-    widgets::{ButtonAction, ClickContext},
+    widgets::{media::MediaId, ButtonAction, ClickContext},
 };
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, mem};
@@ -1029,8 +1029,44 @@ impl<S: Storage> DialogManager<S> {
         if msg.show_mode == ShowMode::Auto {
             msg.show_mode = self.calc_show_mode(stack, event_ctx);
         }
+        let media_source = msg.media.as_ref().and_then(|media| {
+            (media.path.is_some() || media.url.is_some()).then(|| {
+                (
+                    media.path.as_deref().map(Box::<str>::from),
+                    media.url.as_deref().map(Box::<str>::from),
+                    media.content_type,
+                )
+            })
+        });
+        if let Some(media) = msg.media.as_mut() {
+            if media.file_id.is_none() {
+                if let Some(cached) = self.registry.media_id_storage().get_media_id(
+                    media.path.as_deref(),
+                    media.url.as_deref(),
+                    media.content_type,
+                ) {
+                    media.file_id = Some(cached);
+                }
+            }
+        }
         let old_message = self.get_last_message(stack, event_ctx);
         let new_old = MessageManager::show_message(bot, msg, old_message).await?;
+        if let Some((path, url, content_type)) = media_source {
+            if let Some(file_id) = new_old.media_file_id.as_deref() {
+                let media_id = match new_old.media_unique_id.as_deref() {
+                    Some(unique_id) => {
+                        MediaId::with_unique_id(file_id.to_owned(), unique_id.to_owned())
+                    }
+                    None => MediaId::new(file_id.to_owned()),
+                };
+                self.registry.media_id_storage().save_media_id(
+                    path.as_deref(),
+                    url.as_deref(),
+                    content_type,
+                    media_id,
+                );
+            }
+        }
         let stack = storage.current_stack_mut();
         stack.last_message_id = Some(new_old.message_id);
         stack.last_text.clone_from(&new_old.text);

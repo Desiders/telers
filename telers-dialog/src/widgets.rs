@@ -23,7 +23,8 @@ pub use kbd::{
 };
 pub use link_preview::{LinkPreview, LinkPreviewWidget};
 pub use media::{
-    DynamicMedia, Media, MediaAttachment, MediaContentType, MediaId, MediaScroll, StaticMedia,
+    DynamicMedia, InMemoryMediaIdStorage, Media, MediaAttachment, MediaContentType, MediaId,
+    MediaIdStorage, MediaScroll, StaticMedia,
 };
 pub use text::{Case, FnText, FormatText, ListText, MultiText, Progress, ScrollingText, Text};
 #[cfg(feature = "template")]
