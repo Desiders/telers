@@ -236,13 +236,18 @@ impl MessageManager {
         if Self::had_reply_keyboard(old) || Self::need_reply_keyboard(new) {
             return false;
         }
-        // Cannot edit if switching between text and media messages
-        if new.has_media() != old.has_media() {
-            return false;
-        }
-        // Cannot edit if media type changed (need to resend)
-        if Self::media_type_changed(new, old) {
-            return false;
+        if old.has_media() {
+            // Cannot turn a media message back into text: `editMessageText` only edits
+            // text/rich/game messages. The reverse, text -> media, *is* editable: since Bot
+            // API 10.1 `editMessageMedia` can replace a text message with media.
+            if !new.has_media() {
+                return false;
+            }
+            // Between two media messages, the type must stay one `editMessageMedia` can
+            // produce (e.g. not voice/video_note); otherwise resend.
+            if Self::media_type_changed(new, old) {
+                return false;
+            }
         }
         true
     }
@@ -783,6 +788,30 @@ mod tests {
         assert!(MessageManager::message_changed(
             &new,
             &old_media_message(&old_media)
+        ));
+    }
+
+    #[tokio::test]
+    async fn can_edit_allows_text_to_media_but_not_media_to_text() {
+        let photo = MediaAttachment::builder(MediaContentType::Photo)
+            .file_id(MediaId::new("file-1"))
+            .build();
+
+        // text (old) -> media (new): editable via editMessageMedia (Bot API 10.1).
+        let to_media = new_message(None).with_media(Some(photo.clone()));
+        assert!(MessageManager::can_edit(&to_media, &old_message(None)));
+
+        // media (old) -> text (new): not editable, must resend.
+        let to_text = new_message(None);
+        assert!(!MessageManager::can_edit(
+            &to_text,
+            &old_media_message(&photo)
+        ));
+
+        // media -> media of the same type stays editable.
+        assert!(MessageManager::can_edit(
+            &to_media,
+            &old_media_message(&photo)
         ));
     }
 
