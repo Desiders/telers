@@ -143,7 +143,7 @@ impl TextFormatter for Formatter {
         E: Display,
     {
         format!(
-            "<{tag} data-emoji-id=\"{emoji_id}\">{text}</{tag}>",
+            "<{tag} emoji-id=\"{emoji_id}\">{text}</{tag}>",
             tag = self.emoji,
         )
     }
@@ -440,7 +440,7 @@ mod tests {
         let formatter = Formatter::default();
         assert_eq!(
             formatter.custom_emoji("text", "emoji_id"),
-            "<tg-emoji data-emoji-id=\"emoji_id\">text</tg-emoji>"
+            "<tg-emoji emoji-id=\"emoji_id\">text</tg-emoji>"
         );
     }
 

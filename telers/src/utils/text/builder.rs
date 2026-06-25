@@ -540,7 +540,7 @@ mod tests {
             <pre><code class=\"language-python\">pre_language</code></pre> \
             <a href=\"https://example.com\">text_link</a> \
             <a href=\"tg://user?id=0\">text_mention</a> \
-            <tg-emoji data-emoji-id=\"emoji_id\">custom_emoji</tg-emoji> \
+            <tg-emoji emoji-id=\"emoji_id\">custom_emoji</tg-emoji> \
             <blockquote>blockquote</blockquote> \
             <blockquote expandable>expandable_blockquote</blockquote>\
             "
