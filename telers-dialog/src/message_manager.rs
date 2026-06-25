@@ -120,6 +120,8 @@ impl MessageManager {
             _ => None,
         };
 
+        let (media_file_id, media_unique_id) = Self::media_ids(message_result);
+
         OldMessage::new(
             message_result.chat().clone(),
             message_result.message_id(),
@@ -133,11 +135,23 @@ impl MessageManager {
             Some(message_type),
             serialize_option(sent_message.link_preview_options.as_ref()),
         )
-        .with_media(
-            message_result.file_id().map(ToOwned::to_owned),
-            message_result.file_unique_id().map(ToOwned::to_owned),
-            media_content_type,
-        )
+        .with_media(media_file_id, media_unique_id, media_content_type)
+    }
+
+    fn media_ids(message: &Message) -> (Option<Box<str>>, Option<Box<str>>) {
+        if let Some(file_id) = message.file_id() {
+            return (
+                Some(file_id.into()),
+                message.file_unique_id().map(Into::into),
+            );
+        }
+        if let Some(size) = message.photo().and_then(<[_]>::last) {
+            return (
+                Some(size.file_id.clone()),
+                Some(size.file_unique_id.clone()),
+            );
+        }
+        (None, None)
     }
 
     /// Returns true if old message had reply keyboard.
@@ -621,7 +635,8 @@ mod tests {
         enums::{MessageType, ReplyMarkupType},
         types::{
             ChatPrivate, InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton,
-            LinkPreviewOptions, ReplyKeyboardMarkup, ReplyMarkup,
+            LinkPreviewOptions, Message, MessagePhoto, MessageText, PhotoSize, ReplyKeyboardMarkup,
+            ReplyMarkup,
         },
         Bot,
     };
@@ -785,5 +800,34 @@ mod tests {
             .expect_err("NoUpdate without old message must fail");
 
         assert!(matches!(err, DialogError::DialogNotFound));
+    }
+
+    #[test]
+    fn media_ids_uses_largest_photo_size() {
+        let photo: Message = MessagePhoto::new(
+            1,
+            0,
+            ChatPrivate::new(1),
+            [
+                PhotoSize::new("small-id", "small-uniq", 90, 90),
+                PhotoSize::new("large-id", "large-uniq", 600, 400),
+            ],
+        )
+        .into();
+
+        let (file_id, unique_id) = MessageManager::media_ids(&photo);
+
+        assert_eq!(file_id.as_deref(), Some("large-id"));
+        assert_eq!(unique_id.as_deref(), Some("large-uniq"));
+    }
+
+    #[test]
+    fn media_ids_none_for_text_message() {
+        let text: Message = MessageText::new(1, 0, ChatPrivate::new(1), "hi").into();
+
+        let (file_id, unique_id) = MessageManager::media_ids(&text);
+
+        assert!(file_id.is_none());
+        assert!(unique_id.is_none());
     }
 }
