@@ -110,13 +110,13 @@ where
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
     pub fn mention(self, username: impl Into<Box<str>>) -> Self {
-        let username = username.into();
+        let mention = format!("@{}", username.into());
         let entity = MessageEntity::Mention(MessageEntityMention::new(
             self.text.len() as u16,
-            username.len() as u16,
+            mention.len() as u16,
         ));
 
-        self.text(username)
+        self.text(mention)
             .entity(&entity)
             .expect("Failed to add mention. Report this issue to the developers")
     }
@@ -125,13 +125,13 @@ where
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
     pub fn hashtag(self, tag: impl Into<Box<str>>) -> Self {
-        let tag = tag.into();
+        let hashtag = format!("#{}", tag.into());
         let entity = MessageEntity::Hashtag(MessageEntityHashtag::new(
             self.text.len() as u16,
-            tag.len() as u16,
+            hashtag.len() as u16,
         ));
 
-        self.text(tag)
+        self.text(hashtag)
             .entity(&entity)
             .expect("Failed to add hashtag. Report this issue to the developers")
     }
@@ -140,13 +140,13 @@ where
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
     pub fn cashtag(self, tag: impl Into<Box<str>>) -> Self {
-        let tag = tag.into();
+        let cashtag = format!("${}", tag.into());
         let entity = MessageEntity::Cashtag(MessageEntityCashtag::new(
             self.text.len() as u16,
-            tag.len() as u16,
+            cashtag.len() as u16,
         ));
 
-        self.text(tag)
+        self.text(cashtag)
             .entity(&entity)
             .expect("Failed to add cashtag. Report this issue to the developers")
     }
@@ -155,13 +155,13 @@ where
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
     pub fn bot_command(self, command: impl Into<Box<str>>) -> Self {
-        let command = command.into();
+        let bot_command = format!("/{}", command.into());
         let entity = MessageEntity::BotCommand(MessageEntityBotCommand::new(
             self.text.len() as u16,
-            command.len() as u16,
+            bot_command.len() as u16,
         ));
 
-        self.text(command)
+        self.text(bot_command)
             .entity(&entity)
             .expect("Failed to add bot command. Report this issue to the developers")
     }

@@ -200,13 +200,15 @@ impl TextFormatter for Formatter {
         let next_text = &text[offset + length..];
 
         let edited_text = match entity {
-            MessageEntity::Mention(_) => format!("@{editable_text}"),
-            MessageEntity::Hashtag(_) => format!("#{editable_text}"),
-            MessageEntity::Cashtag(_) => format!("${editable_text}"),
-            MessageEntity::BotCommand(_) => format!("/{editable_text}"),
-            MessageEntity::Url(_) | MessageEntity::Email(_) | MessageEntity::PhoneNumber(_) => {
-                editable_text.to_owned()
-            }
+            // Auto-detected entities (their prefix `@`/`#`/`$`/`/` is already part of the
+            // entity span, and Telegram re-detects them) must be returned untouched.
+            MessageEntity::Mention(_)
+            | MessageEntity::Hashtag(_)
+            | MessageEntity::Cashtag(_)
+            | MessageEntity::BotCommand(_)
+            | MessageEntity::Url(_)
+            | MessageEntity::Email(_)
+            | MessageEntity::PhoneNumber(_) => editable_text.to_owned(),
             MessageEntity::Bold(_) => self.bold(editable_text),
             MessageEntity::Italic(_) => self.italic(editable_text),
             MessageEntity::Underline(_) => self.underline(editable_text),
@@ -467,5 +469,26 @@ mod tests {
             formatter.quote("test ` * _ ~ | > # + - = . ! [ ] ( ) { } test"),
             r"test \` \* \_ \~ \| \> \# \+ \- \= \. \! \[ \] \( \) \{ \} test"
         );
+    }
+
+    #[test]
+    fn test_apply_entity_keeps_auto_detected_entities_untouched() {
+        use crate::types::{
+            MessageEntityBotCommand, MessageEntityCashtag, MessageEntityHashtag,
+            MessageEntityMention,
+        };
+
+        let formatter = Formatter;
+        // Each entity span already includes its prefix char, so applying it must not add
+        // a second one (no `@@user`, `##tag`, ...).
+        let text = "@user #tag $CASH /cmd";
+        for entity in [
+            MessageEntity::Mention(MessageEntityMention::new(0, 5)),
+            MessageEntity::Hashtag(MessageEntityHashtag::new(6, 4)),
+            MessageEntity::Cashtag(MessageEntityCashtag::new(11, 5)),
+            MessageEntity::BotCommand(MessageEntityBotCommand::new(17, 4)),
+        ] {
+            assert_eq!(formatter.apply_entity(text, &entity).unwrap(), text);
+        }
     }
 }
