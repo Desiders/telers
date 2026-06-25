@@ -40,6 +40,7 @@ More information about this crate can be found in the [crate documentation][docs
  - [Extensions][examples/extensions]. This example shows how to use extensions to save data.
  - [Extractor][examples/extractor]. This example shows how to use extractor to extract data.
  - [Text formatting][examples/text_formatting]. This example shows how to format text.
+ - [Text rendering][examples/text_rendering]. This example shows how to render a message's text and entities back to HTML or MarkdownV2.
  - [Smart filter][examples/smart_filter]. This example show how to use smart filter.
  - [Text case filters][examples/text_case_filters]. This example shows how to create text case filters.
  - [Stats updates middleware][examples/stats_incoming_updates_middleware]. This example shows how to create a middleware that count incoming updates.
@@ -74,6 +75,7 @@ This project is licensed under either of the following licenses, at your option:
 [examples/smart_filter]: https://github.com/Desiders/telers/tree/dev-1.x/examples/smart_filter
 [examples/text_case_filters]: https://github.com/Desiders/telers/tree/dev-1.x/examples/text_case_filters
 [examples/text_formatting]: https://github.com/Desiders/telers/tree/dev-1.x/examples/text_formatting
+[examples/text_rendering]: https://github.com/Desiders/telers/tree/dev-1.x/examples/text_rendering
 [examples/echo_bot]: https://github.com/Desiders/telers/tree/dev-1.x/examples/echo_bot
 [examples/extractor]: https://github.com/Desiders/telers/tree/dev-1.x/examples/extractor
 [examples/context]: https://github.com/Desiders/telers/tree/dev-1.x/examples/context
