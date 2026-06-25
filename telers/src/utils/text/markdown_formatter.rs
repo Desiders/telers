@@ -6,7 +6,7 @@ use crate::types::{
 
 use std::fmt::Display;
 
-const CHARS: [char; 18] = [
+pub(crate) const ESCAPE_CHARS: [char; 18] = [
     '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!',
 ];
 
@@ -169,7 +169,7 @@ impl TextFormatter for Formatter {
 
         text.chars()
             .fold(String::with_capacity(text.len()), |mut string, ch| {
-                if CHARS.contains(&ch) {
+                if ESCAPE_CHARS.contains(&ch) {
                     string.push('\\');
                 }
                 string.push(ch);

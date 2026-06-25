@@ -23,6 +23,7 @@ use crate::{
         MessageVideoChatScheduled, MessageVideoChatStarted, MessageVideoNote, MessageVoice,
         MessageWebAppData, MessageWriteAccessAllowed,
     },
+    utils::text::Renderer,
 };
 impl Message {
     /// Creates [`CopyMessage`] for this message.
@@ -41,6 +42,35 @@ impl Message {
     #[must_use]
     pub fn delete_message(&self) -> DeleteMessage {
         DeleteMessage::new(self.chat().id(), self.message_id())
+    }
+
+    /// Renders the message text and its entities as an HTML string, if the message has text.
+    #[must_use]
+    pub fn html_text(&self) -> Option<String> {
+        self.text()
+            .map(|text| Renderer::new(text, self.entities().unwrap_or(&[])).as_html())
+    }
+
+    /// Renders the message text and its entities as a MarkdownV2 string, if the message has text.
+    #[must_use]
+    pub fn markdown_text(&self) -> Option<String> {
+        self.text()
+            .map(|text| Renderer::new(text, self.entities().unwrap_or(&[])).as_markdown())
+    }
+
+    /// Renders the message caption and its entities as an HTML string, if the message has a caption.
+    #[must_use]
+    pub fn html_caption(&self) -> Option<String> {
+        self.caption()
+            .map(|caption| Renderer::new(caption, self.caption_entities().unwrap_or(&[])).as_html())
+    }
+
+    /// Renders the message caption and its entities as a MarkdownV2 string, if the message has a caption.
+    #[must_use]
+    pub fn markdown_caption(&self) -> Option<String> {
+        self.caption().map(|caption| {
+            Renderer::new(caption, self.caption_entities().unwrap_or(&[])).as_markdown()
+        })
     }
 }
 impl MessageAnimation {

@@ -2,6 +2,7 @@ pub mod builder;
 pub mod formatter;
 pub mod html_formatter;
 pub mod markdown_formatter;
+pub mod render;
 
 pub use builder::Builder;
 pub use formatter::{ErrorKind as FormatterErrorKind, Formatter};
@@ -20,3 +21,4 @@ pub use markdown_formatter::{
     text_link as markdown_text_link, text_mention as markdown_text_mention,
     underline as markdown_underline, Formatter as MarkdownFormatter,
 };
+pub use render::Renderer;
