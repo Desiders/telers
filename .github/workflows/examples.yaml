@@ -10,9 +10,11 @@ on:
       - master
     paths:
       - 'examples/dialogs_mega/**'
+      - 'telers-dialog/**'
   pull_request:
     paths:
       - 'examples/dialogs_mega/**'
+      - 'telers-dialog/**'
 
 permissions:
   contents: read
