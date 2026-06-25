@@ -292,6 +292,7 @@
 use crate::{
     client::{Bot, Reqwest},
     context::Context,
+    either::Either,
     errors::ExtractionError,
     extensions::Extension,
     Extensions, Request,
@@ -346,6 +347,27 @@ where
     #[inline]
     async fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
         Ok(T::extract(request).await.map_err(Into::into))
+    }
+}
+
+/// To be able to use [`Either`] as handler argument
+/// Extraction is attempted left-to-right: if `T` extracts successfully, [`Either::Left`] is
+/// returned; otherwise `U` is tried and [`Either::Right`] is returned on success. If both
+/// fail, the error from the last attempt (`U`) is returned.
+impl<Client, T, U> Extractor<Client> for Either<T, U>
+where
+    T: Extractor<Client>,
+    U: Extractor<Client>,
+    Client: Sync,
+{
+    type Error = U::Error;
+
+    #[inline]
+    async fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
+        match T::extract(request).await {
+            Ok(value) => Ok(Either::Left(value)),
+            Err(_) => U::extract(request).await.map(Either::Right),
+        }
     }
 }
 
@@ -561,5 +583,49 @@ mod tests {
 
         _check_bounds::<Client, Result<Message, ConvertToTypeError>>();
         _check_bounds::<Client, Result<MessageText, ConvertToTypeError>>();
+    }
+
+    fn _check_bounds_either<Client: Sync>() {
+        unimplemented!("This function is only used for checking bounds");
+
+        _check_bounds::<Client, Either<(), ()>>();
+
+        _check_bounds::<_, Either<Bot, Bot>>();
+        _check_bounds::<Client, Either<Update, Context>>();
+        _check_bounds::<Client, Either<Message, MessageText>>();
+        _check_bounds::<Client, Either<Extension<i32>, Bot>>();
+        _check_bounds::<Client, Either<Option<Message>, ()>>();
+    }
+
+    #[tokio::test]
+    async fn extract_either_prefers_left_then_right() {
+        use crate::types::{ChatPrivate, UpdateMessage};
+
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                0,
+                MessageText::new(0, 0, ChatPrivate::new(0), ""),
+            ))),
+            bot: Bot::default(),
+            context: Context::default(),
+            extensions: Extensions::default(),
+        };
+
+        // `Bot` always extracts, so the left side wins.
+        let left = <Either<Bot, Extension<i32>> as Extractor>::extract(&request)
+            .await
+            .expect("left side is infallible");
+        assert!(matches!(left, Either::Left(_)));
+
+        // Left fails (no `i32` extension present), so the right side (`Bot`) is used.
+        let right = <Either<Extension<i32>, Bot> as Extractor>::extract(&request)
+            .await
+            .expect("right side is infallible");
+        assert!(matches!(right, Either::Right(_)));
+
+        // Both sides fail -> the last attempt's error is returned.
+        let result = <Either<Extension<i32>, Extension<String>> as Extractor>::extract(&request)
+            .await;
+        assert!(result.is_err());
     }
 }
