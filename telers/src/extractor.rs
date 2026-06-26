@@ -364,10 +364,10 @@ where
 
     #[inline]
     async fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
-        match T::extract(request).await {
-            Ok(value) => Ok(Either::Left(value)),
-            Err(_) => U::extract(request).await.map(Either::Right),
+        if let Ok(value) = T::extract(request).await {
+            return Ok(Either::Left(value));
         }
+        U::extract(request).await.map(Either::Right)
     }
 }
 
@@ -593,7 +593,7 @@ mod tests {
         _check_bounds::<_, Either<Bot, Bot>>();
         _check_bounds::<Client, Either<Update, Context>>();
         _check_bounds::<Client, Either<Message, MessageText>>();
-        _check_bounds::<Client, Either<Extension<i32>, Bot>>();
+        _check_bounds::<_, Either<Extension<i32>, Bot>>();
         _check_bounds::<Client, Either<Option<Message>, ()>>();
     }
 
@@ -624,8 +624,8 @@ mod tests {
         assert!(matches!(right, Either::Right(_)));
 
         // Both sides fail -> the last attempt's error is returned.
-        let result = <Either<Extension<i32>, Extension<String>> as Extractor>::extract(&request)
-            .await;
+        let result =
+            <Either<Extension<i32>, Extension<String>> as Extractor>::extract(&request).await;
         assert!(result.is_err());
     }
 }
