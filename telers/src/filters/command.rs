@@ -107,8 +107,10 @@ impl Command {
                         if ignore_mention {
                             event!(Level::WARN, "Ignore mention flag doesn't work with regexes");
                         }
-
-                        PatternType::Regex(regex)
+                        PatternType::Regex(
+                            Regex::new(&format!("(?i){regex}"))
+                                .expect("Failed to compile regex with (?i) flag"),
+                        )
                     }
                 })
                 .collect()
@@ -632,6 +634,26 @@ mod tests {
         assert!(!command.validate_command(&command_obj));
 
         let command_obj = CommandObject::extract("/STOP").unwrap();
+        assert!(!command.validate_command(&command_obj));
+    }
+
+    #[test]
+    fn test_validate_command_regex_ignore_case() {
+        let command = Command::builder()
+            .prefix('/')
+            .command(Regex::new("Start").unwrap())
+            .ignore_case(true)
+            .build();
+
+        for input in ["/start", "/START", "/Start"] {
+            let command_obj = CommandObject::extract(input).unwrap();
+            assert!(
+                command.validate_command(&command_obj),
+                "ignore_case regex should match {input}"
+            );
+        }
+
+        let command_obj = CommandObject::extract("/stop").unwrap();
         assert!(!command.validate_command(&command_obj));
     }
 
