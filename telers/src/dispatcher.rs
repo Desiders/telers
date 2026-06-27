@@ -64,7 +64,9 @@ use crate::{
     Extensions, Request, RouterConfigured,
 };
 
-use backoff::{exponential::ExponentialBackoff, future::retry, SystemClock};
+use backoff::{
+    exponential::ExponentialBackoff, future::retry, ExponentialBackoffBuilder, SystemClock,
+};
 use futures_util::future::BoxFuture;
 use std::{
     future::{Future, IntoFuture},
@@ -134,7 +136,13 @@ where
             context: Context::new(),
             extensions: Extensions::new(),
             polling_timeout: Some(DEFAULT_POLLING_TIMEOUT),
-            backoff: ExponentialBackoff::default(),
+            // Long-polling should survive prolonged outages, so the default backoff retries
+            // indefinitely. `ExponentialBackoff::default()` caps `max_elapsed_time` at 15 minutes,
+            // after which `retry` gives up and returns `Err` — see `listen_updates` for why that
+            // must never terminate polling.
+            backoff: ExponentialBackoffBuilder::new()
+                .with_max_elapsed_time(None)
+                .build(),
             allowed_updates: vec![],
         }
     }
@@ -385,7 +393,7 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
             .allowed_updates(allowed_updates.clone());
 
         loop {
-            let updates = retry(backoff.clone(), || {
+            let updates = match retry(backoff.clone(), || {
                 let bot = &bot;
                 let method = method.clone();
 
@@ -400,7 +408,17 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
                 }
             })
             .await
-            .expect("Retry gave up due to permanent error");
+            {
+                Ok(updates) => updates,
+                Err(err) => {
+                    event!(
+                        Level::ERROR,
+                        %err,
+                        "Backoff exhausted its elapsed-time budget while fetching updates; restarting polling"
+                    );
+                    continue;
+                }
+            };
 
             let id = match updates.last() {
                 Some(Either::Left(update)) => update.update_id(),
