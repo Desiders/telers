@@ -35,6 +35,7 @@ pub enum ChatEvent {
 #[must_use]
 pub fn chat_event_from_update(update: &Update) -> Option<ChatEvent> {
     if let Some(callback_query) = update.callback_query() {
+        callback_query.message.as_ref()?;
         return Some(ChatEvent::CallbackQuery(callback_query.clone()));
     }
     if let Some(chat_join_request) = update.chat_join_request() {
@@ -159,5 +160,24 @@ impl<Client> EventContext<Client> {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::chat_event_from_update;
+    use telers::types::{CallbackQuery, Update, UpdateCallbackQuery, User};
+
+    #[test]
+    fn inline_message_callback_is_skipped() {
+        let callback = CallbackQuery::new("q1", User::new(1, false, "user"), "chat_instance");
+        assert!(callback.message.is_none());
+
+        let update = Update::CallbackQuery(UpdateCallbackQuery::new(1, callback));
+
+        assert!(
+            chat_event_from_update(&update).is_none(),
+            "inline-message callback (message=None) must not produce a chat event"
+        );
     }
 }
