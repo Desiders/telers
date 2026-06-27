@@ -5068,6 +5068,16 @@ impl SmartFilterPath<crate::types::InlineQueryResult> {
     }
 
     #[must_use]
+    pub fn photo_file_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.photo_file_id())
+    }
+
+    #[must_use]
+    pub fn photo_url(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.photo_url())
+    }
+
+    #[must_use]
     pub fn reply_markup(self) -> SmartFilterPath<crate::types::InlineKeyboardMarkup> {
         self.and_then(|value| value.reply_markup())
     }
@@ -6130,6 +6140,62 @@ impl SmartFilterPath<crate::types::InlineQueryResultPhoto> {
     #[must_use]
     pub fn input_message_content(self) -> SmartFilterPath<crate::types::InputMessageContent> {
         self.and_then(|value| value.input_message_content.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::InlineQueryResultPhotoKind> {
+    #[must_use]
+    pub fn caption(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.caption())
+    }
+
+    #[must_use]
+    pub fn caption_entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.caption_entities())
+    }
+
+    #[must_use]
+    pub fn description(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.description())
+    }
+
+    #[must_use]
+    pub fn id(self) -> SmartFilterPath<str> {
+        self.map(|value| value.id())
+    }
+
+    #[must_use]
+    pub fn input_message_content(self) -> SmartFilterPath<crate::types::InputMessageContent> {
+        self.and_then(|value| value.input_message_content())
+    }
+
+    #[must_use]
+    pub fn parse_mode(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.parse_mode())
+    }
+
+    #[must_use]
+    pub fn photo_file_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.photo_file_id())
+    }
+
+    #[must_use]
+    pub fn photo_url(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.photo_url())
+    }
+
+    #[must_use]
+    pub fn reply_markup(self) -> SmartFilterPath<crate::types::InlineKeyboardMarkup> {
+        self.and_then(|value| value.reply_markup())
+    }
+
+    #[must_use]
+    pub fn thumbnail_url(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.thumbnail_url())
+    }
+
+    #[must_use]
+    pub fn title(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.title())
     }
 }
 impl SmartFilterPath<crate::types::InlineQueryResultVenue> {

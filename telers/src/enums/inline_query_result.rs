@@ -47,6 +47,8 @@ pub enum InlineQueryResultType {
     Document,
     #[strum(serialize = "gif")]
     Gif,
+    #[strum(serialize = "photo")]
+    Photo,
     #[strum(serialize = "sticker")]
     Sticker,
     #[strum(serialize = "video")]
@@ -66,11 +68,12 @@ pub enum InlineQueryResultType {
 }
 impl InlineQueryResultType {
     #[must_use]
-    pub const fn all() -> [InlineQueryResultType; 11usize] {
+    pub const fn all() -> [InlineQueryResultType; 12usize] {
         [
             InlineQueryResultType::Audio,
             InlineQueryResultType::Document,
             InlineQueryResultType::Gif,
+            InlineQueryResultType::Photo,
             InlineQueryResultType::Sticker,
             InlineQueryResultType::Video,
             InlineQueryResultType::Voice,
@@ -103,6 +106,7 @@ impl<'a> From<&'a InlineQueryResult> for InlineQueryResultType {
             InlineQueryResult::Audio(_) => InlineQueryResultType::Audio,
             InlineQueryResult::Document(_) => InlineQueryResultType::Document,
             InlineQueryResult::Gif(_) => InlineQueryResultType::Gif,
+            InlineQueryResult::Photo(_) => InlineQueryResultType::Photo,
             InlineQueryResult::Sticker(_) => InlineQueryResultType::Sticker,
             InlineQueryResult::Video(_) => InlineQueryResultType::Video,
             InlineQueryResult::Voice(_) => InlineQueryResultType::Voice,

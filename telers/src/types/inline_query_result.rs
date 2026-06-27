@@ -30,6 +30,7 @@ pub enum InlineQueryResult {
     Audio(crate::types::InlineQueryResultAudioKind),
     Document(crate::types::InlineQueryResultDocumentKind),
     Gif(crate::types::InlineQueryResultGifKind),
+    Photo(crate::types::InlineQueryResultPhotoKind),
     Sticker(crate::types::InlineQueryResultCachedSticker),
     Video(crate::types::InlineQueryResultVideoKind),
     Voice(crate::types::InlineQueryResultVoiceKind),
@@ -90,6 +91,7 @@ impl InlineQueryResult {
     /// - `InlineQueryResultAudioKind`, `InlineQueryResultVoiceKind`. Caption, 0-1024 characters after entities parsing
     /// - `InlineQueryResultDocumentKind`. Caption of the document to be sent, 0-1024 characters after entities parsing
     /// - `InlineQueryResultGifKind`. Caption of the GIF file to be sent, 0-1024 characters after entities parsing
+    /// - `InlineQueryResultPhotoKind`. Caption of the photo to be sent, 0-1024 characters after entities parsing
     /// - `InlineQueryResultVideoKind`. Caption of the video to be sent, 0-1024 characters after entities parsing
     #[must_use]
     pub fn caption(&self) -> Option<&str> {
@@ -97,6 +99,7 @@ impl InlineQueryResult {
             Self::Audio(val) => crate::types::InlineQueryResultAudioKind::caption(val),
             Self::Document(val) => crate::types::InlineQueryResultDocumentKind::caption(val),
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::caption(val),
+            Self::Photo(val) => crate::types::InlineQueryResultPhotoKind::caption(val),
             Self::Video(val) => crate::types::InlineQueryResultVideoKind::caption(val),
             Self::Voice(val) => crate::types::InlineQueryResultVoiceKind::caption(val),
             _ => None,
@@ -114,6 +117,7 @@ impl InlineQueryResult {
                 crate::types::InlineQueryResultDocumentKind::caption_entities(val)
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::caption_entities(val),
+            Self::Photo(val) => crate::types::InlineQueryResultPhotoKind::caption_entities(val),
             Self::Video(val) => crate::types::InlineQueryResultVideoKind::caption_entities(val),
             Self::Voice(val) => crate::types::InlineQueryResultVoiceKind::caption_entities(val),
             _ => None,
@@ -127,6 +131,7 @@ impl InlineQueryResult {
     pub fn description(&self) -> Option<&str> {
         match self {
             Self::Document(val) => crate::types::InlineQueryResultDocumentKind::description(val),
+            Self::Photo(val) => crate::types::InlineQueryResultPhotoKind::description(val),
             Self::Video(val) => crate::types::InlineQueryResultVideoKind::description(val),
             Self::Article(val) => val.description.as_deref(),
             _ => None,
@@ -303,7 +308,7 @@ impl InlineQueryResult {
     /// Helper method for field `id`.
     ///
     /// # Variants
-    /// - `InlineQueryResultAudioKind`, `InlineQueryResultDocumentKind`, `InlineQueryResultGifKind`, `InlineQueryResultCachedSticker`, `InlineQueryResultVideoKind`, `InlineQueryResultVoiceKind`, `InlineQueryResultGame`. Unique identifier for this result, 1-64 bytes
+    /// - `InlineQueryResultAudioKind`, `InlineQueryResultDocumentKind`, `InlineQueryResultGifKind`, `InlineQueryResultPhotoKind`, `InlineQueryResultCachedSticker`, `InlineQueryResultVideoKind`, `InlineQueryResultVoiceKind`, `InlineQueryResultGame`. Unique identifier for this result, 1-64 bytes
     /// - `InlineQueryResultArticle`, `InlineQueryResultContact`, `InlineQueryResultLocation`, `InlineQueryResultVenue`. Unique identifier for this result, 1-64 Bytes
     #[must_use]
     pub fn id(&self) -> &str {
@@ -311,6 +316,7 @@ impl InlineQueryResult {
             Self::Audio(val) => crate::types::InlineQueryResultAudioKind::id(val),
             Self::Document(val) => crate::types::InlineQueryResultDocumentKind::id(val),
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::id(val),
+            Self::Photo(val) => crate::types::InlineQueryResultPhotoKind::id(val),
             Self::Sticker(val) => val.id.as_ref(),
             Self::Video(val) => crate::types::InlineQueryResultVideoKind::id(val),
             Self::Voice(val) => crate::types::InlineQueryResultVoiceKind::id(val),
@@ -328,6 +334,7 @@ impl InlineQueryResult {
     /// - `InlineQueryResultAudioKind`. Content of the message to be sent instead of the audio
     /// - `InlineQueryResultDocumentKind`. Content of the message to be sent instead of the file
     /// - `InlineQueryResultGifKind`. Content of the message to be sent instead of the GIF animation
+    /// - `InlineQueryResultPhotoKind`. Content of the message to be sent instead of the photo
     /// - `InlineQueryResultCachedSticker`. Content of the message to be sent instead of the sticker
     /// - `InlineQueryResultVideoKind`. Content of the message to be sent instead of the video. This field is required if [`crate::types::InlineQueryResultVideo`] is used to send an HTML-page as a result (e.g., a `YouTube` video).
     /// - `InlineQueryResultVoiceKind`. Content of the message to be sent instead of the voice recording
@@ -345,6 +352,9 @@ impl InlineQueryResult {
                 crate::types::InlineQueryResultDocumentKind::input_message_content(val)
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+            }
             Self::Sticker(val) => val.input_message_content.as_ref(),
             Self::Video(val) => {
                 crate::types::InlineQueryResultVideoKind::input_message_content(val)
@@ -430,6 +440,7 @@ impl InlineQueryResult {
     /// - `InlineQueryResultAudioKind`. Mode for parsing entities in the audio caption. See formatting options for more details.
     /// - `InlineQueryResultDocumentKind`. Mode for parsing entities in the document caption. See formatting options for more details.
     /// - `InlineQueryResultGifKind`. Mode for parsing entities in the caption. See formatting options for more details.
+    /// - `InlineQueryResultPhotoKind`. Mode for parsing entities in the photo caption. See formatting options for more details.
     /// - `InlineQueryResultVideoKind`. Mode for parsing entities in the video caption. See formatting options for more details.
     /// - `InlineQueryResultVoiceKind`. Mode for parsing entities in the voice message caption. See formatting options for more details.
     #[must_use]
@@ -438,6 +449,7 @@ impl InlineQueryResult {
             Self::Audio(val) => crate::types::InlineQueryResultAudioKind::parse_mode(val),
             Self::Document(val) => crate::types::InlineQueryResultDocumentKind::parse_mode(val),
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::parse_mode(val),
+            Self::Photo(val) => crate::types::InlineQueryResultPhotoKind::parse_mode(val),
             Self::Video(val) => crate::types::InlineQueryResultVideoKind::parse_mode(val),
             Self::Voice(val) => crate::types::InlineQueryResultVoiceKind::parse_mode(val),
             _ => None,
@@ -466,6 +478,50 @@ impl InlineQueryResult {
         }
     }
 
+    /// Helper method for field `photo_file_id`.
+    ///
+    /// A valid file identifier of the photo
+    #[must_use]
+    pub fn photo_file_id(&self) -> Option<&str> {
+        match self {
+            Self::Photo(val) => crate::types::InlineQueryResultPhotoKind::photo_file_id(val),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `photo_height`.
+    ///
+    /// Height of the photo
+    #[must_use]
+    pub fn photo_height(&self) -> Option<i64> {
+        match self {
+            Self::Photo(val) => crate::types::InlineQueryResultPhotoKind::photo_height(val),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `photo_url`.
+    ///
+    /// A valid URL of the photo. Photo must be in JPEG format. Photo size must not exceed 5MB.
+    #[must_use]
+    pub fn photo_url(&self) -> Option<&str> {
+        match self {
+            Self::Photo(val) => crate::types::InlineQueryResultPhotoKind::photo_url(val),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `photo_width`.
+    ///
+    /// Width of the photo
+    #[must_use]
+    pub fn photo_width(&self) -> Option<i64> {
+        match self {
+            Self::Photo(val) => crate::types::InlineQueryResultPhotoKind::photo_width(val),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `proximity_alert_radius`.
     ///
     /// For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
@@ -486,6 +542,7 @@ impl InlineQueryResult {
             Self::Audio(val) => crate::types::InlineQueryResultAudioKind::reply_markup(val),
             Self::Document(val) => crate::types::InlineQueryResultDocumentKind::reply_markup(val),
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::reply_markup(val),
+            Self::Photo(val) => crate::types::InlineQueryResultPhotoKind::reply_markup(val),
             Self::Sticker(val) => val.reply_markup.as_ref(),
             Self::Video(val) => crate::types::InlineQueryResultVideoKind::reply_markup(val),
             Self::Voice(val) => crate::types::InlineQueryResultVoiceKind::reply_markup(val),
@@ -504,6 +561,9 @@ impl InlineQueryResult {
     pub fn show_caption_above_media(&self) -> Option<bool> {
         match self {
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::show_caption_above_media(val),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::show_caption_above_media(val)
+            }
             Self::Video(val) => {
                 crate::types::InlineQueryResultVideoKind::show_caption_above_media(val)
             }
@@ -555,6 +615,7 @@ impl InlineQueryResult {
     /// # Variants
     /// - `InlineQueryResultDocumentKind`. URL of the thumbnail (JPEG only) for the file
     /// - `InlineQueryResultGifKind`. URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
+    /// - `InlineQueryResultPhotoKind`. URL of the thumbnail for the photo
     /// - `InlineQueryResultVideoKind`. URL of the thumbnail (JPEG only) for the video
     /// - `InlineQueryResultArticle`, `InlineQueryResultContact`, `InlineQueryResultLocation`, `InlineQueryResultVenue`. Url of the thumbnail for the result
     #[must_use]
@@ -562,6 +623,7 @@ impl InlineQueryResult {
         match self {
             Self::Document(val) => crate::types::InlineQueryResultDocumentKind::thumbnail_url(val),
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::thumbnail_url(val),
+            Self::Photo(val) => crate::types::InlineQueryResultPhotoKind::thumbnail_url(val),
             Self::Video(val) => crate::types::InlineQueryResultVideoKind::thumbnail_url(val),
             Self::Article(val) => val.thumbnail_url.as_deref(),
             Self::Contact(val) => val.thumbnail_url.as_deref(),
@@ -593,7 +655,7 @@ impl InlineQueryResult {
     /// # Variants
     /// - `InlineQueryResultAudioKind`. Title
     /// - `InlineQueryResultDocumentKind`, `InlineQueryResultVideoKind`. Title for the result
-    /// - `InlineQueryResultGifKind`. Title for the result
+    /// - `InlineQueryResultGifKind`, `InlineQueryResultPhotoKind`. Title for the result
     /// - `InlineQueryResultVoiceKind`. Recording title
     /// - `InlineQueryResultArticle`. Title of the result
     /// - `InlineQueryResultLocation`. Location title
@@ -604,6 +666,7 @@ impl InlineQueryResult {
             Self::Audio(val) => crate::types::InlineQueryResultAudioKind::title(val),
             Self::Document(val) => Some(crate::types::InlineQueryResultDocumentKind::title(val)),
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::title(val),
+            Self::Photo(val) => crate::types::InlineQueryResultPhotoKind::title(val),
             Self::Video(val) => Some(crate::types::InlineQueryResultVideoKind::title(val)),
             Self::Voice(val) => Some(crate::types::InlineQueryResultVoiceKind::title(val)),
             Self::Article(val) => Some(val.title.as_ref()),
@@ -737,6 +800,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::currency),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::currency)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -783,6 +850,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::entities),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::entities)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -836,6 +907,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::is_flexible),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::is_flexible)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -882,6 +957,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::link_preview_options),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::link_preview_options)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -928,6 +1007,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::max_tip_amount),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::max_tip_amount)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -974,6 +1057,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::message_text),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::message_text)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -1020,6 +1107,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::need_email),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::need_email)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -1066,6 +1157,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::need_name),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::need_name)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -1112,6 +1207,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::need_phone_number),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::need_phone_number)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -1158,6 +1257,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::need_shipping_address),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::need_shipping_address)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -1204,6 +1307,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::payload),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::payload)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -1236,52 +1343,6 @@ impl InlineQueryResult {
         }
     }
 
-    /// Helper method for nested field `photo_height`.
-    #[must_use]
-    pub fn photo_height(&self) -> Option<i64> {
-        match self {
-            Self::Audio(val) => {
-                crate::types::InlineQueryResultAudioKind::input_message_content(val)
-                    .and_then(crate::types::InputMessageContent::photo_height)
-            }
-            Self::Document(val) => {
-                crate::types::InlineQueryResultDocumentKind::input_message_content(val)
-                    .and_then(crate::types::InputMessageContent::photo_height)
-            }
-            Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
-                .and_then(crate::types::InputMessageContent::photo_height),
-            Self::Sticker(val) => val
-                .input_message_content
-                .as_ref()
-                .and_then(crate::types::InputMessageContent::photo_height),
-            Self::Video(val) => {
-                crate::types::InlineQueryResultVideoKind::input_message_content(val)
-                    .and_then(crate::types::InputMessageContent::photo_height)
-            }
-            Self::Voice(val) => {
-                crate::types::InlineQueryResultVoiceKind::input_message_content(val)
-                    .and_then(crate::types::InputMessageContent::photo_height)
-            }
-            Self::Article(val) => {
-                let inner = &val.input_message_content;
-                crate::types::InputMessageContent::photo_height(inner)
-            }
-            Self::Contact(val) => val
-                .input_message_content
-                .as_ref()
-                .and_then(crate::types::InputMessageContent::photo_height),
-            Self::Location(val) => val
-                .input_message_content
-                .as_ref()
-                .and_then(crate::types::InputMessageContent::photo_height),
-            Self::Venue(val) => val
-                .input_message_content
-                .as_ref()
-                .and_then(crate::types::InputMessageContent::photo_height),
-            Self::Game(_) => None,
-        }
-    }
-
     /// Helper method for nested field `photo_size`.
     #[must_use]
     pub fn photo_size(&self) -> Option<i64> {
@@ -1296,6 +1357,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::photo_size),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::photo_size)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -1328,98 +1393,6 @@ impl InlineQueryResult {
         }
     }
 
-    /// Helper method for nested field `photo_url`.
-    #[must_use]
-    pub fn photo_url(&self) -> Option<&str> {
-        match self {
-            Self::Audio(val) => {
-                crate::types::InlineQueryResultAudioKind::input_message_content(val)
-                    .and_then(crate::types::InputMessageContent::photo_url)
-            }
-            Self::Document(val) => {
-                crate::types::InlineQueryResultDocumentKind::input_message_content(val)
-                    .and_then(crate::types::InputMessageContent::photo_url)
-            }
-            Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
-                .and_then(crate::types::InputMessageContent::photo_url),
-            Self::Sticker(val) => val
-                .input_message_content
-                .as_ref()
-                .and_then(crate::types::InputMessageContent::photo_url),
-            Self::Video(val) => {
-                crate::types::InlineQueryResultVideoKind::input_message_content(val)
-                    .and_then(crate::types::InputMessageContent::photo_url)
-            }
-            Self::Voice(val) => {
-                crate::types::InlineQueryResultVoiceKind::input_message_content(val)
-                    .and_then(crate::types::InputMessageContent::photo_url)
-            }
-            Self::Article(val) => {
-                let inner = &val.input_message_content;
-                crate::types::InputMessageContent::photo_url(inner)
-            }
-            Self::Contact(val) => val
-                .input_message_content
-                .as_ref()
-                .and_then(crate::types::InputMessageContent::photo_url),
-            Self::Location(val) => val
-                .input_message_content
-                .as_ref()
-                .and_then(crate::types::InputMessageContent::photo_url),
-            Self::Venue(val) => val
-                .input_message_content
-                .as_ref()
-                .and_then(crate::types::InputMessageContent::photo_url),
-            Self::Game(_) => None,
-        }
-    }
-
-    /// Helper method for nested field `photo_width`.
-    #[must_use]
-    pub fn photo_width(&self) -> Option<i64> {
-        match self {
-            Self::Audio(val) => {
-                crate::types::InlineQueryResultAudioKind::input_message_content(val)
-                    .and_then(crate::types::InputMessageContent::photo_width)
-            }
-            Self::Document(val) => {
-                crate::types::InlineQueryResultDocumentKind::input_message_content(val)
-                    .and_then(crate::types::InputMessageContent::photo_width)
-            }
-            Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
-                .and_then(crate::types::InputMessageContent::photo_width),
-            Self::Sticker(val) => val
-                .input_message_content
-                .as_ref()
-                .and_then(crate::types::InputMessageContent::photo_width),
-            Self::Video(val) => {
-                crate::types::InlineQueryResultVideoKind::input_message_content(val)
-                    .and_then(crate::types::InputMessageContent::photo_width)
-            }
-            Self::Voice(val) => {
-                crate::types::InlineQueryResultVoiceKind::input_message_content(val)
-                    .and_then(crate::types::InputMessageContent::photo_width)
-            }
-            Self::Article(val) => {
-                let inner = &val.input_message_content;
-                crate::types::InputMessageContent::photo_width(inner)
-            }
-            Self::Contact(val) => val
-                .input_message_content
-                .as_ref()
-                .and_then(crate::types::InputMessageContent::photo_width),
-            Self::Location(val) => val
-                .input_message_content
-                .as_ref()
-                .and_then(crate::types::InputMessageContent::photo_width),
-            Self::Venue(val) => val
-                .input_message_content
-                .as_ref()
-                .and_then(crate::types::InputMessageContent::photo_width),
-            Self::Game(_) => None,
-        }
-    }
-
     /// Helper method for nested field `prices`.
     #[must_use]
     pub fn prices(&self) -> Option<&[crate::types::LabeledPrice]> {
@@ -1434,6 +1407,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::prices),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::prices)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -1480,6 +1457,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::provider_data),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::provider_data)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -1526,6 +1507,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::provider_token),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::provider_token)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -1572,6 +1557,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::rich_message),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::rich_message)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -1618,6 +1607,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::send_email_to_provider),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::send_email_to_provider)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -1664,6 +1657,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::send_phone_number_to_provider),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::send_phone_number_to_provider)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -1710,6 +1707,10 @@ impl InlineQueryResult {
             }
             Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
                 .and_then(crate::types::InputMessageContent::suggested_tip_amounts),
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::suggested_tip_amounts)
+            }
             Self::Sticker(val) => val
                 .input_message_content
                 .as_ref()
@@ -1795,6 +1796,25 @@ impl TryFrom<InlineQueryResult> for crate::types::InlineQueryResultGifKind {
             Err(Self::Error::new(
                 stringify!(InlineQueryResult),
                 stringify!(InlineQueryResultGifKind),
+            ))
+        }
+    }
+}
+impl From<crate::types::InlineQueryResultPhotoKind> for InlineQueryResult {
+    fn from(val: crate::types::InlineQueryResultPhotoKind) -> Self {
+        Self::Photo(val)
+    }
+}
+impl TryFrom<InlineQueryResult> for crate::types::InlineQueryResultPhotoKind {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: InlineQueryResult) -> Result<Self, Self::Error> {
+        if let InlineQueryResult::Photo(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(InlineQueryResult),
+                stringify!(InlineQueryResultPhotoKind),
             ))
         }
     }

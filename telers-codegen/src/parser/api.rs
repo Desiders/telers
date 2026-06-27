@@ -628,7 +628,7 @@ impl NormalizedSchema {
             ("Document", TypeKind::CachedAndNotCached),
             ("Gif", TypeKind::CachedAndNotCached),
             ("Mpeg4Gif", TypeKind::CachedAndNotCached),
-            ("Phot", TypeKind::CachedAndNotCached),
+            ("Photo", TypeKind::CachedAndNotCached),
             ("Sticker", TypeKind::Cached),
             ("Video", TypeKind::CachedAndNotCached),
             ("Voice", TypeKind::CachedAndNotCached),

@@ -2252,6 +2252,23 @@ fn test_inline_query_result_photo_serialize_deserialize() {
     must_roundtrip(stringify!(InlineQueryResultPhoto), &parsed);
 }
 #[test]
+fn test_inline_query_result_photo_kind_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "photo", "id" : "test", "photo_url" : "in", "thumbnail_url" : "test" }
+    );
+    let parsed: InlineQueryResult = must_parse(stringify!(InlineQueryResult), &value);
+    assert!(
+        matches!(&parsed, InlineQueryResult::Photo(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InlineQueryResult),
+        stringify!(Photo),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InlineQueryResult), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InlineQueryResult), &parsed);
+}
+#[test]
 fn test_inline_query_result_venue_serialize_deserialize() {
     let value = serde_json::json!(
         { "type" : "venue", "id" : "test", "latitude" : 1.25, "longitude" : 1.25, "title"
