@@ -1,4 +1,4 @@
-use super::{Formatter as TextFormatter, FormatterErrorKind};
+use super::{formatter::split_by_entity, Formatter as TextFormatter, FormatterErrorKind};
 use crate::types::{
     MessageEntity, MessageEntityCustomEmoji, MessageEntityDateTime, MessageEntityPre,
     MessageEntityTextLink, MessageEntityTextMention,
@@ -208,22 +208,12 @@ impl TextFormatter for Formatter {
         T: Display,
     {
         let text = text.to_string();
-        let text_len = text.len();
 
-        if text_len == 0 {
+        if text.is_empty() {
             return Err(FormatterErrorKind::EmptyText);
         }
 
-        let offset = usize::try_from(entity.offset()).unwrap();
-        let length = usize::try_from(entity.length()).unwrap();
-
-        if offset + length > text_len {
-            return Err(FormatterErrorKind::IndexOutOfBounds);
-        }
-
-        let previous_text = &text[..offset];
-        let editable_text = &text[offset..offset + length];
-        let next_text = &text[offset + length..];
+        let (previous_text, editable_text, next_text) = split_by_entity(&text, entity)?;
 
         let edited_text = match entity {
             // Auto-detected entities (their prefix `@`/`#`/`$`/`/` is already part of the
@@ -243,18 +233,16 @@ impl TextFormatter for Formatter {
             MessageEntity::Blockquote(_) => self.blockquote(editable_text),
             MessageEntity::ExpandableBlockquote(_) => self.expandable_blockquote(editable_text),
             MessageEntity::Code(_) => self.code(editable_text),
-            MessageEntity::Pre(MessageEntityPre {
-                language, ..
-            }) => match language {
+            MessageEntity::Pre(MessageEntityPre { language, .. }) => match language {
                 Some(language) => self.pre_language(editable_text, language),
                 None => self.pre(editable_text),
             },
-            MessageEntity::TextLink(MessageEntityTextLink {
-                url, ..
-            }) => self.text_link(editable_text, url),
-            MessageEntity::TextMention(MessageEntityTextMention {
-                user, ..
-            }) => self.text_mention(editable_text, user.id),
+            MessageEntity::TextLink(MessageEntityTextLink { url, .. }) => {
+                self.text_link(editable_text, url)
+            }
+            MessageEntity::TextMention(MessageEntityTextMention { user, .. }) => {
+                self.text_mention(editable_text, user.id)
+            }
             MessageEntity::CustomEmoji(MessageEntityCustomEmoji {
                 custom_emoji_id, ..
             }) => self.custom_emoji(editable_text, custom_emoji_id),
@@ -486,5 +474,35 @@ mod tests {
         ] {
             assert_eq!(formatter.apply_entity(text, &entity).unwrap(), text);
         }
+    }
+
+    #[test]
+    fn apply_entity_bold_over_cyrillic_covers_whole_word() {
+        use crate::types::MessageEntityBold;
+
+        let formatter = Formatter::default();
+        // "Привет" is 6 UTF-16 code units (and 6 chars) but 12 UTF-8 bytes. A byte-based slice would
+        // bold only "При" and yield "<b>При</b>вет".
+        let entity = MessageEntity::Bold(MessageEntityBold::new(0, 6));
+
+        assert_eq!(
+            formatter.apply_entity("Привет", &entity).unwrap(),
+            "<b>Привет</b>"
+        );
+    }
+
+    #[test]
+    fn apply_entity_bold_after_emoji_uses_utf16_offsets() {
+        use crate::types::MessageEntityBold;
+
+        let formatter = Formatter::default();
+        // "😀X": the emoji is a non-BMP scalar = 2 UTF-16 code units (4 UTF-8 bytes); "X" starts at
+        // UTF-16 offset 2. A byte-based slice at offset 2 would land inside the emoji and panic.
+        let entity = MessageEntity::Bold(MessageEntityBold::new(2, 1));
+
+        assert_eq!(
+            formatter.apply_entity("😀X", &entity).unwrap(),
+            "😀<b>X</b>"
+        );
     }
 }

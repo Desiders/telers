@@ -10,6 +10,40 @@ pub enum ErrorKind {
     IndexOutOfBounds,
 }
 
+/// Splits `text` into the `(before, inside, after)` parts delimited by a Telegram
+/// [`MessageEntity`]'s `offset`/`length`.
+///
+/// Telegram entity offsets and lengths are measured in **UTF-16 code units** (not bytes or
+/// `char`s), so the text is decoded to UTF-16, sliced in that domain, and re-encoded.
+///
+/// # Errors
+/// Returns [`ErrorKind::IndexOutOfBounds`] if the offset/length are negative, their sum overflows,
+/// they extend past the end of `text`, or a boundary splits a surrogate pair. It never panics, even
+/// on attacker-controlled entities.
+pub(crate) fn split_by_entity(
+    text: &str,
+    entity: &MessageEntity,
+) -> Result<(String, String, String), ErrorKind> {
+    let offset = usize::try_from(entity.offset()).map_err(|_| ErrorKind::IndexOutOfBounds)?;
+    let length = usize::try_from(entity.length()).map_err(|_| ErrorKind::IndexOutOfBounds)?;
+    let end = offset
+        .checked_add(length)
+        .ok_or(ErrorKind::IndexOutOfBounds)?;
+
+    let units: Vec<u16> = text.encode_utf16().collect();
+    if end > units.len() {
+        return Err(ErrorKind::IndexOutOfBounds);
+    }
+
+    let decode = |slice: &[u16]| String::from_utf16(slice).map_err(|_| ErrorKind::IndexOutOfBounds);
+
+    Ok((
+        decode(&units[..offset])?,
+        decode(&units[offset..end])?,
+        decode(&units[end..])?,
+    ))
+}
+
 /// The Bot API supports basic formatting for messages. You can use bold, italic, underlined, strikethrough, and spoiler text, as well as inline links and pre-formatted code in your bots' messages. Telegram clients will render them accordingly. You can specify text entities directly, or use markdown-style or HTML-style formatting.
 ///
 /// Note that Telegram clients will display an **alert** to the user before opening an inline link ('Open this link?' together with the full URL).
@@ -326,5 +360,40 @@ mod tests {
         let text = "";
 
         formatter.apply_entity(text, &entity).unwrap();
+    }
+
+    #[test]
+    fn split_by_entity_uses_utf16_and_rejects_invalid_offsets() {
+        // "a😀b": 'a' = unit 0, '😀' = units 1..3 (a surrogate pair), 'b' = unit 3 — 4 units total.
+        let text = "a😀b";
+
+        // Bolding "b" at UTF-16 offset 3, length 1 splits into ("a😀", "b", "").
+        let entity = MessageEntity::Bold(MessageEntityBold::new(3, 1));
+        assert_eq!(
+            split_by_entity(text, &entity).unwrap(),
+            ("a😀".to_owned(), "b".to_owned(), String::new())
+        );
+
+        // A negative offset returns an error instead of panicking on `usize::try_from`.
+        let entity = MessageEntity::Bold(MessageEntityBold::new(-1, 1));
+        assert!(matches!(
+            split_by_entity(text, &entity),
+            Err(ErrorKind::IndexOutOfBounds)
+        ));
+
+        // `offset + length` past the end (the text is 4 UTF-16 units) returns an error.
+        let entity = MessageEntity::Bold(MessageEntityBold::new(0, 10));
+        assert!(matches!(
+            split_by_entity(text, &entity),
+            Err(ErrorKind::IndexOutOfBounds)
+        ));
+
+        // An offset that falls between the surrogate halves of '😀' (unit 2) splits the pair, which
+        // `String::from_utf16` rejects — so we return an error instead of producing garbage.
+        let entity = MessageEntity::Bold(MessageEntityBold::new(2, 1));
+        assert!(matches!(
+            split_by_entity(text, &entity),
+            Err(ErrorKind::IndexOutOfBounds)
+        ));
     }
 }
