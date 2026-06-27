@@ -136,7 +136,7 @@ use std::{
     collections::HashSet,
     fmt::{self, Debug, Formatter},
     future::Future,
-    iter::once,
+    pin::Pin,
 };
 use tracing::{event, instrument, Level};
 
@@ -807,44 +807,48 @@ where
 
     #[instrument(skip_all, fields(router = self.name))]
     async fn emit_startup(&mut self) -> SimpleHandlerResult {
-        if self.startup.handlers.is_empty() {
-            event!(Level::TRACE, "Observers empty");
-            return Ok(());
+        fn recurse<Client: 'static>(
+            router: &mut Configured<Client>,
+        ) -> Pin<Box<dyn Future<Output = SimpleHandlerResult> + Send + '_>> {
+            Box::pin(async move {
+                if let Err(err) = router.startup.trigger(()).await {
+                    event!(Level::ERROR, error = %err, "Error while emit observers");
+                    return Err(err);
+                }
+
+                for sub_router in &mut router.sub_routers {
+                    recurse(sub_router).await?;
+                }
+
+                Ok(())
+            })
         }
 
         event!(Level::DEBUG, "Start observers");
-        for startup in once(&mut self.startup).chain(
-            self.sub_routers
-                .iter_mut()
-                .map(|router| &mut router.startup),
-        ) {
-            if let Err(err) = startup.trigger(()).await {
-                event!(Level::ERROR, error = %err, "Error while emit observers");
-                return Err(err);
-            }
-        }
-        Ok(())
+        recurse(self).await
     }
 
     #[instrument(skip_all, fields(router = self.name))]
     async fn emit_shutdown(&mut self) -> SimpleHandlerResult {
-        if self.shutdown.handlers.is_empty() {
-            event!(Level::TRACE, "Observers empty");
-            return Ok(());
+        fn recurse<Client: 'static>(
+            router: &mut Configured<Client>,
+        ) -> Pin<Box<dyn Future<Output = SimpleHandlerResult> + Send + '_>> {
+            Box::pin(async move {
+                if let Err(err) = router.shutdown.trigger(()).await {
+                    event!(Level::ERROR, error = %err, "Error while emit observers");
+                    return Err(err);
+                }
+
+                for sub_router in &mut router.sub_routers {
+                    recurse(sub_router).await?;
+                }
+
+                Ok(())
+            })
         }
 
         event!(Level::DEBUG, "Start observers");
-        for shutdown in once(&mut self.shutdown).chain(
-            self.sub_routers
-                .iter_mut()
-                .map(|router| &mut router.shutdown),
-        ) {
-            if let Err(err) = shutdown.trigger(()).await {
-                event!(Level::ERROR, error = %err, "Error while emit observers");
-                return Err(err);
-            }
-        }
-        Ok(())
+        recurse(self).await
     }
 
     #[inline]
