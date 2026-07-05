@@ -218,14 +218,15 @@ impl MessageManager {
             (None, None) => false,
             (Some(_), None) | (None, Some(_)) => true,
             (Some(new_media), Some(old_type)) => !matches!(
+                // Voice and VideoNote are intentionally excluded: `editMessageMedia` cannot produce
+                // them, so such a target always counts as "changed" and requires a resend (this is
+                // also short-circuited earlier in `can_edit`).
                 (new_media.content_type, old_type),
                 (MediaContentType::Animation, MessageType::Animation)
                     | (MediaContentType::Audio, MessageType::Audio)
                     | (MediaContentType::Document, MessageType::Document)
                     | (MediaContentType::Photo, MessageType::Photo)
                     | (MediaContentType::Video, MessageType::Video)
-                    | (MediaContentType::VideoNote, MessageType::VideoNote)
-                    | (MediaContentType::Voice, MessageType::Voice)
             ),
         }
     }
@@ -235,6 +236,24 @@ impl MessageManager {
         // Cannot edit reply keyboards
         if Self::had_reply_keyboard(old) || Self::need_reply_keyboard(new) {
             return false;
+        }
+        // Voice and VideoNote messages cannot be produced by `editMessageMedia` (there is no
+        // `InputMediaVoice`/`InputMediaVideoNote`, so `build_input_media` falls back to a photo).
+        // If either the old or the new message is a voice/video note, force a resend instead of an edit
+        // — otherwise a voice/video note would be silently replaced with a photo.
+        if matches!(
+            old.media_content_type,
+            Some(MessageType::Voice | MessageType::VideoNote)
+        ) {
+            return false;
+        }
+        if let Some(media) = &new.media {
+            if matches!(
+                media.content_type,
+                MediaContentType::Voice | MediaContentType::VideoNote
+            ) {
+                return false;
+            }
         }
         if old.has_media() {
             // Cannot turn a media message back into text: `editMessageText` only edits
@@ -812,6 +831,39 @@ mod tests {
         assert!(MessageManager::can_edit(
             &to_media,
             &old_media_message(&photo)
+        ));
+    }
+
+    #[tokio::test]
+    async fn can_edit_forces_resend_for_voice_and_video_note() {
+        // `editMessageMedia` cannot produce a voice/video note (it would fall back to a photo), so
+        // any transition where the new *or* old message is one must resend rather than edit.
+        let voice = MediaAttachment::builder(MediaContentType::Voice)
+            .file_id(MediaId::new("v-1"))
+            .build();
+        let video_note = MediaAttachment::builder(MediaContentType::VideoNote)
+            .file_id(MediaId::new("vn-1"))
+            .build();
+
+        // text (old) -> voice / video note (new): must resend, even though the old message has no
+        // media (this is the case the missing guard used to let through into an edit -> photo).
+        assert!(!MessageManager::can_edit(
+            &new_message(None).with_media(Some(voice.clone())),
+            &old_message(None),
+        ));
+        assert!(!MessageManager::can_edit(
+            &new_message(None).with_media(Some(video_note.clone())),
+            &old_message(None),
+        ));
+
+        // voice / video note (old) -> same type (new): still must resend.
+        assert!(!MessageManager::can_edit(
+            &new_message(None).with_media(Some(voice.clone())),
+            &old_media_message(&voice),
+        ));
+        assert!(!MessageManager::can_edit(
+            &new_message(None).with_media(Some(video_note.clone())),
+            &old_media_message(&video_note),
         ));
     }
 
