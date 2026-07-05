@@ -1665,7 +1665,7 @@ impl MaybeInaccessibleMessage {
 
     /// Helper method for nested field `icon_color`.
     #[must_use]
-    pub fn icon_color(&self) -> Option<i64> {
+    pub fn icon_color(&self) -> Option<i32> {
         match self {
             Self::Message(val) => {
                 crate::types::Message::forum_topic_created(val).map(|inner| inner.icon_color)

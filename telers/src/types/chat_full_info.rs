@@ -1012,14 +1012,14 @@ impl ChatFullInfo {
 
     /// Helper method for nested field `dark_theme_main_color`.
     #[must_use]
-    pub fn dark_theme_main_color(&self) -> Option<i64> {
+    pub fn dark_theme_main_color(&self) -> Option<i32> {
         self.unique_gift_colors()
             .map(|inner| inner.dark_theme_main_color)
     }
 
     /// Helper method for nested field `dark_theme_other_colors`.
     #[must_use]
-    pub fn dark_theme_other_colors(&self) -> Option<&[i64]> {
+    pub fn dark_theme_other_colors(&self) -> Option<&[i32]> {
         self.unique_gift_colors()
             .map(|inner| inner.dark_theme_other_colors.as_ref())
     }
@@ -1394,14 +1394,14 @@ impl ChatFullInfo {
 
     /// Helper method for nested field `light_theme_main_color`.
     #[must_use]
-    pub fn light_theme_main_color(&self) -> Option<i64> {
+    pub fn light_theme_main_color(&self) -> Option<i32> {
         self.unique_gift_colors()
             .map(|inner| inner.light_theme_main_color)
     }
 
     /// Helper method for nested field `light_theme_other_colors`.
     #[must_use]
-    pub fn light_theme_other_colors(&self) -> Option<&[i64]> {
+    pub fn light_theme_other_colors(&self) -> Option<&[i32]> {
         self.unique_gift_colors()
             .map(|inner| inner.light_theme_other_colors.as_ref())
     }

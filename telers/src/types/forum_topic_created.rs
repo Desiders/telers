@@ -7,7 +7,7 @@ pub struct ForumTopicCreated {
     /// Name of the topic
     pub name: Box<str>,
     /// Color of the topic icon in RGB format
-    pub icon_color: i64,
+    pub icon_color: i32,
     /// Unique identifier of the custom emoji shown as the topic icon
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_custom_emoji_id: Option<Box<str>>,
@@ -25,7 +25,7 @@ impl ForumTopicCreated {
     /// # Notes
     /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new<T0: Into<Box<str>>, T1: Into<i64>>(name: T0, icon_color: T1) -> Self {
+    pub fn new<T0: Into<Box<str>>, T1: Into<i32>>(name: T0, icon_color: T1) -> Self {
         Self {
             name: name.into(),
             icon_color: icon_color.into(),
@@ -43,7 +43,7 @@ impl ForumTopicCreated {
 
     /// Color of the topic icon in RGB format
     #[must_use]
-    pub fn icon_color<T: Into<i64>>(mut self, val: T) -> Self {
+    pub fn icon_color<T: Into<i32>>(mut self, val: T) -> Self {
         self.icon_color = val.into();
         self
     }

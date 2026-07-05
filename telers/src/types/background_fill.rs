@@ -17,7 +17,7 @@ impl BackgroundFill {
     ///
     /// Bottom color of the gradient in the RGB24 format
     #[must_use]
-    pub fn bottom_color(&self) -> Option<i64> {
+    pub fn bottom_color(&self) -> Option<i32> {
         match self {
             Self::Gradient(val) => Some(val.bottom_color),
             _ => None,
@@ -28,7 +28,7 @@ impl BackgroundFill {
     ///
     /// The color of the background fill in the RGB24 format
     #[must_use]
-    pub fn color(&self) -> Option<i64> {
+    pub fn color(&self) -> Option<i32> {
         match self {
             Self::Solid(val) => Some(val.color),
             _ => None,
@@ -39,7 +39,7 @@ impl BackgroundFill {
     ///
     /// A list of the 3 or 4 base colors that are used to generate the freeform gradient in the RGB24 format
     #[must_use]
-    pub fn colors(&self) -> Option<&[i64]> {
+    pub fn colors(&self) -> Option<&[i32]> {
         match self {
             Self::FreeformGradient(val) => Some(val.colors.as_ref()),
             _ => None,
@@ -61,7 +61,7 @@ impl BackgroundFill {
     ///
     /// Top color of the gradient in the RGB24 format
     #[must_use]
-    pub fn top_color(&self) -> Option<i64> {
+    pub fn top_color(&self) -> Option<i32> {
         match self {
             Self::Gradient(val) => Some(val.top_color),
             _ => None,

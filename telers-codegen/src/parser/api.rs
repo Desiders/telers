@@ -90,9 +90,10 @@ impl Field {
                 required: self.required,
                 // A numeric range in the array's description (e.g. "list of 1-100 identifiers"
                 // or "list of 1-3 colors") bounds the array length, not each element's value.
-                // Passing it down would mis-size integer elements (e.g. `message_ids` as `u8`),
-                // so the element is identified without it and integers default to `i64`.
-                description: String::new(),
+                // Passing it down would wrongly size integer elements (e.g. `message_ids` as `u8`),
+                // so strip only the range; other hints like "RGB format" are kept so element
+                // typing (e.g. `i32` for colors) still works.
+                description: strip_length_range(&self.description),
                 types: vec![r#type.replacen("Array of ", "", 1)],
             }
             .identify_field_type();
@@ -1938,31 +1939,42 @@ pub fn is_string(raw_type: &RawType) -> bool {
 #[must_use]
 pub fn get_if_integer(raw_type: &RawType, description: &str) -> Option<IntegerKind> {
     match raw_type.as_str() {
-        "Integer" => Some(match extract_range(description) {
-            Some((min, max)) if min < 0 => {
-                if max <= i64::from(i8::MAX) {
-                    IntegerKind::Int8
-                } else if max <= i64::from(i16::MAX) {
-                    IntegerKind::Int16
-                } else if max <= i64::from(i32::MAX) {
-                    IntegerKind::Int32
-                } else {
-                    IntegerKind::Int64
-                }
+        "Integer" => {
+            // 24-bit colors ("RGB"/"RGB24" format) always fit in `i32`. Detect them before
+            // range-based sizing: their descriptions carry no value range, and any numbers
+            // present (e.g. example color constants) would otherwise mislead it. The 32-bit
+            // variants ("ARGB"/"RGBA") include an alpha byte, can exceed `i32::MAX`, and are
+            // excluded so they keep the default `i64`.
+            let desc = description.to_lowercase();
+            if desc.contains("rgb") && !desc.contains("argb") && !desc.contains("rgba") {
+                return Some(IntegerKind::Int32);
             }
-            Some((_, max)) => {
-                if max <= i64::from(u8::MAX) {
-                    IntegerKind::UInt8
-                } else if max <= i64::from(u16::MAX) {
-                    IntegerKind::UInt16
-                } else if max <= i64::from(u32::MAX) {
-                    IntegerKind::UInt32
-                } else {
-                    IntegerKind::UInt64
+            Some(match extract_range(description) {
+                Some((min, max)) if min < 0 => {
+                    if max <= i64::from(i8::MAX) {
+                        IntegerKind::Int8
+                    } else if max <= i64::from(i16::MAX) {
+                        IntegerKind::Int16
+                    } else if max <= i64::from(i32::MAX) {
+                        IntegerKind::Int32
+                    } else {
+                        IntegerKind::Int64
+                    }
                 }
-            }
-            None => IntegerKind::Int64,
-        }),
+                Some((_, max)) => {
+                    if max <= i64::from(u8::MAX) {
+                        IntegerKind::UInt8
+                    } else if max <= i64::from(u16::MAX) {
+                        IntegerKind::UInt16
+                    } else if max <= i64::from(u32::MAX) {
+                        IntegerKind::UInt32
+                    } else {
+                        IntegerKind::UInt64
+                    }
+                }
+                None => IntegerKind::Int64,
+            })
+        }
         "Float" => Some(IntegerKind::Float64),
         _ => None,
     }
@@ -1976,6 +1988,19 @@ fn extract_range(description: &str) -> Option<(i64, i64)> {
     let min: i64 = caps[1].parse().ok()?;
     let max: i64 = caps[2].parse().ok()?;
     (min <= max).then_some((min, max))
+}
+
+/// Remove the first numeric range (e.g. "1-100", "from 1 to 3") from a description.
+///
+/// For array fields such a range describes the array length, not the element values, so it
+/// must not influence element integer sizing (see the array branch of [`Field::identify_field_type`]).
+/// Non-range text (e.g. "RGB format") is preserved so element typing still works.
+fn strip_length_range(description: &str) -> String {
+    let Ok(re) = Regex::new(r"(?i)(?:from|between|must be)?\s*[-]?\d+\s*(?:-|to|and)\s*[-]?\d+")
+    else {
+        return description.to_owned();
+    };
+    re.replace(description, " ").into_owned()
 }
 
 /// # Notes

@@ -5,13 +5,13 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct UniqueGiftBackdropColors {
     /// The color in the center of the backdrop in RGB format
-    pub center_color: i64,
+    pub center_color: i32,
     /// The color on the edges of the backdrop in RGB format
-    pub edge_color: i64,
+    pub edge_color: i32,
     /// The color to be applied to the symbol in RGB format
-    pub symbol_color: i64,
+    pub symbol_color: i32,
     /// The color for the text on the backdrop in RGB format
-    pub text_color: i64,
+    pub text_color: i32,
 }
 impl UniqueGiftBackdropColors {
     /// Creates a new `UniqueGiftBackdropColors`.
@@ -22,7 +22,7 @@ impl UniqueGiftBackdropColors {
     /// * `symbol_color` - The color to be applied to the symbol in RGB format
     /// * `text_color` - The color for the text on the backdrop in RGB format
     #[must_use]
-    pub fn new<T0: Into<i64>, T1: Into<i64>, T2: Into<i64>, T3: Into<i64>>(
+    pub fn new<T0: Into<i32>, T1: Into<i32>, T2: Into<i32>, T3: Into<i32>>(
         center_color: T0,
         edge_color: T1,
         symbol_color: T2,
@@ -38,28 +38,28 @@ impl UniqueGiftBackdropColors {
 
     /// The color in the center of the backdrop in RGB format
     #[must_use]
-    pub fn center_color<T: Into<i64>>(mut self, val: T) -> Self {
+    pub fn center_color<T: Into<i32>>(mut self, val: T) -> Self {
         self.center_color = val.into();
         self
     }
 
     /// The color on the edges of the backdrop in RGB format
     #[must_use]
-    pub fn edge_color<T: Into<i64>>(mut self, val: T) -> Self {
+    pub fn edge_color<T: Into<i32>>(mut self, val: T) -> Self {
         self.edge_color = val.into();
         self
     }
 
     /// The color to be applied to the symbol in RGB format
     #[must_use]
-    pub fn symbol_color<T: Into<i64>>(mut self, val: T) -> Self {
+    pub fn symbol_color<T: Into<i32>>(mut self, val: T) -> Self {
         self.symbol_color = val.into();
         self
     }
 
     /// The color for the text on the backdrop in RGB format
     #[must_use]
-    pub fn text_color<T: Into<i64>>(mut self, val: T) -> Self {
+    pub fn text_color<T: Into<i32>>(mut self, val: T) -> Self {
         self.text_color = val.into();
         self
     }

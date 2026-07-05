@@ -9,13 +9,13 @@ pub struct UniqueGiftColors {
     /// Custom emoji identifier of the unique gift's symbol
     pub symbol_custom_emoji_id: Box<str>,
     /// Main color used in light themes; RGB format
-    pub light_theme_main_color: i64,
+    pub light_theme_main_color: i32,
     /// List of 1-3 additional colors used in light themes; RGB format
-    pub light_theme_other_colors: Box<[i64]>,
+    pub light_theme_other_colors: Box<[i32]>,
     /// Main color used in dark themes; RGB format
-    pub dark_theme_main_color: i64,
+    pub dark_theme_main_color: i32,
     /// List of 1-3 additional colors used in dark themes; RGB format
-    pub dark_theme_other_colors: Box<[i64]>,
+    pub dark_theme_other_colors: Box<[i32]>,
 }
 impl UniqueGiftColors {
     /// Creates a new `UniqueGiftColors`.
@@ -31,11 +31,11 @@ impl UniqueGiftColors {
     pub fn new<
         T0: Into<Box<str>>,
         T1: Into<Box<str>>,
-        T2: Into<i64>,
-        T3Item: Into<i64>,
+        T2: Into<i32>,
+        T3Item: Into<i32>,
         T3: IntoIterator<Item = T3Item>,
-        T4: Into<i64>,
-        T5Item: Into<i64>,
+        T4: Into<i32>,
+        T5Item: Into<i32>,
         T5: IntoIterator<Item = T5Item>,
     >(
         model_custom_emoji_id: T0,
@@ -77,7 +77,7 @@ impl UniqueGiftColors {
 
     /// Main color used in light themes; RGB format
     #[must_use]
-    pub fn light_theme_main_color<T: Into<i64>>(mut self, val: T) -> Self {
+    pub fn light_theme_main_color<T: Into<i32>>(mut self, val: T) -> Self {
         self.light_theme_main_color = val.into();
         self
     }
@@ -87,7 +87,7 @@ impl UniqueGiftColors {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn light_theme_other_colors<T: Into<Box<[i64]>>>(mut self, val: T) -> Self {
+    pub fn light_theme_other_colors<T: Into<Box<[i32]>>>(mut self, val: T) -> Self {
         self.light_theme_other_colors = self
             .light_theme_other_colors
             .into_vec()
@@ -102,7 +102,7 @@ impl UniqueGiftColors {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn light_theme_other_color<T: Into<i64>>(mut self, val: T) -> Self {
+    pub fn light_theme_other_color<T: Into<i32>>(mut self, val: T) -> Self {
         self.light_theme_other_colors = self
             .light_theme_other_colors
             .into_vec()
@@ -114,7 +114,7 @@ impl UniqueGiftColors {
 
     /// Main color used in dark themes; RGB format
     #[must_use]
-    pub fn dark_theme_main_color<T: Into<i64>>(mut self, val: T) -> Self {
+    pub fn dark_theme_main_color<T: Into<i32>>(mut self, val: T) -> Self {
         self.dark_theme_main_color = val.into();
         self
     }
@@ -124,7 +124,7 @@ impl UniqueGiftColors {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn dark_theme_other_colors<T: Into<Box<[i64]>>>(mut self, val: T) -> Self {
+    pub fn dark_theme_other_colors<T: Into<Box<[i32]>>>(mut self, val: T) -> Self {
         self.dark_theme_other_colors = self
             .dark_theme_other_colors
             .into_vec()
@@ -139,7 +139,7 @@ impl UniqueGiftColors {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn dark_theme_other_color<T: Into<i64>>(mut self, val: T) -> Self {
+    pub fn dark_theme_other_color<T: Into<i32>>(mut self, val: T) -> Self {
         self.dark_theme_other_colors = self
             .dark_theme_other_colors
             .into_vec()

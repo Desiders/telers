@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct BackgroundFillFreeformGradient {
     /// A list of the 3 or 4 base colors that are used to generate the freeform gradient in the RGB24 format
-    pub colors: Box<[i64]>,
+    pub colors: Box<[i32]>,
 }
 impl BackgroundFillFreeformGradient {
     /// Creates a new `BackgroundFillFreeformGradient`.
@@ -13,7 +13,7 @@ impl BackgroundFillFreeformGradient {
     /// # Arguments
     /// * `colors` - A list of the 3 or 4 base colors that are used to generate the freeform gradient in the RGB24 format
     #[must_use]
-    pub fn new<T0Item: Into<i64>, T0: IntoIterator<Item = T0Item>>(colors: T0) -> Self {
+    pub fn new<T0Item: Into<i32>, T0: IntoIterator<Item = T0Item>>(colors: T0) -> Self {
         Self {
             colors: colors.into_iter().map(Into::into).collect(),
         }
@@ -24,7 +24,7 @@ impl BackgroundFillFreeformGradient {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn colors<T: Into<Box<[i64]>>>(mut self, val: T) -> Self {
+    pub fn colors<T: Into<Box<[i32]>>>(mut self, val: T) -> Self {
         self.colors = self
             .colors
             .into_vec()
@@ -39,7 +39,7 @@ impl BackgroundFillFreeformGradient {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn color<T: Into<i64>>(mut self, val: T) -> Self {
+    pub fn color<T: Into<i32>>(mut self, val: T) -> Self {
         self.colors = self
             .colors
             .into_vec()

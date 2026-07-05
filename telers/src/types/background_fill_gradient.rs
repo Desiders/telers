@@ -5,9 +5,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct BackgroundFillGradient {
     /// Top color of the gradient in the RGB24 format
-    pub top_color: i64,
+    pub top_color: i32,
     /// Bottom color of the gradient in the RGB24 format
-    pub bottom_color: i64,
+    pub bottom_color: i32,
     /// Clockwise rotation angle of the background fill in degrees; 0-359
     pub rotation_angle: u16,
 }
@@ -19,7 +19,7 @@ impl BackgroundFillGradient {
     /// * `bottom_color` - Bottom color of the gradient in the RGB24 format
     /// * `rotation_angle` - Clockwise rotation angle of the background fill in degrees; 0-359
     #[must_use]
-    pub fn new<T0: Into<i64>, T1: Into<i64>, T2: Into<u16>>(
+    pub fn new<T0: Into<i32>, T1: Into<i32>, T2: Into<u16>>(
         top_color: T0,
         bottom_color: T1,
         rotation_angle: T2,
@@ -33,14 +33,14 @@ impl BackgroundFillGradient {
 
     /// Top color of the gradient in the RGB24 format
     #[must_use]
-    pub fn top_color<T: Into<i64>>(mut self, val: T) -> Self {
+    pub fn top_color<T: Into<i32>>(mut self, val: T) -> Self {
         self.top_color = val.into();
         self
     }
 
     /// Bottom color of the gradient in the RGB24 format
     #[must_use]
-    pub fn bottom_color<T: Into<i64>>(mut self, val: T) -> Self {
+    pub fn bottom_color<T: Into<i32>>(mut self, val: T) -> Self {
         self.bottom_color = val.into();
         self
     }

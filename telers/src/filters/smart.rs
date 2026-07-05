@@ -989,24 +989,24 @@ impl SmartFilterPath<crate::types::Audio> {
 }
 impl SmartFilterPath<crate::types::BackgroundFill> {
     #[must_use]
-    pub fn colors(self) -> SmartFilterPath<[i64]> {
+    pub fn colors(self) -> SmartFilterPath<[i32]> {
         self.and_then(|value| value.colors())
     }
 }
 impl SmartFilterPath<crate::types::BackgroundFillFreeformGradient> {
     #[must_use]
-    pub fn colors(self) -> SmartFilterPath<[i64]> {
+    pub fn colors(self) -> SmartFilterPath<[i32]> {
         self.map(|value| value.colors.as_ref())
     }
 }
 impl SmartFilterPath<crate::types::BackgroundFillGradient> {
     #[must_use]
-    pub fn top_color(self) -> SmartFilterPath<i64> {
+    pub fn top_color(self) -> SmartFilterPath<i32> {
         self.map(|value| &value.top_color)
     }
 
     #[must_use]
-    pub fn bottom_color(self) -> SmartFilterPath<i64> {
+    pub fn bottom_color(self) -> SmartFilterPath<i32> {
         self.map(|value| &value.bottom_color)
     }
 
@@ -1017,7 +1017,7 @@ impl SmartFilterPath<crate::types::BackgroundFillGradient> {
 }
 impl SmartFilterPath<crate::types::BackgroundFillSolid> {
     #[must_use]
-    pub fn color(self) -> SmartFilterPath<i64> {
+    pub fn color(self) -> SmartFilterPath<i32> {
         self.map(|value| &value.color)
     }
 }
@@ -4341,7 +4341,7 @@ impl SmartFilterPath<crate::types::ForumTopic> {
     }
 
     #[must_use]
-    pub fn icon_color(self) -> SmartFilterPath<i64> {
+    pub fn icon_color(self) -> SmartFilterPath<i32> {
         self.map(|value| &value.icon_color)
     }
 
@@ -4363,7 +4363,7 @@ impl SmartFilterPath<crate::types::ForumTopicCreated> {
     }
 
     #[must_use]
-    pub fn icon_color(self) -> SmartFilterPath<i64> {
+    pub fn icon_color(self) -> SmartFilterPath<i32> {
         self.map(|value| &value.icon_color)
     }
 
@@ -4506,17 +4506,17 @@ impl SmartFilterPath<crate::types::Gift> {
 }
 impl SmartFilterPath<crate::types::GiftBackground> {
     #[must_use]
-    pub fn center_color(self) -> SmartFilterPath<i64> {
+    pub fn center_color(self) -> SmartFilterPath<i32> {
         self.map(|value| &value.center_color)
     }
 
     #[must_use]
-    pub fn edge_color(self) -> SmartFilterPath<i64> {
+    pub fn edge_color(self) -> SmartFilterPath<i32> {
         self.map(|value| &value.edge_color)
     }
 
     #[must_use]
-    pub fn text_color(self) -> SmartFilterPath<i64> {
+    pub fn text_color(self) -> SmartFilterPath<i32> {
         self.map(|value| &value.text_color)
     }
 }
@@ -28087,22 +28087,22 @@ impl SmartFilterPath<crate::types::UniqueGiftBackdrop> {
 }
 impl SmartFilterPath<crate::types::UniqueGiftBackdropColors> {
     #[must_use]
-    pub fn center_color(self) -> SmartFilterPath<i64> {
+    pub fn center_color(self) -> SmartFilterPath<i32> {
         self.map(|value| &value.center_color)
     }
 
     #[must_use]
-    pub fn edge_color(self) -> SmartFilterPath<i64> {
+    pub fn edge_color(self) -> SmartFilterPath<i32> {
         self.map(|value| &value.edge_color)
     }
 
     #[must_use]
-    pub fn symbol_color(self) -> SmartFilterPath<i64> {
+    pub fn symbol_color(self) -> SmartFilterPath<i32> {
         self.map(|value| &value.symbol_color)
     }
 
     #[must_use]
-    pub fn text_color(self) -> SmartFilterPath<i64> {
+    pub fn text_color(self) -> SmartFilterPath<i32> {
         self.map(|value| &value.text_color)
     }
 }
@@ -28118,22 +28118,22 @@ impl SmartFilterPath<crate::types::UniqueGiftColors> {
     }
 
     #[must_use]
-    pub fn light_theme_main_color(self) -> SmartFilterPath<i64> {
+    pub fn light_theme_main_color(self) -> SmartFilterPath<i32> {
         self.map(|value| &value.light_theme_main_color)
     }
 
     #[must_use]
-    pub fn light_theme_other_colors(self) -> SmartFilterPath<[i64]> {
+    pub fn light_theme_other_colors(self) -> SmartFilterPath<[i32]> {
         self.map(|value| value.light_theme_other_colors.as_ref())
     }
 
     #[must_use]
-    pub fn dark_theme_main_color(self) -> SmartFilterPath<i64> {
+    pub fn dark_theme_main_color(self) -> SmartFilterPath<i32> {
         self.map(|value| &value.dark_theme_main_color)
     }
 
     #[must_use]
-    pub fn dark_theme_other_colors(self) -> SmartFilterPath<[i64]> {
+    pub fn dark_theme_other_colors(self) -> SmartFilterPath<[i32]> {
         self.map(|value| value.dark_theme_other_colors.as_ref())
     }
 }

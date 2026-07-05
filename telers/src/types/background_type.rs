@@ -113,7 +113,7 @@ impl BackgroundType {
 
     /// Helper method for nested field `bottom_color`.
     #[must_use]
-    pub fn bottom_color(&self) -> Option<i64> {
+    pub fn bottom_color(&self) -> Option<i32> {
         match self {
             Self::Fill(val) => {
                 let inner = &val.fill;
@@ -129,7 +129,7 @@ impl BackgroundType {
 
     /// Helper method for nested field `color`.
     #[must_use]
-    pub fn color(&self) -> Option<i64> {
+    pub fn color(&self) -> Option<i32> {
         match self {
             Self::Fill(val) => {
                 let inner = &val.fill;
@@ -145,7 +145,7 @@ impl BackgroundType {
 
     /// Helper method for nested field `colors`.
     #[must_use]
-    pub fn colors(&self) -> Option<&[i64]> {
+    pub fn colors(&self) -> Option<&[i32]> {
         match self {
             Self::Fill(val) => {
                 let inner = &val.fill;
@@ -273,7 +273,7 @@ impl BackgroundType {
 
     /// Helper method for nested field `top_color`.
     #[must_use]
-    pub fn top_color(&self) -> Option<i64> {
+    pub fn top_color(&self) -> Option<i32> {
         match self {
             Self::Fill(val) => {
                 let inner = &val.fill;

@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct BackgroundFillSolid {
     /// The color of the background fill in the RGB24 format
-    pub color: i64,
+    pub color: i32,
 }
 impl BackgroundFillSolid {
     /// Creates a new `BackgroundFillSolid`.
@@ -13,7 +13,7 @@ impl BackgroundFillSolid {
     /// # Arguments
     /// * `color` - The color of the background fill in the RGB24 format
     #[must_use]
-    pub fn new<T0: Into<i64>>(color: T0) -> Self {
+    pub fn new<T0: Into<i32>>(color: T0) -> Self {
         Self {
             color: color.into(),
         }
@@ -21,7 +21,7 @@ impl BackgroundFillSolid {
 
     /// The color of the background fill in the RGB24 format
     #[must_use]
-    pub fn color<T: Into<i64>>(mut self, val: T) -> Self {
+    pub fn color<T: Into<i32>>(mut self, val: T) -> Self {
         self.color = val.into();
         self
     }

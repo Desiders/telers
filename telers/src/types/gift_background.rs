@@ -5,11 +5,11 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GiftBackground {
     /// Center color of the background in RGB format
-    pub center_color: i64,
+    pub center_color: i32,
     /// Edge color of the background in RGB format
-    pub edge_color: i64,
+    pub edge_color: i32,
     /// Text color of the background in RGB format
-    pub text_color: i64,
+    pub text_color: i32,
 }
 impl GiftBackground {
     /// Creates a new `GiftBackground`.
@@ -19,7 +19,7 @@ impl GiftBackground {
     /// * `edge_color` - Edge color of the background in RGB format
     /// * `text_color` - Text color of the background in RGB format
     #[must_use]
-    pub fn new<T0: Into<i64>, T1: Into<i64>, T2: Into<i64>>(
+    pub fn new<T0: Into<i32>, T1: Into<i32>, T2: Into<i32>>(
         center_color: T0,
         edge_color: T1,
         text_color: T2,
@@ -33,21 +33,21 @@ impl GiftBackground {
 
     /// Center color of the background in RGB format
     #[must_use]
-    pub fn center_color<T: Into<i64>>(mut self, val: T) -> Self {
+    pub fn center_color<T: Into<i32>>(mut self, val: T) -> Self {
         self.center_color = val.into();
         self
     }
 
     /// Edge color of the background in RGB format
     #[must_use]
-    pub fn edge_color<T: Into<i64>>(mut self, val: T) -> Self {
+    pub fn edge_color<T: Into<i32>>(mut self, val: T) -> Self {
         self.edge_color = val.into();
         self
     }
 
     /// Text color of the background in RGB format
     #[must_use]
-    pub fn text_color<T: Into<i64>>(mut self, val: T) -> Self {
+    pub fn text_color<T: Into<i32>>(mut self, val: T) -> Self {
         self.text_color = val.into();
         self
     }
