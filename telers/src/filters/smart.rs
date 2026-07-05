@@ -28123,7 +28123,7 @@ impl SmartFilterPath<crate::types::UniqueGiftColors> {
     }
 
     #[must_use]
-    pub fn light_theme_other_colors(self) -> SmartFilterPath<[u8]> {
+    pub fn light_theme_other_colors(self) -> SmartFilterPath<[i64]> {
         self.map(|value| value.light_theme_other_colors.as_ref())
     }
 
@@ -28133,7 +28133,7 @@ impl SmartFilterPath<crate::types::UniqueGiftColors> {
     }
 
     #[must_use]
-    pub fn dark_theme_other_colors(self) -> SmartFilterPath<[u8]> {
+    pub fn dark_theme_other_colors(self) -> SmartFilterPath<[i64]> {
         self.map(|value| value.dark_theme_other_colors.as_ref())
     }
 }

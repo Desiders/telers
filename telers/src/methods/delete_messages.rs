@@ -10,7 +10,7 @@ pub struct DeleteMessages {
     /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// A JSON-serialized list of 1-100 identifiers of messages to delete. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted.
-    pub message_ids: Box<[u8]>,
+    pub message_ids: Box<[i64]>,
 }
 impl DeleteMessages {
     /// Creates a new `DeleteMessages`.
@@ -21,7 +21,7 @@ impl DeleteMessages {
     #[must_use]
     pub fn new<
         T0: Into<crate::types::ChatIdKind>,
-        T1Item: Into<u8>,
+        T1Item: Into<i64>,
         T1: IntoIterator<Item = T1Item>,
     >(
         chat_id: T0,
@@ -45,7 +45,7 @@ impl DeleteMessages {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn message_ids<TItem: Into<u8>, T: IntoIterator<Item = TItem>>(mut self, val: T) -> Self {
+    pub fn message_ids<TItem: Into<i64>, T: IntoIterator<Item = TItem>>(mut self, val: T) -> Self {
         self.message_ids = self
             .message_ids
             .into_vec()
@@ -60,7 +60,7 @@ impl DeleteMessages {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn message_id<T: Into<u8>>(mut self, val: T) -> Self {
+    pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
         self.message_ids = self
             .message_ids
             .into_vec()

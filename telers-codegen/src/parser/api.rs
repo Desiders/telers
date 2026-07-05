@@ -88,7 +88,11 @@ impl Field {
             let inner_type = Field {
                 name: self.name.clone(),
                 required: self.required,
-                description: self.description.clone(),
+                // A numeric range in the array's description (e.g. "list of 1-100 identifiers"
+                // or "list of 1-3 colors") bounds the array length, not each element's value.
+                // Passing it down would mis-size integer elements (e.g. `message_ids` as `u8`),
+                // so the element is identified without it and integers default to `i64`.
+                description: String::new(),
                 types: vec![r#type.replacen("Array of ", "", 1)],
             }
             .identify_field_type();

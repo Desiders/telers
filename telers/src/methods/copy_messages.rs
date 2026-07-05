@@ -18,7 +18,7 @@ pub struct CopyMessages {
     /// Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup or channel in the format @username)
     pub from_chat_id: crate::types::ChatIdKind,
     /// A JSON-serialized list of 1-100 identifiers of messages in the chat `from_chat_id` to copy. The identifiers must be specified in a strictly increasing order.
-    pub message_ids: Box<[u8]>,
+    pub message_ids: Box<[i64]>,
     /// Sends the messages silently. Users will receive a notification with no sound.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_notification: Option<bool>,
@@ -43,7 +43,7 @@ impl CopyMessages {
     pub fn new<
         T0: Into<crate::types::ChatIdKind>,
         T1: Into<crate::types::ChatIdKind>,
-        T2Item: Into<u8>,
+        T2Item: Into<i64>,
         T2: IntoIterator<Item = T2Item>,
     >(
         chat_id: T0,
@@ -109,7 +109,7 @@ impl CopyMessages {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn message_ids<TItem: Into<u8>, T: IntoIterator<Item = TItem>>(mut self, val: T) -> Self {
+    pub fn message_ids<TItem: Into<i64>, T: IntoIterator<Item = TItem>>(mut self, val: T) -> Self {
         self.message_ids = self
             .message_ids
             .into_vec()
@@ -124,7 +124,7 @@ impl CopyMessages {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn message_id<T: Into<u8>>(mut self, val: T) -> Self {
+    pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
         self.message_ids = self
             .message_ids
             .into_vec()

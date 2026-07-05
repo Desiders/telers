@@ -10,7 +10,7 @@ pub struct DeleteBusinessMessages {
     /// Unique identifier of the business connection on behalf of which to delete the messages
     pub business_connection_id: Box<str>,
     /// A JSON-serialized list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted.
-    pub message_ids: Box<[u8]>,
+    pub message_ids: Box<[i64]>,
 }
 impl DeleteBusinessMessages {
     /// Creates a new `DeleteBusinessMessages`.
@@ -19,7 +19,7 @@ impl DeleteBusinessMessages {
     /// * `business_connection_id` - Unique identifier of the business connection on behalf of which to delete the messages
     /// * `message_ids` - A JSON-serialized list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted.
     #[must_use]
-    pub fn new<T0: Into<Box<str>>, T1Item: Into<u8>, T1: IntoIterator<Item = T1Item>>(
+    pub fn new<T0: Into<Box<str>>, T1Item: Into<i64>, T1: IntoIterator<Item = T1Item>>(
         business_connection_id: T0,
         message_ids: T1,
     ) -> Self {
@@ -41,7 +41,7 @@ impl DeleteBusinessMessages {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn message_ids<TItem: Into<u8>, T: IntoIterator<Item = TItem>>(mut self, val: T) -> Self {
+    pub fn message_ids<TItem: Into<i64>, T: IntoIterator<Item = TItem>>(mut self, val: T) -> Self {
         self.message_ids = self
             .message_ids
             .into_vec()
@@ -56,7 +56,7 @@ impl DeleteBusinessMessages {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn message_id<T: Into<u8>>(mut self, val: T) -> Self {
+    pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
         self.message_ids = self
             .message_ids
             .into_vec()
