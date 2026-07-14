@@ -81,6 +81,9 @@ pub struct ChatFullInfoChannel {
     /// The bot that processes join request queries in the chat. The field is only available to chat administrators.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub guard_bot: Option<Box<crate::types::User>>,
+    /// The Community to which the chat belongs
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub community: Option<crate::types::Community>,
 }
 impl ChatFullInfoChannel {
     /// Creates a new `ChatFullInfoChannel`.
@@ -125,6 +128,7 @@ impl ChatFullInfoChannel {
             unique_gift_colors: None,
             paid_message_star_count: None,
             guard_bot: None,
+            community: None,
         }
     }
 
@@ -540,6 +544,20 @@ impl ChatFullInfoChannel {
     #[must_use]
     pub fn guard_bot_option<T: Into<crate::types::User>>(mut self, val: Option<T>) -> Self {
         self.guard_bot = val.map(|val| Box::new(val.into()));
+        self
+    }
+
+    /// The Community to which the chat belongs
+    #[must_use]
+    pub fn community<T: Into<crate::types::Community>>(mut self, val: T) -> Self {
+        self.community = Some(val.into());
+        self
+    }
+
+    /// The Community to which the chat belongs
+    #[must_use]
+    pub fn community_option<T: Into<crate::types::Community>>(mut self, val: Option<T>) -> Self {
+        self.community = val.map(Into::into);
         self
     }
 }

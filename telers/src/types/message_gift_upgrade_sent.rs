@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#message>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MessageGiftUpgradeSent {
-    /// Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
+    /// Unique message identifier inside this chat; 0 for ephemeral messages. In specific instances (e.g., a message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     pub message_id: i64,
     /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -29,6 +29,12 @@ pub struct MessageGiftUpgradeSent {
     /// Tag or custom title of the sender of the message; for supergroups only
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sender_tag: Option<Box<str>>,
+    /// For ephemeral messages, the user who received the message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub receiver_user: Option<Box<crate::types::User>>,
+    /// For ephemeral messages, identifier of the ephemeral message inside this chat. The identifier may be reused for another ephemeral message after the message is deleted or expires.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ephemeral_message_id: Option<i64>,
     /// Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     pub date: i64,
     /// The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
@@ -48,7 +54,7 @@ pub struct MessageGiftUpgradeSent {
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_automatic_forward: Option<bool>,
-    /// For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
+    /// For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply. If the message is a reply to an ephemeral message, then this field may be omitted.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_to_message: Option<Box<crate::types::Message>>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
@@ -133,7 +139,7 @@ impl MessageGiftUpgradeSent {
     /// Creates a new `MessageGiftUpgradeSent`.
     ///
     /// # Arguments
-    /// * `message_id` - Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
+    /// * `message_id` - Unique message identifier inside this chat; 0 for ephemeral messages. In specific instances (e.g., a message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     /// * `date` - Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     /// * `chat` - Chat the message belongs to
     /// * `gift_upgrade_sent` - Service message: upgrade of a gift was purchased after the gift was sent
@@ -161,6 +167,8 @@ impl MessageGiftUpgradeSent {
             sender_boost_count: None,
             sender_business_bot: None,
             sender_tag: None,
+            receiver_user: None,
+            ephemeral_message_id: None,
             date: date.into(),
             guest_query_id: None,
             business_connection_id: None,
@@ -198,7 +206,7 @@ impl MessageGiftUpgradeSent {
         }
     }
 
-    /// Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
+    /// Unique message identifier inside this chat; 0 for ephemeral messages. In specific instances (e.g., a message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     #[must_use]
     pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
         self.message_id = val.into();
@@ -312,6 +320,34 @@ impl MessageGiftUpgradeSent {
         self
     }
 
+    /// For ephemeral messages, the user who received the message
+    #[must_use]
+    pub fn receiver_user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.receiver_user = Some(Box::new(val.into()));
+        self
+    }
+
+    /// For ephemeral messages, the user who received the message
+    #[must_use]
+    pub fn receiver_user_option<T: Into<crate::types::User>>(mut self, val: Option<T>) -> Self {
+        self.receiver_user = val.map(|val| Box::new(val.into()));
+        self
+    }
+
+    /// For ephemeral messages, identifier of the ephemeral message inside this chat. The identifier may be reused for another ephemeral message after the message is deleted or expires.
+    #[must_use]
+    pub fn ephemeral_message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.ephemeral_message_id = Some(val.into());
+        self
+    }
+
+    /// For ephemeral messages, identifier of the ephemeral message inside this chat. The identifier may be reused for another ephemeral message after the message is deleted or expires.
+    #[must_use]
+    pub fn ephemeral_message_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.ephemeral_message_id = val.map(Into::into);
+        self
+    }
+
     /// Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     #[must_use]
     pub fn date<T: Into<i64>>(mut self, val: T) -> Self {
@@ -399,14 +435,14 @@ impl MessageGiftUpgradeSent {
         self
     }
 
-    /// For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
+    /// For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply. If the message is a reply to an ephemeral message, then this field may be omitted.
     #[must_use]
     pub fn reply_to_message<T: Into<crate::types::Message>>(mut self, val: T) -> Self {
         self.reply_to_message = Some(Box::new(val.into()));
         self
     }
 
-    /// For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
+    /// For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply. If the message is a reply to an ephemeral message, then this field may be omitted.
     #[must_use]
     pub fn reply_to_message_option<T: Into<crate::types::Message>>(
         mut self,

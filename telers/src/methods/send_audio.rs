@@ -19,6 +19,12 @@ pub struct SendAudio {
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
     #[serde(skip_serializing_if = "Option::is_none")]
     pub direct_messages_topic_id: Option<i64>,
+    /// For outgoing ephemeral messages, unique identifier of the user who will receive the message; for group and supergroup chats only. It is not guaranteed that the user will receive the message, especially if they are offline. See ephemeral message sending for more details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub receiver_user_id: Option<i64>,
+    /// For outgoing ephemeral messages, identifier of the callback query which triggerred the message if any
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub callback_query_id: Option<Box<str>>,
     /// Audio file to send. Pass a `file_id` as String to send an audio file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an audio file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     pub audio: crate::types::InputFile,
     /// Audio caption, 0-1024 characters after entities parsing
@@ -83,6 +89,8 @@ impl SendAudio {
             chat_id: chat_id.into(),
             message_thread_id: None,
             direct_messages_topic_id: None,
+            receiver_user_id: None,
+            callback_query_id: None,
             audio: audio.into(),
             caption: None,
             parse_mode: None,
@@ -147,6 +155,34 @@ impl SendAudio {
     #[must_use]
     pub fn direct_messages_topic_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.direct_messages_topic_id = val.map(Into::into);
+        self
+    }
+
+    /// For outgoing ephemeral messages, unique identifier of the user who will receive the message; for group and supergroup chats only. It is not guaranteed that the user will receive the message, especially if they are offline. See ephemeral message sending for more details.
+    #[must_use]
+    pub fn receiver_user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.receiver_user_id = Some(val.into());
+        self
+    }
+
+    /// For outgoing ephemeral messages, unique identifier of the user who will receive the message; for group and supergroup chats only. It is not guaranteed that the user will receive the message, especially if they are offline. See ephemeral message sending for more details.
+    #[must_use]
+    pub fn receiver_user_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.receiver_user_id = val.map(Into::into);
+        self
+    }
+
+    /// For outgoing ephemeral messages, identifier of the callback query which triggerred the message if any
+    #[must_use]
+    pub fn callback_query_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.callback_query_id = Some(val.into());
+        self
+    }
+
+    /// For outgoing ephemeral messages, identifier of the callback query which triggerred the message if any
+    #[must_use]
+    pub fn callback_query_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.callback_query_id = val.map(Into::into);
         self
     }
 

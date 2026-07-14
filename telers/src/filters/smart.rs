@@ -164,6 +164,16 @@ impl SmartFilter {
     }
 
     #[must_use]
+    pub fn community_chat_added() -> SmartFilterPath<crate::types::CommunityChatAdded> {
+        Self::update().community_chat_added()
+    }
+
+    #[must_use]
+    pub fn community_chat_removed() -> SmartFilterPath<crate::types::CommunityChatRemoved> {
+        Self::update().community_chat_removed()
+    }
+
+    #[must_use]
     pub fn connected_website() -> SmartFilterPath<str> {
         Self::update().connected_website()
     }
@@ -637,6 +647,11 @@ impl SmartFilter {
     }
 
     #[must_use]
+    pub fn receiver_user() -> SmartFilterPath<crate::types::User> {
+        Self::update().receiver_user()
+    }
+
+    #[must_use]
     pub fn refunded_payment() -> SmartFilterPath<crate::types::RefundedPayment> {
         Self::update().refunded_payment()
     }
@@ -717,6 +732,11 @@ impl SmartFilter {
     }
 
     #[must_use]
+    pub fn state() -> SmartFilterPath<str> {
+        Self::update().state()
+    }
+
+    #[must_use]
     pub fn sticker() -> SmartFilterPath<crate::types::Sticker> {
         Self::update().sticker()
     }
@@ -724,6 +744,11 @@ impl SmartFilter {
     #[must_use]
     pub fn story() -> SmartFilterPath<crate::types::Story> {
         Self::update().story()
+    }
+
+    #[must_use]
+    pub fn subscription() -> SmartFilterPath<crate::types::BotSubscriptionUpdated> {
+        Self::update().subscription()
     }
 
     #[must_use]
@@ -1138,6 +1163,11 @@ impl SmartFilterPath<crate::types::BotCommand> {
     pub fn description(self) -> SmartFilterPath<str> {
         self.map(|value| value.description.as_ref())
     }
+
+    #[must_use]
+    pub fn is_ephemeral(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_ephemeral.as_ref())
+    }
 }
 impl SmartFilterPath<crate::types::BotCommandScope> {
     #[must_use]
@@ -1188,6 +1218,22 @@ impl SmartFilterPath<crate::types::BotShortDescription> {
     #[must_use]
     pub fn short_description(self) -> SmartFilterPath<str> {
         self.map(|value| value.short_description.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::BotSubscriptionUpdated> {
+    #[must_use]
+    pub fn user(self) -> SmartFilterPath<crate::types::User> {
+        self.map(|value| value.user.as_ref())
+    }
+
+    #[must_use]
+    pub fn invoice_payload(self) -> SmartFilterPath<str> {
+        self.map(|value| value.invoice_payload.as_ref())
+    }
+
+    #[must_use]
+    pub fn state(self) -> SmartFilterPath<str> {
+        self.map(|value| value.state.as_ref())
     }
 }
 impl SmartFilterPath<crate::types::BusinessBotRights> {
@@ -1673,6 +1719,11 @@ impl SmartFilterPath<crate::types::ChatFullInfo> {
     }
 
     #[must_use]
+    pub fn community(self) -> SmartFilterPath<crate::types::Community> {
+        self.and_then(|value| value.community())
+    }
+
+    #[must_use]
     pub fn custom_emoji_sticker_set_name(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.custom_emoji_sticker_set_name())
     }
@@ -1902,6 +1953,11 @@ impl SmartFilterPath<crate::types::ChatFullInfoChannel> {
     pub fn guard_bot(self) -> SmartFilterPath<crate::types::User> {
         self.and_then(|value| value.guard_bot.as_deref())
     }
+
+    #[must_use]
+    pub fn community(self) -> SmartFilterPath<crate::types::Community> {
+        self.and_then(|value| value.community.as_ref())
+    }
 }
 impl SmartFilterPath<crate::types::ChatFullInfoGroup> {
     #[must_use]
@@ -1992,6 +2048,11 @@ impl SmartFilterPath<crate::types::ChatFullInfoGroup> {
     #[must_use]
     pub fn guard_bot(self) -> SmartFilterPath<crate::types::User> {
         self.and_then(|value| value.guard_bot.as_deref())
+    }
+
+    #[must_use]
+    pub fn community(self) -> SmartFilterPath<crate::types::Community> {
+        self.and_then(|value| value.community.as_ref())
     }
 }
 impl SmartFilterPath<crate::types::ChatFullInfoPrivate> {
@@ -2164,6 +2225,11 @@ impl SmartFilterPath<crate::types::ChatFullInfoPrivate> {
     pub fn guard_bot(self) -> SmartFilterPath<crate::types::User> {
         self.and_then(|value| value.guard_bot.as_deref())
     }
+
+    #[must_use]
+    pub fn community(self) -> SmartFilterPath<crate::types::Community> {
+        self.and_then(|value| value.community.as_ref())
+    }
 }
 impl SmartFilterPath<crate::types::ChatFullInfoSupergroup> {
     #[must_use]
@@ -2329,6 +2395,11 @@ impl SmartFilterPath<crate::types::ChatFullInfoSupergroup> {
     #[must_use]
     pub fn guard_bot(self) -> SmartFilterPath<crate::types::User> {
         self.and_then(|value| value.guard_bot.as_deref())
+    }
+
+    #[must_use]
+    pub fn community(self) -> SmartFilterPath<crate::types::Community> {
+        self.and_then(|value| value.community.as_ref())
     }
 }
 impl SmartFilterPath<crate::types::ChatGroup> {
@@ -3055,6 +3126,24 @@ impl SmartFilterPath<crate::types::ChosenInlineResult> {
         self.map(|value| value.query.as_ref())
     }
 }
+impl SmartFilterPath<crate::types::Community> {
+    #[must_use]
+    pub fn id(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.id)
+    }
+
+    #[must_use]
+    pub fn name(self) -> SmartFilterPath<str> {
+        self.map(|value| value.name.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::CommunityChatAdded> {
+    #[must_use]
+    pub fn community(self) -> SmartFilterPath<crate::types::Community> {
+        self.map(|value| &value.community)
+    }
+}
+impl SmartFilterPath<crate::types::CommunityChatRemoved> {}
 impl SmartFilterPath<crate::types::Contact> {
     #[must_use]
     pub fn phone_number(self) -> SmartFilterPath<str> {
@@ -7095,6 +7184,32 @@ impl SmartFilterPath<crate::types::InputMediaVideo> {
         self.and_then(|value| value.has_spoiler.as_ref())
     }
 }
+impl SmartFilterPath<crate::types::InputMediaVoiceNote> {
+    #[must_use]
+    pub fn media(self) -> SmartFilterPath<crate::types::InputFile> {
+        self.map(|value| &value.media)
+    }
+
+    #[must_use]
+    pub fn caption(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.caption.as_deref())
+    }
+
+    #[must_use]
+    pub fn parse_mode(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.parse_mode.as_deref())
+    }
+
+    #[must_use]
+    pub fn caption_entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.caption_entities.as_deref())
+    }
+
+    #[must_use]
+    pub fn duration(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.duration.as_ref())
+    }
+}
 impl SmartFilterPath<crate::types::InputMessageContent> {
     #[must_use]
     pub fn address(self) -> SmartFilterPath<str> {
@@ -7486,7 +7601,335 @@ impl SmartFilterPath<crate::types::InputProfilePhotoStatic> {
         self.map(|value| &value.photo)
     }
 }
+impl SmartFilterPath<crate::types::InputRichBlock> {
+    #[must_use]
+    pub fn animation(self) -> SmartFilterPath<crate::types::InputMediaAnimation> {
+        self.and_then(|value| value.animation())
+    }
+
+    #[must_use]
+    pub fn audio(self) -> SmartFilterPath<crate::types::InputMediaAudio> {
+        self.and_then(|value| value.audio())
+    }
+
+    #[must_use]
+    pub fn blocks(self) -> SmartFilterPath<[crate::types::InputRichBlock]> {
+        self.and_then(|value| value.blocks())
+    }
+
+    #[must_use]
+    pub fn cells(self) -> SmartFilterPath<[Box<[crate::types::RichBlockTableCell]>]> {
+        self.and_then(|value| value.cells())
+    }
+
+    #[must_use]
+    pub fn credit(self) -> SmartFilterPath<crate::types::RichText> {
+        self.and_then(|value| value.credit())
+    }
+
+    #[must_use]
+    pub fn expression(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.expression())
+    }
+
+    #[must_use]
+    pub fn items(self) -> SmartFilterPath<[crate::types::InputRichBlockListItem]> {
+        self.and_then(|value| value.items())
+    }
+
+    #[must_use]
+    pub fn language(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.language())
+    }
+
+    #[must_use]
+    pub fn location(self) -> SmartFilterPath<crate::types::Location> {
+        self.and_then(|value| value.location())
+    }
+
+    #[must_use]
+    pub fn name(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.name())
+    }
+
+    #[must_use]
+    pub fn photo(self) -> SmartFilterPath<crate::types::InputMediaPhoto> {
+        self.and_then(|value| value.photo())
+    }
+
+    #[must_use]
+    pub fn summary(self) -> SmartFilterPath<crate::types::RichText> {
+        self.and_then(|value| value.summary())
+    }
+
+    #[must_use]
+    pub fn text(self) -> SmartFilterPath<crate::types::RichText> {
+        self.and_then(|value| value.text())
+    }
+
+    #[must_use]
+    pub fn video(self) -> SmartFilterPath<crate::types::InputMediaVideo> {
+        self.and_then(|value| value.video())
+    }
+
+    #[must_use]
+    pub fn voice_note(self) -> SmartFilterPath<crate::types::InputMediaVoiceNote> {
+        self.and_then(|value| value.voice_note())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockAnchor> {
+    #[must_use]
+    pub fn name(self) -> SmartFilterPath<str> {
+        self.map(|value| value.name.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockAnimation> {
+    #[must_use]
+    pub fn animation(self) -> SmartFilterPath<crate::types::InputMediaAnimation> {
+        self.map(|value| &value.animation)
+    }
+
+    #[must_use]
+    pub fn caption(self) -> SmartFilterPath<crate::types::RichBlockCaption> {
+        self.and_then(|value| value.caption.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockAudio> {
+    #[must_use]
+    pub fn audio(self) -> SmartFilterPath<crate::types::InputMediaAudio> {
+        self.map(|value| &value.audio)
+    }
+
+    #[must_use]
+    pub fn caption(self) -> SmartFilterPath<crate::types::RichBlockCaption> {
+        self.and_then(|value| value.caption.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockBlockQuotation> {
+    #[must_use]
+    pub fn blocks(self) -> SmartFilterPath<[crate::types::InputRichBlock]> {
+        self.map(|value| value.blocks.as_ref())
+    }
+
+    #[must_use]
+    pub fn credit(self) -> SmartFilterPath<crate::types::RichText> {
+        self.and_then(|value| value.credit.as_deref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockCollage> {
+    #[must_use]
+    pub fn blocks(self) -> SmartFilterPath<[crate::types::InputRichBlock]> {
+        self.map(|value| value.blocks.as_ref())
+    }
+
+    #[must_use]
+    pub fn caption(self) -> SmartFilterPath<crate::types::RichBlockCaption> {
+        self.and_then(|value| value.caption.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockDetails> {
+    #[must_use]
+    pub fn summary(self) -> SmartFilterPath<crate::types::RichText> {
+        self.map(|value| value.summary.as_ref())
+    }
+
+    #[must_use]
+    pub fn blocks(self) -> SmartFilterPath<[crate::types::InputRichBlock]> {
+        self.map(|value| value.blocks.as_ref())
+    }
+
+    #[must_use]
+    pub fn is_open(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_open.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockDivider> {}
+impl SmartFilterPath<crate::types::InputRichBlockFooter> {
+    #[must_use]
+    pub fn text(self) -> SmartFilterPath<crate::types::RichText> {
+        self.map(|value| value.text.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockList> {
+    #[must_use]
+    pub fn items(self) -> SmartFilterPath<[crate::types::InputRichBlockListItem]> {
+        self.map(|value| value.items.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockListItem> {
+    #[must_use]
+    pub fn blocks(self) -> SmartFilterPath<[crate::types::InputRichBlock]> {
+        self.map(|value| value.blocks.as_ref())
+    }
+
+    #[must_use]
+    pub fn has_checkbox(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.has_checkbox.as_ref())
+    }
+
+    #[must_use]
+    pub fn is_checked(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_checked.as_ref())
+    }
+
+    #[must_use]
+    pub fn value(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.value.as_ref())
+    }
+
+    #[must_use]
+    pub fn r#type(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.r#type.as_deref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockMap> {
+    #[must_use]
+    pub fn location(self) -> SmartFilterPath<crate::types::Location> {
+        self.map(|value| &value.location)
+    }
+
+    #[must_use]
+    pub fn zoom(self) -> SmartFilterPath<u8> {
+        self.map(|value| &value.zoom)
+    }
+
+    #[must_use]
+    pub fn width(self) -> SmartFilterPath<u16> {
+        self.map(|value| &value.width)
+    }
+
+    #[must_use]
+    pub fn height(self) -> SmartFilterPath<u16> {
+        self.map(|value| &value.height)
+    }
+
+    #[must_use]
+    pub fn caption(self) -> SmartFilterPath<crate::types::RichBlockCaption> {
+        self.and_then(|value| value.caption.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockMathematicalExpression> {
+    #[must_use]
+    pub fn expression(self) -> SmartFilterPath<str> {
+        self.map(|value| value.expression.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockParagraph> {
+    #[must_use]
+    pub fn text(self) -> SmartFilterPath<crate::types::RichText> {
+        self.map(|value| value.text.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockPhoto> {
+    #[must_use]
+    pub fn photo(self) -> SmartFilterPath<crate::types::InputMediaPhoto> {
+        self.map(|value| &value.photo)
+    }
+
+    #[must_use]
+    pub fn caption(self) -> SmartFilterPath<crate::types::RichBlockCaption> {
+        self.and_then(|value| value.caption.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockPreformatted> {
+    #[must_use]
+    pub fn text(self) -> SmartFilterPath<crate::types::RichText> {
+        self.map(|value| value.text.as_ref())
+    }
+
+    #[must_use]
+    pub fn language(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.language.as_deref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockPullQuotation> {
+    #[must_use]
+    pub fn text(self) -> SmartFilterPath<crate::types::RichText> {
+        self.map(|value| value.text.as_ref())
+    }
+
+    #[must_use]
+    pub fn credit(self) -> SmartFilterPath<crate::types::RichText> {
+        self.and_then(|value| value.credit.as_deref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockSectionHeading> {
+    #[must_use]
+    pub fn text(self) -> SmartFilterPath<crate::types::RichText> {
+        self.map(|value| value.text.as_ref())
+    }
+
+    #[must_use]
+    pub fn size(self) -> SmartFilterPath<u8> {
+        self.map(|value| &value.size)
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockSlideshow> {
+    #[must_use]
+    pub fn blocks(self) -> SmartFilterPath<[crate::types::InputRichBlock]> {
+        self.map(|value| value.blocks.as_ref())
+    }
+
+    #[must_use]
+    pub fn caption(self) -> SmartFilterPath<crate::types::RichBlockCaption> {
+        self.and_then(|value| value.caption.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockTable> {
+    #[must_use]
+    pub fn cells(self) -> SmartFilterPath<[Box<[crate::types::RichBlockTableCell]>]> {
+        self.map(|value| value.cells.as_ref())
+    }
+
+    #[must_use]
+    pub fn is_bordered(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_bordered.as_ref())
+    }
+
+    #[must_use]
+    pub fn is_striped(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_striped.as_ref())
+    }
+
+    #[must_use]
+    pub fn caption(self) -> SmartFilterPath<crate::types::RichText> {
+        self.and_then(|value| value.caption.as_deref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockThinking> {
+    #[must_use]
+    pub fn text(self) -> SmartFilterPath<crate::types::RichText> {
+        self.map(|value| value.text.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockVideo> {
+    #[must_use]
+    pub fn video(self) -> SmartFilterPath<crate::types::InputMediaVideo> {
+        self.map(|value| &value.video)
+    }
+
+    #[must_use]
+    pub fn caption(self) -> SmartFilterPath<crate::types::RichBlockCaption> {
+        self.and_then(|value| value.caption.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::InputRichBlockVoiceNote> {
+    #[must_use]
+    pub fn voice_note(self) -> SmartFilterPath<crate::types::InputMediaVoiceNote> {
+        self.map(|value| &value.voice_note)
+    }
+
+    #[must_use]
+    pub fn caption(self) -> SmartFilterPath<crate::types::RichBlockCaption> {
+        self.and_then(|value| value.caption.as_ref())
+    }
+}
 impl SmartFilterPath<crate::types::InputRichMessage> {
+    #[must_use]
+    pub fn blocks(self) -> SmartFilterPath<[crate::types::InputRichBlock]> {
+        self.and_then(|value| value.blocks.as_deref())
+    }
+
     #[must_use]
     pub fn html(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.html.as_deref())
@@ -7495,6 +7938,11 @@ impl SmartFilterPath<crate::types::InputRichMessage> {
     #[must_use]
     pub fn markdown(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.markdown.as_deref())
+    }
+
+    #[must_use]
+    pub fn media(self) -> SmartFilterPath<[crate::types::InputRichMessageMedia]> {
+        self.and_then(|value| value.media.as_deref())
     }
 
     #[must_use]
@@ -7511,6 +7959,58 @@ impl SmartFilterPath<crate::types::InputRichMessageContent> {
     #[must_use]
     pub fn rich_message(self) -> SmartFilterPath<crate::types::InputRichMessage> {
         self.map(|value| &value.rich_message)
+    }
+}
+impl SmartFilterPath<crate::types::InputRichMessageMedia> {
+    #[must_use]
+    pub fn id(self) -> SmartFilterPath<str> {
+        self.map(|value| value.id.as_ref())
+    }
+
+    #[must_use]
+    pub fn media(self) -> SmartFilterPath<crate::types::InputRichMessageMediaContent> {
+        self.map(|value| &value.media)
+    }
+}
+impl SmartFilterPath<crate::types::InputRichMessageMediaContent> {
+    #[must_use]
+    pub fn caption(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.caption())
+    }
+
+    #[must_use]
+    pub fn caption_entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.caption_entities())
+    }
+
+    #[must_use]
+    pub fn cover(self) -> SmartFilterPath<crate::types::InputFile> {
+        self.and_then(|value| value.cover())
+    }
+
+    #[must_use]
+    pub fn media(self) -> SmartFilterPath<crate::types::InputFile> {
+        self.map(|value| value.media())
+    }
+
+    #[must_use]
+    pub fn parse_mode(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.parse_mode())
+    }
+
+    #[must_use]
+    pub fn performer(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.performer())
+    }
+
+    #[must_use]
+    pub fn thumbnail(self) -> SmartFilterPath<crate::types::InputFile> {
+        self.and_then(|value| value.thumbnail())
+    }
+
+    #[must_use]
+    pub fn title(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.title())
     }
 }
 impl SmartFilterPath<crate::types::InputSticker> {
@@ -8108,6 +8608,16 @@ impl SmartFilterPath<crate::types::MaybeInaccessibleMessage> {
     }
 
     #[must_use]
+    pub fn community_chat_added(self) -> SmartFilterPath<crate::types::CommunityChatAdded> {
+        self.and_then(|value| value.community_chat_added())
+    }
+
+    #[must_use]
+    pub fn community_chat_removed(self) -> SmartFilterPath<crate::types::CommunityChatRemoved> {
+        self.and_then(|value| value.community_chat_removed())
+    }
+
+    #[must_use]
     pub fn connected_website(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.connected_website())
     }
@@ -8357,6 +8867,11 @@ impl SmartFilterPath<crate::types::MaybeInaccessibleMessage> {
     #[must_use]
     pub fn quote(self) -> SmartFilterPath<crate::types::TextQuote> {
         self.and_then(|value| value.quote())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user())
     }
 
     #[must_use]
@@ -8624,6 +9139,16 @@ impl SmartFilterPath<crate::types::Message> {
     }
 
     #[must_use]
+    pub fn community_chat_added(self) -> SmartFilterPath<crate::types::CommunityChatAdded> {
+        self.and_then(|value| value.community_chat_added())
+    }
+
+    #[must_use]
+    pub fn community_chat_removed(self) -> SmartFilterPath<crate::types::CommunityChatRemoved> {
+        self.and_then(|value| value.community_chat_removed())
+    }
+
+    #[must_use]
     pub fn connected_website(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.connected_website())
     }
@@ -8876,6 +9401,11 @@ impl SmartFilterPath<crate::types::Message> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user())
+    }
+
+    #[must_use]
     pub fn refunded_payment(self) -> SmartFilterPath<crate::types::RefundedPayment> {
         self.and_then(|value| value.refunded_payment())
     }
@@ -9078,6 +9608,16 @@ impl SmartFilterPath<crate::types::MessageAnimation> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -9289,6 +9829,16 @@ impl SmartFilterPath<crate::types::MessageAudio> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -9509,6 +10059,16 @@ impl SmartFilterPath<crate::types::MessageBoostAdded> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -9717,6 +10277,16 @@ impl SmartFilterPath<crate::types::MessageChannelChatCreated> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -9931,6 +10501,16 @@ impl SmartFilterPath<crate::types::MessageChatBackgroundSet> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -10139,6 +10719,16 @@ impl SmartFilterPath<crate::types::MessageChatOwnerChanged> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -10353,6 +10943,16 @@ impl SmartFilterPath<crate::types::MessageChatOwnerLeft> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -10561,6 +11161,16 @@ impl SmartFilterPath<crate::types::MessageChatShared> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -10775,6 +11385,16 @@ impl SmartFilterPath<crate::types::MessageChecklist> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -10983,6 +11603,16 @@ impl SmartFilterPath<crate::types::MessageChecklistTasksAdded> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -11197,6 +11827,16 @@ impl SmartFilterPath<crate::types::MessageChecklistTasksDone> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -11366,6 +12006,448 @@ impl SmartFilterPath<crate::types::MessageChecklistTasksDone> {
         self.map(|value| &value.checklist_tasks_done)
     }
 }
+impl SmartFilterPath<crate::types::MessageCommunityChatAdded> {
+    #[must_use]
+    pub fn message_id(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.message_id)
+    }
+
+    #[must_use]
+    pub fn message_thread_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.message_thread_id.as_ref())
+    }
+
+    #[must_use]
+    pub fn direct_messages_topic(self) -> SmartFilterPath<crate::types::DirectMessagesTopic> {
+        self.and_then(|value| value.direct_messages_topic.as_ref())
+    }
+
+    #[must_use]
+    pub fn from(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.from.as_deref())
+    }
+
+    #[must_use]
+    pub fn sender_chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.and_then(|value| value.sender_chat.as_deref())
+    }
+
+    #[must_use]
+    pub fn sender_boost_count(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.sender_boost_count.as_ref())
+    }
+
+    #[must_use]
+    pub fn sender_business_bot(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.sender_business_bot.as_deref())
+    }
+
+    #[must_use]
+    pub fn sender_tag(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
+    pub fn date(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.date)
+    }
+
+    #[must_use]
+    pub fn guest_query_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.guest_query_id.as_deref())
+    }
+
+    #[must_use]
+    pub fn business_connection_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.business_connection_id.as_deref())
+    }
+
+    #[must_use]
+    pub fn chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.map(|value| value.chat.as_ref())
+    }
+
+    #[must_use]
+    pub fn forward_origin(self) -> SmartFilterPath<crate::types::MessageOrigin> {
+        self.and_then(|value| value.forward_origin.as_ref())
+    }
+
+    #[must_use]
+    pub fn is_topic_message(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_topic_message.as_ref())
+    }
+
+    #[must_use]
+    pub fn is_automatic_forward(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_automatic_forward.as_ref())
+    }
+
+    #[must_use]
+    pub fn reply_to_message(self) -> SmartFilterPath<crate::types::Message> {
+        self.and_then(|value| value.reply_to_message.as_deref())
+    }
+
+    #[must_use]
+    pub fn external_reply(self) -> SmartFilterPath<crate::types::ExternalReplyInfo> {
+        self.and_then(|value| value.external_reply.as_deref())
+    }
+
+    #[must_use]
+    pub fn quote(self) -> SmartFilterPath<crate::types::TextQuote> {
+        self.and_then(|value| value.quote.as_ref())
+    }
+
+    #[must_use]
+    pub fn reply_to_story(self) -> SmartFilterPath<crate::types::Story> {
+        self.and_then(|value| value.reply_to_story.as_ref())
+    }
+
+    #[must_use]
+    pub fn reply_to_checklist_task_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.reply_to_checklist_task_id.as_ref())
+    }
+
+    #[must_use]
+    pub fn reply_to_poll_option_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.reply_to_poll_option_id.as_deref())
+    }
+
+    #[must_use]
+    pub fn via_bot(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.via_bot.as_deref())
+    }
+
+    #[must_use]
+    pub fn guest_bot_caller_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.guest_bot_caller_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn guest_bot_caller_chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.and_then(|value| value.guest_bot_caller_chat.as_deref())
+    }
+
+    #[must_use]
+    pub fn edit_date(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.edit_date.as_ref())
+    }
+
+    #[must_use]
+    pub fn has_protected_content(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.has_protected_content.as_ref())
+    }
+
+    #[must_use]
+    pub fn is_from_offline(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_from_offline.as_ref())
+    }
+
+    #[must_use]
+    pub fn is_paid_post(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_paid_post.as_ref())
+    }
+
+    #[must_use]
+    pub fn media_group_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.media_group_id.as_deref())
+    }
+
+    #[must_use]
+    pub fn author_signature(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.author_signature.as_deref())
+    }
+
+    #[must_use]
+    pub fn paid_star_count(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.paid_star_count.as_ref())
+    }
+
+    #[must_use]
+    pub fn entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.entities.as_deref())
+    }
+
+    #[must_use]
+    pub fn link_preview_options(self) -> SmartFilterPath<crate::types::LinkPreviewOptions> {
+        self.and_then(|value| value.link_preview_options.as_ref())
+    }
+
+    #[must_use]
+    pub fn suggested_post_info(self) -> SmartFilterPath<crate::types::SuggestedPostInfo> {
+        self.and_then(|value| value.suggested_post_info.as_ref())
+    }
+
+    #[must_use]
+    pub fn effect_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.effect_id.as_deref())
+    }
+
+    #[must_use]
+    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
+        self.and_then(|value| value.rich_message.as_ref())
+    }
+
+    #[must_use]
+    pub fn caption(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.caption.as_deref())
+    }
+
+    #[must_use]
+    pub fn caption_entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.caption_entities.as_deref())
+    }
+
+    #[must_use]
+    pub fn show_caption_above_media(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.show_caption_above_media.as_ref())
+    }
+
+    #[must_use]
+    pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.has_media_spoiler.as_ref())
+    }
+
+    #[must_use]
+    pub fn reply_markup(self) -> SmartFilterPath<crate::types::InlineKeyboardMarkup> {
+        self.and_then(|value| value.reply_markup.as_ref())
+    }
+
+    #[must_use]
+    pub fn community_chat_added(self) -> SmartFilterPath<crate::types::CommunityChatAdded> {
+        self.map(|value| &value.community_chat_added)
+    }
+}
+impl SmartFilterPath<crate::types::MessageCommunityChatRemoved> {
+    #[must_use]
+    pub fn message_id(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.message_id)
+    }
+
+    #[must_use]
+    pub fn message_thread_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.message_thread_id.as_ref())
+    }
+
+    #[must_use]
+    pub fn direct_messages_topic(self) -> SmartFilterPath<crate::types::DirectMessagesTopic> {
+        self.and_then(|value| value.direct_messages_topic.as_ref())
+    }
+
+    #[must_use]
+    pub fn from(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.from.as_deref())
+    }
+
+    #[must_use]
+    pub fn sender_chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.and_then(|value| value.sender_chat.as_deref())
+    }
+
+    #[must_use]
+    pub fn sender_boost_count(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.sender_boost_count.as_ref())
+    }
+
+    #[must_use]
+    pub fn sender_business_bot(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.sender_business_bot.as_deref())
+    }
+
+    #[must_use]
+    pub fn sender_tag(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
+    pub fn date(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.date)
+    }
+
+    #[must_use]
+    pub fn guest_query_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.guest_query_id.as_deref())
+    }
+
+    #[must_use]
+    pub fn business_connection_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.business_connection_id.as_deref())
+    }
+
+    #[must_use]
+    pub fn chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.map(|value| value.chat.as_ref())
+    }
+
+    #[must_use]
+    pub fn forward_origin(self) -> SmartFilterPath<crate::types::MessageOrigin> {
+        self.and_then(|value| value.forward_origin.as_ref())
+    }
+
+    #[must_use]
+    pub fn is_topic_message(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_topic_message.as_ref())
+    }
+
+    #[must_use]
+    pub fn is_automatic_forward(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_automatic_forward.as_ref())
+    }
+
+    #[must_use]
+    pub fn reply_to_message(self) -> SmartFilterPath<crate::types::Message> {
+        self.and_then(|value| value.reply_to_message.as_deref())
+    }
+
+    #[must_use]
+    pub fn external_reply(self) -> SmartFilterPath<crate::types::ExternalReplyInfo> {
+        self.and_then(|value| value.external_reply.as_deref())
+    }
+
+    #[must_use]
+    pub fn quote(self) -> SmartFilterPath<crate::types::TextQuote> {
+        self.and_then(|value| value.quote.as_ref())
+    }
+
+    #[must_use]
+    pub fn reply_to_story(self) -> SmartFilterPath<crate::types::Story> {
+        self.and_then(|value| value.reply_to_story.as_ref())
+    }
+
+    #[must_use]
+    pub fn reply_to_checklist_task_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.reply_to_checklist_task_id.as_ref())
+    }
+
+    #[must_use]
+    pub fn reply_to_poll_option_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.reply_to_poll_option_id.as_deref())
+    }
+
+    #[must_use]
+    pub fn via_bot(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.via_bot.as_deref())
+    }
+
+    #[must_use]
+    pub fn guest_bot_caller_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.guest_bot_caller_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn guest_bot_caller_chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.and_then(|value| value.guest_bot_caller_chat.as_deref())
+    }
+
+    #[must_use]
+    pub fn edit_date(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.edit_date.as_ref())
+    }
+
+    #[must_use]
+    pub fn has_protected_content(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.has_protected_content.as_ref())
+    }
+
+    #[must_use]
+    pub fn is_from_offline(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_from_offline.as_ref())
+    }
+
+    #[must_use]
+    pub fn is_paid_post(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_paid_post.as_ref())
+    }
+
+    #[must_use]
+    pub fn media_group_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.media_group_id.as_deref())
+    }
+
+    #[must_use]
+    pub fn author_signature(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.author_signature.as_deref())
+    }
+
+    #[must_use]
+    pub fn paid_star_count(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.paid_star_count.as_ref())
+    }
+
+    #[must_use]
+    pub fn entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.entities.as_deref())
+    }
+
+    #[must_use]
+    pub fn link_preview_options(self) -> SmartFilterPath<crate::types::LinkPreviewOptions> {
+        self.and_then(|value| value.link_preview_options.as_ref())
+    }
+
+    #[must_use]
+    pub fn suggested_post_info(self) -> SmartFilterPath<crate::types::SuggestedPostInfo> {
+        self.and_then(|value| value.suggested_post_info.as_ref())
+    }
+
+    #[must_use]
+    pub fn effect_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.effect_id.as_deref())
+    }
+
+    #[must_use]
+    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
+        self.and_then(|value| value.rich_message.as_ref())
+    }
+
+    #[must_use]
+    pub fn caption(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.caption.as_deref())
+    }
+
+    #[must_use]
+    pub fn caption_entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.caption_entities.as_deref())
+    }
+
+    #[must_use]
+    pub fn show_caption_above_media(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.show_caption_above_media.as_ref())
+    }
+
+    #[must_use]
+    pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.has_media_spoiler.as_ref())
+    }
+
+    #[must_use]
+    pub fn reply_markup(self) -> SmartFilterPath<crate::types::InlineKeyboardMarkup> {
+        self.and_then(|value| value.reply_markup.as_ref())
+    }
+
+    #[must_use]
+    pub fn community_chat_removed(self) -> SmartFilterPath<crate::types::CommunityChatRemoved> {
+        self.map(|value| &value.community_chat_removed)
+    }
+}
 impl SmartFilterPath<crate::types::MessageConnectedWebsite> {
     #[must_use]
     pub fn message_id(self) -> SmartFilterPath<i64> {
@@ -11405,6 +12487,16 @@ impl SmartFilterPath<crate::types::MessageConnectedWebsite> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -11619,6 +12711,16 @@ impl SmartFilterPath<crate::types::MessageContact> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -11827,6 +12929,16 @@ impl SmartFilterPath<crate::types::MessageDeleteChatPhoto> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -12041,6 +13153,16 @@ impl SmartFilterPath<crate::types::MessageDice> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -12249,6 +13371,16 @@ impl SmartFilterPath<crate::types::MessageDirectMessagePriceChanged> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -12462,6 +13594,16 @@ impl SmartFilterPath<crate::types::MessageDocument> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -12952,6 +14094,16 @@ impl SmartFilterPath<crate::types::MessageForumTopicClosed> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -13160,6 +14312,16 @@ impl SmartFilterPath<crate::types::MessageForumTopicCreated> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -13374,6 +14536,16 @@ impl SmartFilterPath<crate::types::MessageForumTopicEdited> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -13582,6 +14754,16 @@ impl SmartFilterPath<crate::types::MessageForumTopicReopened> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -13796,6 +14978,16 @@ impl SmartFilterPath<crate::types::MessageGame> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -14004,6 +15196,16 @@ impl SmartFilterPath<crate::types::MessageGeneralForumTopicHidden> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -14220,6 +15422,16 @@ impl SmartFilterPath<crate::types::MessageGeneralForumTopicUnhidden> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -14430,6 +15642,16 @@ impl SmartFilterPath<crate::types::MessageGift> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -14644,6 +15866,16 @@ impl SmartFilterPath<crate::types::MessageGiftUpgradeSent> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -14852,6 +16084,16 @@ impl SmartFilterPath<crate::types::MessageGiveaway> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -15066,6 +16308,16 @@ impl SmartFilterPath<crate::types::MessageGiveawayCompleted> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -15274,6 +16526,16 @@ impl SmartFilterPath<crate::types::MessageGiveawayCreated> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -15488,6 +16750,16 @@ impl SmartFilterPath<crate::types::MessageGiveawayWinners> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -15696,6 +16968,16 @@ impl SmartFilterPath<crate::types::MessageGroupChatCreated> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -15916,6 +17198,16 @@ impl SmartFilterPath<crate::types::MessageInvoice> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -16124,6 +17416,16 @@ impl SmartFilterPath<crate::types::MessageLeftChatMember> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -16338,6 +17640,16 @@ impl SmartFilterPath<crate::types::MessageLivePhoto> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -16546,6 +17858,16 @@ impl SmartFilterPath<crate::types::MessageLocation> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -16760,6 +18082,16 @@ impl SmartFilterPath<crate::types::MessageManagedBotCreated> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -16968,6 +18300,16 @@ impl SmartFilterPath<crate::types::MessageMessageAutoDeleteTimerChanged> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -17184,6 +18526,16 @@ impl SmartFilterPath<crate::types::MessageMigrateFromChatId> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -17392,6 +18744,16 @@ impl SmartFilterPath<crate::types::MessageMigrateToChatId> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -17606,6 +18968,16 @@ impl SmartFilterPath<crate::types::MessageNewChatMembers> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -17817,6 +19189,16 @@ impl SmartFilterPath<crate::types::MessageNewChatPhoto> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -18025,6 +19407,16 @@ impl SmartFilterPath<crate::types::MessageNewChatTitle> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -18324,6 +19716,16 @@ impl SmartFilterPath<crate::types::MessagePaidMedia> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -18532,6 +19934,16 @@ impl SmartFilterPath<crate::types::MessagePaidMessagePriceChanged> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -18748,6 +20160,16 @@ impl SmartFilterPath<crate::types::MessagePassportData> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -18956,6 +20378,16 @@ impl SmartFilterPath<crate::types::MessagePhoto> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -19170,6 +20602,16 @@ impl SmartFilterPath<crate::types::MessagePinnedMessage> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -19378,6 +20820,16 @@ impl SmartFilterPath<crate::types::MessagePoll> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -19592,6 +21044,16 @@ impl SmartFilterPath<crate::types::MessagePollOptionAdded> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -19803,6 +21265,16 @@ impl SmartFilterPath<crate::types::MessagePollOptionDeleted> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -20011,6 +21483,16 @@ impl SmartFilterPath<crate::types::MessageProximityAlertTriggered> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -20284,6 +21766,16 @@ impl SmartFilterPath<crate::types::MessageRefundedPayment> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -20492,6 +21984,16 @@ impl SmartFilterPath<crate::types::MessageSticker> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -20706,6 +22208,16 @@ impl SmartFilterPath<crate::types::MessageStory> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -20917,6 +22429,16 @@ impl SmartFilterPath<crate::types::MessageSuccessfulPayment> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -21125,6 +22647,16 @@ impl SmartFilterPath<crate::types::MessageSuggestedPostApprovalFailed> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -21341,6 +22873,16 @@ impl SmartFilterPath<crate::types::MessageSuggestedPostApproved> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -21549,6 +23091,16 @@ impl SmartFilterPath<crate::types::MessageSuggestedPostDeclined> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -21763,6 +23315,16 @@ impl SmartFilterPath<crate::types::MessageSuggestedPostPaid> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -21971,6 +23533,16 @@ impl SmartFilterPath<crate::types::MessageSuggestedPostRefunded> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -22185,6 +23757,16 @@ impl SmartFilterPath<crate::types::MessageSupergroupChatCreated> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -22393,6 +23975,16 @@ impl SmartFilterPath<crate::types::MessageText> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -22607,6 +24199,16 @@ impl SmartFilterPath<crate::types::MessageUniqueGift> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -22815,6 +24417,16 @@ impl SmartFilterPath<crate::types::MessageUsersShared> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -23029,6 +24641,16 @@ impl SmartFilterPath<crate::types::MessageVenue> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -23237,6 +24859,16 @@ impl SmartFilterPath<crate::types::MessageVideo> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -23451,6 +25083,16 @@ impl SmartFilterPath<crate::types::MessageVideoChatEnded> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -23659,6 +25301,16 @@ impl SmartFilterPath<crate::types::MessageVideoChatParticipantsInvited> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -23875,6 +25527,16 @@ impl SmartFilterPath<crate::types::MessageVideoChatScheduled> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -24083,6 +25745,16 @@ impl SmartFilterPath<crate::types::MessageVideoChatStarted> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -24297,6 +25969,16 @@ impl SmartFilterPath<crate::types::MessageVideoNote> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -24505,6 +26187,16 @@ impl SmartFilterPath<crate::types::MessageVoice> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -24719,6 +26411,16 @@ impl SmartFilterPath<crate::types::MessageWebAppData> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
     pub fn date(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.date)
     }
@@ -24927,6 +26629,16 @@ impl SmartFilterPath<crate::types::MessageWriteAccessAllowed> {
     #[must_use]
     pub fn sender_tag(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -26249,12 +27961,17 @@ impl SmartFilterPath<crate::types::ReplyMarkup> {
 impl SmartFilterPath<crate::types::ReplyParameters> {
     #[must_use]
     pub fn message_id(self) -> SmartFilterPath<i64> {
-        self.map(|value| &value.message_id)
+        self.and_then(|value| value.message_id.as_ref())
     }
 
     #[must_use]
     pub fn chat_id(self) -> SmartFilterPath<crate::types::ChatIdKind> {
         self.and_then(|value| value.chat_id.as_ref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
     }
 
     #[must_use]
@@ -28362,6 +30079,16 @@ impl SmartFilterPath<crate::types::Update> {
     }
 
     #[must_use]
+    pub fn community_chat_added(self) -> SmartFilterPath<crate::types::CommunityChatAdded> {
+        self.and_then(|value| value.community_chat_added())
+    }
+
+    #[must_use]
+    pub fn community_chat_removed(self) -> SmartFilterPath<crate::types::CommunityChatRemoved> {
+        self.and_then(|value| value.community_chat_removed())
+    }
+
+    #[must_use]
     pub fn connected_website(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.connected_website())
     }
@@ -28848,6 +30575,11 @@ impl SmartFilterPath<crate::types::Update> {
     }
 
     #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user())
+    }
+
+    #[must_use]
     pub fn refunded_payment(self) -> SmartFilterPath<crate::types::RefundedPayment> {
         self.and_then(|value| value.refunded_payment())
     }
@@ -28928,6 +30660,11 @@ impl SmartFilterPath<crate::types::Update> {
     }
 
     #[must_use]
+    pub fn state(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.state())
+    }
+
+    #[must_use]
     pub fn sticker(self) -> SmartFilterPath<crate::types::Sticker> {
         self.and_then(|value| value.sticker())
     }
@@ -28935,6 +30672,11 @@ impl SmartFilterPath<crate::types::Update> {
     #[must_use]
     pub fn story(self) -> SmartFilterPath<crate::types::Story> {
         self.and_then(|value| value.story())
+    }
+
+    #[must_use]
+    pub fn subscription(self) -> SmartFilterPath<crate::types::BotSubscriptionUpdated> {
+        self.and_then(|value| value.subscription())
     }
 
     #[must_use]
@@ -29333,6 +31075,17 @@ impl SmartFilterPath<crate::types::UpdateShippingQuery> {
     #[must_use]
     pub fn shipping_query(self) -> SmartFilterPath<crate::types::ShippingQuery> {
         self.map(|value| &value.shipping_query)
+    }
+}
+impl SmartFilterPath<crate::types::UpdateSubscription> {
+    #[must_use]
+    pub fn update_id(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.update_id)
+    }
+
+    #[must_use]
+    pub fn subscription(self) -> SmartFilterPath<crate::types::BotSubscriptionUpdated> {
+        self.map(|value| &value.subscription)
     }
 }
 impl SmartFilterPath<crate::types::UpdateUnparsed> {

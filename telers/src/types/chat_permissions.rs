@@ -49,7 +49,7 @@ pub struct ChatPermissions {
     /// `true`, if the user is allowed to pin messages. Ignored in public supergroups.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_pin_messages: Option<bool>,
-    /// `true`, if the user is allowed to create forum topics. If omitted defaults to the value of `can_pin_messages`.
+    /// `true`, if the user is allowed to create forum topics. If omitted, defaults to the value of `can_pin_messages`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_topics: Option<bool>,
 }
@@ -290,14 +290,14 @@ impl ChatPermissions {
         self
     }
 
-    /// `true`, if the user is allowed to create forum topics. If omitted defaults to the value of `can_pin_messages`.
+    /// `true`, if the user is allowed to create forum topics. If omitted, defaults to the value of `can_pin_messages`.
     #[must_use]
     pub fn can_manage_topics<T: Into<bool>>(mut self, val: T) -> Self {
         self.can_manage_topics = Some(val.into());
         self
     }
 
-    /// `true`, if the user is allowed to create forum topics. If omitted defaults to the value of `can_pin_messages`.
+    /// `true`, if the user is allowed to create forum topics. If omitted, defaults to the value of `can_pin_messages`.
     #[must_use]
     pub fn can_manage_topics_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.can_manage_topics = val.map(Into::into);

@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#directmessagepricechanged>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DirectMessagePriceChanged {
-    /// `true`, if direct messages are enabled for the channel chat; false otherwise
+    /// `true`, if direct messages are enabled for the channel chat; `false` otherwise
     pub are_direct_messages_enabled: bool,
     /// The new number of Telegram Stars that must be paid by users for each direct message sent to the channel. Does not apply to users who have been exempted by administrators. Defaults to 0.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -14,7 +14,7 @@ impl DirectMessagePriceChanged {
     /// Creates a new `DirectMessagePriceChanged`.
     ///
     /// # Arguments
-    /// * `are_direct_messages_enabled` - `true`, if direct messages are enabled for the channel chat; false otherwise
+    /// * `are_direct_messages_enabled` - `true`, if direct messages are enabled for the channel chat; `false` otherwise
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -26,7 +26,7 @@ impl DirectMessagePriceChanged {
         }
     }
 
-    /// `true`, if direct messages are enabled for the channel chat; false otherwise
+    /// `true`, if direct messages are enabled for the channel chat; `false` otherwise
     #[must_use]
     pub fn are_direct_messages_enabled<T: Into<bool>>(mut self, val: T) -> Self {
         self.are_direct_messages_enabled = val.into();

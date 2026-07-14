@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `crate::types::Message`
 #[derive(Clone, Debug, Serialize)]
 pub struct SendRichMessage {
-    /// Unique identifier of the business connection on behalf of which the message will be sent
+    /// Unique identifier of the business connection on behalf of which the message will be sent. Bot can send rich messages on behalf of a business account only if the corresponding user can send rich messages.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub business_connection_id: Option<Box<str>>,
     /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
@@ -72,14 +72,14 @@ impl SendRichMessage {
         }
     }
 
-    /// Unique identifier of the business connection on behalf of which the message will be sent
+    /// Unique identifier of the business connection on behalf of which the message will be sent. Bot can send rich messages on behalf of a business account only if the corresponding user can send rich messages.
     #[must_use]
     pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.business_connection_id = Some(val.into());
         self
     }
 
-    /// Unique identifier of the business connection on behalf of which the message will be sent
+    /// Unique identifier of the business connection on behalf of which the message will be sent. Bot can send rich messages on behalf of a business account only if the corresponding user can send rich messages.
     #[must_use]
     pub fn business_connection_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.business_connection_id = val.map(Into::into);

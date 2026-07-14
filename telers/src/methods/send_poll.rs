@@ -31,22 +31,22 @@ pub struct SendPoll {
     /// Poll type, `quiz` or `regular`, defaults to `regular`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub r#type: Option<Box<str>>,
-    /// Pass `true`, if the poll allows multiple answers, defaults to `false`
+    /// Pass `true` if the poll allows multiple answers, defaults to `false`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allows_multiple_answers: Option<bool>,
-    /// Pass `true`, if the poll allows to change chosen answer options, defaults to `false` for quizzes and to `true` for regular polls
+    /// Pass `true` if the poll allows to change chosen answer options, defaults to `false` for quizzes and to `true` for regular polls
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allows_revoting: Option<bool>,
-    /// Pass `true`, if the poll options must be shown in random order
+    /// Pass `true` if the poll options must be shown in random order
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shuffle_options: Option<bool>,
-    /// Pass `true`, if answer options can be added to the poll after creation; not supported for anonymous polls and quizzes
+    /// Pass `true` if answer options can be added to the poll after creation; not supported for anonymous polls and quizzes
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_adding_options: Option<bool>,
-    /// Pass `true`, if poll results must be shown only after the poll closes
+    /// Pass `true` if poll results must be shown only after the poll closes
     #[serde(skip_serializing_if = "Option::is_none")]
     pub hide_results_until_closes: Option<bool>,
-    /// Pass `true`, if voting is limited to users who have been members of the chat where the poll is being sent for more than 24 hours; for channel chats only
+    /// Pass `true` if voting is limited to users who have been members of the chat where the poll is being sent for more than 24 hours; for channel chats only
     #[serde(skip_serializing_if = "Option::is_none")]
     pub members_only: Option<bool>,
     /// A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. Use `FT` as a country code to allow users with anonymous numbers to vote. If omitted or empty, then users from any country can participate in the poll.
@@ -339,84 +339,84 @@ impl SendPoll {
         self
     }
 
-    /// Pass `true`, if the poll allows multiple answers, defaults to `false`
+    /// Pass `true` if the poll allows multiple answers, defaults to `false`
     #[must_use]
     pub fn allows_multiple_answers<T: Into<bool>>(mut self, val: T) -> Self {
         self.allows_multiple_answers = Some(val.into());
         self
     }
 
-    /// Pass `true`, if the poll allows multiple answers, defaults to `false`
+    /// Pass `true` if the poll allows multiple answers, defaults to `false`
     #[must_use]
     pub fn allows_multiple_answers_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.allows_multiple_answers = val.map(Into::into);
         self
     }
 
-    /// Pass `true`, if the poll allows to change chosen answer options, defaults to `false` for quizzes and to `true` for regular polls
+    /// Pass `true` if the poll allows to change chosen answer options, defaults to `false` for quizzes and to `true` for regular polls
     #[must_use]
     pub fn allows_revoting<T: Into<bool>>(mut self, val: T) -> Self {
         self.allows_revoting = Some(val.into());
         self
     }
 
-    /// Pass `true`, if the poll allows to change chosen answer options, defaults to `false` for quizzes and to `true` for regular polls
+    /// Pass `true` if the poll allows to change chosen answer options, defaults to `false` for quizzes and to `true` for regular polls
     #[must_use]
     pub fn allows_revoting_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.allows_revoting = val.map(Into::into);
         self
     }
 
-    /// Pass `true`, if the poll options must be shown in random order
+    /// Pass `true` if the poll options must be shown in random order
     #[must_use]
     pub fn shuffle_options<T: Into<bool>>(mut self, val: T) -> Self {
         self.shuffle_options = Some(val.into());
         self
     }
 
-    /// Pass `true`, if the poll options must be shown in random order
+    /// Pass `true` if the poll options must be shown in random order
     #[must_use]
     pub fn shuffle_options_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.shuffle_options = val.map(Into::into);
         self
     }
 
-    /// Pass `true`, if answer options can be added to the poll after creation; not supported for anonymous polls and quizzes
+    /// Pass `true` if answer options can be added to the poll after creation; not supported for anonymous polls and quizzes
     #[must_use]
     pub fn allow_adding_options<T: Into<bool>>(mut self, val: T) -> Self {
         self.allow_adding_options = Some(val.into());
         self
     }
 
-    /// Pass `true`, if answer options can be added to the poll after creation; not supported for anonymous polls and quizzes
+    /// Pass `true` if answer options can be added to the poll after creation; not supported for anonymous polls and quizzes
     #[must_use]
     pub fn allow_adding_options_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.allow_adding_options = val.map(Into::into);
         self
     }
 
-    /// Pass `true`, if poll results must be shown only after the poll closes
+    /// Pass `true` if poll results must be shown only after the poll closes
     #[must_use]
     pub fn hide_results_until_closes<T: Into<bool>>(mut self, val: T) -> Self {
         self.hide_results_until_closes = Some(val.into());
         self
     }
 
-    /// Pass `true`, if poll results must be shown only after the poll closes
+    /// Pass `true` if poll results must be shown only after the poll closes
     #[must_use]
     pub fn hide_results_until_closes_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.hide_results_until_closes = val.map(Into::into);
         self
     }
 
-    /// Pass `true`, if voting is limited to users who have been members of the chat where the poll is being sent for more than 24 hours; for channel chats only
+    /// Pass `true` if voting is limited to users who have been members of the chat where the poll is being sent for more than 24 hours; for channel chats only
     #[must_use]
     pub fn members_only<T: Into<bool>>(mut self, val: T) -> Self {
         self.members_only = Some(val.into());
         self
     }
 
-    /// Pass `true`, if voting is limited to users who have been members of the chat where the poll is being sent for more than 24 hours; for channel chats only
+    /// Pass `true` if voting is limited to users who have been members of the chat where the poll is being sent for more than 24 hours; for channel chats only
     #[must_use]
     pub fn members_only_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.members_only = val.map(Into::into);

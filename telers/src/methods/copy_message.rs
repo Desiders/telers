@@ -31,7 +31,7 @@ pub struct CopyMessage {
     /// A JSON-serialized list of special entities that appear in the new caption, which can be specified instead of `parse_mode`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub caption_entities: Option<Box<[crate::types::MessageEntity]>>,
-    /// Pass `true`, if the caption must be shown above the message media. Ignored if a new caption isn't specified.
+    /// Pass `true` if the caption must be shown above the message media. Ignored if a new caption isn't specified.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub show_caption_above_media: Option<bool>,
     /// Sends the message silently. Users will receive a notification with no sound.
@@ -244,14 +244,14 @@ impl CopyMessage {
         self
     }
 
-    /// Pass `true`, if the caption must be shown above the message media. Ignored if a new caption isn't specified.
+    /// Pass `true` if the caption must be shown above the message media. Ignored if a new caption isn't specified.
     #[must_use]
     pub fn show_caption_above_media<T: Into<bool>>(mut self, val: T) -> Self {
         self.show_caption_above_media = Some(val.into());
         self
     }
 
-    /// Pass `true`, if the caption must be shown above the message media. Ignored if a new caption isn't specified.
+    /// Pass `true` if the caption must be shown above the message media. Ignored if a new caption isn't specified.
     #[must_use]
     pub fn show_caption_above_media_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.show_caption_above_media = val.map(Into::into);

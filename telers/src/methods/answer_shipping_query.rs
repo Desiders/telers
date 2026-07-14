@@ -11,7 +11,7 @@ pub struct AnswerShippingQuery {
     pub shipping_query_id: Box<str>,
     /// Pass `true` if delivery to the specified address is possible and `false` if there are any problems (for example, if delivery to the specified address is not possible)
     pub ok: bool,
-    /// Required if ok is `true`. A JSON-serialized array of available shipping options.
+    /// Required if ok is `true`. A JSON-serialized Array of available shipping options.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_options: Option<Box<[crate::types::ShippingOption]>>,
     /// Required if ok is `false`. Error message in human readable form that explains why it is impossible to complete the order (e.g. `Sorry, delivery to your desired address is unavailable`). Telegram will display this message to the user.
@@ -51,7 +51,7 @@ impl AnswerShippingQuery {
         self
     }
 
-    /// Required if ok is `true`. A JSON-serialized array of available shipping options.
+    /// Required if ok is `true`. A JSON-serialized Array of available shipping options.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -74,7 +74,7 @@ impl AnswerShippingQuery {
         self
     }
 
-    /// Required if ok is `true`. A JSON-serialized array of available shipping options.
+    /// Required if ok is `true`. A JSON-serialized Array of available shipping options.
     ///
     /// # Notes
     /// Adds a single element.
@@ -91,7 +91,7 @@ impl AnswerShippingQuery {
         self
     }
 
-    /// Required if ok is `true`. A JSON-serialized array of available shipping options.
+    /// Required if ok is `true`. A JSON-serialized Array of available shipping options.
     ///
     /// # Notes
     /// Adds multiple elements.

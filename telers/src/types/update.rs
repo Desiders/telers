@@ -27,6 +27,7 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::UpdatePurchasedPaidMedia`]
 /// - [`crate::types::UpdateRemovedChatBoost`]
 /// - [`crate::types::UpdateShippingQuery`]
+/// - [`crate::types::UpdateSubscription`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#update>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -57,6 +58,7 @@ pub enum Update {
     PurchasedPaidMedia(crate::types::UpdatePurchasedPaidMedia),
     RemovedChatBoost(crate::types::UpdateRemovedChatBoost),
     ShippingQuery(crate::types::UpdateShippingQuery),
+    Subscription(crate::types::UpdateSubscription),
 }
 impl Update {
     /// Helper method for field `business_connection`.
@@ -334,6 +336,17 @@ impl Update {
         }
     }
 
+    /// Helper method for field `subscription`.
+    ///
+    /// User payment subscription has changed
+    #[must_use]
+    pub fn subscription(&self) -> Option<&crate::types::BotSubscriptionUpdated> {
+        match self {
+            Self::Subscription(val) => Some(&val.subscription),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `update_id`.
     ///
     /// The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
@@ -365,6 +378,7 @@ impl Update {
             Self::PurchasedPaidMedia(val) => val.update_id,
             Self::RemovedChatBoost(val) => val.update_id,
             Self::ShippingQuery(val) => val.update_id,
+            Self::Subscription(val) => val.update_id,
         }
     }
 
@@ -1100,6 +1114,78 @@ impl Update {
         }
     }
 
+    /// Helper method for nested field `community_chat_added`.
+    #[must_use]
+    pub fn community_chat_added(&self) -> Option<&crate::types::CommunityChatAdded> {
+        match self {
+            Self::BusinessMessage(val) => {
+                let inner = val.business_message.as_ref();
+                crate::types::Message::community_chat_added(inner)
+            }
+            Self::ChannelPost(val) => {
+                let inner = val.channel_post.as_ref();
+                crate::types::Message::community_chat_added(inner)
+            }
+            Self::EditedBusinessMessage(val) => {
+                let inner = val.edited_business_message.as_ref();
+                crate::types::Message::community_chat_added(inner)
+            }
+            Self::EditedChannelPost(val) => {
+                let inner = val.edited_channel_post.as_ref();
+                crate::types::Message::community_chat_added(inner)
+            }
+            Self::EditedMessage(val) => {
+                let inner = val.edited_message.as_ref();
+                crate::types::Message::community_chat_added(inner)
+            }
+            Self::GuestMessage(val) => {
+                let inner = val.guest_message.as_ref();
+                crate::types::Message::community_chat_added(inner)
+            }
+            Self::Message(val) => {
+                let inner = val.message.as_ref();
+                crate::types::Message::community_chat_added(inner)
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `community_chat_removed`.
+    #[must_use]
+    pub fn community_chat_removed(&self) -> Option<&crate::types::CommunityChatRemoved> {
+        match self {
+            Self::BusinessMessage(val) => {
+                let inner = val.business_message.as_ref();
+                crate::types::Message::community_chat_removed(inner)
+            }
+            Self::ChannelPost(val) => {
+                let inner = val.channel_post.as_ref();
+                crate::types::Message::community_chat_removed(inner)
+            }
+            Self::EditedBusinessMessage(val) => {
+                let inner = val.edited_business_message.as_ref();
+                crate::types::Message::community_chat_removed(inner)
+            }
+            Self::EditedChannelPost(val) => {
+                let inner = val.edited_channel_post.as_ref();
+                crate::types::Message::community_chat_removed(inner)
+            }
+            Self::EditedMessage(val) => {
+                let inner = val.edited_message.as_ref();
+                crate::types::Message::community_chat_removed(inner)
+            }
+            Self::GuestMessage(val) => {
+                let inner = val.guest_message.as_ref();
+                crate::types::Message::community_chat_removed(inner)
+            }
+            Self::Message(val) => {
+                let inner = val.message.as_ref();
+                crate::types::Message::community_chat_removed(inner)
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `connected_website`.
     #[must_use]
     pub fn connected_website(&self) -> Option<&str> {
@@ -1587,6 +1673,42 @@ impl Update {
             Self::Message(val) => {
                 let inner = val.message.as_ref();
                 crate::types::Message::entities(inner)
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `ephemeral_message_id`.
+    #[must_use]
+    pub fn ephemeral_message_id(&self) -> Option<i64> {
+        match self {
+            Self::BusinessMessage(val) => {
+                let inner = val.business_message.as_ref();
+                crate::types::Message::ephemeral_message_id(inner)
+            }
+            Self::ChannelPost(val) => {
+                let inner = val.channel_post.as_ref();
+                crate::types::Message::ephemeral_message_id(inner)
+            }
+            Self::EditedBusinessMessage(val) => {
+                let inner = val.edited_business_message.as_ref();
+                crate::types::Message::ephemeral_message_id(inner)
+            }
+            Self::EditedChannelPost(val) => {
+                let inner = val.edited_channel_post.as_ref();
+                crate::types::Message::ephemeral_message_id(inner)
+            }
+            Self::EditedMessage(val) => {
+                let inner = val.edited_message.as_ref();
+                crate::types::Message::ephemeral_message_id(inner)
+            }
+            Self::GuestMessage(val) => {
+                let inner = val.guest_message.as_ref();
+                crate::types::Message::ephemeral_message_id(inner)
+            }
+            Self::Message(val) => {
+                let inner = val.message.as_ref();
+                crate::types::Message::ephemeral_message_id(inner)
             }
             _ => None,
         }
@@ -2582,6 +2704,10 @@ impl Update {
             }
             Self::ShippingQuery(val) => {
                 let inner = &val.shipping_query;
+                Some(inner.invoice_payload.as_ref())
+            }
+            Self::Subscription(val) => {
+                let inner = &val.subscription;
                 Some(inner.invoice_payload.as_ref())
             }
             _ => None,
@@ -3902,6 +4028,42 @@ impl Update {
         }
     }
 
+    /// Helper method for nested field `receiver_user`.
+    #[must_use]
+    pub fn receiver_user(&self) -> Option<&crate::types::User> {
+        match self {
+            Self::BusinessMessage(val) => {
+                let inner = val.business_message.as_ref();
+                crate::types::Message::receiver_user(inner)
+            }
+            Self::ChannelPost(val) => {
+                let inner = val.channel_post.as_ref();
+                crate::types::Message::receiver_user(inner)
+            }
+            Self::EditedBusinessMessage(val) => {
+                let inner = val.edited_business_message.as_ref();
+                crate::types::Message::receiver_user(inner)
+            }
+            Self::EditedChannelPost(val) => {
+                let inner = val.edited_channel_post.as_ref();
+                crate::types::Message::receiver_user(inner)
+            }
+            Self::EditedMessage(val) => {
+                let inner = val.edited_message.as_ref();
+                crate::types::Message::receiver_user(inner)
+            }
+            Self::GuestMessage(val) => {
+                let inner = val.guest_message.as_ref();
+                crate::types::Message::receiver_user(inner)
+            }
+            Self::Message(val) => {
+                let inner = val.message.as_ref();
+                crate::types::Message::receiver_user(inner)
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `refunded_payment`.
     #[must_use]
     pub fn refunded_payment(&self) -> Option<&crate::types::RefundedPayment> {
@@ -4406,6 +4568,18 @@ impl Update {
         }
     }
 
+    /// Helper method for nested field `state`.
+    #[must_use]
+    pub fn state(&self) -> Option<&str> {
+        match self {
+            Self::Subscription(val) => {
+                let inner = &val.subscription;
+                Some(inner.state.as_ref())
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `sticker`.
     #[must_use]
     pub fn sticker(&self) -> Option<&crate::types::Sticker> {
@@ -4883,6 +5057,10 @@ impl Update {
             Self::PollAnswer(val) => {
                 let inner = &val.poll_answer;
                 inner.user.as_deref()
+            }
+            Self::Subscription(val) => {
+                let inner = &val.subscription;
+                Some(inner.user.as_ref())
             }
             _ => None,
         }
@@ -5402,6 +5580,29 @@ impl<Client> crate::Extractor<Client> for std::sync::Arc<Update> {
         async move { Ok(val) }
     }
 }
+impl TryFrom<Update> for crate::types::BotSubscriptionUpdated {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, crate::errors::ConvertToTypeError> {
+        match val {
+            Update::Subscription(val) => Ok(val.subscription),
+            _ => Err(crate::errors::ConvertToTypeError::new(
+                stringify!(Update),
+                stringify!(BotSubscriptionUpdated),
+            )),
+        }
+    }
+}
+impl<Client> crate::Extractor<Client> for crate::types::BotSubscriptionUpdated {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
 impl TryFrom<Update> for crate::types::BusinessConnection {
     type Error = crate::errors::ConvertToTypeError;
 
@@ -5851,6 +6052,42 @@ impl TryFrom<Update> for crate::types::MessageChecklistTasksDone {
     }
 }
 impl<Client> crate::Extractor<Client> for crate::types::MessageChecklistTasksDone {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
+impl TryFrom<Update> for crate::types::MessageCommunityChatAdded {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, Self::Error> {
+        let parent: crate::types::Message = val.try_into()?;
+        parent.try_into()
+    }
+}
+impl<Client> crate::Extractor<Client> for crate::types::MessageCommunityChatAdded {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
+impl TryFrom<Update> for crate::types::MessageCommunityChatRemoved {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, Self::Error> {
+        let parent: crate::types::Message = val.try_into()?;
+        parent.try_into()
+    }
+}
+impl<Client> crate::Extractor<Client> for crate::types::MessageCommunityChatRemoved {
     type Error = crate::errors::ConvertToTypeError;
 
     fn extract(
@@ -7659,6 +7896,25 @@ impl TryFrom<Update> for crate::types::UpdateShippingQuery {
             Err(Self::Error::new(
                 stringify!(Update),
                 stringify!(UpdateShippingQuery),
+            ))
+        }
+    }
+}
+impl From<crate::types::UpdateSubscription> for Update {
+    fn from(val: crate::types::UpdateSubscription) -> Self {
+        Self::Subscription(val)
+    }
+}
+impl TryFrom<Update> for crate::types::UpdateSubscription {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, Self::Error> {
+        if let Update::Subscription(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Update),
+                stringify!(UpdateSubscription),
             ))
         }
     }

@@ -156,6 +156,19 @@ impl ChatFullInfo {
         }
     }
 
+    /// Helper method for field `community`.
+    ///
+    /// The Community to which the chat belongs
+    #[must_use]
+    pub fn community(&self) -> Option<&crate::types::Community> {
+        match self {
+            Self::Private(val) => val.community.as_ref(),
+            Self::Group(val) => val.community.as_ref(),
+            Self::Supergroup(val) => val.community.as_ref(),
+            Self::Channel(val) => val.community.as_ref(),
+        }
+    }
+
     /// Helper method for field `custom_emoji_sticker_set_name`.
     ///
     /// For supergroups, the name of the group's custom emoji sticker set. Custom emoji from this set can be used by all users and bots in the group.
@@ -987,6 +1000,20 @@ impl ChatFullInfo {
             .and_then(crate::types::Message::checklist_tasks_done)
     }
 
+    /// Helper method for nested field `community_chat_added`.
+    #[must_use]
+    pub fn community_chat_added(&self) -> Option<&crate::types::CommunityChatAdded> {
+        self.pinned_message()
+            .and_then(crate::types::Message::community_chat_added)
+    }
+
+    /// Helper method for nested field `community_chat_removed`.
+    #[must_use]
+    pub fn community_chat_removed(&self) -> Option<&crate::types::CommunityChatRemoved> {
+        self.pinned_message()
+            .and_then(crate::types::Message::community_chat_removed)
+    }
+
     /// Helper method for nested field `connected_website`.
     #[must_use]
     pub fn connected_website(&self) -> Option<&str> {
@@ -1104,6 +1131,13 @@ impl ChatFullInfo {
     pub fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
         self.pinned_message()
             .and_then(crate::types::Message::entities)
+    }
+
+    /// Helper method for nested field `ephemeral_message_id`.
+    #[must_use]
+    pub fn ephemeral_message_id(&self) -> Option<i64> {
+        self.pinned_message()
+            .and_then(crate::types::Message::ephemeral_message_id)
     }
 
     /// Helper method for nested field `external_reply`.
@@ -1522,6 +1556,12 @@ impl ChatFullInfo {
         }
     }
 
+    /// Helper method for nested field `name`.
+    #[must_use]
+    pub fn name(&self) -> Option<&str> {
+        self.community().map(|inner| inner.name.as_ref())
+    }
+
     /// Helper method for nested field `new_chat_members`.
     #[must_use]
     pub fn new_chat_members(&self) -> Option<&[crate::types::User]> {
@@ -1650,6 +1690,13 @@ impl ChatFullInfo {
     #[must_use]
     pub fn quote(&self) -> Option<&crate::types::TextQuote> {
         self.pinned_message().and_then(crate::types::Message::quote)
+    }
+
+    /// Helper method for nested field `receiver_user`.
+    #[must_use]
+    pub fn receiver_user(&self) -> Option<&crate::types::User> {
+        self.pinned_message()
+            .and_then(crate::types::Message::receiver_user)
     }
 
     /// Helper method for nested field `refunded_payment`.

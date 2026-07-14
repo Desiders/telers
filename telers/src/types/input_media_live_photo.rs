@@ -17,7 +17,7 @@ pub struct InputMediaLivePhoto {
     /// List of special entities that appear in the caption, which can be specified instead of `parse_mode`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub caption_entities: Option<Box<[crate::types::MessageEntity]>>,
-    /// Pass `true`, if the caption must be shown above the message media
+    /// Pass `true` if the caption must be shown above the message media
     #[serde(skip_serializing_if = "Option::is_none")]
     pub show_caption_above_media: Option<bool>,
     /// Pass `true` if the live photo needs to be covered with a spoiler animation
@@ -138,14 +138,14 @@ impl InputMediaLivePhoto {
         self
     }
 
-    /// Pass `true`, if the caption must be shown above the message media
+    /// Pass `true` if the caption must be shown above the message media
     #[must_use]
     pub fn show_caption_above_media<T: Into<bool>>(mut self, val: T) -> Self {
         self.show_caption_above_media = Some(val.into());
         self
     }
 
-    /// Pass `true`, if the caption must be shown above the message media
+    /// Pass `true` if the caption must be shown above the message media
     #[must_use]
     pub fn show_caption_above_media_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.show_caption_above_media = val.map(Into::into);

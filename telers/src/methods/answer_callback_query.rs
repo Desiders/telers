@@ -12,7 +12,7 @@ pub struct AnswerCallbackQuery {
     /// Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<Box<str>>,
-    /// If `true`, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to false.
+    /// If `true`, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to `false`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub show_alert: Option<bool>,
     /// URL that will be opened by the user's client. If you have created a Game and accepted the conditions via @`BotFather`, specify the URL that opens your game - note that this will only work if the query comes from a `callback_game` button. Otherwise, you may use links like <https://t.me/your_bot?start=XXXX> that open your bot with a parameter.
@@ -62,14 +62,14 @@ impl AnswerCallbackQuery {
         self
     }
 
-    /// If `true`, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to false.
+    /// If `true`, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to `false`.
     #[must_use]
     pub fn show_alert<T: Into<bool>>(mut self, val: T) -> Self {
         self.show_alert = Some(val.into());
         self
     }
 
-    /// If `true`, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to false.
+    /// If `true`, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to `false`.
     #[must_use]
     pub fn show_alert_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.show_alert = val.map(Into::into);

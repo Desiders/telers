@@ -4,8 +4,9 @@ use crate::{
         ChatIdKind, Message, MessageAnimation, MessageAudio, MessageBoostAdded,
         MessageChannelChatCreated, MessageChatBackgroundSet, MessageChatOwnerChanged,
         MessageChatOwnerLeft, MessageChatShared, MessageChecklist, MessageChecklistTasksAdded,
-        MessageChecklistTasksDone, MessageConnectedWebsite, MessageContact, MessageDeleteChatPhoto,
-        MessageDice, MessageDirectMessagePriceChanged, MessageDocument, MessageForumTopicClosed,
+        MessageChecklistTasksDone, MessageCommunityChatAdded, MessageCommunityChatRemoved,
+        MessageConnectedWebsite, MessageContact, MessageDeleteChatPhoto, MessageDice,
+        MessageDirectMessagePriceChanged, MessageDocument, MessageForumTopicClosed,
         MessageForumTopicCreated, MessageForumTopicEdited, MessageForumTopicReopened, MessageGame,
         MessageGeneralForumTopicHidden, MessageGeneralForumTopicUnhidden, MessageGift,
         MessageGiftUpgradeSent, MessageGiveaway, MessageGiveawayCompleted, MessageGiveawayCreated,
@@ -264,6 +265,44 @@ impl MessageChecklistTasksAdded {
     }
 }
 impl MessageChecklistTasksDone {
+    /// Creates [`CopyMessage`] for this message.
+    #[must_use]
+    pub fn to_copy_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> CopyMessage {
+        CopyMessage::new(chat_id, self.chat.id(), self.message_id)
+    }
+
+    /// Creates [`ForwardMessage`] for this message.
+    #[must_use]
+    pub fn to_forward_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> ForwardMessage {
+        ForwardMessage::new(chat_id, self.chat.id(), self.message_id)
+    }
+
+    /// Creates [`DeleteMessage`] for this message.
+    #[must_use]
+    pub fn delete_message(&self) -> DeleteMessage {
+        DeleteMessage::new(self.chat.id(), self.message_id)
+    }
+}
+impl MessageCommunityChatAdded {
+    /// Creates [`CopyMessage`] for this message.
+    #[must_use]
+    pub fn to_copy_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> CopyMessage {
+        CopyMessage::new(chat_id, self.chat.id(), self.message_id)
+    }
+
+    /// Creates [`ForwardMessage`] for this message.
+    #[must_use]
+    pub fn to_forward_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> ForwardMessage {
+        ForwardMessage::new(chat_id, self.chat.id(), self.message_id)
+    }
+
+    /// Creates [`DeleteMessage`] for this message.
+    #[must_use]
+    pub fn delete_message(&self) -> DeleteMessage {
+        DeleteMessage::new(self.chat.id(), self.message_id)
+    }
+}
+impl MessageCommunityChatRemoved {
     /// Creates [`CopyMessage`] for this message.
     #[must_use]
     pub fn to_copy_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> CopyMessage {

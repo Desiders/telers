@@ -434,7 +434,7 @@ impl InputMessageContent {
 
     /// Helper method for field `suggested_tip_amounts`.
     ///
-    /// A JSON-serialized array of suggested amounts of tip in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
+    /// A JSON-serialized Array of suggested amounts of tip in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
     #[must_use]
     pub fn suggested_tip_amounts(&self) -> Option<&[i64]> {
         match self {
@@ -464,6 +464,18 @@ impl InputMessageContent {
     pub fn vcard(&self) -> Option<&str> {
         match self {
             Self::InputContactMessageContent(val) => val.vcard.as_deref(),
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `blocks`.
+    #[must_use]
+    pub fn blocks(&self) -> Option<&[crate::types::InputRichBlock]> {
+        match self {
+            Self::InputRichMessageContent(val) => {
+                let inner = &val.rich_message;
+                inner.blocks.as_deref()
+            }
             _ => None,
         }
     }
@@ -511,6 +523,18 @@ impl InputMessageContent {
             Self::InputRichMessageContent(val) => {
                 let inner = &val.rich_message;
                 inner.markdown.as_deref()
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `media`.
+    #[must_use]
+    pub fn media(&self) -> Option<&[crate::types::InputRichMessageMedia]> {
+        match self {
+            Self::InputRichMessageContent(val) => {
+                let inner = &val.rich_message;
+                inner.media.as_deref()
             }
             _ => None,
         }

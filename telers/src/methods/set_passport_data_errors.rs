@@ -10,7 +10,7 @@ use serde::Serialize;
 pub struct SetPassportDataErrors {
     /// User identifier
     pub user_id: i64,
-    /// A JSON-serialized array describing the errors
+    /// A JSON-serialized Array describing the errors
     pub errors: Box<[crate::types::PassportElementError]>,
 }
 impl SetPassportDataErrors {
@@ -18,7 +18,7 @@ impl SetPassportDataErrors {
     ///
     /// # Arguments
     /// * `user_id` - User identifier
-    /// * `errors` - A JSON-serialized array describing the errors
+    /// * `errors` - A JSON-serialized Array describing the errors
     #[must_use]
     pub fn new<
         T0: Into<i64>,
@@ -41,7 +41,7 @@ impl SetPassportDataErrors {
         self
     }
 
-    /// A JSON-serialized array describing the errors
+    /// A JSON-serialized Array describing the errors
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -62,7 +62,7 @@ impl SetPassportDataErrors {
         self
     }
 
-    /// A JSON-serialized array describing the errors
+    /// A JSON-serialized Array describing the errors
     ///
     /// # Notes
     /// Adds a single element.

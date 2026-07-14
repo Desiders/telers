@@ -20,7 +20,7 @@ pub struct EditMessageMedia {
     /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub inline_message_id: Option<Box<str>>,
-    /// A JSON-serialized object for a new media content of the message
+    /// A JSON-serialized object for the new media content of the message
     pub media: crate::types::InputMedia,
     /// A JSON-serialized object for a new inline keyboard
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -30,7 +30,7 @@ impl EditMessageMedia {
     /// Creates a new `EditMessageMedia`.
     ///
     /// # Arguments
-    /// * `media` - A JSON-serialized object for a new media content of the message
+    /// * `media` - A JSON-serialized object for the new media content of the message
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -102,7 +102,7 @@ impl EditMessageMedia {
         self
     }
 
-    /// A JSON-serialized object for a new media content of the message
+    /// A JSON-serialized object for the new media content of the message
     #[must_use]
     pub fn media<T: Into<crate::types::InputMedia>>(mut self, val: T) -> Self {
         self.media = val.into();

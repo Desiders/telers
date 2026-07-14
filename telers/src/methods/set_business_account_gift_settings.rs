@@ -9,7 +9,7 @@ use serde::Serialize;
 pub struct SetBusinessAccountGiftSettings {
     /// Unique identifier of the business connection
     pub business_connection_id: Box<str>,
-    /// Pass `true`, if a button for sending a gift to the user or by the business account must always be shown in the input field
+    /// Pass `true` if a button for sending a gift to the user or by the business account must always be shown in the input field
     pub show_gift_button: bool,
     /// Types of gifts accepted by the business account
     pub accepted_gift_types: crate::types::AcceptedGiftTypes,
@@ -19,7 +19,7 @@ impl SetBusinessAccountGiftSettings {
     ///
     /// # Arguments
     /// * `business_connection_id` - Unique identifier of the business connection
-    /// * `show_gift_button` - Pass `true`, if a button for sending a gift to the user or by the business account must always be shown in the input field
+    /// * `show_gift_button` - Pass `true` if a button for sending a gift to the user or by the business account must always be shown in the input field
     /// * `accepted_gift_types` - Types of gifts accepted by the business account
     #[must_use]
     pub fn new<T0: Into<Box<str>>, T1: Into<bool>, T2: Into<crate::types::AcceptedGiftTypes>>(
@@ -41,7 +41,7 @@ impl SetBusinessAccountGiftSettings {
         self
     }
 
-    /// Pass `true`, if a button for sending a gift to the user or by the business account must always be shown in the input field
+    /// Pass `true` if a button for sending a gift to the user or by the business account must always be shown in the input field
     #[must_use]
     pub fn show_gift_button<T: Into<bool>>(mut self, val: T) -> Self {
         self.show_gift_button = val.into();

@@ -144,7 +144,7 @@ impl ChatMember {
 
     /// Helper method for field `can_manage_tags`.
     ///
-    /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted defaults to the value of `can_pin_messages`.
+    /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted, defaults to the value of `can_pin_messages`.
     #[must_use]
     pub fn can_manage_tags(&self) -> Option<bool> {
         match self {

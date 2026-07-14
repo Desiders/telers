@@ -20,7 +20,7 @@ pub struct SendPaidMedia {
     pub direct_messages_topic_id: Option<i64>,
     /// The number of Telegram Stars that must be paid to buy access to the media; 1-25000
     pub star_count: u16,
-    /// A JSON-serialized array describing the media to be sent; up to 10 items
+    /// A JSON-serialized Array describing the media to be sent; up to 10 items
     pub media: Box<[crate::types::InputPaidMedia]>,
     /// Bot-defined paid media payload, 0-128 bytes. This will not be displayed to the user, use it for your internal processes.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -34,7 +34,7 @@ pub struct SendPaidMedia {
     /// A JSON-serialized list of special entities that appear in the caption, which can be specified instead of `parse_mode`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub caption_entities: Option<Box<[crate::types::MessageEntity]>>,
-    /// Pass `true`, if the caption must be shown above the message media
+    /// Pass `true` if the caption must be shown above the message media
     #[serde(skip_serializing_if = "Option::is_none")]
     pub show_caption_above_media: Option<bool>,
     /// Sends the message silently. Users will receive a notification with no sound.
@@ -62,7 +62,7 @@ impl SendPaidMedia {
     /// # Arguments
     /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. If the chat is a channel, all Telegram Star proceeds from this media will be credited to the chat's balance. Otherwise, they will be credited to the bot's balance.
     /// * `star_count` - The number of Telegram Stars that must be paid to buy access to the media; 1-25000
-    /// * `media` - A JSON-serialized array describing the media to be sent; up to 10 items
+    /// * `media` - A JSON-serialized Array describing the media to be sent; up to 10 items
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -154,7 +154,7 @@ impl SendPaidMedia {
         self
     }
 
-    /// A JSON-serialized array describing the media to be sent; up to 10 items
+    /// A JSON-serialized Array describing the media to be sent; up to 10 items
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -270,14 +270,14 @@ impl SendPaidMedia {
         self
     }
 
-    /// Pass `true`, if the caption must be shown above the message media
+    /// Pass `true` if the caption must be shown above the message media
     #[must_use]
     pub fn show_caption_above_media<T: Into<bool>>(mut self, val: T) -> Self {
         self.show_caption_above_media = Some(val.into());
         self
     }
 
-    /// Pass `true`, if the caption must be shown above the message media
+    /// Pass `true` if the caption must be shown above the message media
     #[must_use]
     pub fn show_caption_above_media_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.show_caption_above_media = val.map(Into::into);

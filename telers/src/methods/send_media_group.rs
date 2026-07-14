@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to send a group of photos, live photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an array of Message objects that were sent is returned.
+/// Use this method to send a group of photos, live photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an Array of Message objects that were sent is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sendmediagroup>
 /// # Returns
@@ -18,7 +18,7 @@ pub struct SendMediaGroup {
     /// Identifier of the direct messages topic to which the messages will be sent; required if the messages are sent to a direct messages chat
     #[serde(skip_serializing_if = "Option::is_none")]
     pub direct_messages_topic_id: Option<i64>,
-    /// A JSON-serialized array describing messages to be sent, must include 2-10 items
+    /// A JSON-serialized Array describing messages to be sent, must include 2-10 items
     pub media: Box<[crate::types::InputMedia]>,
     /// Sends messages silently. Users will receive a notification with no sound.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -41,7 +41,7 @@ impl SendMediaGroup {
     ///
     /// # Arguments
     /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
-    /// * `media` - A JSON-serialized array describing messages to be sent, must include 2-10 items
+    /// * `media` - A JSON-serialized Array describing messages to be sent, must include 2-10 items
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -117,7 +117,7 @@ impl SendMediaGroup {
         self
     }
 
-    /// A JSON-serialized array describing messages to be sent, must include 2-10 items
+    /// A JSON-serialized Array describing messages to be sent, must include 2-10 items
     ///
     /// # Notes
     /// Adds multiple elements.

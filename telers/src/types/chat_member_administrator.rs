@@ -45,7 +45,7 @@ pub struct ChatMemberAdministrator {
     /// `true`, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_direct_messages: Option<bool>,
-    /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted defaults to the value of `can_pin_messages`.
+    /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted, defaults to the value of `can_pin_messages`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_tags: Option<bool>,
     /// Custom title for this user
@@ -287,14 +287,14 @@ impl ChatMemberAdministrator {
         self
     }
 
-    /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted defaults to the value of `can_pin_messages`.
+    /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted, defaults to the value of `can_pin_messages`.
     #[must_use]
     pub fn can_manage_tags<T: Into<bool>>(mut self, val: T) -> Self {
         self.can_manage_tags = Some(val.into());
         self
     }
 
-    /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted defaults to the value of `can_pin_messages`.
+    /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted, defaults to the value of `can_pin_messages`.
     #[must_use]
     pub fn can_manage_tags_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.can_manage_tags = val.map(Into::into);

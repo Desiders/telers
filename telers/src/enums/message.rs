@@ -14,6 +14,8 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::MessageChecklist`]
 /// - [`crate::types::MessageChecklistTasksAdded`]
 /// - [`crate::types::MessageChecklistTasksDone`]
+/// - [`crate::types::MessageCommunityChatAdded`]
+/// - [`crate::types::MessageCommunityChatRemoved`]
 /// - [`crate::types::MessageConnectedWebsite`]
 /// - [`crate::types::MessageContact`]
 /// - [`crate::types::MessageDeleteChatPhoto`]
@@ -116,6 +118,10 @@ pub enum MessageType {
     ChecklistTasksAdded,
     #[strum(serialize = "checklist_tasks_done")]
     ChecklistTasksDone,
+    #[strum(serialize = "community_chat_added")]
+    CommunityChatAdded,
+    #[strum(serialize = "community_chat_removed")]
+    CommunityChatRemoved,
     #[strum(serialize = "connected_website")]
     ConnectedWebsite,
     #[strum(serialize = "contact")]
@@ -245,7 +251,7 @@ pub enum MessageType {
 }
 impl MessageType {
     #[must_use]
-    pub const fn all() -> [MessageType; 74usize] {
+    pub const fn all() -> [MessageType; 76usize] {
         [
             MessageType::Animation,
             MessageType::Audio,
@@ -258,6 +264,8 @@ impl MessageType {
             MessageType::Checklist,
             MessageType::ChecklistTasksAdded,
             MessageType::ChecklistTasksDone,
+            MessageType::CommunityChatAdded,
+            MessageType::CommunityChatRemoved,
             MessageType::ConnectedWebsite,
             MessageType::Contact,
             MessageType::DeleteChatPhoto,
@@ -353,6 +361,8 @@ impl<'a> From<&'a Message> for MessageType {
             Message::Checklist(_) => MessageType::Checklist,
             Message::ChecklistTasksAdded(_) => MessageType::ChecklistTasksAdded,
             Message::ChecklistTasksDone(_) => MessageType::ChecklistTasksDone,
+            Message::CommunityChatAdded(_) => MessageType::CommunityChatAdded,
+            Message::CommunityChatRemoved(_) => MessageType::CommunityChatRemoved,
             Message::ConnectedWebsite(_) => MessageType::ConnectedWebsite,
             Message::Contact(_) => MessageType::Contact,
             Message::DeleteChatPhoto(_) => MessageType::DeleteChatPhoto,

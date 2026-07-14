@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to process a received chat join request query by showing a Mini App to the user before deciding the outcome. Returns `true` on success.
+/// Use this method to process a received chat join request query by showing a Mini App to the user before deciding the outcome. Call answerChatJoinRequestQuery to resolve the join request query based on the user interaction with the Mini App. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sendchatjoinrequestwebapp>
 /// # Returns
@@ -9,7 +9,7 @@ use serde::Serialize;
 pub struct SendChatJoinRequestWebApp {
     /// Unique identifier of the join request query
     pub chat_join_request_query_id: Box<str>,
-    /// The URL of the Mini App to be opened
+    /// An HTTPS URL of a Web App to be opened with additional data as specified in Initializing Web Apps
     pub web_app_url: Box<str>,
 }
 impl SendChatJoinRequestWebApp {
@@ -17,7 +17,7 @@ impl SendChatJoinRequestWebApp {
     ///
     /// # Arguments
     /// * `chat_join_request_query_id` - Unique identifier of the join request query
-    /// * `web_app_url` - The URL of the Mini App to be opened
+    /// * `web_app_url` - An HTTPS URL of a Web App to be opened with additional data as specified in Initializing Web Apps
     #[must_use]
     pub fn new<T0: Into<Box<str>>, T1: Into<Box<str>>>(
         chat_join_request_query_id: T0,
@@ -36,7 +36,7 @@ impl SendChatJoinRequestWebApp {
         self
     }
 
-    /// The URL of the Mini App to be opened
+    /// An HTTPS URL of a Web App to be opened with additional data as specified in Initializing Web Apps
     #[must_use]
     pub fn web_app_url<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.web_app_url = val.into();

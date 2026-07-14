@@ -18,6 +18,12 @@ pub struct SendLivePhoto {
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
     #[serde(skip_serializing_if = "Option::is_none")]
     pub direct_messages_topic_id: Option<i64>,
+    /// For outgoing ephemeral messages, unique identifier of the user who will receive the message; for group and supergroup chats only. It is not guaranteed that the user will receive the message, especially if they are offline. See ephemeral message sending for more details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub receiver_user_id: Option<i64>,
+    /// For outgoing ephemeral messages, identifier of the callback query which triggerred the message if any
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub callback_query_id: Option<Box<str>>,
     /// Live photo video to send. The video must be no longer than 10 seconds and must not exceed 10 MB in size. Pass a `file_id` as String to send a video that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending live photos by a URL is currently unsupported.
     pub live_photo: crate::types::InputFile,
     /// The static photo to send. Pass a `file_id` as String to send a photo that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending live photos by a URL is currently unsupported.
@@ -31,7 +37,7 @@ pub struct SendLivePhoto {
     /// A JSON-serialized list of special entities that appear in the caption, which can be specified instead of `parse_mode`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub caption_entities: Option<Box<[crate::types::MessageEntity]>>,
-    /// Pass `true`, if the caption must be shown above the message media
+    /// Pass `true` if the caption must be shown above the message media
     #[serde(skip_serializing_if = "Option::is_none")]
     pub show_caption_above_media: Option<bool>,
     /// Pass `true` if the video needs to be covered with a spoiler animation
@@ -84,6 +90,8 @@ impl SendLivePhoto {
             chat_id: chat_id.into(),
             message_thread_id: None,
             direct_messages_topic_id: None,
+            receiver_user_id: None,
+            callback_query_id: None,
             live_photo: live_photo.into(),
             photo: photo.into(),
             caption: None,
@@ -147,6 +155,34 @@ impl SendLivePhoto {
     #[must_use]
     pub fn direct_messages_topic_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.direct_messages_topic_id = val.map(Into::into);
+        self
+    }
+
+    /// For outgoing ephemeral messages, unique identifier of the user who will receive the message; for group and supergroup chats only. It is not guaranteed that the user will receive the message, especially if they are offline. See ephemeral message sending for more details.
+    #[must_use]
+    pub fn receiver_user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.receiver_user_id = Some(val.into());
+        self
+    }
+
+    /// For outgoing ephemeral messages, unique identifier of the user who will receive the message; for group and supergroup chats only. It is not guaranteed that the user will receive the message, especially if they are offline. See ephemeral message sending for more details.
+    #[must_use]
+    pub fn receiver_user_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.receiver_user_id = val.map(Into::into);
+        self
+    }
+
+    /// For outgoing ephemeral messages, identifier of the callback query which triggerred the message if any
+    #[must_use]
+    pub fn callback_query_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.callback_query_id = Some(val.into());
+        self
+    }
+
+    /// For outgoing ephemeral messages, identifier of the callback query which triggerred the message if any
+    #[must_use]
+    pub fn callback_query_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.callback_query_id = val.map(Into::into);
         self
     }
 
@@ -248,14 +284,14 @@ impl SendLivePhoto {
         self
     }
 
-    /// Pass `true`, if the caption must be shown above the message media
+    /// Pass `true` if the caption must be shown above the message media
     #[must_use]
     pub fn show_caption_above_media<T: Into<bool>>(mut self, val: T) -> Self {
         self.show_caption_above_media = Some(val.into());
         self
     }
 
-    /// Pass `true`, if the caption must be shown above the message media
+    /// Pass `true` if the caption must be shown above the message media
     #[must_use]
     pub fn show_caption_above_media_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.show_caption_above_media = val.map(Into::into);

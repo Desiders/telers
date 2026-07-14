@@ -10,7 +10,7 @@ use serde::Serialize;
 pub struct AnswerInlineQuery {
     /// Unique identifier for the answered query
     pub inline_query_id: Box<str>,
-    /// A JSON-serialized array of results for the inline query
+    /// A JSON-serialized Array of results for the inline query
     pub results: Box<[crate::types::InlineQueryResult]>,
     /// The maximum amount of time in seconds that the result of the inline query may be cached on the server. Defaults to 300.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -30,7 +30,7 @@ impl AnswerInlineQuery {
     ///
     /// # Arguments
     /// * `inline_query_id` - Unique identifier for the answered query
-    /// * `results` - A JSON-serialized array of results for the inline query
+    /// * `results` - A JSON-serialized Array of results for the inline query
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -60,7 +60,7 @@ impl AnswerInlineQuery {
         self
     }
 
-    /// A JSON-serialized array of results for the inline query
+    /// A JSON-serialized Array of results for the inline query
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -78,7 +78,7 @@ impl AnswerInlineQuery {
         self
     }
 
-    /// A JSON-serialized array of results for the inline query
+    /// A JSON-serialized Array of results for the inline query
     ///
     /// # Notes
     /// Adds a single element.

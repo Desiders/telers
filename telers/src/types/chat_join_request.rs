@@ -18,7 +18,7 @@ pub struct ChatJoinRequest {
     /// Chat invite link that was used by the user to send the join request
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invite_link: Option<crate::types::ChatInviteLink>,
-    /// Identifier of the join request query. If present, then the bot must call sendChatJoinRequestWebApp or directly call answerChatJoinRequestQuery within 10 seconds.
+    /// Identifier of the join request query; for bots assigned to process join requests only. If present, then the bot must call sendChatJoinRequestWebApp or directly call answerChatJoinRequestQuery within 10 seconds.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub query_id: Option<Box<str>>,
 }
@@ -115,14 +115,14 @@ impl ChatJoinRequest {
         self
     }
 
-    /// Identifier of the join request query. If present, then the bot must call sendChatJoinRequestWebApp or directly call answerChatJoinRequestQuery within 10 seconds.
+    /// Identifier of the join request query; for bots assigned to process join requests only. If present, then the bot must call sendChatJoinRequestWebApp or directly call answerChatJoinRequestQuery within 10 seconds.
     #[must_use]
     pub fn query_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.query_id = Some(val.into());
         self
     }
 
-    /// Identifier of the join request query. If present, then the bot must call sendChatJoinRequestWebApp or directly call answerChatJoinRequestQuery within 10 seconds.
+    /// Identifier of the join request query; for bots assigned to process join requests only. If present, then the bot must call sendChatJoinRequestWebApp or directly call answerChatJoinRequestQuery within 10 seconds.
     #[must_use]
     pub fn query_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.query_id = val.map(Into::into);

@@ -9,9 +9,9 @@ use serde::Serialize;
 pub struct SetManagedBotAccessSettings {
     /// User identifier of the managed bot whose access settings will be changed
     pub user_id: i64,
-    /// Pass `true`, if only selected users can access the bot. The bot's owner can always access it.
+    /// Pass `true` if only selected users can access the bot. The bot's owner can always access it.
     pub is_access_restricted: bool,
-    /// A JSON-serialized list of up to 10 identifiers of users who will have access to the bot in addition to its owner. Ignored if `is_access_restricted` is false.
+    /// A JSON-serialized list of up to 10 identifiers of users who will have access to the bot in addition to its owner. Ignored if `is_access_restricted` is `false`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub added_user_ids: Option<Box<[i64]>>,
 }
@@ -20,7 +20,7 @@ impl SetManagedBotAccessSettings {
     ///
     /// # Arguments
     /// * `user_id` - User identifier of the managed bot whose access settings will be changed
-    /// * `is_access_restricted` - Pass `true`, if only selected users can access the bot. The bot's owner can always access it.
+    /// * `is_access_restricted` - Pass `true` if only selected users can access the bot. The bot's owner can always access it.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -40,14 +40,14 @@ impl SetManagedBotAccessSettings {
         self
     }
 
-    /// Pass `true`, if only selected users can access the bot. The bot's owner can always access it.
+    /// Pass `true` if only selected users can access the bot. The bot's owner can always access it.
     #[must_use]
     pub fn is_access_restricted<T: Into<bool>>(mut self, val: T) -> Self {
         self.is_access_restricted = val.into();
         self
     }
 
-    /// A JSON-serialized list of up to 10 identifiers of users who will have access to the bot in addition to its owner. Ignored if `is_access_restricted` is false.
+    /// A JSON-serialized list of up to 10 identifiers of users who will have access to the bot in addition to its owner. Ignored if `is_access_restricted` is `false`.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -67,7 +67,7 @@ impl SetManagedBotAccessSettings {
         self
     }
 
-    /// A JSON-serialized list of up to 10 identifiers of users who will have access to the bot in addition to its owner. Ignored if `is_access_restricted` is false.
+    /// A JSON-serialized list of up to 10 identifiers of users who will have access to the bot in addition to its owner. Ignored if `is_access_restricted` is `false`.
     ///
     /// # Notes
     /// Adds a single element.
@@ -84,7 +84,7 @@ impl SetManagedBotAccessSettings {
         self
     }
 
-    /// A JSON-serialized list of up to 10 identifiers of users who will have access to the bot in addition to its owner. Ignored if `is_access_restricted` is false.
+    /// A JSON-serialized list of up to 10 identifiers of users who will have access to the bot in addition to its owner. Ignored if `is_access_restricted` is `false`.
     ///
     /// # Notes
     /// Adds multiple elements.

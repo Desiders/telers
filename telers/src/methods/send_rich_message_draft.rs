@@ -14,7 +14,7 @@ pub struct SendRichMessageDraft {
     pub message_thread_id: Option<i64>,
     /// Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated.
     pub draft_id: i64,
-    /// The partial message to be streamed
+    /// The partial message to be streamed. Direct upload of new files isn't supported.
     pub rich_message: crate::types::InputRichMessage,
 }
 impl SendRichMessageDraft {
@@ -23,7 +23,7 @@ impl SendRichMessageDraft {
     /// # Arguments
     /// * `chat_id` - Unique identifier for the target private chat
     /// * `draft_id` - Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated.
-    /// * `rich_message` - The partial message to be streamed
+    /// * `rich_message` - The partial message to be streamed. Direct upload of new files isn't supported.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -69,7 +69,7 @@ impl SendRichMessageDraft {
         self
     }
 
-    /// The partial message to be streamed
+    /// The partial message to be streamed. Direct upload of new files isn't supported.
     #[must_use]
     pub fn rich_message<T: Into<crate::types::InputRichMessage>>(mut self, val: T) -> Self {
         self.rich_message = val.into();

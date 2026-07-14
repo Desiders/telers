@@ -4,15 +4,19 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#replyparameters>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ReplyParameters {
-    /// Identifier of the message that will be replied to in the current chat, or in the chat `chat_id` if it is specified
-    pub message_id: i64,
-    /// If the message to be replied to is from a different chat, unique identifier for the chat or username of the bot, supergroup or channel in the format @username. Not supported for messages sent on behalf of a business account and messages from channel direct messages chats.
+    /// Identifier of the message that will be replied to in the current chat, or in the chat `chat_id` if it is specified. Required if `ephemeral_message_id` isn't specified.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message_id: Option<i64>,
+    /// If the message to be replied to is from a different chat, unique identifier for the chat or username of the bot, supergroup or channel in the format @username. Not supported for messages sent on behalf of a business account, messages from channel direct messages chats and ephemeral messages.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub chat_id: Option<crate::types::ChatIdKind>,
-    /// Pass `true` if the message should be sent even if the specified message to be replied to is not found. Always `false` for replies in another chat or forum topic. Always `true` for messages sent on behalf of a business account.
+    /// Identifier of the incoming ephemeral message that will be replied to in the current chat. A reply to an ephemeral message must itself be an ephemeral message. An ephemeral message may only be replied to within 15 seconds of being sent. Required if `message_id` isn't specified.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ephemeral_message_id: Option<i64>,
+    /// Pass `true` if the message should be sent even if the specified message to be replied to is not found. Always `false` for replies in another chat or forum topic, and sent ephemeral messages. Always `true` for messages sent on behalf of a business account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_sending_without_reply: Option<bool>,
-    /// Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities. The message will fail to send if the quote isn't found in the original message.
+    /// Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities. The message will fail to send if the quote isn't found in the original message. Ignored for ephemeral messages.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quote: Option<Box<str>>,
     /// Mode for parsing entities in the quote. See formatting options for more details.
@@ -34,16 +38,14 @@ pub struct ReplyParameters {
 impl ReplyParameters {
     /// Creates a new `ReplyParameters`.
     ///
-    /// # Arguments
-    /// * `message_id` - Identifier of the message that will be replied to in the current chat, or in the chat `chat_id` if it is specified
-    ///
     /// # Notes
     /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new<T0: Into<i64>>(message_id: T0) -> Self {
+    pub fn new() -> Self {
         Self {
-            message_id: message_id.into(),
+            message_id: None,
             chat_id: None,
+            ephemeral_message_id: None,
             allow_sending_without_reply: None,
             quote: None,
             quote_parse_mode: None,
@@ -54,49 +56,70 @@ impl ReplyParameters {
         }
     }
 
-    /// Identifier of the message that will be replied to in the current chat, or in the chat `chat_id` if it is specified
+    /// Identifier of the message that will be replied to in the current chat, or in the chat `chat_id` if it is specified. Required if `ephemeral_message_id` isn't specified.
     #[must_use]
     pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
-        self.message_id = val.into();
+        self.message_id = Some(val.into());
         self
     }
 
-    /// If the message to be replied to is from a different chat, unique identifier for the chat or username of the bot, supergroup or channel in the format @username. Not supported for messages sent on behalf of a business account and messages from channel direct messages chats.
+    /// Identifier of the message that will be replied to in the current chat, or in the chat `chat_id` if it is specified. Required if `ephemeral_message_id` isn't specified.
+    #[must_use]
+    pub fn message_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.message_id = val.map(Into::into);
+        self
+    }
+
+    /// If the message to be replied to is from a different chat, unique identifier for the chat or username of the bot, supergroup or channel in the format @username. Not supported for messages sent on behalf of a business account, messages from channel direct messages chats and ephemeral messages.
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
         self.chat_id = Some(val.into());
         self
     }
 
-    /// If the message to be replied to is from a different chat, unique identifier for the chat or username of the bot, supergroup or channel in the format @username. Not supported for messages sent on behalf of a business account and messages from channel direct messages chats.
+    /// If the message to be replied to is from a different chat, unique identifier for the chat or username of the bot, supergroup or channel in the format @username. Not supported for messages sent on behalf of a business account, messages from channel direct messages chats and ephemeral messages.
     #[must_use]
     pub fn chat_id_option<T: Into<crate::types::ChatIdKind>>(mut self, val: Option<T>) -> Self {
         self.chat_id = val.map(Into::into);
         self
     }
 
-    /// Pass `true` if the message should be sent even if the specified message to be replied to is not found. Always `false` for replies in another chat or forum topic. Always `true` for messages sent on behalf of a business account.
+    /// Identifier of the incoming ephemeral message that will be replied to in the current chat. A reply to an ephemeral message must itself be an ephemeral message. An ephemeral message may only be replied to within 15 seconds of being sent. Required if `message_id` isn't specified.
+    #[must_use]
+    pub fn ephemeral_message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.ephemeral_message_id = Some(val.into());
+        self
+    }
+
+    /// Identifier of the incoming ephemeral message that will be replied to in the current chat. A reply to an ephemeral message must itself be an ephemeral message. An ephemeral message may only be replied to within 15 seconds of being sent. Required if `message_id` isn't specified.
+    #[must_use]
+    pub fn ephemeral_message_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.ephemeral_message_id = val.map(Into::into);
+        self
+    }
+
+    /// Pass `true` if the message should be sent even if the specified message to be replied to is not found. Always `false` for replies in another chat or forum topic, and sent ephemeral messages. Always `true` for messages sent on behalf of a business account.
     #[must_use]
     pub fn allow_sending_without_reply<T: Into<bool>>(mut self, val: T) -> Self {
         self.allow_sending_without_reply = Some(val.into());
         self
     }
 
-    /// Pass `true` if the message should be sent even if the specified message to be replied to is not found. Always `false` for replies in another chat or forum topic. Always `true` for messages sent on behalf of a business account.
+    /// Pass `true` if the message should be sent even if the specified message to be replied to is not found. Always `false` for replies in another chat or forum topic, and sent ephemeral messages. Always `true` for messages sent on behalf of a business account.
     #[must_use]
     pub fn allow_sending_without_reply_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.allow_sending_without_reply = val.map(Into::into);
         self
     }
 
-    /// Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities. The message will fail to send if the quote isn't found in the original message.
+    /// Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities. The message will fail to send if the quote isn't found in the original message. Ignored for ephemeral messages.
     #[must_use]
     pub fn quote<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.quote = Some(val.into());
         self
     }
 
-    /// Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities. The message will fail to send if the quote isn't found in the original message.
+    /// Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities. The message will fail to send if the quote isn't found in the original message. Ignored for ephemeral messages.
     #[must_use]
     pub fn quote_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.quote = val.map(Into::into);
@@ -204,5 +227,10 @@ impl ReplyParameters {
     pub fn poll_option_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.poll_option_id = val.map(Into::into);
         self
+    }
+}
+impl Default for ReplyParameters {
+    fn default() -> Self {
+        Self::new()
     }
 }

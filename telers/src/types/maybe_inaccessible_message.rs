@@ -189,6 +189,28 @@ impl MaybeInaccessibleMessage {
         }
     }
 
+    /// Helper method for field `community_chat_added`.
+    ///
+    /// Service message: chat added to a Community
+    #[must_use]
+    pub fn community_chat_added(&self) -> Option<&crate::types::CommunityChatAdded> {
+        match self {
+            Self::Message(val) => crate::types::Message::community_chat_added(val),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for field `community_chat_removed`.
+    ///
+    /// Service message: chat removed from a Community
+    #[must_use]
+    pub fn community_chat_removed(&self) -> Option<&crate::types::CommunityChatRemoved> {
+        match self {
+            Self::Message(val) => crate::types::Message::community_chat_removed(val),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
     /// Helper method for field `connected_website`.
     ///
     /// The domain name of the website on which the user has logged in. More about Telegram Login: <https://core.telegram.org/widgets/login>
@@ -308,6 +330,17 @@ impl MaybeInaccessibleMessage {
     pub fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
         match self {
             Self::Message(val) => crate::types::Message::entities(val),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for field `ephemeral_message_id`.
+    ///
+    /// For ephemeral messages, identifier of the ephemeral message inside this chat. The identifier may be reused for another ephemeral message after the message is deleted or expires.
+    #[must_use]
+    pub fn ephemeral_message_id(&self) -> Option<i64> {
+        match self {
+            Self::Message(val) => crate::types::Message::ephemeral_message_id(val),
             Self::InaccessibleMessage(_) => None,
         }
     }
@@ -692,7 +725,7 @@ impl MaybeInaccessibleMessage {
     ///
     /// # Variants
     /// - `InaccessibleMessage`. Unique message identifier inside the chat
-    /// - `Message`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
+    /// - `Message`. Unique message identifier inside this chat; 0 for ephemeral messages. In specific instances (e.g., a message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     #[must_use]
     pub fn message_id(&self) -> i64 {
         match self {
@@ -888,6 +921,17 @@ impl MaybeInaccessibleMessage {
         }
     }
 
+    /// Helper method for field `receiver_user`.
+    ///
+    /// For ephemeral messages, the user who received the message
+    #[must_use]
+    pub fn receiver_user(&self) -> Option<&crate::types::User> {
+        match self {
+            Self::Message(val) => crate::types::Message::receiver_user(val),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
     /// Helper method for field `refunded_payment`.
     ///
     /// Message is a service message about a refunded payment, information about the payment. More about payments: <https://core.telegram.org/bots/api#payments>
@@ -923,7 +967,7 @@ impl MaybeInaccessibleMessage {
 
     /// Helper method for field `reply_to_message`.
     ///
-    /// For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
+    /// For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply. If the message is a reply to an ephemeral message, then this field may be omitted.
     #[must_use]
     pub fn reply_to_message(&self) -> Option<&crate::types::Message> {
         match self {
@@ -1435,6 +1479,17 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::suggested_post_declined(val)
                 .and_then(|inner| inner.comment.as_deref()),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for nested field `community`.
+    #[must_use]
+    pub fn community(&self) -> Option<&crate::types::Community> {
+        match self {
+            Self::Message(val) => {
+                crate::types::Message::community_chat_added(val).map(|inner| &inner.community)
+            }
             Self::InaccessibleMessage(_) => None,
         }
     }

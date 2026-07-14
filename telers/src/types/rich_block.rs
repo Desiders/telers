@@ -260,7 +260,7 @@ impl RichBlock {
     ///
     /// # Variants
     /// - `RichBlockParagraph`, `RichBlockSectionHeading`, `RichBlockPreformatted`, `RichBlockFooter`, `RichBlockPullQuotation`. Text of the block
-    /// - `RichBlockThinking`. Text of the block. See <https://t.me/addemoji/AIActions> for examples of custom emoji, which are recommended for usage in the block.
+    /// - `RichBlockThinking`. Text of the block. See <https://t.me/addemoji/AIActions> for examples of custom emoji that are recommended for usage in the block.
     #[must_use]
     pub fn text(&self) -> Option<&crate::types::RichText> {
         match self {

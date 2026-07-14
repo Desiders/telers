@@ -8,10 +8,10 @@ pub struct UniqueGiftInfo {
     pub gift: Box<crate::types::UniqueGift>,
     /// Origin of the gift. Currently, either `upgrade` for gifts upgraded from regular gifts, `transfer` for gifts transferred from other users or channels, `resale` for gifts bought from other users, `gifted_upgrade` for upgrades purchased after the gift was sent, or `offer` for gifts bought or sold through gift purchase offers.
     pub origin: Box<str>,
-    /// For gifts bought from other users, the currency in which the payment for the gift was done. Currently, one of `XTR` for Telegram Stars or `TON` for toncoins.
+    /// For gifts bought from other users, the currency in which the payment for the gift was done. Currently, one of `XTR` for Telegram Stars or `TON` for TON grams.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_resale_currency: Option<Box<str>>,
-    /// For gifts bought from other users, the price paid for the gift in either Telegram Stars or nanotoncoins
+    /// For gifts bought from other users, the price paid for the gift in either Telegram Stars or nanograms
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_resale_amount: Option<i64>,
     /// Unique identifier of the received gift for the bot; only present for gifts received on behalf of business accounts
@@ -63,28 +63,28 @@ impl UniqueGiftInfo {
         self
     }
 
-    /// For gifts bought from other users, the currency in which the payment for the gift was done. Currently, one of `XTR` for Telegram Stars or `TON` for toncoins.
+    /// For gifts bought from other users, the currency in which the payment for the gift was done. Currently, one of `XTR` for Telegram Stars or `TON` for TON grams.
     #[must_use]
     pub fn last_resale_currency<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.last_resale_currency = Some(val.into());
         self
     }
 
-    /// For gifts bought from other users, the currency in which the payment for the gift was done. Currently, one of `XTR` for Telegram Stars or `TON` for toncoins.
+    /// For gifts bought from other users, the currency in which the payment for the gift was done. Currently, one of `XTR` for Telegram Stars or `TON` for TON grams.
     #[must_use]
     pub fn last_resale_currency_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.last_resale_currency = val.map(Into::into);
         self
     }
 
-    /// For gifts bought from other users, the price paid for the gift in either Telegram Stars or nanotoncoins
+    /// For gifts bought from other users, the price paid for the gift in either Telegram Stars or nanograms
     #[must_use]
     pub fn last_resale_amount<T: Into<i64>>(mut self, val: T) -> Self {
         self.last_resale_amount = Some(val.into());
         self
     }
 
-    /// For gifts bought from other users, the price paid for the gift in either Telegram Stars or nanotoncoins
+    /// For gifts bought from other users, the price paid for the gift in either Telegram Stars or nanograms
     #[must_use]
     pub fn last_resale_amount_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.last_resale_amount = val.map(Into::into);

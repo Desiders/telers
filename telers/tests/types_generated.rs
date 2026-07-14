@@ -363,6 +363,17 @@ fn test_bot_short_description_serialize_deserialize() {
     must_roundtrip(stringify!(BotShortDescription), &parsed);
 }
 #[test]
+fn test_bot_subscription_updated_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "user" : { "id" : 1, "is_bot" : true, "first_name" : "test" },
+        "invoice_payload" : "test", "state" : "canceled" }
+    );
+    let parsed: BotSubscriptionUpdated = must_parse(stringify!(BotSubscriptionUpdated), &value);
+    let parsed_value = must_to_value(stringify!(BotSubscriptionUpdated), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(BotSubscriptionUpdated), &parsed);
+}
+#[test]
 fn test_business_bot_rights_serialize_deserialize() {
     let value = serde_json::json!({});
     let parsed: BusinessBotRights = must_parse(stringify!(BusinessBotRights), &value);
@@ -975,6 +986,30 @@ fn test_chosen_inline_result_serialize_deserialize() {
     let parsed_value = must_to_value(stringify!(ChosenInlineResult), &parsed);
     assert_json_subset(&parsed_value, &value);
     must_roundtrip(stringify!(ChosenInlineResult), &parsed);
+}
+#[test]
+fn test_community_serialize_deserialize() {
+    let value = serde_json::json!({ "id" : 1, "name" : "test" });
+    let parsed: Community = must_parse(stringify!(Community), &value);
+    let parsed_value = must_to_value(stringify!(Community), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(Community), &parsed);
+}
+#[test]
+fn test_community_chat_added_serialize_deserialize() {
+    let value = serde_json::json!({ "community" : { "id" : 1, "name" : "test" } });
+    let parsed: CommunityChatAdded = must_parse(stringify!(CommunityChatAdded), &value);
+    let parsed_value = must_to_value(stringify!(CommunityChatAdded), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(CommunityChatAdded), &parsed);
+}
+#[test]
+fn test_community_chat_removed_serialize_deserialize() {
+    let value = serde_json::json!({});
+    let parsed: CommunityChatRemoved = must_parse(stringify!(CommunityChatRemoved), &value);
+    let parsed_value = must_to_value(stringify!(CommunityChatRemoved), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(CommunityChatRemoved), &parsed);
 }
 #[test]
 fn test_contact_serialize_deserialize() {
@@ -2580,6 +2615,22 @@ fn test_input_media_video_serialize_deserialize() {
     must_roundtrip(stringify!(InputPollMedia), &parsed);
 }
 #[test]
+fn test_input_media_voice_note_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "voice_note", "media" : "" });
+    let parsed: InputRichMessageMediaContent =
+        must_parse(stringify!(InputRichMessageMediaContent), &value);
+    assert!(
+        matches!(&parsed, InputRichMessageMediaContent::VoiceNote(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichMessageMediaContent),
+        stringify!(VoiceNote),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichMessageMediaContent), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichMessageMediaContent), &parsed);
+}
+#[test]
 fn test_input_message_content_serialize_deserialize() {
     let value = serde_json::json!(
         { "title" : "test", "description" : "test", "payload" : "test", "currency" :
@@ -2690,6 +2741,368 @@ fn test_input_profile_photo_animated_serialize_deserialize() {
     must_roundtrip(stringify!(InputProfilePhoto), &parsed);
 }
 #[test]
+fn test_input_rich_block_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "paragraph", "text" : "test" });
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_anchor_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "anchor", "name" : "test" });
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::Anchor(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(Anchor),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_animation_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "animation", "animation" : { "type" : "animation", "media" : "" } }
+    );
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::Animation(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(Animation),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_audio_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "audio", "audio" : { "type" : "audio", "media" : "" } }
+    );
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::Audio(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(Audio),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_block_quotation_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "blockquote", "blocks" : [{ "type" : "paragraph", "text" : "test" }] }
+    );
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::Blockquote(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(Blockquote),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_collage_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "collage", "blocks" : [{ "type" : "paragraph", "text" : "test" }] }
+    );
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::Collage(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(Collage),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_details_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "details", "summary" : "test", "blocks" : [{ "type" : "paragraph",
+        "text" : "test" }] }
+    );
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::Details(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(Details),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_divider_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "divider" });
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::Divider(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(Divider),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_footer_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "footer", "text" : "test" });
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::Footer(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(Footer),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_list_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "list", "items" : [{ "blocks" : [{ "type" : "paragraph", "text" :
+        "test" }] }] }
+    );
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::List(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(List),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_list_item_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "blocks" : [{ "type" : "paragraph", "text" : "test" }] }
+    );
+    let parsed: InputRichBlockListItem = must_parse(stringify!(InputRichBlockListItem), &value);
+    let parsed_value = must_to_value(stringify!(InputRichBlockListItem), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlockListItem), &parsed);
+}
+#[test]
+fn test_input_rich_block_map_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "map", "location" : { "latitude" : 1.25, "longitude" : 1.25 }, "zoom"
+        : 1, "width" : 1, "height" : 1 }
+    );
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::Map(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(Map),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_mathematical_expression_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "mathematical_expression", "expression" : "test" }
+    );
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::MathematicalExpression(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(MathematicalExpression),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_paragraph_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "paragraph", "text" : "test" });
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::Paragraph(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(Paragraph),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_photo_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "photo", "photo" : { "type" : "photo", "media" : "" } }
+    );
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::Photo(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(Photo),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_preformatted_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "pre", "text" : "test" });
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::Pre(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(Pre),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_pull_quotation_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "pullquote", "text" : "test" });
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::Pullquote(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(Pullquote),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_section_heading_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "heading", "text" : "test", "size" : 1 });
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::Heading(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(Heading),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_slideshow_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "slideshow", "blocks" : [{ "type" : "paragraph", "text" : "test" }] }
+    );
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::Slideshow(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(Slideshow),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_table_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "table", "cells" : [[{ "align" : "left", "valign" : "top" }]] }
+    );
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::Table(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(Table),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_thinking_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "thinking", "text" : "test" });
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::Thinking(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(Thinking),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_video_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "video", "video" : { "type" : "video", "media" : "" } }
+    );
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::Video(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(Video),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
+fn test_input_rich_block_voice_note_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "voice_note", "voice_note" : { "type" : "voice_note", "media" : "" } }
+    );
+    let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
+    assert!(
+        matches!(&parsed, InputRichBlock::VoiceNote(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputRichBlock),
+        stringify!(VoiceNote),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputRichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichBlock), &parsed);
+}
+#[test]
 fn test_input_rich_message_serialize_deserialize() {
     let value = serde_json::json!({});
     let parsed: InputRichMessage = must_parse(stringify!(InputRichMessage), &value);
@@ -2711,6 +3124,16 @@ fn test_input_rich_message_content_serialize_deserialize() {
     let parsed_value = must_to_value(stringify!(InputMessageContent), &parsed);
     assert_json_subset(&parsed_value, &value);
     must_roundtrip(stringify!(InputMessageContent), &parsed);
+}
+#[test]
+fn test_input_rich_message_media_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "id" : "test", "media" : { "type" : "animation", "media" : "" } }
+    );
+    let parsed: InputRichMessageMedia = must_parse(stringify!(InputRichMessageMedia), &value);
+    let parsed_value = must_to_value(stringify!(InputRichMessageMedia), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputRichMessageMedia), &parsed);
 }
 #[test]
 fn test_input_sticker_serialize_deserialize() {
@@ -3188,6 +3611,42 @@ fn test_message_checklist_tasks_done_serialize_deserialize() {
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
         stringify!(Message),
         stringify!(ChecklistTasksDone),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(Message), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(Message), &parsed);
+}
+#[test]
+fn test_message_community_chat_added_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "message_id" : 1, "date" : 1, "chat" : { "type" : "private", "id" : 1 },
+        "community_chat_added" : { "community" : { "id" : 1, "name" : "test" } } }
+    );
+    let parsed: Message = must_parse(stringify!(Message), &value);
+    assert!(
+        matches!(&parsed, Message::CommunityChatAdded(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(Message),
+        stringify!(CommunityChatAdded),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(Message), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(Message), &parsed);
+}
+#[test]
+fn test_message_community_chat_removed_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "message_id" : 1, "date" : 1, "chat" : { "type" : "private", "id" : 1 },
+        "community_chat_removed" : {} }
+    );
+    let parsed: Message = must_parse(stringify!(Message), &value);
+    assert!(
+        matches!(&parsed, Message::CommunityChatRemoved(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(Message),
+        stringify!(CommunityChatRemoved),
         parsed
     );
     let parsed_value = must_to_value(stringify!(Message), &parsed);
@@ -5578,7 +6037,7 @@ fn test_reply_keyboard_remove_serialize_deserialize() {
 }
 #[test]
 fn test_reply_parameters_serialize_deserialize() {
-    let value = serde_json::json!({ "message_id" : 1 });
+    let value = serde_json::json!({});
     let parsed: ReplyParameters = must_parse(stringify!(ReplyParameters), &value);
     let parsed_value = must_to_value(stringify!(ReplyParameters), &parsed);
     assert_json_subset(&parsed_value, &value);
@@ -7612,6 +8071,24 @@ fn test_update_shipping_query_serialize_deserialize() {
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
         stringify!(Update),
         stringify!(ShippingQuery),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(Update), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(Update), &parsed);
+}
+#[test]
+fn test_update_subscription_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "update_id" : 1, "subscription" : { "user" : { "id" : 1, "is_bot" : true,
+        "first_name" : "test" }, "invoice_payload" : "test", "state" : "canceled" } }
+    );
+    let parsed: Update = must_parse(stringify!(Update), &value);
+    assert!(
+        matches!(&parsed, Update::Subscription(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(Update),
+        stringify!(Subscription),
         parsed
     );
     let parsed_value = must_to_value(stringify!(Update), &parsed);

@@ -12,7 +12,7 @@ pub struct SendMessageDraft {
     /// Unique identifier for the target message thread
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message_thread_id: Option<i64>,
-    /// Unique identifier of the message draft; must be non-zero. Changes of drafts with the same identifier are animated.
+    /// Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated.
     pub draft_id: i64,
     /// Text of the message to be sent, 0-4096 characters after entities parsing. Pass an empty text to show a `Thinking...` placeholder.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -29,7 +29,7 @@ impl SendMessageDraft {
     ///
     /// # Arguments
     /// * `chat_id` - Unique identifier for the target private chat
-    /// * `draft_id` - Unique identifier of the message draft; must be non-zero. Changes of drafts with the same identifier are animated.
+    /// * `draft_id` - Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -66,7 +66,7 @@ impl SendMessageDraft {
         self
     }
 
-    /// Unique identifier of the message draft; must be non-zero. Changes of drafts with the same identifier are animated.
+    /// Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated.
     #[must_use]
     pub fn draft_id<T: Into<i64>>(mut self, val: T) -> Self {
         self.draft_id = val.into();

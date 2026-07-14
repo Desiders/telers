@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to get the number of members in a chat. Returns Int on success.
+/// Use this method to get the number of members in a chat. Returns Integer on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getchatmembercount>
 /// # Returns

@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-/// A block with a photo, corresponding to the HTML tag <`photo`>.
+/// A block with a photo, corresponding to the HTML tag <`img`>.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richblockphoto>
 #[derive(Clone, Debug, Serialize, Deserialize)]

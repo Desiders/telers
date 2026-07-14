@@ -556,7 +556,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `show_caption_above_media`.
     ///
-    /// Pass `true`, if the caption must be shown above the message media
+    /// Pass `true` if the caption must be shown above the message media
     #[must_use]
     pub fn show_caption_above_media(&self) -> Option<bool> {
         match self {
