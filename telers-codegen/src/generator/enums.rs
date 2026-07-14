@@ -318,6 +318,7 @@ pub fn tokenize_enum_telegram_observer_type() -> TokenStream {
         ("PurchasedPaidMedia", "purchased_paid_media"),
         ("RemovedChatBoost", "removed_chat_boost"),
         ("ShippingQuery", "shipping_query"),
+        ("Subscription", "subscription"),
         ("Update", "update"),
     ];
 

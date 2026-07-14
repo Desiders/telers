@@ -66,6 +66,7 @@ fn main() {
     schema.split_inline_query_result();
     schema.split_transaction_partner_user_types();
     schema.compose_reply_markup_type();
+    schema.compose_input_rich_message_media_type();
     schema.reorder_untagged_subtypes();
     schema.modify_get_updates_returns_method();
 

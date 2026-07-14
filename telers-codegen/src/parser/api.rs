@@ -73,6 +73,9 @@ impl Field {
                 "InputMedia".to_owned(),
             )));
         }
+        if multi_type_is_input_rich_message_media(types) {
+            return TypeKindInField::Telegram("InputRichMessageMediaContent".to_owned());
+        }
         if types.len() > 1 {
             unimplemented!(
                 "Unknown case for multi types: field='{name}', types={types:?}, \
@@ -230,9 +233,17 @@ impl Schema {
     pub fn normalize(self) -> NormalizedSchema {
         let mut subtype_info = HashMap::new();
         for (name, ty) in &self.types {
-            if let Some((kind, tagged_values)) = self.detect_subtypes(&ty.subtypes) {
+            // Only object subtypes carry a discriminator; drop non-type entries (plain `String`,
+            // `Array of self`) so the lookup in `detect_subtypes` doesn't miss on them.
+            let named_subtypes: Vec<TelegramTypeName> = ty
+                .subtypes
+                .iter()
+                .filter(|subtype| classify_extra_subtype(subtype.as_str(), name).is_none())
+                .cloned()
+                .collect();
+            if let Some((kind, tagged_values)) = self.detect_subtypes(&named_subtypes) {
                 subtype_info.insert(name.clone(), (kind.clone(), None));
-                for subtype in &ty.subtypes {
+                for subtype in &named_subtypes {
                     subtype_info.insert(
                         subtype.clone(),
                         (kind.clone(), tagged_values.get(subtype).cloned()),
@@ -265,21 +276,30 @@ impl Schema {
                         }
                     })
                     .collect();
+                let mut extra_subtypes = vec![];
                 let subtypes = ty
                     .subtypes
                     .into_iter()
-                    .map(|name| {
+                    .filter_map(|subtype_name| {
+                        // Peel off non-type variants (plain `String`, `Array of self`) into
+                        // `extra_subtypes`; keep only object subtypes as named variants.
+                        if let Some(extra) = classify_extra_subtype(&subtype_name, &name) {
+                            if !extra_subtypes.contains(&extra) {
+                                extra_subtypes.push(extra);
+                            }
+                            return None;
+                        }
                         let subtype_value = subtype_info
-                            .get(&name)
+                            .get(&subtype_name)
                             .map(|(_, tagged_value)| tagged_value);
                         let variant = match subtype_value {
                             Some(Some(value)) => snake_to_upper_camel(value),
-                            _ => name.clone(),
+                            _ => subtype_name.clone(),
                         };
-                        NormalizedSubtypeVariant {
+                        Some(NormalizedSubtypeVariant {
                             variant,
-                            ty_name: name,
-                        }
+                            ty_name: subtype_name,
+                        })
                     })
                     .collect();
                 let subtype_kind = subtype_info.get(&name).map(|(kind, _)| kind).cloned();
@@ -290,6 +310,7 @@ impl Schema {
                     fields,
                     subtype_kind,
                     subtypes,
+                    extra_subtypes,
                     subtype_of: ty.subtype_of,
                     has_extra_fields: false,
                 };
@@ -429,6 +450,22 @@ pub enum ExtraSubtypeVariant {
     ArrayOfSelf,
 }
 
+/// Classifies a raw subtype entry that isn't a Telegram object type: `String` is plain text,
+/// `Array of {parent}` is an array of the type itself. Named object subtypes return `None`.
+///
+/// The schema lists these alongside the object subtypes (e.g. `RichText`), so they're read
+/// straight from `subtypes` instead of parsing the type description.
+#[must_use]
+fn classify_extra_subtype(subtype: &str, parent_name: &str) -> Option<ExtraSubtypeVariant> {
+    if subtype == "String" {
+        Some(ExtraSubtypeVariant::PlainText)
+    } else if subtype == format!("Array of {parent_name}") {
+        Some(ExtraSubtypeVariant::ArrayOfSelf)
+    } else {
+        None
+    }
+}
+
 #[derive(Debug)]
 pub struct NormalizedSubtypeVariant {
     pub variant: TelegramTypeName,
@@ -443,34 +480,19 @@ pub struct NormalizedType {
     pub fields: Vec<NormalizedField>,
     pub subtype_kind: Option<SubtypeKind>,
     pub subtypes: Vec<NormalizedSubtypeVariant>,
+    /// Sum-type variants that aren't Telegram object types (plain `String`, `Array of self`),
+    /// kept out of [`Self::subtypes`] so they aren't treated as object variants.
+    pub extra_subtypes: Vec<ExtraSubtypeVariant>,
     pub subtype_of: Vec<TelegramTypeName>,
     pub has_extra_fields: bool,
 }
 
 impl NormalizedType {
-    /// Detects sum type variants that aren't Telegram object types from the description,
-    /// e.g. "it can be either a String for plain text, an Array of `RichText`, or any of the following types".
+    /// Sum-type variants that aren't Telegram object types (plain `String`, `Array of self`),
+    /// classified from `subtypes` during [`Schema::normalize`] (see [`classify_extra_subtype`]).
     #[must_use]
     pub fn extra_variants(&self) -> Vec<ExtraSubtypeVariant> {
-        if self.subtypes.is_empty() {
-            return vec![];
-        }
-
-        let array_of_self_marker = format!("an Array of {}", self.name);
-        let mut variants = vec![];
-        for line in &self.description {
-            if line.contains("a String for plain text")
-                && !variants.contains(&ExtraSubtypeVariant::PlainText)
-            {
-                variants.push(ExtraSubtypeVariant::PlainText);
-            }
-            if line.contains(&array_of_self_marker)
-                && !variants.contains(&ExtraSubtypeVariant::ArrayOfSelf)
-            {
-                variants.push(ExtraSubtypeVariant::ArrayOfSelf);
-            }
-        }
-        variants
+        self.extra_subtypes.clone()
     }
 
     #[must_use]
@@ -692,6 +714,7 @@ impl NormalizedSchema {
                                 ty_name: not_cached.clone(),
                             },
                         ],
+                        extra_subtypes: vec![],
                         subtype_of: vec![inline_query_result.name.clone()],
                         has_extra_fields: false,
                     },
@@ -729,6 +752,7 @@ impl NormalizedSchema {
             fields: vec![],
             subtype_kind: None,
             subtypes: vec![],
+            extra_subtypes: vec![],
             subtype_of: vec![],
             has_extra_fields: false,
         };
@@ -743,6 +767,52 @@ impl NormalizedSchema {
         }
 
         self.types.insert(reply_markup.name.clone(), reply_markup);
+    }
+
+    /// Composes the enum for the non-array `media` union of [`InputRichMessageMedia`],
+    /// which is a distinct set from [`InputMedia`] (it drops `Document`/`LivePhoto` and adds InputMediaVoiceNote`),
+    /// so it can't reuse that type.
+    /// Like [`InputMedia`] the variants share a `type` discriminator, so the enum is tagged by it.
+    pub fn compose_input_rich_message_media_type(&mut self) {
+        let subtypes = vec![
+            ("Animation".to_owned(), "InputMediaAnimation".to_owned()),
+            ("Audio".to_owned(), "InputMediaAudio".to_owned()),
+            ("Photo".to_owned(), "InputMediaPhoto".to_owned()),
+            ("Video".to_owned(), "InputMediaVideo".to_owned()),
+            ("VoiceNote".to_owned(), "InputMediaVoiceNote".to_owned()),
+        ];
+
+        let mut media = NormalizedType {
+            name: "InputRichMessageMediaContent".to_owned(),
+            href: "https://core.telegram.org/bots/api#inputrichmessagemedia".to_owned(),
+            description: vec![
+                "This object represents the media content of a rich message to be sent.".to_owned(),
+            ],
+            fields: vec![],
+            subtype_kind: None,
+            subtypes: vec![],
+            extra_subtypes: vec![],
+            subtype_of: vec![],
+            has_extra_fields: false,
+        };
+        Self::finalize_split(
+            &mut media,
+            &subtypes,
+            SubtypeKind::Tagged {
+                tag_field: "type".to_owned(),
+                parent_tag_field: None,
+            },
+        );
+
+        for (_, subtype_name) in &subtypes {
+            let subtype = self
+                .types
+                .get_mut(subtype_name)
+                .expect("Subtype should exist in schema");
+            subtype.subtype_of.push(media.name.clone());
+        }
+
+        self.types.insert(media.name.clone(), media);
     }
 
     pub fn split_message_types(&mut self) {
@@ -803,6 +873,8 @@ impl NormalizedSchema {
             "chat_background_set",
             "checklist_tasks_done",
             "checklist_tasks_added",
+            "community_chat_added",
+            "community_chat_removed",
             "direct_message_price_changed",
             "forum_topic_created",
             "forum_topic_edited",
@@ -878,6 +950,7 @@ impl NormalizedSchema {
                         fields,
                         subtype_kind: Some(SubtypeKind::Untagged),
                         subtypes: vec![],
+                        extra_subtypes: vec![],
                         subtype_of: vec![message.name.clone()],
                         has_extra_fields: false,
                     },
@@ -940,6 +1013,7 @@ impl NormalizedSchema {
                     fields,
                     subtype_kind: Some(SubtypeKind::Untagged),
                     subtypes: vec![],
+                    extra_subtypes: vec![],
                     subtype_of: vec![info.name.clone()],
                     has_extra_fields: false,
                 },
@@ -1000,6 +1074,7 @@ impl NormalizedSchema {
                     fields,
                     subtype_kind: Some(SubtypeKind::Untagged),
                     subtypes: vec![],
+                    extra_subtypes: vec![],
                     subtype_of: vec![update.name.clone()],
                     has_extra_fields: false,
                 },
@@ -1035,6 +1110,7 @@ impl NormalizedSchema {
                 fields: common_fields,
                 subtype_kind: None,
                 subtypes: vec![],
+                extra_subtypes: vec![],
                 subtype_of: vec![],
                 has_extra_fields: true,
             },
@@ -1116,6 +1192,7 @@ impl NormalizedSchema {
                         parent_tag_field: None,
                     }),
                     subtypes: vec![],
+                    extra_subtypes: vec![],
                     subtype_of: vec![chat.name.clone()],
                     has_extra_fields: false,
                 },
@@ -1202,6 +1279,7 @@ impl NormalizedSchema {
                         parent_tag_field: None,
                     }),
                     subtypes: vec![],
+                    extra_subtypes: vec![],
                     subtype_of: vec![sticker.name.clone()],
                     has_extra_fields: false,
                 },
@@ -1284,6 +1362,7 @@ impl NormalizedSchema {
                         parent_tag_field: None,
                     }),
                     subtypes: vec![],
+                    extra_subtypes: vec![],
                     subtype_of: vec![poll.name.clone()],
                     has_extra_fields: false,
                 },
@@ -1333,6 +1412,7 @@ impl NormalizedSchema {
                     fields: vec![field],
                     subtype_kind: Some(SubtypeKind::Untagged),
                     subtypes: vec![],
+                    extra_subtypes: vec![],
                     subtype_of: vec![media.name.clone()],
                     has_extra_fields: false,
                 },
@@ -1570,6 +1650,7 @@ impl NormalizedSchema {
                         parent_tag_field: None,
                     }),
                     subtypes: vec![],
+                    extra_subtypes: vec![],
                     subtype_of: vec![element.name.clone()],
                     has_extra_fields: false,
                 },
@@ -1685,6 +1766,7 @@ impl NormalizedSchema {
                         parent_tag_field: None,
                     }),
                     subtypes: vec![],
+                    extra_subtypes: vec![],
                     subtype_of: vec![entity.name.clone()],
                     has_extra_fields: false,
                 },
@@ -1787,6 +1869,7 @@ impl NormalizedSchema {
                         parent_tag_field: Some(parent_tag_field.clone()),
                     }),
                     subtypes: vec![],
+                    extra_subtypes: vec![],
                     subtype_of: vec![partner.name.clone()],
                     has_extra_fields: false,
                 },
@@ -1847,6 +1930,7 @@ impl NormalizedSchema {
                     fields,
                     subtype_kind: Some(SubtypeKind::Untagged),
                     subtypes: vec![],
+                    extra_subtypes: vec![],
                     subtype_of: vec![parent_name.to_owned()],
                     has_extra_fields: false,
                 },
@@ -2069,9 +2153,56 @@ pub fn multi_type_is_input_media(types: &[RawType], name: &str) -> bool {
             .all(|&expected_type| types.contains(&expected_type.to_string()))
 }
 
+/// `InputRichMessageMediaContent` for the non-array `media` union
+/// {`InputMediaAnimation`, `InputMediaAudio`, `InputMediaPhoto`, `InputMediaVideo`,
+/// `InputMediaVoiceNote`} of `InputRichMessageMedia`. Matched by the exact type set (the
+/// bare variants, not the `Array of ...` form), so it never collides with the array case.
+#[must_use]
+pub fn multi_type_is_input_rich_message_media(types: &[RawType]) -> bool {
+    let expected = [
+        "InputMediaAnimation",
+        "InputMediaAudio",
+        "InputMediaPhoto",
+        "InputMediaVideo",
+        "InputMediaVoiceNote",
+    ];
+    types.len() == expected.len()
+        && expected
+            .iter()
+            .all(|&expected_type| types.contains(&expected_type.to_string()))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_input_rich_message_media_union_maps_to_composed_enum() {
+        let field = Field {
+            name: "media".to_owned(),
+            required: true,
+            description: "The media to be sent.".to_owned(),
+            types: vec![
+                "InputMediaVideo".to_owned(),
+                "InputMediaAnimation".to_owned(),
+                "InputMediaVoiceNote".to_owned(),
+                "InputMediaAudio".to_owned(),
+                "InputMediaPhoto".to_owned(),
+            ],
+        };
+        assert_eq!(
+            field.identify_field_type(),
+            TypeKindInField::Telegram("InputRichMessageMediaContent".to_owned()),
+        );
+
+        assert!(!multi_type_is_input_rich_message_media(&[
+            "Array of InputMediaAudio".to_owned(),
+            "Array of InputMediaDocument".to_owned(),
+            "Array of InputMediaLivePhoto".to_owned(),
+            "Array of InputMediaPhoto".to_owned(),
+            "Array of InputMediaVideo".to_owned(),
+        ]));
+    }
 
     #[test]
     fn test_parse_json_to_schema() {
