@@ -810,6 +810,16 @@ impl NormalizedSchema {
                 .get_mut(subtype_name)
                 .expect("Subtype should exist in schema");
             subtype.subtype_of.push(media.name.clone());
+            // Members shared with `InputMedia` already got their `type` tag stripped during
+            // normalization; ones unique to this union (e.g. `InputMediaVoiceNote`) haven't,
+            // so tag them by `type` too — otherwise the tag survives in the struct and serde
+            // reports a missing `type` when deserializing through the tagged enum.
+            if subtype.subtype_kind.is_none() {
+                subtype.subtype_kind = Some(SubtypeKind::Tagged {
+                    tag_field: "type".to_owned(),
+                    parent_tag_field: None,
+                });
+            }
         }
 
         self.types.insert(media.name.clone(), media);
