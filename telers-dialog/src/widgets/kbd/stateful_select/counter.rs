@@ -3,7 +3,7 @@ use bon::bon;
 use std::{borrow::Cow, fmt::Display};
 
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
-use tracing::debug;
+use tracing::{debug, warn};
 
 use super::super::{
     format_callback_data, macros::impl_button_row_helpers, parse_callback_data, render_button_row,
@@ -24,7 +24,9 @@ pub struct Counter<WidgetId> {
     minus_text: Cow<'static, str>,
     plus_hidden: bool,
     minus_hidden: bool,
+    /// Lower bound. Kept `<= max` and non-NaN by [`normalize_bounds`], as [`f64::clamp`] requires.
     min: f64,
+    /// Upper bound. Kept `>= min` and non-NaN by [`normalize_bounds`], as [`f64::clamp`] requires.
     max: f64,
     increment: f64,
     default: f64,
@@ -32,6 +34,38 @@ pub struct Counter<WidgetId> {
     header_rows: Vec<Vec<Button>>,
     footer_rows: Vec<Vec<Button>>,
     when: Option<WhenCondition>,
+}
+
+/// Normalizes the counter bounds so that `min <= max` and neither bound is NaN
+fn normalize_bounds(min: f64, max: f64) -> (f64, f64) {
+    match (min.is_nan(), max.is_nan()) {
+        (true, true) => {
+            warn!("Counter `min` and `max` are NaN, falling back to an unbounded range");
+            (f64::NEG_INFINITY, f64::INFINITY)
+        }
+        (true, false) => {
+            warn!(
+                max,
+                "Counter `min` is NaN, falling back to an unbounded lower bound"
+            );
+            (f64::NEG_INFINITY, max)
+        }
+        (false, true) => {
+            warn!(
+                min,
+                "Counter `max` is NaN, falling back to an unbounded upper bound"
+            );
+            (min, f64::INFINITY)
+        }
+        (false, false) if min > max => {
+            warn!(
+                min,
+                max, "Counter `min` is greater than `max`, swapping the bounds"
+            );
+            (max, min)
+        }
+        (false, false) => (min, max),
+    }
 }
 
 #[bon]
@@ -57,6 +91,7 @@ impl<WidgetId> Counter<WidgetId> {
     where
         WidgetId: Display,
     {
+        let (min, max) = normalize_bounds(min, max);
         Self {
             id,
             plus_text,

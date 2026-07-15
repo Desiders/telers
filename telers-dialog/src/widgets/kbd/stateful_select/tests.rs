@@ -209,6 +209,49 @@ async fn counter_can_hide_plus_and_minus_buttons() {
 }
 
 #[tokio::test]
+async fn counter_with_swapped_or_nan_bounds_does_not_panic() {
+    let ctx = Context::new("", "state", Value::Null);
+
+    // `f64::clamp` panics when `min > max`, so a swapped pair (an easy misconfiguration) used to
+    // take down the async render path on the very first render. The bounds are normalized at
+    // construction instead, so the value is clamped into the intended range.
+    let counter = Counter::builder("qty")
+        .min(10.0)
+        .max(5.0)
+        .default(7.0)
+        .build();
+    let markup = counter
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
+        .unwrap();
+    assert_eq!(&*markup.inline_keyboard().unwrap()[0][1].text, "7");
+
+    // A value outside the swapped range is still clamped to the normalized bound.
+    let counter = Counter::builder("qty")
+        .min(10.0)
+        .max(5.0)
+        .default(99.0)
+        .build();
+    let markup = counter
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
+        .unwrap();
+    assert_eq!(&*markup.inline_keyboard().unwrap()[0][1].text, "10");
+
+    // A NaN bound carries no constraint, so it degrades to unbounded rather than panicking.
+    let counter = Counter::builder("qty")
+        .min(f64::NAN)
+        .max(f64::NAN)
+        .default(3.0)
+        .build();
+    let markup = counter
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
+        .unwrap();
+    assert_eq!(&*markup.inline_keyboard().unwrap()[0][1].text, "3");
+}
+
+#[tokio::test]
 async fn counter_plus_callback_increments_value() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("qty".into(), json!(2.0));
