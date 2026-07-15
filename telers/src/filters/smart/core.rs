@@ -318,14 +318,18 @@ macro_rules! define_branch {
                     macro_rules! eval {
                         ($cond:expr) => {{
                             let $val_pat = &val;
-                            match $get_val {
-                                Some(inner) => match &$cond.mode {
-                                    $mode::IsSome => true,
-                                    $mode::IsNone => false,
-                                    $mode::Predicate(f) => f(inner),
-                                    $mode::AsyncPredicate(f) => f(inner).await,
+                            let got = $get_val;
+                            match &$cond.mode {
+                                $mode::IsSome => got.is_some(),
+                                $mode::IsNone => got.is_none(),
+                                $mode::Predicate(f) => match got {
+                                    Some(inner) => f(inner),
+                                    None => false,
                                 },
-                                None => false,
+                                $mode::AsyncPredicate(f) => match got {
+                                    Some(inner) => f(inner).await,
+                                    None => false,
+                                },
                             }
                         }};
                     }
@@ -745,3 +749,75 @@ macro_rules! impl_check_invert {
 }
 impl_check_invert!(SmartFilterCheck, SmartFilterMode, Accessor, bounds = { ?Sized + 'static });
 impl_check_invert!(SmartFilterOwnedCheck, SmartFilterOwnedMode, OwnedAccessor, bounds = { 'static });
+
+#[cfg(test)]
+mod tests {
+    use super::SmartFilterPath;
+    use crate::{
+        client::Reqwest,
+        filters::Filter,
+        types::{ChatPrivate, MessageText, Update, UpdateMessage},
+        Bot, Context, Extensions, Request,
+    };
+
+    use std::sync::Arc;
+
+    fn request() -> Request<Reqwest> {
+        Request {
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                0,
+                MessageText::new(0, 0, ChatPrivate::new(0), "hi"),
+            ))),
+            bot: Bot::default(),
+            context: Context::default(),
+            extensions: Extensions::default(),
+        }
+    }
+
+    fn path(value: Option<&'static str>) -> SmartFilterPath<str> {
+        SmartFilterPath {
+            accessor: Arc::new(move |_| value),
+        }
+    }
+
+    #[tokio::test]
+    async fn all_branch_evaluates_is_none_against_absent_value() {
+        let mut request = request();
+
+        let mut filter = path(None).all().branch(|path| path.is_none());
+        assert!(filter.check(&mut request).await.unwrap());
+
+        let mut filter = path(Some("hi")).all().branch(|path| path.is_none());
+        assert!(!filter.check(&mut request).await.unwrap());
+    }
+
+    #[tokio::test]
+    async fn any_branch_evaluates_is_none_against_absent_value() {
+        let mut request = request();
+
+        let mut filter = path(None).any().branch(|path| path.is_none());
+        assert!(filter.check(&mut request).await.unwrap());
+
+        let mut filter = path(Some("hi")).any().branch(|path| path.is_none());
+        assert!(!filter.check(&mut request).await.unwrap());
+    }
+
+    #[tokio::test]
+    async fn branch_is_some_and_predicate_modes_still_hold() {
+        let mut request = request();
+
+        let mut filter = path(Some("hi")).all().branch(|path| path.is_some());
+        assert!(filter.check(&mut request).await.unwrap());
+
+        let mut filter = path(None).all().branch(|path| path.is_some());
+        assert!(!filter.check(&mut request).await.unwrap());
+
+        let mut filter = path(Some("hi"))
+            .all()
+            .branch(|path| path.matches(|s| s == "hi"));
+        assert!(filter.check(&mut request).await.unwrap());
+
+        let mut filter = path(None).all().branch(|path| path.matches(|_| true));
+        assert!(!filter.check(&mut request).await.unwrap());
+    }
+}
