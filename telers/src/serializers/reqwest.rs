@@ -437,6 +437,28 @@ impl Serializer for PartSerializer {
     }
 }
 
+impl JsonPartSerializer {
+    fn finish_object(mut self) -> String {
+        match self.state {
+            PartSerializerStructState::Empty => "{}".to_owned(),
+            PartSerializerStructState::Rest => {
+                self.buf += "}";
+                self.buf
+            }
+        }
+    }
+
+    fn finish_array(mut self) -> String {
+        match self.state {
+            PartSerializerStructState::Empty => "[]".to_owned(),
+            PartSerializerStructState::Rest => {
+                self.buf += "]";
+                self.buf
+            }
+        }
+    }
+}
+
 impl SerializeStruct for JsonPartSerializer {
     type Error = Error;
     type Ok = Part;
@@ -458,15 +480,8 @@ impl SerializeStruct for JsonPartSerializer {
         Ok(())
     }
 
-    fn end(mut self) -> Result<Self::Ok, Self::Error> {
-        match self.state {
-            PartSerializerStructState::Empty => Ok(Part::text("{{}}")),
-            PartSerializerStructState::Rest => {
-                self.buf += "}";
-
-                Ok(Part::text(self.buf))
-            }
-        }
+    fn end(self) -> Result<Self::Ok, Self::Error> {
+        Ok(Part::text(self.finish_object()))
     }
 }
 
@@ -491,14 +506,48 @@ impl SerializeSeq for JsonPartSerializer {
         Ok(())
     }
 
-    fn end(mut self) -> Result<Self::Ok, Self::Error> {
-        match self.state {
-            PartSerializerStructState::Empty => Ok(Part::text("[]")),
-            PartSerializerStructState::Rest => {
-                self.buf += "]";
+    fn end(self) -> Result<Self::Ok, Self::Error> {
+        Ok(Part::text(self.finish_array()))
+    }
+}
 
-                Ok(Part::text(self.buf))
-            }
+#[cfg(test)]
+mod tests {
+    use super::{JsonPartSerializer, PartSerializerStructState};
+    use serde::ser::{SerializeSeq, SerializeStruct};
+
+    fn serializer() -> JsonPartSerializer {
+        JsonPartSerializer {
+            buf: String::new(),
+            state: PartSerializerStructState::Empty,
         }
+    }
+
+    #[test]
+    fn empty_struct_finishes_as_empty_json_object() {
+        assert_eq!(serializer().finish_object(), "{}");
+    }
+
+    #[test]
+    fn empty_seq_finishes_as_empty_json_array() {
+        assert_eq!(serializer().finish_array(), "[]");
+    }
+
+    #[test]
+    fn struct_with_fields_finishes_as_json_object() {
+        let mut serializer = serializer();
+        serializer.serialize_field("a", &1).unwrap();
+        serializer.serialize_field("b", &"x").unwrap();
+
+        assert_eq!(serializer.finish_object(), r#"{"a":1,"b":"x"}"#);
+    }
+
+    #[test]
+    fn seq_with_elements_finishes_as_json_array() {
+        let mut serializer = serializer();
+        serializer.serialize_element(&1).unwrap();
+        serializer.serialize_element(&2).unwrap();
+
+        assert_eq!(serializer.finish_array(), "[1,2]");
     }
 }
