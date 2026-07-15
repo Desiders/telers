@@ -244,7 +244,18 @@ fn impl_from_event_and_context(
 
     impl_generics_punctuated.push(client.impl_generic().clone());
     ty_generics_punctuated.push(Type::Verbatim(ident_ty_generics.into_token_stream()));
-    where_clause_punctuated.push(Type::Verbatim(ident_where_clause.into_token_stream()));
+
+    // Splice only the *predicates* of the type's `where` clause: `WhereClause::to_tokens` would
+    // also emit its `where` keyword, and the impl templates below already contain a literal `where`
+    // (which would expand to an unparsable `where where ...`).
+    // Each predicate is pushed with a trailing comma so that the extra bound the templates append
+    // after `#where_clause_punctuated` stays separated from them.
+    if let Some(where_clause) = ident_where_clause {
+        for predicate in &where_clause.predicates {
+            where_clause_punctuated.push_value(Type::Verbatim(predicate.to_token_stream()));
+            where_clause_punctuated.push_punct(<Token![,]>::default());
+        }
+    }
 
     let client_ty_generic = client.ty_generic().clone();
 
