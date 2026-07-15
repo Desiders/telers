@@ -750,16 +750,15 @@ where
         config: &CalendarConfig,
         offset: CalendarDate,
     ) -> Option<Vec<InlineKeyboardButton>> {
-        let prev = prev_month_begin(offset);
-        let next = next_month_begin(offset);
-        let can_go_prev = last_day_of_month(prev) >= config.min_date;
-        let can_go_next = next <= config.max_date;
-        if !can_go_prev && !can_go_next {
+        let prev =
+            prev_month_begin(offset).filter(|prev| last_day_of_month(*prev) >= config.min_date);
+        let next = next_month_begin(offset).filter(|next| *next <= config.max_date);
+        if prev.is_none() && next.is_none() {
             return None;
         }
 
         Some(vec![
-            if can_go_prev {
+            if let Some(prev) = prev {
                 self.button(
                     render_ctx,
                     CalendarButtonKind::DaysPrevMonth {
@@ -779,7 +778,7 @@ where
                 CALLBACK_SCOPE_MONTHS,
             )
             .await,
-            if can_go_next {
+            if let Some(next) = next {
                 self.button(
                     render_ctx,
                     CalendarButtonKind::DaysNextMonth {
@@ -1036,25 +1035,43 @@ where
             CALLBACK_SCOPE_MONTHS => state.current_scope = CalendarScope::Months,
             CALLBACK_SCOPE_YEARS => state.current_scope = CalendarScope::Years,
             CALLBACK_NOOP => return Some(ButtonAction::noop()),
+            // A callback can be stale or crafted, so it may ask to step past the first/last date
+            // `Date` can represent. There is nowhere to go, so the offset simply stays put.
             CALLBACK_PREV_MONTH => {
-                state.current_offset = prev_month_begin(state.current_offset);
+                if let Some(prev) = prev_month_begin(state.current_offset) {
+                    state.current_offset = prev;
+                }
             }
             CALLBACK_NEXT_MONTH => {
-                state.current_offset = next_month_begin(state.current_offset);
+                if let Some(next) = next_month_begin(state.current_offset) {
+                    state.current_offset = next;
+                }
             }
-            CALLBACK_PREV_YEAR => state.current_offset = shift_years(state.current_offset, -1),
-            CALLBACK_NEXT_YEAR => state.current_offset = shift_years(state.current_offset, 1),
+            CALLBACK_PREV_YEAR => {
+                if let Some(shifted) = shift_years(state.current_offset, -1) {
+                    state.current_offset = shifted;
+                }
+            }
+            CALLBACK_NEXT_YEAR => {
+                if let Some(shifted) = shift_years(state.current_offset, 1) {
+                    state.current_offset = shifted;
+                }
+            }
             CALLBACK_PREV_YEARS_PAGE => {
-                state.current_offset = shift_years(
+                if let Some(shifted) = shift_years(
                     state.current_offset,
                     -i32::try_from(config.years_per_page).unwrap_or(i32::MAX),
-                );
+                ) {
+                    state.current_offset = shifted;
+                }
             }
             CALLBACK_NEXT_YEARS_PAGE => {
-                state.current_offset = shift_years(
+                if let Some(shifted) = shift_years(
                     state.current_offset,
                     i32::try_from(config.years_per_page).unwrap_or(i32::MAX),
-                );
+                ) {
+                    state.current_offset = shifted;
+                }
             }
             payload if payload.starts_with(CALLBACK_PREFIX_MONTH) => {
                 let month = payload[CALLBACK_PREFIX_MONTH.len()..].parse::<u8>().ok()?;
@@ -1107,27 +1124,33 @@ fn month_begin(date: CalendarDate) -> CalendarDate {
     Date::from_calendar_date(date.year(), date.month(), 1).expect("valid month begin")
 }
 
-fn next_month_begin(date: CalendarDate) -> CalendarDate {
+/// The first day of the month after `date`, or `None` when there is none because `date` is in the
+/// last month [`Date`] can represent.
+fn next_month_begin(date: CalendarDate) -> Option<CalendarDate> {
     let date = month_begin(date);
     if date.month() == Month::December {
-        Date::from_calendar_date(date.year() + 1, Month::January, 1).expect("valid next month")
+        Date::from_calendar_date(date.year().checked_add(1)?, Month::January, 1).ok()
     } else {
-        Date::from_calendar_date(date.year(), date.month().next(), 1).expect("valid next month")
+        Date::from_calendar_date(date.year(), date.month().next(), 1).ok()
     }
 }
 
-fn prev_month_begin(date: CalendarDate) -> CalendarDate {
+/// The first day of the month before `date`, or `None` when there is none because `date` is in the
+/// first month [`Date`] can represent.
+fn prev_month_begin(date: CalendarDate) -> Option<CalendarDate> {
     let date = month_begin(date);
     if date.month() == Month::January {
-        Date::from_calendar_date(date.year() - 1, Month::December, 1).expect("valid previous month")
+        Date::from_calendar_date(date.year().checked_sub(1)?, Month::December, 1).ok()
     } else {
-        Date::from_calendar_date(date.year(), date.month().previous(), 1)
-            .expect("valid previous month")
+        Date::from_calendar_date(date.year(), date.month().previous(), 1).ok()
     }
 }
 
 fn last_day_of_month(date: CalendarDate) -> CalendarDate {
-    next_month_begin(date) - Duration::days(1)
+    let (year, month) = (date.year(), date.month());
+
+    Date::from_calendar_date(year, month, month.length(year))
+        .expect("the last day of an existing month is always a valid date")
 }
 
 fn calendar_start(month: CalendarDate, first_weekday: Weekday) -> CalendarDate {
@@ -1145,10 +1168,12 @@ fn calendar_end(month: CalendarDate, first_weekday: Weekday) -> CalendarDate {
     end + Duration::days(i64::from(days_till_week_end))
 }
 
-fn shift_years(date: CalendarDate, years: i32) -> CalendarDate {
-    let year = date.year() + years;
+/// `date` shifted by `years`, or `None` when the result is not representable by [`Date`].
+fn shift_years(date: CalendarDate, years: i32) -> Option<CalendarDate> {
+    let year = date.year().checked_add(years)?;
     let day = date.day().min(date.month().length(year));
-    Date::from_calendar_date(year, date.month(), day).expect("valid shifted year")
+
+    Date::from_calendar_date(year, date.month(), day).ok()
 }
 
 fn default_calendar_text_renderer<'a>(
@@ -1277,8 +1302,9 @@ mod tests {
     use time::Weekday;
 
     use super::{
-        date, Calendar, CalendarAppearance, CalendarButtonKind, CalendarConfig, CalendarDate,
-        CalendarScope, CalendarUserConfig, CalendarViewContext, CalendarViews, WhenContext,
+        date, last_day_of_month, next_month_begin, prev_month_begin, shift_years, Calendar,
+        CalendarAppearance, CalendarButtonKind, CalendarConfig, CalendarDate, CalendarScope,
+        CalendarUserConfig, CalendarViewContext, CalendarViews, WhenContext,
     };
     use crate::{
         entities::{Context, DataMap, RenderContext},
@@ -1287,6 +1313,44 @@ mod tests {
 
     fn test_config() -> CalendarConfig {
         CalendarConfig::builder().today(date(2026, 4, 12)).build()
+    }
+
+    #[test]
+    fn date_helpers_have_no_neighbour_at_the_representable_boundary() {
+        // `time::Date` (without the `large-dates` feature) spans years -9999..=9999, so the first
+        // and last months have no neighbour. These used to `.expect(...)` and panic inside the
+        // async render/callback path, which a year-9999 `max_date` (accepted by the config) or a
+        // stale callback could reach.
+        let last = date(9999, 12, 31);
+        assert_eq!(next_month_begin(last), None);
+        assert_eq!(shift_years(last, 1), None);
+        // The year shift itself must not overflow `i32` either.
+        assert_eq!(shift_years(last, i32::MAX), None);
+        // ...but the last day of that month is still perfectly representable.
+        assert_eq!(last_day_of_month(last), date(9999, 12, 31));
+
+        let first = date(-9999, 1, 1);
+        assert_eq!(prev_month_begin(first), None);
+        assert_eq!(shift_years(first, -1), None);
+        assert_eq!(shift_years(first, i32::MIN), None);
+        assert_eq!(last_day_of_month(first), date(-9999, 1, 31));
+    }
+
+    #[test]
+    fn date_helpers_step_normally_away_from_the_boundary() {
+        assert_eq!(next_month_begin(date(2026, 4, 5)), Some(date(2026, 5, 1)));
+        assert_eq!(prev_month_begin(date(2026, 4, 5)), Some(date(2026, 3, 1)));
+        // Across a year boundary.
+        assert_eq!(next_month_begin(date(2026, 12, 5)), Some(date(2027, 1, 1)));
+        assert_eq!(prev_month_begin(date(2026, 1, 5)), Some(date(2025, 12, 1)));
+
+        // `last_day_of_month` is leap-year aware.
+        assert_eq!(last_day_of_month(date(2024, 2, 10)), date(2024, 2, 29));
+        assert_eq!(last_day_of_month(date(2025, 2, 10)), date(2025, 2, 28));
+
+        // Shifting off a leap day clamps to the shorter month.
+        assert_eq!(shift_years(date(2024, 2, 29), 1), Some(date(2025, 2, 28)));
+        assert_eq!(shift_years(date(2026, 4, 12), -1), Some(date(2025, 4, 12)));
     }
 
     async fn sunday_config(when_ctx: WhenContext) -> CalendarUserConfig {
