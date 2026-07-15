@@ -10,7 +10,25 @@ pub(crate) const ESCAPE_CHARS: [char; 18] = [
     '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!',
 ];
 
-/// This is a legacy mode, retained for backward compatibility. To use this mode, pass `Markdown` in the `parse_mode` field.
+/// Characters that MarkdownV2 requires to be escaped **inside** `code` and `pre` entities
+const CODE_ESCAPE_CHARS: [char; 2] = ['`', '\\'];
+
+/// Characters that MarkdownV2 requires to be escaped **inside** the `(...)` of an inline link or custom emoji definition
+const URL_ESCAPE_CHARS: [char; 2] = [')', '\\'];
+
+fn escape(text: impl Display, chars: &[char]) -> String {
+    let text = text.to_string();
+
+    text.chars()
+        .fold(String::with_capacity(text.len()), |mut string, ch| {
+            if chars.contains(&ch) {
+                string.push('\\');
+            }
+            string.push(ch);
+            string
+        })
+}
+
 /// # Documentation
 /// <https://core.telegram.org/bots/api#markdown-style>
 #[derive(Debug, Clone)]
@@ -94,7 +112,7 @@ impl TextFormatter for Formatter {
         T: Display,
         U: Display,
     {
-        format!("[{text}]({url})")
+        format!("[{text}]({})", escape(url, &URL_ESCAPE_CHARS))
     }
 
     fn text_mention<T>(&self, text: T, user_id: i64) -> String
@@ -119,14 +137,14 @@ impl TextFormatter for Formatter {
     where
         T: Display,
     {
-        format!("`{text}`")
+        format!("`{}`", escape(text, &CODE_ESCAPE_CHARS))
     }
 
     fn pre<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("```\n{text}\n```")
+        format!("```\n{}\n```", escape(text, &CODE_ESCAPE_CHARS))
     }
 
     fn pre_language<T, L>(&self, text: T, language: L) -> String
@@ -134,7 +152,7 @@ impl TextFormatter for Formatter {
         T: Display,
         L: Display,
     {
-        format!("```{language}\n{text}\n```")
+        format!("```{language}\n{}\n```", escape(text, &CODE_ESCAPE_CHARS))
     }
 
     fn date_time<T>(&self, text: T, unix_time: i64) -> String
@@ -165,16 +183,7 @@ impl TextFormatter for Formatter {
     where
         T: Display,
     {
-        let text = text.to_string();
-
-        text.chars()
-            .fold(String::with_capacity(text.len()), |mut string, ch| {
-                if ESCAPE_CHARS.contains(&ch) {
-                    string.push('\\');
-                }
-                string.push(ch);
-                string
-            })
+        escape(text, &ESCAPE_CHARS)
     }
 
     fn apply_entity<T>(&self, text: T, entity: &MessageEntity) -> Result<String, FormatterErrorKind>
@@ -482,6 +491,56 @@ mod tests {
         ] {
             assert_eq!(formatter.apply_entity(text, &entity).unwrap(), text);
         }
+    }
+
+    #[test]
+    fn test_code_escapes_backtick_and_backslash() {
+        let formatter = Formatter;
+
+        assert_eq!(formatter.code("a`b"), r"`a\`b`");
+        assert_eq!(formatter.code(r"a\b"), r"`a\\b`");
+        assert_eq!(formatter.code("a_b*c"), "`a_b*c`");
+    }
+
+    #[test]
+    fn test_pre_escapes_backtick_and_backslash() {
+        let formatter = Formatter;
+
+        assert_eq!(formatter.pre("a`b"), "```\na\\`b\n```");
+        assert_eq!(formatter.pre_language("a`b", "rust"), "```rust\na\\`b\n```");
+        assert_eq!(formatter.pre("a_b"), "```\na_b\n```");
+    }
+
+    #[test]
+    fn test_text_link_escapes_closing_paren_and_backslash_in_url() {
+        let formatter = Formatter;
+
+        assert_eq!(
+            formatter.text_link("text", "http://x/a)b"),
+            r"[text](http://x/a\)b)"
+        );
+        assert_eq!(
+            formatter.text_link("text", r"http://x/a\b"),
+            r"[text](http://x/a\\b)"
+        );
+        assert_eq!(
+            formatter.text_link("a_b", "http://example.com"),
+            "[a_b](http://example.com)"
+        );
+    }
+
+    #[test]
+    fn test_custom_emoji_and_date_time_escape_their_url() {
+        let formatter = Formatter;
+
+        assert_eq!(
+            formatter.custom_emoji("x", "1)2"),
+            r"![x](tg://emoji?id=1\)2)"
+        );
+        assert_eq!(
+            formatter.date_time_with_format("x", 1, "a)b"),
+            r"![x](tg://time?unix=1&format=a\)b)"
+        );
     }
 
     #[test]
