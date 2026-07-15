@@ -9,7 +9,7 @@ use crate::utils::text::markdown_formatter::ESCAPE_CHARS;
 
 pub(crate) static MARKDOWN: TagWriter = TagWriter {
     bold: SimpleTag::new("*", "*"),
-    blockquote: NewLineRepeatedTag::new("**>", ">", ""),
+    blockquote: NewLineRepeatedTag::new(">", ">", ""),
     expandable_blockquote: NewLineRepeatedTag::new("**>", ">", "||"),
     italic: SimpleTag::new("_\r", "_\r"),
     underline: SimpleTag::new("__\r", "__\r"),
