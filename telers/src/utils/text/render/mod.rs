@@ -71,11 +71,11 @@ impl<'a> Renderer<'a> {
             // repeated after every newline inside it.
             if matches!(kind, Kind::Blockquote | Kind::ExpandableBlockquote) {
                 let new_line_indexes = text
-                    .chars()
+                    .encode_utf16()
                     .skip(offset)
                     .take(length)
                     .enumerate()
-                    .filter_map(|(idx, ch)| (ch == '\n').then_some(idx));
+                    .filter_map(|(idx, unit)| (unit == u16::from(b'\n')).then_some(idx));
 
                 for new_line_index in new_line_indexes {
                     tags.push(Tag::mid_new_line(
@@ -355,10 +355,82 @@ mod tests {
         assert_eq!(
             render.as_markdown(),
             "*Hi* _\rhow_\r __\rare__\r ~you~?\n*n**__\r~este~__\rd* [entities](https://t.me/) \
-             [are](tg://user?id=1234567) `cool`\n**>Im in a Blockquote\\!\n**>Im in a multiline \
+             [are](tg://user?id=1234567) `cool`\n>Im in a Blockquote\\!\n>Im in a multiline \
              Blockquote\\!\n>\n>Im in a multiline Blockquote\\!\n**>Im in an expandable \
              Blockquote\\!||\n**>Im in an expandable multiline Blockquote\\!\n>\n>Im in an \
              expandable multiline Blockquote\\!||"
         );
+    }
+
+    #[test]
+    fn render_blockquote_markers_distinguish_regular_from_expandable() {
+        use crate::types::{MessageEntityBlockquote, MessageEntityExpandableBlockquote};
+
+        let text = "a\nb";
+
+        let regular = [MessageEntity::Blockquote(MessageEntityBlockquote::new(
+            0, 3,
+        ))];
+        assert_eq!(Renderer::new(text, &regular).as_markdown(), ">a\n>b");
+        assert_eq!(
+            Renderer::new(text, &regular).as_html(),
+            "<blockquote>a\nb</blockquote>"
+        );
+
+        let expandable = [MessageEntity::ExpandableBlockquote(
+            MessageEntityExpandableBlockquote::new(0, 3),
+        )];
+        assert_eq!(Renderer::new(text, &expandable).as_markdown(), "**>a\n>b||");
+        assert_eq!(
+            Renderer::new(text, &expandable).as_html(),
+            "<blockquote expandable>a\nb</blockquote>"
+        );
+    }
+
+    #[test]
+    fn render_blockquote_newline_with_emoji_before_quote() {
+        use crate::types::MessageEntityExpandableBlockquote;
+
+        // "😀 x\ny": the emoji is 2 UTF-16 units, so 'x' is at unit 3 and the '\n' at unit 4. The
+        // quote covers "x\ny" (offset 3, length 3), so the `>` belongs at unit 5, before 'y'.
+        let text = "😀 x\ny";
+        let entities = [MessageEntity::ExpandableBlockquote(
+            MessageEntityExpandableBlockquote::new(3, 3),
+        )];
+
+        // Counting chars instead would place the `>` at unit 4 — before the newline: "😀 **>x>\ny||".
+        assert_eq!(
+            Renderer::new(text, &entities).as_markdown(),
+            "😀 **>x\n>y||"
+        );
+    }
+
+    #[test]
+    fn render_blockquote_newline_with_emoji_inside_quote() {
+        use crate::types::MessageEntityExpandableBlockquote;
+
+        // "😀\ny": the emoji is 2 UTF-16 units, so the '\n' is at unit 2 and the `>` belongs at
+        // unit 3, before 'y'.
+        let text = "😀\ny";
+        let entities = [MessageEntity::ExpandableBlockquote(
+            MessageEntityExpandableBlockquote::new(0, 4),
+        )];
+
+        // Counting chars instead would place the `>` at unit 2 — before the newline: "**>😀>\ny||".
+        assert_eq!(Renderer::new(text, &entities).as_markdown(), "**>😀\n>y||");
+    }
+
+    #[test]
+    fn render_blockquote_newline_ascii_is_unaffected() {
+        use crate::types::MessageEntityExpandableBlockquote;
+
+        // Control: for ASCII, chars and UTF-16 units coincide, so the `>` was already placed
+        // correctly — which is why the two cases above went unnoticed.
+        let text = "a\nb";
+        let entities = [MessageEntity::ExpandableBlockquote(
+            MessageEntityExpandableBlockquote::new(0, 3),
+        )];
+
+        assert_eq!(Renderer::new(text, &entities).as_markdown(), "**>a\n>b||");
     }
 }
