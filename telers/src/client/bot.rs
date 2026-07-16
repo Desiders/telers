@@ -49,26 +49,30 @@ use super::{session::base::Session, Reqwest};
 
 use crate::{errors::SessionErrorKind, methods::TelegramMethod, utils::token};
 
+use secrecy::SecretString;
 use std::{
     env,
     fmt::{self, Debug, Display, Formatter},
+    sync::Arc,
 };
 
 /// Represents a bot with its token and ID, also contains client for sending requests to Telegram API.
 /// # Notes
-/// This structure is cheap to clone, because it contains only [`String`], [`i64`] fields and a client.
+/// This structure is cheap to clone, because the token is shared behind an [`Arc`] and the id is an
+/// [`i64`].
 ///
 /// Default client is [`Reqwest`], which also is cheap to clone.
 ///
 /// You can use custom client by using [`Bot::with_client`] method.
 ///
 /// Check [module docs](crate::client::bot) for examples.
-#[derive(Clone, Default)]
+#[derive(Clone)]
 pub struct Bot<Client = Reqwest> {
-    /// Bot token, which is used to receive updates and send requests to the Telegram API
-    pub token: String,
-    /// Bot token, which is used in `Debug` implementation for privacy
-    pub hidden_token: String,
+    /// Bot token, which is used to receive updates and send requests to the Telegram API.
+    ///
+    /// Wrapped in a [`SecretString`] so it is redacted in `Debug`/`Display` output and zeroized when
+    /// the last clone is dropped. Read it with [`Bot::token`].
+    token: Arc<SecretString>,
     /// Bot id, extracted from the token
     pub id: i64,
     /// Client for sending requests to Telegram API
@@ -85,13 +89,44 @@ impl<Client> Bot<Client> {
             "This bot token is invalid, please check it. If you test your bot, and you don't have \
              a token, use `Bot::default` method instead of `Bot::new`.",
         );
-        let hidden_token = token::hide(&token);
 
         Self {
-            token,
-            hidden_token,
+            token: Arc::new(SecretString::from(token.into_boxed_str())),
             id,
             client,
+        }
+    }
+
+    /// Bot token, which is used to receive updates and send requests to the Telegram API.
+    ///
+    /// # Notes
+    /// The token is a [`SecretString`], so it is redacted in `Debug`/`Display` output and zeroized
+    /// once the last [`Bot`] clone is dropped. Reading it is deliberate and auditable — call
+    /// [`ExposeSecret::expose_secret`] on the returned value:
+    ///
+    /// ```rust
+    /// use telers::{client::ExposeSecret as _, Bot};
+    ///
+    /// let bot = Bot::new("123:token");
+    ///
+    /// assert_eq!(bot.token().expose_secret(), "123:token");
+    /// ```
+    ///
+    /// [`ExposeSecret::expose_secret`]: secrecy::ExposeSecret::expose_secret
+    #[must_use]
+    pub fn token(&self) -> &SecretString {
+        &self.token
+    }
+}
+
+impl<Client: Default> Default for Bot<Client> {
+    /// Creates a bot with an empty token and a zero id, for tests and other cases where no real
+    /// token is available
+    fn default() -> Self {
+        Self {
+            token: Arc::new(SecretString::from(Box::<str>::from(""))),
+            id: 0,
+            client: Client::default(),
         }
     }
 }
@@ -130,7 +165,7 @@ impl Bot<Reqwest> {
 impl<Client> Debug for Bot<Client> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Bot")
-            .field("token", &self.hidden_token)
+            .field("token", &self.token)
             .field("bot_id", &self.id)
             .finish_non_exhaustive()
     }
@@ -138,12 +173,7 @@ impl<Client> Debug for Bot<Client> {
 
 impl<Client> Display for Bot<Client> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        // Displaying only bot id and hidden token, because the token is sensitive data
-        write!(
-            f,
-            "Bot {{ bot_id: {}, token: {} }}",
-            self.id, self.hidden_token,
-        )
+        write!(f, "Bot {{ bot_id: {}, token: {:?} }}", self.id, self.token)
     }
 }
 

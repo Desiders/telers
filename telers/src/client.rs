@@ -14,3 +14,7 @@ pub mod telegram;
 
 pub use bot::Bot;
 pub use session::{Reqwest, Session};
+
+// Re-exported because [`Bot::token`] returns a [`SecretString`], so users need these to read the
+// token without adding a direct `secrecy` dependency.
+pub use secrecy::{ExposeSecret, SecretString};

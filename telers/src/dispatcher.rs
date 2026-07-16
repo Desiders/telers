@@ -465,7 +465,8 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
         let (signal_tx, signal_rx) = watch::channel(());
         let (update_tx, mut update_rx) = mpsc::channel(CHANNEL_UPDATES_SIZE);
 
-        let hidden_token = bot.hidden_token.clone();
+        // `SecretString`'s `Debug` is redacted, so this logs the bot id without leaking the token.
+        let bot_id = bot.id;
 
         tokio::spawn({
             let fut = Self::listen_updates(
@@ -504,7 +505,7 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
             }
         });
 
-        event!(Level::INFO, token = hidden_token, "Started");
+        event!(Level::INFO, bot_id, "Started");
 
         signal_rx
     }

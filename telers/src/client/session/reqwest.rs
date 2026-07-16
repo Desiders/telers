@@ -25,6 +25,7 @@ use reqwest::{
     multipart::{Form, Part},
     Body, Client, ClientBuilder,
 };
+use secrecy::ExposeSecret as _;
 use serde::Serialize;
 use std::{borrow::Cow, time::Duration};
 use tracing::{event, field, instrument, Level, Span};
@@ -177,7 +178,9 @@ impl Session for Reqwest {
 
         let form = self.build_form_data(req.data, req.files).await?;
 
-        let url = self.api.api_url(&bot.token, req.method_name);
+        let url = self
+            .api
+            .api_url(bot.token().expose_secret(), req.method_name);
 
         let response = if let Some(timeout) = timeout {
             Span::current().record("timeout", timeout);

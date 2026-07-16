@@ -1,16 +1,3 @@
-/// Hide telegram token for privacy. \
-/// For example,
-/// `1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11` will be hidden as `12********11`
-pub(crate) fn hide(token: &str) -> String {
-    let token_len = token.len();
-
-    let mut hidden = String::with_capacity(token_len);
-    hidden.push_str(&token[..2]);
-    hidden.push_str(&"*".repeat(8));
-    hidden.push_str(&token[token_len - 2..]);
-    hidden
-}
-
 /// Validate telegram token
 /// # Returns
 /// `true` if token is valid, otherwise `false`
@@ -41,22 +28,6 @@ pub fn extract_bot_id(token: &str) -> Option<i64> {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_hide() {
-        assert_eq!(
-            hide("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"),
-            "12********11"
-        );
-        assert_eq!(
-            hide("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew1"),
-            "12********w1"
-        );
-        assert_eq!(
-            hide("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew"),
-            "12********ew"
-        );
-    }
 
     #[test]
     fn test_validate() {
