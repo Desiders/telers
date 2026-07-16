@@ -125,9 +125,17 @@ impl KeyBuilder for KeyBuilderImpl {
         let bot_id = key.bot_id.to_string();
         let chat_id = key.chat_id.to_string();
         let user_id = key.user_id.to_string();
+        // Prefix the optional ids with a marker (`t`/`b`) so their *presence* is unambiguous.
+        // Without it, `thread = Some(2), business = None` and `thread = None, business = Some("2")`
+        // both collapse to `...:2:...`, aliasing two distinct keys onto the same Redis entry. The
+        // markers also keep a numeric thread id from ever matching a business connection id.
         let message_thread_id = key
             .message_thread_id
-            .map(|message_thread_id| message_thread_id.to_string());
+            .map(|message_thread_id| format!("t{message_thread_id}"));
+        let business_connection_id = key
+            .business_connection_id
+            .as_ref()
+            .map(|business_connection_id| format!("b{business_connection_id}"));
 
         let mut parts = vec![];
 
@@ -143,7 +151,7 @@ impl KeyBuilder for KeyBuilderImpl {
         if let Some(message_thread_id) = &message_thread_id {
             parts.push(message_thread_id);
         }
-        if let Some(ref business_connection_id) = key.business_connection_id {
+        if let Some(business_connection_id) = &business_connection_id {
             parts.push(business_connection_id);
         }
 
@@ -710,5 +718,47 @@ impl<K: KeyBuilder + Clone> Storage for Redis<K> {
 
                 Error::new(format!("Failed to remove data. Storage key: {key}"), err)
             })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{KeyBuilder, KeyBuilderImpl, Part, StorageKey};
+
+    fn key(message_thread_id: Option<i64>, business_connection_id: Option<&str>) -> StorageKey {
+        StorageKey {
+            bot_id: 1,
+            chat_id: 1,
+            user_id: 3,
+            message_thread_id,
+            business_connection_id: business_connection_id.map(ToOwned::to_owned),
+            destiny: "default",
+        }
+    }
+
+    #[test]
+    fn optional_ids_do_not_alias_across_presence() {
+        let builder = KeyBuilderImpl::default();
+
+        // Before the marker prefixes, both of these produced `fsm:default:1:1:2:3:states`, so a
+        // forum-thread key and a business-connection key aliased onto the same Redis entry.
+        let only_thread = builder.build(&key(Some(2), None), Part::States);
+        let only_business = builder.build(&key(None, Some("2")), Part::States);
+
+        assert_ne!(only_thread, only_business);
+        assert_eq!(&*only_thread, "fsm:default:1:1:t2:3:states");
+        assert_eq!(&*only_business, "fsm:default:1:1:b2:3:states");
+    }
+
+    #[test]
+    fn key_without_optional_ids_keeps_its_format() {
+        // The common case (no forum thread, no business connection) is unchanged, so existing FSM
+        // state under those keys keeps working.
+        let builder = KeyBuilderImpl::default();
+
+        assert_eq!(
+            &*builder.build(&key(None, None), Part::States),
+            "fsm:default:1:1:3:states"
+        );
     }
 }
