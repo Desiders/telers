@@ -6,6 +6,7 @@
 //! correct variant so the window constructor stays declarative.
 
 use std::borrow::Cow;
+use tracing::warn;
 
 use super::{
     media::MultiMedia, Input, Keyboard, LinkPreviewWidget, Media, MultiInput, MultiKeyboard,
@@ -142,6 +143,12 @@ pub(crate) fn ensure_widgets(widgets: impl IntoIterator<Item = WidgetKind>) -> W
                 .fold(MultiInput::new(), MultiInput::input_boxed),
         )),
     };
+    if link_previews.len() > 1 {
+        warn!(
+            count = link_previews.len(),
+            "`Window` has multiple `LinkPreview` widgets; only the last-declared one is used"
+        );
+    }
     let link_preview = link_previews.pop();
     let media: Option<_> = match medias.len() {
         0 => None,
