@@ -101,9 +101,9 @@ impl Reqwest {
                     let id = file.id.to_string();
 
                     let part = if let Some(file_name) = file.file_name {
-                        Part::bytes(file.bytes.to_vec()).file_name(file_name.clone())
+                        Part::stream(Body::from(file.bytes)).file_name(file_name)
                     } else {
-                        Part::bytes(file.bytes.to_vec()).file_name(id.clone())
+                        Part::stream(Body::from(file.bytes)).file_name(id.clone())
                     };
 
                     form = form.part(id, part);
