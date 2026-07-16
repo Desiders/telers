@@ -75,18 +75,26 @@ impl Context {
             .and_then(|boxed| (**boxed).as_any_mut().downcast_mut())
     }
 
-    #[allow(clippy::missing_panics_doc)]
     pub fn get_or_insert_with<T: Clone + Send + Sync + 'static, F: FnOnce() -> T>(
         &mut self,
         key: &'static str,
         f: F,
     ) -> &mut T {
-        let out = self
-            .map
-            .get_or_insert_with(Box::default)
-            .entry(key)
-            .or_insert_with(|| Box::new(f()));
-        (**out).as_any_mut().downcast_mut().unwrap()
+        use std::collections::hash_map::Entry;
+
+        let out = match self.map.get_or_insert_with(Box::default).entry(key) {
+            Entry::Occupied(entry) if (**entry.get()).as_any().is::<T>() => entry.into_mut(),
+            Entry::Occupied(mut entry) => {
+                entry.insert(Box::new(f()));
+                entry.into_mut()
+            }
+            Entry::Vacant(entry) => entry.insert(Box::new(f())),
+        };
+
+        (**out)
+            .as_any_mut()
+            .downcast_mut()
+            .expect("the entry was just ensured to hold a `T`")
     }
 
     pub fn get_or_insert<T: Clone + Send + Sync + 'static>(
@@ -203,6 +211,45 @@ mod tests {
 
         assert_eq!(*ctx.get_or_insert_with("k", || 10_i32), 10);
         assert_eq!(*ctx.get_or_insert_with("k", || 999_i32), 10);
+    }
+
+    #[test]
+    fn get_or_insert_with_replaces_a_value_of_a_different_type() {
+        let mut ctx = Context::new();
+        ctx.insert("k", String::from("v"));
+
+        // The key already holds a `String`; requesting an `i32` under the same key used to panic on
+        // the failed downcast. It must replace the stale value instead.
+        assert_eq!(*ctx.get_or_insert_with("k", || 7_i32), 7);
+        assert_eq!(ctx.get::<i32>("k"), Some(&7));
+        assert!(ctx.get::<String>("k").is_none());
+
+        // The delegating helpers inherit the same behavior.
+        ctx.insert("k", String::from("v"));
+        assert_eq!(*ctx.get_or_insert("k", 8_i32), 8);
+        ctx.insert("k", String::from("v"));
+        assert_eq!(*ctx.get_or_insert_default::<i32>("k"), 0);
+    }
+
+    #[test]
+    fn get_or_insert_with_calls_f_at_most_once() {
+        use std::cell::Cell;
+
+        let calls = Cell::new(0);
+        let mut ctx = Context::new();
+
+        // Absent -> `f` runs once.
+        ctx.get_or_insert_with("k", || {
+            calls.set(calls.get() + 1);
+            1_i32
+        });
+        // Present with the right type -> `f` must not run.
+        ctx.get_or_insert_with("k", || {
+            calls.set(calls.get() + 1);
+            2_i32
+        });
+
+        assert_eq!(calls.get(), 1);
     }
 
     #[test]
