@@ -3,7 +3,7 @@ use crate::{
     event::{
         bases::{EventReturn, PropagateEventResult},
         service::Service,
-        telegram::handler::Handler,
+        telegram::{handler::Handler, HandlerResponse},
     },
     filters::Filter,
     middlewares::{
@@ -168,7 +168,14 @@ impl<Client> Observer<Client> {
                         handler.service.clone(),
                         middlewares.to_vec().into_boxed_slice(), /* we use it instead of `into` because some versions of rustc can't infer type */
                     );
-                    middleware.call((request.clone(), next)).await
+
+                    match middleware.call((request.clone(), next)).await {
+                        Err(EventErrorKind::Handler(err)) => Ok(HandlerResponse {
+                            request: request.clone(),
+                            result: Err(err),
+                        }),
+                        other => other,
+                    }
                 }
                 None => handler
                     .call(request.clone())
@@ -260,8 +267,9 @@ mod tests {
     use super::*;
     use crate::{
         client::Reqwest,
-        errors::HandlerError,
+        errors::{HandlerError, MiddlewareError},
         filters::Command,
+        middlewares::Next,
         types::{ChatPrivate, MessageText, Update, UpdateMessage},
         Bot, Extensions,
     };
@@ -344,6 +352,107 @@ mod tests {
         match response.propagate_result {
             PropagateEventResult::Handled(response) => match response.result {
                 Err(_) => {}
+                _ => panic!("Unexpected result"),
+            },
+            _ => panic!("Unexpected result"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_observer_trigger_error_with_inner_middleware() {
+        let pass_through = |request, next: Next<_>| next(request);
+
+        let mut observer = Observer::<Reqwest>::default()
+            .register(Handler::new(|| async {
+                Err::<(), _>(HandlerError::new(anyhow!("test")))
+            }))
+            .register_inner_middleware(pass_through);
+
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                0,
+                MessageText::new(0, 0, ChatPrivate::new(0), ""),
+            ))),
+            bot: Bot::default(),
+            context: crate::Context::default(),
+            extensions: Extensions::default(),
+        };
+        let response = observer.trigger(request).await.unwrap();
+
+        match response.propagate_result {
+            PropagateEventResult::Handled(response) => match response.result {
+                Err(_) => {}
+                _ => panic!("Unexpected result"),
+            },
+            _ => panic!("Unexpected result"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_observer_inner_middleware_error_still_propagates() {
+        // The fix only intercepts `EventErrorKind::Handler`. A middleware that returns its own
+        // error (a distinct variant) must NOT be swallowed into a `Handled` response — it has to
+        // propagate as an `Err` out of `trigger`, just as before.
+        let failing_middleware = |_request, _next: Next<_>| async move {
+            Err::<HandlerResponse<_>, _>(EventErrorKind::Middleware(MiddlewareError::new(anyhow!(
+                "middleware boom"
+            ))))
+        };
+
+        let mut observer = Observer::<Reqwest>::default()
+            .register(Handler::new(|| async {
+                unreachable!("the middleware returns before calling the handler");
+
+                #[allow(unreachable_code)]
+                Ok::<_, Infallible>(EventReturn::Finish)
+            }))
+            .register_inner_middleware(failing_middleware);
+
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                0,
+                MessageText::new(0, 0, ChatPrivate::new(0), ""),
+            ))),
+            bot: Bot::default(),
+            context: crate::Context::default(),
+            extensions: Extensions::default(),
+        };
+
+        match observer.trigger(request).await {
+            Err(EventErrorKind::Middleware(_)) => {}
+            _ => panic!("middleware error must propagate as `Err`, not be swallowed"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_observer_skip_through_inner_middleware_advances_to_next_handler() {
+        // Non-error results must still pass through unchanged with a middleware present: the first
+        // handler's `Skip` has to advance the observer to the second handler (which the middleware
+        // runs again for), ending in `Handled(Finish)`.
+        let pass_through = |request, next: Next<_>| next(request);
+
+        let mut observer = Observer::<Reqwest>::default()
+            .register(Handler::new(|| async {
+                Ok::<_, Infallible>(EventReturn::Skip)
+            }))
+            .register(Handler::new(|| async {
+                Ok::<_, Infallible>(EventReturn::Finish)
+            }))
+            .register_inner_middleware(pass_through);
+
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                0,
+                MessageText::new(0, 0, ChatPrivate::new(0), "/start"),
+            ))),
+            bot: Bot::default(),
+            context: crate::Context::default(),
+            extensions: Extensions::default(),
+        };
+
+        match observer.trigger(request).await.unwrap().propagate_result {
+            PropagateEventResult::Handled(response) => match response.result {
+                Ok(EventReturn::Finish) => {}
                 _ => panic!("Unexpected result"),
             },
             _ => panic!("Unexpected result"),
