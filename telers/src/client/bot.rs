@@ -7,8 +7,8 @@
 //!
 //! # Notes
 //!
-//! This structure is cheap to clone, because it contains only [`String`], [`i64`] fields and a client.
-//! Default client is [`Reqwest`], which also is cheap to clone.
+//! This structure is cheap to clone: the token is shared behind an [`Arc`] and the id is an
+//! [`i64`]. Default client is [`Reqwest`], which also is cheap to clone.
 //!
 //! You can use custom client by using [`Bot::with_client`] method.
 //!

@@ -5,6 +5,7 @@ use bon::bon;
 use serde::Deserialize;
 use serde_json::Value;
 use std::{borrow::Cow, sync::Arc};
+use tracing::warn;
 
 use super::{Media, MediaAttachment, MediaContentType, MediaId};
 use crate::entities::{DataMap, RenderContext};
@@ -41,7 +42,7 @@ impl DynamicMedia {
         Self::builder(move |data| {
             data.get(&field)
                 .and_then(|val| serde_json::from_value::<MediaAttachmentData>(val.clone()).ok())
-                .map(MediaAttachmentData::into_attachment)
+                .and_then(MediaAttachmentData::into_attachment)
         })
         .build()
     }
@@ -116,15 +117,22 @@ struct MediaAttachmentData {
 }
 
 impl MediaAttachmentData {
-    fn into_attachment(self) -> MediaAttachment {
+    fn into_attachment(self) -> Option<MediaAttachment> {
         let content_type = match self.content_type.to_lowercase().as_str() {
+            "photo" => MediaContentType::Photo,
             "video" => MediaContentType::Video,
             "audio" => MediaContentType::Audio,
             "document" => MediaContentType::Document,
             "animation" => MediaContentType::Animation,
             "voice" => MediaContentType::Voice,
             "video_note" | "videonote" => MediaContentType::VideoNote,
-            _ => MediaContentType::Photo,
+            other => {
+                warn!(
+                    content_type = other,
+                    "Unknown media content_type, skipping media"
+                );
+                return None;
+            }
         };
 
         let file_id = self.file_id.map(|id| {
@@ -135,7 +143,7 @@ impl MediaAttachmentData {
             }
         });
 
-        MediaAttachment {
+        Some(MediaAttachment {
             content_type,
             url: self.url.map(Cow::Owned),
             path: self.path.map(Cow::Owned),
@@ -150,6 +158,6 @@ impl MediaAttachmentData {
             performer: self.performer.map(Cow::Owned),
             title: self.title.map(Cow::Owned),
             supports_streaming: self.supports_streaming,
-        }
+        })
     }
 }

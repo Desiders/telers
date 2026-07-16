@@ -89,6 +89,37 @@ async fn dynamic_media_returns_none_when_field_missing() {
 }
 
 #[tokio::test]
+async fn dynamic_media_from_field_parses_known_content_type() {
+    let ctx = Context::new("", "state", serde_json::Value::Null);
+    let mut data = DataMap::new();
+    data.insert(
+        "media".into(),
+        json!({ "content_type": "video", "url": "https://example.com/v.mp4" }),
+    );
+
+    let media = DynamicMedia::from_field("media");
+    let attachment = media.render_media_for_test(&ctx, &data).await.unwrap();
+
+    assert_eq!(attachment.content_type, MediaContentType::Video);
+    assert_eq!(attachment.url.as_deref(), Some("https://example.com/v.mp4"));
+}
+
+#[tokio::test]
+async fn dynamic_media_from_field_skips_unknown_content_type() {
+    let ctx = Context::new("", "state", serde_json::Value::Null);
+    let mut data = DataMap::new();
+    // A typo (here `vidoe`) used to be silently coerced to a photo; it must be skipped instead.
+    data.insert(
+        "media".into(),
+        json!({ "content_type": "vidoe", "url": "https://example.com/v.mp4" }),
+    );
+
+    let media = DynamicMedia::from_field("media");
+
+    assert!(media.render_media_for_test(&ctx, &data).await.is_none());
+}
+
+#[tokio::test]
 async fn dynamic_media_with_custom_selector() {
     let ctx = Context::new("", "state", serde_json::Value::Null);
     let mut data = DataMap::new();
