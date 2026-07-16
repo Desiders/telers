@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-/// Service message. A user in the chat triggered another user's proximity alert while sharing Live Location.
+/// Service message: a user in the chat triggered another user's proximity alert while sharing Live Location
 /// # Notes
 /// This object represents a service message from original message field `proximity_alert_triggered`.
 /// # Documentation
@@ -132,7 +132,7 @@ pub struct MessageProximityAlertTriggered {
     /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
-    /// Service message. A user in the chat triggered another user's proximity alert while sharing Live Location.
+    /// Service message: a user in the chat triggered another user's proximity alert while sharing Live Location
     pub proximity_alert_triggered: crate::types::ProximityAlertTriggered,
 }
 impl MessageProximityAlertTriggered {
@@ -142,7 +142,7 @@ impl MessageProximityAlertTriggered {
     /// * `message_id` - Unique message identifier inside this chat; 0 for ephemeral messages. In specific instances (e.g., a message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     /// * `date` - Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     /// * `chat` - Chat the message belongs to
-    /// * `proximity_alert_triggered` - Service message. A user in the chat triggered another user's proximity alert while sharing Live Location.
+    /// * `proximity_alert_triggered` - Service message: a user in the chat triggered another user's proximity alert while sharing Live Location
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -892,7 +892,7 @@ impl MessageProximityAlertTriggered {
         self
     }
 
-    /// Service message. A user in the chat triggered another user's proximity alert while sharing Live Location.
+    /// Service message: a user in the chat triggered another user's proximity alert while sharing Live Location
     #[must_use]
     pub fn proximity_alert_triggered<T: Into<crate::types::ProximityAlertTriggered>>(
         mut self,

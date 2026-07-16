@@ -3118,7 +3118,7 @@ impl Message {
 
     /// Helper method for field `proximity_alert_triggered`.
     ///
-    /// Service message. A user in the chat triggered another user's proximity alert while sharing Live Location.
+    /// Service message: a user in the chat triggered another user's proximity alert while sharing Live Location
     #[must_use]
     pub fn proximity_alert_triggered(&self) -> Option<&crate::types::ProximityAlertTriggered> {
         match self {

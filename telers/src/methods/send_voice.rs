@@ -21,7 +21,7 @@ pub struct SendVoice {
     /// For outgoing ephemeral messages, unique identifier of the user who will receive the message; for group and supergroup chats only. It is not guaranteed that the user will receive the message, especially if they are offline. See ephemeral message sending for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub receiver_user_id: Option<i64>,
-    /// For outgoing ephemeral messages, identifier of the callback query which triggerred the message if any
+    /// For outgoing ephemeral messages, identifier of the callback query which triggered the message if any
     #[serde(skip_serializing_if = "Option::is_none")]
     pub callback_query_id: Option<Box<str>>,
     /// Audio file to send. Pass a `file_id` as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
@@ -159,14 +159,14 @@ impl SendVoice {
         self
     }
 
-    /// For outgoing ephemeral messages, identifier of the callback query which triggerred the message if any
+    /// For outgoing ephemeral messages, identifier of the callback query which triggered the message if any
     #[must_use]
     pub fn callback_query_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.callback_query_id = Some(val.into());
         self
     }
 
-    /// For outgoing ephemeral messages, identifier of the callback query which triggerred the message if any
+    /// For outgoing ephemeral messages, identifier of the callback query which triggered the message if any
     #[must_use]
     pub fn callback_query_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.callback_query_id = val.map(Into::into);

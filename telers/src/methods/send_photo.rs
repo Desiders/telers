@@ -21,7 +21,7 @@ pub struct SendPhoto {
     /// For outgoing ephemeral messages, unique identifier of the user who will receive the message; for group and supergroup chats only. It is not guaranteed that the user will receive the message, especially if they are offline. See ephemeral message sending for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub receiver_user_id: Option<i64>,
-    /// For outgoing ephemeral messages, identifier of the callback query which triggerred the message if any
+    /// For outgoing ephemeral messages, identifier of the callback query which triggered the message if any
     #[serde(skip_serializing_if = "Option::is_none")]
     pub callback_query_id: Option<Box<str>>,
     /// Photo to send. Pass a `file_id` as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
@@ -163,14 +163,14 @@ impl SendPhoto {
         self
     }
 
-    /// For outgoing ephemeral messages, identifier of the callback query which triggerred the message if any
+    /// For outgoing ephemeral messages, identifier of the callback query which triggered the message if any
     #[must_use]
     pub fn callback_query_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.callback_query_id = Some(val.into());
         self
     }
 
-    /// For outgoing ephemeral messages, identifier of the callback query which triggerred the message if any
+    /// For outgoing ephemeral messages, identifier of the callback query which triggered the message if any
     #[must_use]
     pub fn callback_query_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.callback_query_id = val.map(Into::into);
