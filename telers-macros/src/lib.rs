@@ -189,7 +189,7 @@ pub fn derive_from_context(item: TokenStream) -> TokenStream {
 ///
 /// impl From<Update> for UpdateId {
 ///     fn from(update: Update) -> Self {
-///         Self(update.id)
+///         Self(update.update_id())
 ///     }
 /// }
 /// ```
@@ -209,7 +209,7 @@ pub fn derive_from_context(item: TokenStream) -> TokenStream {
 ///     type Error = Infallible;
 ///
 ///     fn try_from(update: Update) -> Result<Self, Self::Error> {
-///         Ok(Self(update.id))
+///         Ok(Self(update.update_id()))
 ///     }
 /// }
 /// ```
@@ -229,7 +229,7 @@ pub fn derive_from_context(item: TokenStream) -> TokenStream {
 ///     type Error = ConvertToTypeError;
 ///
 ///     fn try_from(update: Update) -> Result<Self, Self::Error> {
-///         match update.from_id() {
+///         match update.from().map(|user| user.id) {
 ///             Some(id) => Ok(Self(id)),
 ///             None => Err(ConvertToTypeError::new("Update", "UpdateFromId")),
 ///         }
