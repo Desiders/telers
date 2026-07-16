@@ -858,7 +858,7 @@ where
 
     #[inline]
     fn shutdown_handlers_len(&self) -> usize {
-        self.startup.handlers_len()
+        self.shutdown.handlers_len()
     }
 }
 
