@@ -347,50 +347,59 @@ impl Text {
         .into()
     }
 
-    #[must_use]
-    pub fn validate_texts(&self, text: &str) -> bool {
-        let text = self.prepare_text(text);
-        let text_ref = text.as_ref();
-
+    fn texts_match(&self, text: &str) -> bool {
         self.texts.iter().any(|pattern| match pattern {
-            PatternType::Text(allowed_text) => allowed_text == text_ref,
-            PatternType::Regex(regex) => regex.is_match(&text),
+            PatternType::Text(allowed_text) => allowed_text.as_ref() == text,
+            PatternType::Regex(regex) => regex.is_match(text),
         })
     }
 
-    #[must_use]
-    pub fn validate_contains(&self, text: &str) -> bool {
-        let text = self.prepare_text(text);
-
+    fn contains_match(&self, text: &str) -> bool {
         self.contains
             .iter()
             .any(|part_text| text.contains(part_text.as_ref()))
     }
 
-    #[must_use]
-    pub fn validate_starts_with(&self, text: &str) -> bool {
-        let text = self.prepare_text(text);
-
+    fn starts_with_match(&self, text: &str) -> bool {
         self.starts_with
             .iter()
             .any(|part_text| text.starts_with(part_text.as_ref()))
     }
 
-    #[must_use]
-    pub fn validate_ends_with(&self, text: &str) -> bool {
-        let text = self.prepare_text(text);
-
+    fn ends_with_match(&self, text: &str) -> bool {
         self.ends_with
             .iter()
             .any(|part_text| text.ends_with(part_text.as_ref()))
     }
 
     #[must_use]
+    pub fn validate_texts(&self, text: &str) -> bool {
+        self.texts_match(&self.prepare_text(text))
+    }
+
+    #[must_use]
+    pub fn validate_contains(&self, text: &str) -> bool {
+        self.contains_match(&self.prepare_text(text))
+    }
+
+    #[must_use]
+    pub fn validate_starts_with(&self, text: &str) -> bool {
+        self.starts_with_match(&self.prepare_text(text))
+    }
+
+    #[must_use]
+    pub fn validate_ends_with(&self, text: &str) -> bool {
+        self.ends_with_match(&self.prepare_text(text))
+    }
+
+    #[must_use]
     pub fn validate_text(&self, text: &str) -> bool {
-        self.validate_texts(text)
-            || self.validate_contains(text)
-            || self.validate_starts_with(text)
-            || self.validate_ends_with(text)
+        let text = self.prepare_text(text);
+
+        self.texts_match(&text)
+            || self.contains_match(&text)
+            || self.starts_with_match(&text)
+            || self.ends_with_match(&text)
     }
 }
 
