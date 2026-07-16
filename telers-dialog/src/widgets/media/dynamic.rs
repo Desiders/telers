@@ -41,7 +41,7 @@ impl DynamicMedia {
         let field = field.into();
         Self::builder(move |data| {
             data.get(&field)
-                .and_then(|val| serde_json::from_value::<MediaAttachmentData>(val.clone()).ok())
+                .and_then(|val| MediaAttachmentData::deserialize(val).ok())
                 .and_then(MediaAttachmentData::into_attachment)
         })
         .build()

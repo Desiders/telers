@@ -110,21 +110,28 @@ where
 
     /// Render the items for `page`, slicing by `page_size` when paginated.
     fn render_items(&self, data: &DataMap, page: usize) -> Box<str> {
-        let rendered: Vec<Box<str>> = (self.items_getter)(data)
-            .into_iter()
-            .map(|item| (self.item_renderer)(&item, data).into())
-            .collect();
-        let slice: &[Box<str>] = match self.page_size {
+        // Materialize the items (cheap — no rendering yet) so we can slice to the current page and
+        // only run the (potentially expensive) `item_renderer` for the items that page shows,
+        // instead of rendering the whole list and discarding all but one page.
+        let items: Vec<Item> = (self.items_getter)(data).into_iter().collect();
+
+        let range = match self.page_size {
             Some(page_size) if page_size > 0 => {
-                let pages = rendered.len().div_ceil(page_size).max(1);
+                let pages = items.len().div_ceil(page_size).max(1);
                 let current = page.min(pages - 1);
                 let start = current * page_size;
-                let end = (start + page_size).min(rendered.len());
-                &rendered[start..end]
+                let end = (start + page_size).min(items.len());
+                start..end
             }
-            _ => &rendered,
+            _ => 0..items.len(),
         };
-        slice.join(&self.separator).into_boxed_str()
+
+        items[range]
+            .iter()
+            .map(|item| (self.item_renderer)(item, data).into())
+            .collect::<Vec<Box<str>>>()
+            .join(&self.separator)
+            .into_boxed_str()
     }
 }
 

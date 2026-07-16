@@ -200,14 +200,8 @@ impl Window for WindowImpl {
     async fn render(&self, render_ctx: &RenderContext) -> NewMessage {
         let event_ctx = render_ctx.event_context.as_ref();
         let reply_markup = match &self.keyboard {
-            Some(kbd)
-                if kbd
-                    .is_visible(render_ctx.context.as_ref(), render_ctx.data.as_ref())
-                    .await =>
-            {
-                kbd.render_keyboard(render_ctx).await
-            }
-            _ => None,
+            Some(kbd) => kbd.render_keyboard(render_ctx).await,
+            None => None,
         };
         let link_preview_options = if let Some(options) = &self.link_preview_options {
             Some(options.clone())
@@ -238,14 +232,8 @@ impl Window for WindowImpl {
 
     async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
         match &self.keyboard {
-            Some(kbd)
-                if kbd
-                    .is_visible(click.context.as_ref(), &click.context.dialog_data)
-                    .await =>
-            {
-                kbd.handle_callback(click).await
-            }
-            _ => None,
+            Some(kbd) => kbd.handle_callback(click).await,
+            None => None,
         }
     }
 
