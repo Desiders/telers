@@ -288,9 +288,12 @@ impl Storage for Memory {
     where
         Value: DeserializeOwned,
     {
-        match self.storage.lock().await.entry(key.clone()) {
-            Entry::Occupied(entry) => {
-                let entry_data = &entry.get().data;
+        // Read-only path: borrow with `get` instead of `entry(key.clone())`, which would clone the
+        // whole `StorageKey` (incl. its heap `business_connection_id`) and take the mutable entry
+        // API for nothing.
+        match self.storage.lock().await.get(key) {
+            Some(record) => {
+                let entry_data = &record.data;
                 let mut data = HashMap::with_capacity(entry_data.len());
 
                 for (value_key, value) in entry_data {
@@ -309,7 +312,7 @@ impl Storage for Memory {
 
                 Ok(data)
             }
-            Entry::Vacant(_) => Ok(HashMap::default()),
+            None => Ok(HashMap::default()),
         }
     }
 
@@ -331,24 +334,21 @@ impl Storage for Memory {
     {
         Span::current().record("value_key", value_key.as_ref());
 
-        match self.storage.lock().await.entry(key.clone()) {
-            Entry::Occupied(entry) => {
-                entry
-                    .get()
-                    .data
-                    .get(value_key.as_ref())
-                    .map_or(Ok(None), |value| {
-                        Ok(Some(serde_json::from_str(value).map_err(|err| {
-                            event!(Level::ERROR, "Failed to deserialize value");
+        match self.storage.lock().await.get(key) {
+            Some(record) => record
+                .data
+                .get(value_key.as_ref())
+                .map_or(Ok(None), |value| {
+                    Ok(Some(serde_json::from_str(value).map_err(|err| {
+                        event!(Level::ERROR, "Failed to deserialize value");
 
-                            Error::new(
-                                format!("Failed to deserialize value. Storage key: `{key:?}`"),
-                                err,
-                            )
-                        })?))
-                    })
-            }
-            Entry::Vacant(_) => Ok(None),
+                        Error::new(
+                            format!("Failed to deserialize value. Storage key: `{key:?}`"),
+                            err,
+                        )
+                    })?))
+                }),
+            None => Ok(None),
         }
     }
 
