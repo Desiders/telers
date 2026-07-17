@@ -84,6 +84,8 @@ use serde::{Deserialize, Serialize};
 #[serde(untagged)]
 pub enum Message {
     Animation(crate::types::MessageAnimation),
+    LivePhoto(crate::types::MessageLivePhoto),
+    Venue(crate::types::MessageVenue),
     Audio(crate::types::MessageAudio),
     BoostAdded(crate::types::MessageBoostAdded),
     ChannelChatCreated(crate::types::MessageChannelChatCreated),
@@ -118,7 +120,6 @@ pub enum Message {
     GroupChatCreated(crate::types::MessageGroupChatCreated),
     Invoice(crate::types::MessageInvoice),
     LeftChatMember(crate::types::MessageLeftChatMember),
-    LivePhoto(crate::types::MessageLivePhoto),
     Location(crate::types::MessageLocation),
     ManagedBotCreated(crate::types::MessageManagedBotCreated),
     MessageAutoDeleteTimerChanged(crate::types::MessageMessageAutoDeleteTimerChanged),
@@ -150,7 +151,6 @@ pub enum Message {
     Text(crate::types::MessageText),
     UniqueGift(crate::types::MessageUniqueGift),
     UsersShared(crate::types::MessageUsersShared),
-    Venue(crate::types::MessageVenue),
     Video(crate::types::MessageVideo),
     VideoChatEnded(crate::types::MessageVideoChatEnded),
     VideoChatParticipantsInvited(crate::types::MessageVideoChatParticipantsInvited),
@@ -191,6 +191,8 @@ impl Message {
     pub fn author_signature(&self) -> Option<&str> {
         match self {
             Self::Animation(val) => val.author_signature.as_deref(),
+            Self::LivePhoto(val) => val.author_signature.as_deref(),
+            Self::Venue(val) => val.author_signature.as_deref(),
             Self::Audio(val) => val.author_signature.as_deref(),
             Self::BoostAdded(val) => val.author_signature.as_deref(),
             Self::ChannelChatCreated(val) => val.author_signature.as_deref(),
@@ -225,7 +227,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.author_signature.as_deref(),
             Self::Invoice(val) => val.author_signature.as_deref(),
             Self::LeftChatMember(val) => val.author_signature.as_deref(),
-            Self::LivePhoto(val) => val.author_signature.as_deref(),
             Self::Location(val) => val.author_signature.as_deref(),
             Self::ManagedBotCreated(val) => val.author_signature.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.author_signature.as_deref(),
@@ -257,7 +258,6 @@ impl Message {
             Self::Text(val) => val.author_signature.as_deref(),
             Self::UniqueGift(val) => val.author_signature.as_deref(),
             Self::UsersShared(val) => val.author_signature.as_deref(),
-            Self::Venue(val) => val.author_signature.as_deref(),
             Self::Video(val) => val.author_signature.as_deref(),
             Self::VideoChatEnded(val) => val.author_signature.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.author_signature.as_deref(),
@@ -288,6 +288,8 @@ impl Message {
     pub fn business_connection_id(&self) -> Option<&str> {
         match self {
             Self::Animation(val) => val.business_connection_id.as_deref(),
+            Self::LivePhoto(val) => val.business_connection_id.as_deref(),
+            Self::Venue(val) => val.business_connection_id.as_deref(),
             Self::Audio(val) => val.business_connection_id.as_deref(),
             Self::BoostAdded(val) => val.business_connection_id.as_deref(),
             Self::ChannelChatCreated(val) => val.business_connection_id.as_deref(),
@@ -322,7 +324,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.business_connection_id.as_deref(),
             Self::Invoice(val) => val.business_connection_id.as_deref(),
             Self::LeftChatMember(val) => val.business_connection_id.as_deref(),
-            Self::LivePhoto(val) => val.business_connection_id.as_deref(),
             Self::Location(val) => val.business_connection_id.as_deref(),
             Self::ManagedBotCreated(val) => val.business_connection_id.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.business_connection_id.as_deref(),
@@ -354,7 +355,6 @@ impl Message {
             Self::Text(val) => val.business_connection_id.as_deref(),
             Self::UniqueGift(val) => val.business_connection_id.as_deref(),
             Self::UsersShared(val) => val.business_connection_id.as_deref(),
-            Self::Venue(val) => val.business_connection_id.as_deref(),
             Self::Video(val) => val.business_connection_id.as_deref(),
             Self::VideoChatEnded(val) => val.business_connection_id.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.business_connection_id.as_deref(),
@@ -374,6 +374,8 @@ impl Message {
     pub fn caption(&self) -> Option<&str> {
         match self {
             Self::Animation(val) => val.caption.as_deref(),
+            Self::LivePhoto(val) => val.caption.as_deref(),
+            Self::Venue(val) => val.caption.as_deref(),
             Self::Audio(val) => val.caption.as_deref(),
             Self::BoostAdded(val) => val.caption.as_deref(),
             Self::ChannelChatCreated(val) => val.caption.as_deref(),
@@ -408,7 +410,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.caption.as_deref(),
             Self::Invoice(val) => val.caption.as_deref(),
             Self::LeftChatMember(val) => val.caption.as_deref(),
-            Self::LivePhoto(val) => val.caption.as_deref(),
             Self::Location(val) => val.caption.as_deref(),
             Self::ManagedBotCreated(val) => val.caption.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.caption.as_deref(),
@@ -440,7 +441,6 @@ impl Message {
             Self::Text(val) => val.caption.as_deref(),
             Self::UniqueGift(val) => val.caption.as_deref(),
             Self::UsersShared(val) => val.caption.as_deref(),
-            Self::Venue(val) => val.caption.as_deref(),
             Self::Video(val) => val.caption.as_deref(),
             Self::VideoChatEnded(val) => val.caption.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.caption.as_deref(),
@@ -460,6 +460,8 @@ impl Message {
     pub fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
         match self {
             Self::Animation(val) => val.caption_entities.as_deref(),
+            Self::LivePhoto(val) => val.caption_entities.as_deref(),
+            Self::Venue(val) => val.caption_entities.as_deref(),
             Self::Audio(val) => val.caption_entities.as_deref(),
             Self::BoostAdded(val) => val.caption_entities.as_deref(),
             Self::ChannelChatCreated(val) => val.caption_entities.as_deref(),
@@ -494,7 +496,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.caption_entities.as_deref(),
             Self::Invoice(val) => val.caption_entities.as_deref(),
             Self::LeftChatMember(val) => val.caption_entities.as_deref(),
-            Self::LivePhoto(val) => val.caption_entities.as_deref(),
             Self::Location(val) => val.caption_entities.as_deref(),
             Self::ManagedBotCreated(val) => val.caption_entities.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.caption_entities.as_deref(),
@@ -526,7 +527,6 @@ impl Message {
             Self::Text(val) => val.caption_entities.as_deref(),
             Self::UniqueGift(val) => val.caption_entities.as_deref(),
             Self::UsersShared(val) => val.caption_entities.as_deref(),
-            Self::Venue(val) => val.caption_entities.as_deref(),
             Self::Video(val) => val.caption_entities.as_deref(),
             Self::VideoChatEnded(val) => val.caption_entities.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.caption_entities.as_deref(),
@@ -557,6 +557,8 @@ impl Message {
     pub fn chat(&self) -> &crate::types::Chat {
         match self {
             Self::Animation(val) => val.chat.as_ref(),
+            Self::LivePhoto(val) => val.chat.as_ref(),
+            Self::Venue(val) => val.chat.as_ref(),
             Self::Audio(val) => val.chat.as_ref(),
             Self::BoostAdded(val) => val.chat.as_ref(),
             Self::ChannelChatCreated(val) => val.chat.as_ref(),
@@ -591,7 +593,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.chat.as_ref(),
             Self::Invoice(val) => val.chat.as_ref(),
             Self::LeftChatMember(val) => val.chat.as_ref(),
-            Self::LivePhoto(val) => val.chat.as_ref(),
             Self::Location(val) => val.chat.as_ref(),
             Self::ManagedBotCreated(val) => val.chat.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.chat.as_ref(),
@@ -623,7 +624,6 @@ impl Message {
             Self::Text(val) => val.chat.as_ref(),
             Self::UniqueGift(val) => val.chat.as_ref(),
             Self::UsersShared(val) => val.chat.as_ref(),
-            Self::Venue(val) => val.chat.as_ref(),
             Self::Video(val) => val.chat.as_ref(),
             Self::VideoChatEnded(val) => val.chat.as_ref(),
             Self::VideoChatParticipantsInvited(val) => val.chat.as_ref(),
@@ -764,6 +764,8 @@ impl Message {
     pub fn date(&self) -> i64 {
         match self {
             Self::Animation(val) => val.date,
+            Self::LivePhoto(val) => val.date,
+            Self::Venue(val) => val.date,
             Self::Audio(val) => val.date,
             Self::BoostAdded(val) => val.date,
             Self::ChannelChatCreated(val) => val.date,
@@ -798,7 +800,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.date,
             Self::Invoice(val) => val.date,
             Self::LeftChatMember(val) => val.date,
-            Self::LivePhoto(val) => val.date,
             Self::Location(val) => val.date,
             Self::ManagedBotCreated(val) => val.date,
             Self::MessageAutoDeleteTimerChanged(val) => val.date,
@@ -830,7 +831,6 @@ impl Message {
             Self::Text(val) => val.date,
             Self::UniqueGift(val) => val.date,
             Self::UsersShared(val) => val.date,
-            Self::Venue(val) => val.date,
             Self::Video(val) => val.date,
             Self::VideoChatEnded(val) => val.date,
             Self::VideoChatParticipantsInvited(val) => val.date,
@@ -883,6 +883,8 @@ impl Message {
     pub fn direct_messages_topic(&self) -> Option<&crate::types::DirectMessagesTopic> {
         match self {
             Self::Animation(val) => val.direct_messages_topic.as_ref(),
+            Self::LivePhoto(val) => val.direct_messages_topic.as_ref(),
+            Self::Venue(val) => val.direct_messages_topic.as_ref(),
             Self::Audio(val) => val.direct_messages_topic.as_ref(),
             Self::BoostAdded(val) => val.direct_messages_topic.as_ref(),
             Self::ChannelChatCreated(val) => val.direct_messages_topic.as_ref(),
@@ -917,7 +919,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.direct_messages_topic.as_ref(),
             Self::Invoice(val) => val.direct_messages_topic.as_ref(),
             Self::LeftChatMember(val) => val.direct_messages_topic.as_ref(),
-            Self::LivePhoto(val) => val.direct_messages_topic.as_ref(),
             Self::Location(val) => val.direct_messages_topic.as_ref(),
             Self::ManagedBotCreated(val) => val.direct_messages_topic.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.direct_messages_topic.as_ref(),
@@ -949,7 +950,6 @@ impl Message {
             Self::Text(val) => val.direct_messages_topic.as_ref(),
             Self::UniqueGift(val) => val.direct_messages_topic.as_ref(),
             Self::UsersShared(val) => val.direct_messages_topic.as_ref(),
-            Self::Venue(val) => val.direct_messages_topic.as_ref(),
             Self::Video(val) => val.direct_messages_topic.as_ref(),
             Self::VideoChatEnded(val) => val.direct_messages_topic.as_ref(),
             Self::VideoChatParticipantsInvited(val) => val.direct_messages_topic.as_ref(),
@@ -980,6 +980,8 @@ impl Message {
     pub fn edit_date(&self) -> Option<i64> {
         match self {
             Self::Animation(val) => val.edit_date,
+            Self::LivePhoto(val) => val.edit_date,
+            Self::Venue(val) => val.edit_date,
             Self::Audio(val) => val.edit_date,
             Self::BoostAdded(val) => val.edit_date,
             Self::ChannelChatCreated(val) => val.edit_date,
@@ -1014,7 +1016,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.edit_date,
             Self::Invoice(val) => val.edit_date,
             Self::LeftChatMember(val) => val.edit_date,
-            Self::LivePhoto(val) => val.edit_date,
             Self::Location(val) => val.edit_date,
             Self::ManagedBotCreated(val) => val.edit_date,
             Self::MessageAutoDeleteTimerChanged(val) => val.edit_date,
@@ -1046,7 +1047,6 @@ impl Message {
             Self::Text(val) => val.edit_date,
             Self::UniqueGift(val) => val.edit_date,
             Self::UsersShared(val) => val.edit_date,
-            Self::Venue(val) => val.edit_date,
             Self::Video(val) => val.edit_date,
             Self::VideoChatEnded(val) => val.edit_date,
             Self::VideoChatParticipantsInvited(val) => val.edit_date,
@@ -1066,6 +1066,8 @@ impl Message {
     pub fn effect_id(&self) -> Option<&str> {
         match self {
             Self::Animation(val) => val.effect_id.as_deref(),
+            Self::LivePhoto(val) => val.effect_id.as_deref(),
+            Self::Venue(val) => val.effect_id.as_deref(),
             Self::Audio(val) => val.effect_id.as_deref(),
             Self::BoostAdded(val) => val.effect_id.as_deref(),
             Self::ChannelChatCreated(val) => val.effect_id.as_deref(),
@@ -1100,7 +1102,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.effect_id.as_deref(),
             Self::Invoice(val) => val.effect_id.as_deref(),
             Self::LeftChatMember(val) => val.effect_id.as_deref(),
-            Self::LivePhoto(val) => val.effect_id.as_deref(),
             Self::Location(val) => val.effect_id.as_deref(),
             Self::ManagedBotCreated(val) => val.effect_id.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.effect_id.as_deref(),
@@ -1132,7 +1133,6 @@ impl Message {
             Self::Text(val) => val.effect_id.as_deref(),
             Self::UniqueGift(val) => val.effect_id.as_deref(),
             Self::UsersShared(val) => val.effect_id.as_deref(),
-            Self::Venue(val) => val.effect_id.as_deref(),
             Self::Video(val) => val.effect_id.as_deref(),
             Self::VideoChatEnded(val) => val.effect_id.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.effect_id.as_deref(),
@@ -1152,6 +1152,8 @@ impl Message {
     pub fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
         match self {
             Self::Animation(val) => val.entities.as_deref(),
+            Self::LivePhoto(val) => val.entities.as_deref(),
+            Self::Venue(val) => val.entities.as_deref(),
             Self::Audio(val) => val.entities.as_deref(),
             Self::BoostAdded(val) => val.entities.as_deref(),
             Self::ChannelChatCreated(val) => val.entities.as_deref(),
@@ -1186,7 +1188,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.entities.as_deref(),
             Self::Invoice(val) => val.entities.as_deref(),
             Self::LeftChatMember(val) => val.entities.as_deref(),
-            Self::LivePhoto(val) => val.entities.as_deref(),
             Self::Location(val) => val.entities.as_deref(),
             Self::ManagedBotCreated(val) => val.entities.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.entities.as_deref(),
@@ -1218,7 +1219,6 @@ impl Message {
             Self::Text(val) => val.entities.as_deref(),
             Self::UniqueGift(val) => val.entities.as_deref(),
             Self::UsersShared(val) => val.entities.as_deref(),
-            Self::Venue(val) => val.entities.as_deref(),
             Self::Video(val) => val.entities.as_deref(),
             Self::VideoChatEnded(val) => val.entities.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.entities.as_deref(),
@@ -1238,6 +1238,8 @@ impl Message {
     pub fn ephemeral_message_id(&self) -> Option<i64> {
         match self {
             Self::Animation(val) => val.ephemeral_message_id,
+            Self::LivePhoto(val) => val.ephemeral_message_id,
+            Self::Venue(val) => val.ephemeral_message_id,
             Self::Audio(val) => val.ephemeral_message_id,
             Self::BoostAdded(val) => val.ephemeral_message_id,
             Self::ChannelChatCreated(val) => val.ephemeral_message_id,
@@ -1272,7 +1274,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.ephemeral_message_id,
             Self::Invoice(val) => val.ephemeral_message_id,
             Self::LeftChatMember(val) => val.ephemeral_message_id,
-            Self::LivePhoto(val) => val.ephemeral_message_id,
             Self::Location(val) => val.ephemeral_message_id,
             Self::ManagedBotCreated(val) => val.ephemeral_message_id,
             Self::MessageAutoDeleteTimerChanged(val) => val.ephemeral_message_id,
@@ -1304,7 +1305,6 @@ impl Message {
             Self::Text(val) => val.ephemeral_message_id,
             Self::UniqueGift(val) => val.ephemeral_message_id,
             Self::UsersShared(val) => val.ephemeral_message_id,
-            Self::Venue(val) => val.ephemeral_message_id,
             Self::Video(val) => val.ephemeral_message_id,
             Self::VideoChatEnded(val) => val.ephemeral_message_id,
             Self::VideoChatParticipantsInvited(val) => val.ephemeral_message_id,
@@ -1324,6 +1324,8 @@ impl Message {
     pub fn external_reply(&self) -> Option<&crate::types::ExternalReplyInfo> {
         match self {
             Self::Animation(val) => val.external_reply.as_deref(),
+            Self::LivePhoto(val) => val.external_reply.as_deref(),
+            Self::Venue(val) => val.external_reply.as_deref(),
             Self::Audio(val) => val.external_reply.as_deref(),
             Self::BoostAdded(val) => val.external_reply.as_deref(),
             Self::ChannelChatCreated(val) => val.external_reply.as_deref(),
@@ -1358,7 +1360,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.external_reply.as_deref(),
             Self::Invoice(val) => val.external_reply.as_deref(),
             Self::LeftChatMember(val) => val.external_reply.as_deref(),
-            Self::LivePhoto(val) => val.external_reply.as_deref(),
             Self::Location(val) => val.external_reply.as_deref(),
             Self::ManagedBotCreated(val) => val.external_reply.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.external_reply.as_deref(),
@@ -1390,7 +1391,6 @@ impl Message {
             Self::Text(val) => val.external_reply.as_deref(),
             Self::UniqueGift(val) => val.external_reply.as_deref(),
             Self::UsersShared(val) => val.external_reply.as_deref(),
-            Self::Venue(val) => val.external_reply.as_deref(),
             Self::Video(val) => val.external_reply.as_deref(),
             Self::VideoChatEnded(val) => val.external_reply.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.external_reply.as_deref(),
@@ -1454,6 +1454,8 @@ impl Message {
     pub fn forward_origin(&self) -> Option<&crate::types::MessageOrigin> {
         match self {
             Self::Animation(val) => val.forward_origin.as_ref(),
+            Self::LivePhoto(val) => val.forward_origin.as_ref(),
+            Self::Venue(val) => val.forward_origin.as_ref(),
             Self::Audio(val) => val.forward_origin.as_ref(),
             Self::BoostAdded(val) => val.forward_origin.as_ref(),
             Self::ChannelChatCreated(val) => val.forward_origin.as_ref(),
@@ -1488,7 +1490,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.forward_origin.as_ref(),
             Self::Invoice(val) => val.forward_origin.as_ref(),
             Self::LeftChatMember(val) => val.forward_origin.as_ref(),
-            Self::LivePhoto(val) => val.forward_origin.as_ref(),
             Self::Location(val) => val.forward_origin.as_ref(),
             Self::ManagedBotCreated(val) => val.forward_origin.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.forward_origin.as_ref(),
@@ -1520,7 +1521,6 @@ impl Message {
             Self::Text(val) => val.forward_origin.as_ref(),
             Self::UniqueGift(val) => val.forward_origin.as_ref(),
             Self::UsersShared(val) => val.forward_origin.as_ref(),
-            Self::Venue(val) => val.forward_origin.as_ref(),
             Self::Video(val) => val.forward_origin.as_ref(),
             Self::VideoChatEnded(val) => val.forward_origin.as_ref(),
             Self::VideoChatParticipantsInvited(val) => val.forward_origin.as_ref(),
@@ -1540,6 +1540,8 @@ impl Message {
     pub fn from(&self) -> Option<&crate::types::User> {
         match self {
             Self::Animation(val) => val.from.as_deref(),
+            Self::LivePhoto(val) => val.from.as_deref(),
+            Self::Venue(val) => val.from.as_deref(),
             Self::Audio(val) => val.from.as_deref(),
             Self::BoostAdded(val) => val.from.as_deref(),
             Self::ChannelChatCreated(val) => val.from.as_deref(),
@@ -1574,7 +1576,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.from.as_deref(),
             Self::Invoice(val) => val.from.as_deref(),
             Self::LeftChatMember(val) => val.from.as_deref(),
-            Self::LivePhoto(val) => val.from.as_deref(),
             Self::Location(val) => val.from.as_deref(),
             Self::ManagedBotCreated(val) => val.from.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.from.as_deref(),
@@ -1606,7 +1607,6 @@ impl Message {
             Self::Text(val) => val.from.as_deref(),
             Self::UniqueGift(val) => val.from.as_deref(),
             Self::UsersShared(val) => val.from.as_deref(),
-            Self::Venue(val) => val.from.as_deref(),
             Self::Video(val) => val.from.as_deref(),
             Self::VideoChatEnded(val) => val.from.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.from.as_deref(),
@@ -1736,6 +1736,8 @@ impl Message {
     pub fn guest_bot_caller_chat(&self) -> Option<&crate::types::Chat> {
         match self {
             Self::Animation(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::LivePhoto(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Venue(val) => val.guest_bot_caller_chat.as_deref(),
             Self::Audio(val) => val.guest_bot_caller_chat.as_deref(),
             Self::BoostAdded(val) => val.guest_bot_caller_chat.as_deref(),
             Self::ChannelChatCreated(val) => val.guest_bot_caller_chat.as_deref(),
@@ -1770,7 +1772,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.guest_bot_caller_chat.as_deref(),
             Self::Invoice(val) => val.guest_bot_caller_chat.as_deref(),
             Self::LeftChatMember(val) => val.guest_bot_caller_chat.as_deref(),
-            Self::LivePhoto(val) => val.guest_bot_caller_chat.as_deref(),
             Self::Location(val) => val.guest_bot_caller_chat.as_deref(),
             Self::ManagedBotCreated(val) => val.guest_bot_caller_chat.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.guest_bot_caller_chat.as_deref(),
@@ -1802,7 +1803,6 @@ impl Message {
             Self::Text(val) => val.guest_bot_caller_chat.as_deref(),
             Self::UniqueGift(val) => val.guest_bot_caller_chat.as_deref(),
             Self::UsersShared(val) => val.guest_bot_caller_chat.as_deref(),
-            Self::Venue(val) => val.guest_bot_caller_chat.as_deref(),
             Self::Video(val) => val.guest_bot_caller_chat.as_deref(),
             Self::VideoChatEnded(val) => val.guest_bot_caller_chat.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.guest_bot_caller_chat.as_deref(),
@@ -1822,6 +1822,8 @@ impl Message {
     pub fn guest_bot_caller_user(&self) -> Option<&crate::types::User> {
         match self {
             Self::Animation(val) => val.guest_bot_caller_user.as_deref(),
+            Self::LivePhoto(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Venue(val) => val.guest_bot_caller_user.as_deref(),
             Self::Audio(val) => val.guest_bot_caller_user.as_deref(),
             Self::BoostAdded(val) => val.guest_bot_caller_user.as_deref(),
             Self::ChannelChatCreated(val) => val.guest_bot_caller_user.as_deref(),
@@ -1856,7 +1858,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.guest_bot_caller_user.as_deref(),
             Self::Invoice(val) => val.guest_bot_caller_user.as_deref(),
             Self::LeftChatMember(val) => val.guest_bot_caller_user.as_deref(),
-            Self::LivePhoto(val) => val.guest_bot_caller_user.as_deref(),
             Self::Location(val) => val.guest_bot_caller_user.as_deref(),
             Self::ManagedBotCreated(val) => val.guest_bot_caller_user.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.guest_bot_caller_user.as_deref(),
@@ -1888,7 +1889,6 @@ impl Message {
             Self::Text(val) => val.guest_bot_caller_user.as_deref(),
             Self::UniqueGift(val) => val.guest_bot_caller_user.as_deref(),
             Self::UsersShared(val) => val.guest_bot_caller_user.as_deref(),
-            Self::Venue(val) => val.guest_bot_caller_user.as_deref(),
             Self::Video(val) => val.guest_bot_caller_user.as_deref(),
             Self::VideoChatEnded(val) => val.guest_bot_caller_user.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.guest_bot_caller_user.as_deref(),
@@ -1908,6 +1908,8 @@ impl Message {
     pub fn guest_query_id(&self) -> Option<&str> {
         match self {
             Self::Animation(val) => val.guest_query_id.as_deref(),
+            Self::LivePhoto(val) => val.guest_query_id.as_deref(),
+            Self::Venue(val) => val.guest_query_id.as_deref(),
             Self::Audio(val) => val.guest_query_id.as_deref(),
             Self::BoostAdded(val) => val.guest_query_id.as_deref(),
             Self::ChannelChatCreated(val) => val.guest_query_id.as_deref(),
@@ -1942,7 +1944,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.guest_query_id.as_deref(),
             Self::Invoice(val) => val.guest_query_id.as_deref(),
             Self::LeftChatMember(val) => val.guest_query_id.as_deref(),
-            Self::LivePhoto(val) => val.guest_query_id.as_deref(),
             Self::Location(val) => val.guest_query_id.as_deref(),
             Self::ManagedBotCreated(val) => val.guest_query_id.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.guest_query_id.as_deref(),
@@ -1974,7 +1975,6 @@ impl Message {
             Self::Text(val) => val.guest_query_id.as_deref(),
             Self::UniqueGift(val) => val.guest_query_id.as_deref(),
             Self::UsersShared(val) => val.guest_query_id.as_deref(),
-            Self::Venue(val) => val.guest_query_id.as_deref(),
             Self::Video(val) => val.guest_query_id.as_deref(),
             Self::VideoChatEnded(val) => val.guest_query_id.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.guest_query_id.as_deref(),
@@ -1994,6 +1994,8 @@ impl Message {
     pub fn has_media_spoiler(&self) -> Option<bool> {
         match self {
             Self::Animation(val) => val.has_media_spoiler,
+            Self::LivePhoto(val) => val.has_media_spoiler,
+            Self::Venue(val) => val.has_media_spoiler,
             Self::Audio(val) => val.has_media_spoiler,
             Self::BoostAdded(val) => val.has_media_spoiler,
             Self::ChannelChatCreated(val) => val.has_media_spoiler,
@@ -2028,7 +2030,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.has_media_spoiler,
             Self::Invoice(val) => val.has_media_spoiler,
             Self::LeftChatMember(val) => val.has_media_spoiler,
-            Self::LivePhoto(val) => val.has_media_spoiler,
             Self::Location(val) => val.has_media_spoiler,
             Self::ManagedBotCreated(val) => val.has_media_spoiler,
             Self::MessageAutoDeleteTimerChanged(val) => val.has_media_spoiler,
@@ -2060,7 +2061,6 @@ impl Message {
             Self::Text(val) => val.has_media_spoiler,
             Self::UniqueGift(val) => val.has_media_spoiler,
             Self::UsersShared(val) => val.has_media_spoiler,
-            Self::Venue(val) => val.has_media_spoiler,
             Self::Video(val) => val.has_media_spoiler,
             Self::VideoChatEnded(val) => val.has_media_spoiler,
             Self::VideoChatParticipantsInvited(val) => val.has_media_spoiler,
@@ -2080,6 +2080,8 @@ impl Message {
     pub fn has_protected_content(&self) -> Option<bool> {
         match self {
             Self::Animation(val) => val.has_protected_content,
+            Self::LivePhoto(val) => val.has_protected_content,
+            Self::Venue(val) => val.has_protected_content,
             Self::Audio(val) => val.has_protected_content,
             Self::BoostAdded(val) => val.has_protected_content,
             Self::ChannelChatCreated(val) => val.has_protected_content,
@@ -2114,7 +2116,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.has_protected_content,
             Self::Invoice(val) => val.has_protected_content,
             Self::LeftChatMember(val) => val.has_protected_content,
-            Self::LivePhoto(val) => val.has_protected_content,
             Self::Location(val) => val.has_protected_content,
             Self::ManagedBotCreated(val) => val.has_protected_content,
             Self::MessageAutoDeleteTimerChanged(val) => val.has_protected_content,
@@ -2146,7 +2147,6 @@ impl Message {
             Self::Text(val) => val.has_protected_content,
             Self::UniqueGift(val) => val.has_protected_content,
             Self::UsersShared(val) => val.has_protected_content,
-            Self::Venue(val) => val.has_protected_content,
             Self::Video(val) => val.has_protected_content,
             Self::VideoChatEnded(val) => val.has_protected_content,
             Self::VideoChatParticipantsInvited(val) => val.has_protected_content,
@@ -2177,6 +2177,8 @@ impl Message {
     pub fn is_automatic_forward(&self) -> Option<bool> {
         match self {
             Self::Animation(val) => val.is_automatic_forward,
+            Self::LivePhoto(val) => val.is_automatic_forward,
+            Self::Venue(val) => val.is_automatic_forward,
             Self::Audio(val) => val.is_automatic_forward,
             Self::BoostAdded(val) => val.is_automatic_forward,
             Self::ChannelChatCreated(val) => val.is_automatic_forward,
@@ -2211,7 +2213,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.is_automatic_forward,
             Self::Invoice(val) => val.is_automatic_forward,
             Self::LeftChatMember(val) => val.is_automatic_forward,
-            Self::LivePhoto(val) => val.is_automatic_forward,
             Self::Location(val) => val.is_automatic_forward,
             Self::ManagedBotCreated(val) => val.is_automatic_forward,
             Self::MessageAutoDeleteTimerChanged(val) => val.is_automatic_forward,
@@ -2243,7 +2244,6 @@ impl Message {
             Self::Text(val) => val.is_automatic_forward,
             Self::UniqueGift(val) => val.is_automatic_forward,
             Self::UsersShared(val) => val.is_automatic_forward,
-            Self::Venue(val) => val.is_automatic_forward,
             Self::Video(val) => val.is_automatic_forward,
             Self::VideoChatEnded(val) => val.is_automatic_forward,
             Self::VideoChatParticipantsInvited(val) => val.is_automatic_forward,
@@ -2263,6 +2263,8 @@ impl Message {
     pub fn is_from_offline(&self) -> Option<bool> {
         match self {
             Self::Animation(val) => val.is_from_offline,
+            Self::LivePhoto(val) => val.is_from_offline,
+            Self::Venue(val) => val.is_from_offline,
             Self::Audio(val) => val.is_from_offline,
             Self::BoostAdded(val) => val.is_from_offline,
             Self::ChannelChatCreated(val) => val.is_from_offline,
@@ -2297,7 +2299,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.is_from_offline,
             Self::Invoice(val) => val.is_from_offline,
             Self::LeftChatMember(val) => val.is_from_offline,
-            Self::LivePhoto(val) => val.is_from_offline,
             Self::Location(val) => val.is_from_offline,
             Self::ManagedBotCreated(val) => val.is_from_offline,
             Self::MessageAutoDeleteTimerChanged(val) => val.is_from_offline,
@@ -2329,7 +2330,6 @@ impl Message {
             Self::Text(val) => val.is_from_offline,
             Self::UniqueGift(val) => val.is_from_offline,
             Self::UsersShared(val) => val.is_from_offline,
-            Self::Venue(val) => val.is_from_offline,
             Self::Video(val) => val.is_from_offline,
             Self::VideoChatEnded(val) => val.is_from_offline,
             Self::VideoChatParticipantsInvited(val) => val.is_from_offline,
@@ -2349,6 +2349,8 @@ impl Message {
     pub fn is_paid_post(&self) -> Option<bool> {
         match self {
             Self::Animation(val) => val.is_paid_post,
+            Self::LivePhoto(val) => val.is_paid_post,
+            Self::Venue(val) => val.is_paid_post,
             Self::Audio(val) => val.is_paid_post,
             Self::BoostAdded(val) => val.is_paid_post,
             Self::ChannelChatCreated(val) => val.is_paid_post,
@@ -2383,7 +2385,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.is_paid_post,
             Self::Invoice(val) => val.is_paid_post,
             Self::LeftChatMember(val) => val.is_paid_post,
-            Self::LivePhoto(val) => val.is_paid_post,
             Self::Location(val) => val.is_paid_post,
             Self::ManagedBotCreated(val) => val.is_paid_post,
             Self::MessageAutoDeleteTimerChanged(val) => val.is_paid_post,
@@ -2415,7 +2416,6 @@ impl Message {
             Self::Text(val) => val.is_paid_post,
             Self::UniqueGift(val) => val.is_paid_post,
             Self::UsersShared(val) => val.is_paid_post,
-            Self::Venue(val) => val.is_paid_post,
             Self::Video(val) => val.is_paid_post,
             Self::VideoChatEnded(val) => val.is_paid_post,
             Self::VideoChatParticipantsInvited(val) => val.is_paid_post,
@@ -2435,6 +2435,8 @@ impl Message {
     pub fn is_topic_message(&self) -> Option<bool> {
         match self {
             Self::Animation(val) => val.is_topic_message,
+            Self::LivePhoto(val) => val.is_topic_message,
+            Self::Venue(val) => val.is_topic_message,
             Self::Audio(val) => val.is_topic_message,
             Self::BoostAdded(val) => val.is_topic_message,
             Self::ChannelChatCreated(val) => val.is_topic_message,
@@ -2469,7 +2471,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.is_topic_message,
             Self::Invoice(val) => val.is_topic_message,
             Self::LeftChatMember(val) => val.is_topic_message,
-            Self::LivePhoto(val) => val.is_topic_message,
             Self::Location(val) => val.is_topic_message,
             Self::ManagedBotCreated(val) => val.is_topic_message,
             Self::MessageAutoDeleteTimerChanged(val) => val.is_topic_message,
@@ -2501,7 +2502,6 @@ impl Message {
             Self::Text(val) => val.is_topic_message,
             Self::UniqueGift(val) => val.is_topic_message,
             Self::UsersShared(val) => val.is_topic_message,
-            Self::Venue(val) => val.is_topic_message,
             Self::Video(val) => val.is_topic_message,
             Self::VideoChatEnded(val) => val.is_topic_message,
             Self::VideoChatParticipantsInvited(val) => val.is_topic_message,
@@ -2532,6 +2532,8 @@ impl Message {
     pub fn link_preview_options(&self) -> Option<&crate::types::LinkPreviewOptions> {
         match self {
             Self::Animation(val) => val.link_preview_options.as_ref(),
+            Self::LivePhoto(val) => val.link_preview_options.as_ref(),
+            Self::Venue(val) => val.link_preview_options.as_ref(),
             Self::Audio(val) => val.link_preview_options.as_ref(),
             Self::BoostAdded(val) => val.link_preview_options.as_ref(),
             Self::ChannelChatCreated(val) => val.link_preview_options.as_ref(),
@@ -2566,7 +2568,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.link_preview_options.as_ref(),
             Self::Invoice(val) => val.link_preview_options.as_ref(),
             Self::LeftChatMember(val) => val.link_preview_options.as_ref(),
-            Self::LivePhoto(val) => val.link_preview_options.as_ref(),
             Self::Location(val) => val.link_preview_options.as_ref(),
             Self::ManagedBotCreated(val) => val.link_preview_options.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.link_preview_options.as_ref(),
@@ -2598,7 +2599,6 @@ impl Message {
             Self::Text(val) => val.link_preview_options.as_ref(),
             Self::UniqueGift(val) => val.link_preview_options.as_ref(),
             Self::UsersShared(val) => val.link_preview_options.as_ref(),
-            Self::Venue(val) => val.link_preview_options.as_ref(),
             Self::Video(val) => val.link_preview_options.as_ref(),
             Self::VideoChatEnded(val) => val.link_preview_options.as_ref(),
             Self::VideoChatParticipantsInvited(val) => val.link_preview_options.as_ref(),
@@ -2651,6 +2651,8 @@ impl Message {
     pub fn media_group_id(&self) -> Option<&str> {
         match self {
             Self::Animation(val) => val.media_group_id.as_deref(),
+            Self::LivePhoto(val) => val.media_group_id.as_deref(),
+            Self::Venue(val) => val.media_group_id.as_deref(),
             Self::Audio(val) => val.media_group_id.as_deref(),
             Self::BoostAdded(val) => val.media_group_id.as_deref(),
             Self::ChannelChatCreated(val) => val.media_group_id.as_deref(),
@@ -2685,7 +2687,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.media_group_id.as_deref(),
             Self::Invoice(val) => val.media_group_id.as_deref(),
             Self::LeftChatMember(val) => val.media_group_id.as_deref(),
-            Self::LivePhoto(val) => val.media_group_id.as_deref(),
             Self::Location(val) => val.media_group_id.as_deref(),
             Self::ManagedBotCreated(val) => val.media_group_id.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.media_group_id.as_deref(),
@@ -2717,7 +2718,6 @@ impl Message {
             Self::Text(val) => val.media_group_id.as_deref(),
             Self::UniqueGift(val) => val.media_group_id.as_deref(),
             Self::UsersShared(val) => val.media_group_id.as_deref(),
-            Self::Venue(val) => val.media_group_id.as_deref(),
             Self::Video(val) => val.media_group_id.as_deref(),
             Self::VideoChatEnded(val) => val.media_group_id.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.media_group_id.as_deref(),
@@ -2752,6 +2752,8 @@ impl Message {
     pub fn message_id(&self) -> i64 {
         match self {
             Self::Animation(val) => val.message_id,
+            Self::LivePhoto(val) => val.message_id,
+            Self::Venue(val) => val.message_id,
             Self::Audio(val) => val.message_id,
             Self::BoostAdded(val) => val.message_id,
             Self::ChannelChatCreated(val) => val.message_id,
@@ -2786,7 +2788,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.message_id,
             Self::Invoice(val) => val.message_id,
             Self::LeftChatMember(val) => val.message_id,
-            Self::LivePhoto(val) => val.message_id,
             Self::Location(val) => val.message_id,
             Self::ManagedBotCreated(val) => val.message_id,
             Self::MessageAutoDeleteTimerChanged(val) => val.message_id,
@@ -2818,7 +2819,6 @@ impl Message {
             Self::Text(val) => val.message_id,
             Self::UniqueGift(val) => val.message_id,
             Self::UsersShared(val) => val.message_id,
-            Self::Venue(val) => val.message_id,
             Self::Video(val) => val.message_id,
             Self::VideoChatEnded(val) => val.message_id,
             Self::VideoChatParticipantsInvited(val) => val.message_id,
@@ -2838,6 +2838,8 @@ impl Message {
     pub fn message_thread_id(&self) -> Option<i64> {
         match self {
             Self::Animation(val) => val.message_thread_id,
+            Self::LivePhoto(val) => val.message_thread_id,
+            Self::Venue(val) => val.message_thread_id,
             Self::Audio(val) => val.message_thread_id,
             Self::BoostAdded(val) => val.message_thread_id,
             Self::ChannelChatCreated(val) => val.message_thread_id,
@@ -2872,7 +2874,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.message_thread_id,
             Self::Invoice(val) => val.message_thread_id,
             Self::LeftChatMember(val) => val.message_thread_id,
-            Self::LivePhoto(val) => val.message_thread_id,
             Self::Location(val) => val.message_thread_id,
             Self::ManagedBotCreated(val) => val.message_thread_id,
             Self::MessageAutoDeleteTimerChanged(val) => val.message_thread_id,
@@ -2904,7 +2905,6 @@ impl Message {
             Self::Text(val) => val.message_thread_id,
             Self::UniqueGift(val) => val.message_thread_id,
             Self::UsersShared(val) => val.message_thread_id,
-            Self::Venue(val) => val.message_thread_id,
             Self::Video(val) => val.message_thread_id,
             Self::VideoChatEnded(val) => val.message_thread_id,
             Self::VideoChatParticipantsInvited(val) => val.message_thread_id,
@@ -3001,6 +3001,8 @@ impl Message {
     pub fn paid_star_count(&self) -> Option<i64> {
         match self {
             Self::Animation(val) => val.paid_star_count,
+            Self::LivePhoto(val) => val.paid_star_count,
+            Self::Venue(val) => val.paid_star_count,
             Self::Audio(val) => val.paid_star_count,
             Self::BoostAdded(val) => val.paid_star_count,
             Self::ChannelChatCreated(val) => val.paid_star_count,
@@ -3035,7 +3037,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.paid_star_count,
             Self::Invoice(val) => val.paid_star_count,
             Self::LeftChatMember(val) => val.paid_star_count,
-            Self::LivePhoto(val) => val.paid_star_count,
             Self::Location(val) => val.paid_star_count,
             Self::ManagedBotCreated(val) => val.paid_star_count,
             Self::MessageAutoDeleteTimerChanged(val) => val.paid_star_count,
@@ -3067,7 +3068,6 @@ impl Message {
             Self::Text(val) => val.paid_star_count,
             Self::UniqueGift(val) => val.paid_star_count,
             Self::UsersShared(val) => val.paid_star_count,
-            Self::Venue(val) => val.paid_star_count,
             Self::Video(val) => val.paid_star_count,
             Self::VideoChatEnded(val) => val.paid_star_count,
             Self::VideoChatParticipantsInvited(val) => val.paid_star_count,
@@ -3164,6 +3164,8 @@ impl Message {
     pub fn quote(&self) -> Option<&crate::types::TextQuote> {
         match self {
             Self::Animation(val) => val.quote.as_ref(),
+            Self::LivePhoto(val) => val.quote.as_ref(),
+            Self::Venue(val) => val.quote.as_ref(),
             Self::Audio(val) => val.quote.as_ref(),
             Self::BoostAdded(val) => val.quote.as_ref(),
             Self::ChannelChatCreated(val) => val.quote.as_ref(),
@@ -3198,7 +3200,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.quote.as_ref(),
             Self::Invoice(val) => val.quote.as_ref(),
             Self::LeftChatMember(val) => val.quote.as_ref(),
-            Self::LivePhoto(val) => val.quote.as_ref(),
             Self::Location(val) => val.quote.as_ref(),
             Self::ManagedBotCreated(val) => val.quote.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.quote.as_ref(),
@@ -3230,7 +3231,6 @@ impl Message {
             Self::Text(val) => val.quote.as_ref(),
             Self::UniqueGift(val) => val.quote.as_ref(),
             Self::UsersShared(val) => val.quote.as_ref(),
-            Self::Venue(val) => val.quote.as_ref(),
             Self::Video(val) => val.quote.as_ref(),
             Self::VideoChatEnded(val) => val.quote.as_ref(),
             Self::VideoChatParticipantsInvited(val) => val.quote.as_ref(),
@@ -3250,6 +3250,8 @@ impl Message {
     pub fn receiver_user(&self) -> Option<&crate::types::User> {
         match self {
             Self::Animation(val) => val.receiver_user.as_deref(),
+            Self::LivePhoto(val) => val.receiver_user.as_deref(),
+            Self::Venue(val) => val.receiver_user.as_deref(),
             Self::Audio(val) => val.receiver_user.as_deref(),
             Self::BoostAdded(val) => val.receiver_user.as_deref(),
             Self::ChannelChatCreated(val) => val.receiver_user.as_deref(),
@@ -3284,7 +3286,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.receiver_user.as_deref(),
             Self::Invoice(val) => val.receiver_user.as_deref(),
             Self::LeftChatMember(val) => val.receiver_user.as_deref(),
-            Self::LivePhoto(val) => val.receiver_user.as_deref(),
             Self::Location(val) => val.receiver_user.as_deref(),
             Self::ManagedBotCreated(val) => val.receiver_user.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.receiver_user.as_deref(),
@@ -3316,7 +3317,6 @@ impl Message {
             Self::Text(val) => val.receiver_user.as_deref(),
             Self::UniqueGift(val) => val.receiver_user.as_deref(),
             Self::UsersShared(val) => val.receiver_user.as_deref(),
-            Self::Venue(val) => val.receiver_user.as_deref(),
             Self::Video(val) => val.receiver_user.as_deref(),
             Self::VideoChatEnded(val) => val.receiver_user.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.receiver_user.as_deref(),
@@ -3347,6 +3347,8 @@ impl Message {
     pub fn reply_markup(&self) -> Option<&crate::types::InlineKeyboardMarkup> {
         match self {
             Self::Animation(val) => val.reply_markup.as_ref(),
+            Self::LivePhoto(val) => val.reply_markup.as_ref(),
+            Self::Venue(val) => val.reply_markup.as_ref(),
             Self::Audio(val) => val.reply_markup.as_ref(),
             Self::BoostAdded(val) => val.reply_markup.as_ref(),
             Self::ChannelChatCreated(val) => val.reply_markup.as_ref(),
@@ -3381,7 +3383,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.reply_markup.as_ref(),
             Self::Invoice(val) => val.reply_markup.as_ref(),
             Self::LeftChatMember(val) => val.reply_markup.as_ref(),
-            Self::LivePhoto(val) => val.reply_markup.as_ref(),
             Self::Location(val) => val.reply_markup.as_ref(),
             Self::ManagedBotCreated(val) => val.reply_markup.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.reply_markup.as_ref(),
@@ -3413,7 +3414,6 @@ impl Message {
             Self::Text(val) => val.reply_markup.as_ref(),
             Self::UniqueGift(val) => val.reply_markup.as_ref(),
             Self::UsersShared(val) => val.reply_markup.as_ref(),
-            Self::Venue(val) => val.reply_markup.as_ref(),
             Self::Video(val) => val.reply_markup.as_ref(),
             Self::VideoChatEnded(val) => val.reply_markup.as_ref(),
             Self::VideoChatParticipantsInvited(val) => val.reply_markup.as_ref(),
@@ -3433,6 +3433,8 @@ impl Message {
     pub fn reply_to_checklist_task_id(&self) -> Option<i64> {
         match self {
             Self::Animation(val) => val.reply_to_checklist_task_id,
+            Self::LivePhoto(val) => val.reply_to_checklist_task_id,
+            Self::Venue(val) => val.reply_to_checklist_task_id,
             Self::Audio(val) => val.reply_to_checklist_task_id,
             Self::BoostAdded(val) => val.reply_to_checklist_task_id,
             Self::ChannelChatCreated(val) => val.reply_to_checklist_task_id,
@@ -3467,7 +3469,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.reply_to_checklist_task_id,
             Self::Invoice(val) => val.reply_to_checklist_task_id,
             Self::LeftChatMember(val) => val.reply_to_checklist_task_id,
-            Self::LivePhoto(val) => val.reply_to_checklist_task_id,
             Self::Location(val) => val.reply_to_checklist_task_id,
             Self::ManagedBotCreated(val) => val.reply_to_checklist_task_id,
             Self::MessageAutoDeleteTimerChanged(val) => val.reply_to_checklist_task_id,
@@ -3499,7 +3500,6 @@ impl Message {
             Self::Text(val) => val.reply_to_checklist_task_id,
             Self::UniqueGift(val) => val.reply_to_checklist_task_id,
             Self::UsersShared(val) => val.reply_to_checklist_task_id,
-            Self::Venue(val) => val.reply_to_checklist_task_id,
             Self::Video(val) => val.reply_to_checklist_task_id,
             Self::VideoChatEnded(val) => val.reply_to_checklist_task_id,
             Self::VideoChatParticipantsInvited(val) => val.reply_to_checklist_task_id,
@@ -3519,6 +3519,8 @@ impl Message {
     pub fn reply_to_message(&self) -> Option<&crate::types::Message> {
         match self {
             Self::Animation(val) => val.reply_to_message.as_deref(),
+            Self::LivePhoto(val) => val.reply_to_message.as_deref(),
+            Self::Venue(val) => val.reply_to_message.as_deref(),
             Self::Audio(val) => val.reply_to_message.as_deref(),
             Self::BoostAdded(val) => val.reply_to_message.as_deref(),
             Self::ChannelChatCreated(val) => val.reply_to_message.as_deref(),
@@ -3553,7 +3555,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.reply_to_message.as_deref(),
             Self::Invoice(val) => val.reply_to_message.as_deref(),
             Self::LeftChatMember(val) => val.reply_to_message.as_deref(),
-            Self::LivePhoto(val) => val.reply_to_message.as_deref(),
             Self::Location(val) => val.reply_to_message.as_deref(),
             Self::ManagedBotCreated(val) => val.reply_to_message.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.reply_to_message.as_deref(),
@@ -3585,7 +3586,6 @@ impl Message {
             Self::Text(val) => val.reply_to_message.as_deref(),
             Self::UniqueGift(val) => val.reply_to_message.as_deref(),
             Self::UsersShared(val) => val.reply_to_message.as_deref(),
-            Self::Venue(val) => val.reply_to_message.as_deref(),
             Self::Video(val) => val.reply_to_message.as_deref(),
             Self::VideoChatEnded(val) => val.reply_to_message.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.reply_to_message.as_deref(),
@@ -3605,6 +3605,8 @@ impl Message {
     pub fn reply_to_poll_option_id(&self) -> Option<&str> {
         match self {
             Self::Animation(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::LivePhoto(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Venue(val) => val.reply_to_poll_option_id.as_deref(),
             Self::Audio(val) => val.reply_to_poll_option_id.as_deref(),
             Self::BoostAdded(val) => val.reply_to_poll_option_id.as_deref(),
             Self::ChannelChatCreated(val) => val.reply_to_poll_option_id.as_deref(),
@@ -3639,7 +3641,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.reply_to_poll_option_id.as_deref(),
             Self::Invoice(val) => val.reply_to_poll_option_id.as_deref(),
             Self::LeftChatMember(val) => val.reply_to_poll_option_id.as_deref(),
-            Self::LivePhoto(val) => val.reply_to_poll_option_id.as_deref(),
             Self::Location(val) => val.reply_to_poll_option_id.as_deref(),
             Self::ManagedBotCreated(val) => val.reply_to_poll_option_id.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.reply_to_poll_option_id.as_deref(),
@@ -3671,7 +3672,6 @@ impl Message {
             Self::Text(val) => val.reply_to_poll_option_id.as_deref(),
             Self::UniqueGift(val) => val.reply_to_poll_option_id.as_deref(),
             Self::UsersShared(val) => val.reply_to_poll_option_id.as_deref(),
-            Self::Venue(val) => val.reply_to_poll_option_id.as_deref(),
             Self::Video(val) => val.reply_to_poll_option_id.as_deref(),
             Self::VideoChatEnded(val) => val.reply_to_poll_option_id.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.reply_to_poll_option_id.as_deref(),
@@ -3691,6 +3691,8 @@ impl Message {
     pub fn reply_to_story(&self) -> Option<&crate::types::Story> {
         match self {
             Self::Animation(val) => val.reply_to_story.as_ref(),
+            Self::LivePhoto(val) => val.reply_to_story.as_ref(),
+            Self::Venue(val) => val.reply_to_story.as_ref(),
             Self::Audio(val) => val.reply_to_story.as_ref(),
             Self::BoostAdded(val) => val.reply_to_story.as_ref(),
             Self::ChannelChatCreated(val) => val.reply_to_story.as_ref(),
@@ -3725,7 +3727,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.reply_to_story.as_ref(),
             Self::Invoice(val) => val.reply_to_story.as_ref(),
             Self::LeftChatMember(val) => val.reply_to_story.as_ref(),
-            Self::LivePhoto(val) => val.reply_to_story.as_ref(),
             Self::Location(val) => val.reply_to_story.as_ref(),
             Self::ManagedBotCreated(val) => val.reply_to_story.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.reply_to_story.as_ref(),
@@ -3757,7 +3758,6 @@ impl Message {
             Self::Text(val) => val.reply_to_story.as_ref(),
             Self::UniqueGift(val) => val.reply_to_story.as_ref(),
             Self::UsersShared(val) => val.reply_to_story.as_ref(),
-            Self::Venue(val) => val.reply_to_story.as_ref(),
             Self::Video(val) => val.reply_to_story.as_ref(),
             Self::VideoChatEnded(val) => val.reply_to_story.as_ref(),
             Self::VideoChatParticipantsInvited(val) => val.reply_to_story.as_ref(),
@@ -3788,6 +3788,8 @@ impl Message {
     pub fn sender_boost_count(&self) -> Option<i64> {
         match self {
             Self::Animation(val) => val.sender_boost_count,
+            Self::LivePhoto(val) => val.sender_boost_count,
+            Self::Venue(val) => val.sender_boost_count,
             Self::Audio(val) => val.sender_boost_count,
             Self::BoostAdded(val) => val.sender_boost_count,
             Self::ChannelChatCreated(val) => val.sender_boost_count,
@@ -3822,7 +3824,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.sender_boost_count,
             Self::Invoice(val) => val.sender_boost_count,
             Self::LeftChatMember(val) => val.sender_boost_count,
-            Self::LivePhoto(val) => val.sender_boost_count,
             Self::Location(val) => val.sender_boost_count,
             Self::ManagedBotCreated(val) => val.sender_boost_count,
             Self::MessageAutoDeleteTimerChanged(val) => val.sender_boost_count,
@@ -3854,7 +3855,6 @@ impl Message {
             Self::Text(val) => val.sender_boost_count,
             Self::UniqueGift(val) => val.sender_boost_count,
             Self::UsersShared(val) => val.sender_boost_count,
-            Self::Venue(val) => val.sender_boost_count,
             Self::Video(val) => val.sender_boost_count,
             Self::VideoChatEnded(val) => val.sender_boost_count,
             Self::VideoChatParticipantsInvited(val) => val.sender_boost_count,
@@ -3874,6 +3874,8 @@ impl Message {
     pub fn sender_business_bot(&self) -> Option<&crate::types::User> {
         match self {
             Self::Animation(val) => val.sender_business_bot.as_deref(),
+            Self::LivePhoto(val) => val.sender_business_bot.as_deref(),
+            Self::Venue(val) => val.sender_business_bot.as_deref(),
             Self::Audio(val) => val.sender_business_bot.as_deref(),
             Self::BoostAdded(val) => val.sender_business_bot.as_deref(),
             Self::ChannelChatCreated(val) => val.sender_business_bot.as_deref(),
@@ -3908,7 +3910,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.sender_business_bot.as_deref(),
             Self::Invoice(val) => val.sender_business_bot.as_deref(),
             Self::LeftChatMember(val) => val.sender_business_bot.as_deref(),
-            Self::LivePhoto(val) => val.sender_business_bot.as_deref(),
             Self::Location(val) => val.sender_business_bot.as_deref(),
             Self::ManagedBotCreated(val) => val.sender_business_bot.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.sender_business_bot.as_deref(),
@@ -3940,7 +3941,6 @@ impl Message {
             Self::Text(val) => val.sender_business_bot.as_deref(),
             Self::UniqueGift(val) => val.sender_business_bot.as_deref(),
             Self::UsersShared(val) => val.sender_business_bot.as_deref(),
-            Self::Venue(val) => val.sender_business_bot.as_deref(),
             Self::Video(val) => val.sender_business_bot.as_deref(),
             Self::VideoChatEnded(val) => val.sender_business_bot.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.sender_business_bot.as_deref(),
@@ -3960,6 +3960,8 @@ impl Message {
     pub fn sender_chat(&self) -> Option<&crate::types::Chat> {
         match self {
             Self::Animation(val) => val.sender_chat.as_deref(),
+            Self::LivePhoto(val) => val.sender_chat.as_deref(),
+            Self::Venue(val) => val.sender_chat.as_deref(),
             Self::Audio(val) => val.sender_chat.as_deref(),
             Self::BoostAdded(val) => val.sender_chat.as_deref(),
             Self::ChannelChatCreated(val) => val.sender_chat.as_deref(),
@@ -3994,7 +3996,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.sender_chat.as_deref(),
             Self::Invoice(val) => val.sender_chat.as_deref(),
             Self::LeftChatMember(val) => val.sender_chat.as_deref(),
-            Self::LivePhoto(val) => val.sender_chat.as_deref(),
             Self::Location(val) => val.sender_chat.as_deref(),
             Self::ManagedBotCreated(val) => val.sender_chat.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.sender_chat.as_deref(),
@@ -4026,7 +4027,6 @@ impl Message {
             Self::Text(val) => val.sender_chat.as_deref(),
             Self::UniqueGift(val) => val.sender_chat.as_deref(),
             Self::UsersShared(val) => val.sender_chat.as_deref(),
-            Self::Venue(val) => val.sender_chat.as_deref(),
             Self::Video(val) => val.sender_chat.as_deref(),
             Self::VideoChatEnded(val) => val.sender_chat.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.sender_chat.as_deref(),
@@ -4046,6 +4046,8 @@ impl Message {
     pub fn sender_tag(&self) -> Option<&str> {
         match self {
             Self::Animation(val) => val.sender_tag.as_deref(),
+            Self::LivePhoto(val) => val.sender_tag.as_deref(),
+            Self::Venue(val) => val.sender_tag.as_deref(),
             Self::Audio(val) => val.sender_tag.as_deref(),
             Self::BoostAdded(val) => val.sender_tag.as_deref(),
             Self::ChannelChatCreated(val) => val.sender_tag.as_deref(),
@@ -4080,7 +4082,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.sender_tag.as_deref(),
             Self::Invoice(val) => val.sender_tag.as_deref(),
             Self::LeftChatMember(val) => val.sender_tag.as_deref(),
-            Self::LivePhoto(val) => val.sender_tag.as_deref(),
             Self::Location(val) => val.sender_tag.as_deref(),
             Self::ManagedBotCreated(val) => val.sender_tag.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.sender_tag.as_deref(),
@@ -4112,7 +4113,6 @@ impl Message {
             Self::Text(val) => val.sender_tag.as_deref(),
             Self::UniqueGift(val) => val.sender_tag.as_deref(),
             Self::UsersShared(val) => val.sender_tag.as_deref(),
-            Self::Venue(val) => val.sender_tag.as_deref(),
             Self::Video(val) => val.sender_tag.as_deref(),
             Self::VideoChatEnded(val) => val.sender_tag.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.sender_tag.as_deref(),
@@ -4132,6 +4132,8 @@ impl Message {
     pub fn show_caption_above_media(&self) -> Option<bool> {
         match self {
             Self::Animation(val) => val.show_caption_above_media,
+            Self::LivePhoto(val) => val.show_caption_above_media,
+            Self::Venue(val) => val.show_caption_above_media,
             Self::Audio(val) => val.show_caption_above_media,
             Self::BoostAdded(val) => val.show_caption_above_media,
             Self::ChannelChatCreated(val) => val.show_caption_above_media,
@@ -4166,7 +4168,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.show_caption_above_media,
             Self::Invoice(val) => val.show_caption_above_media,
             Self::LeftChatMember(val) => val.show_caption_above_media,
-            Self::LivePhoto(val) => val.show_caption_above_media,
             Self::Location(val) => val.show_caption_above_media,
             Self::ManagedBotCreated(val) => val.show_caption_above_media,
             Self::MessageAutoDeleteTimerChanged(val) => val.show_caption_above_media,
@@ -4198,7 +4199,6 @@ impl Message {
             Self::Text(val) => val.show_caption_above_media,
             Self::UniqueGift(val) => val.show_caption_above_media,
             Self::UsersShared(val) => val.show_caption_above_media,
-            Self::Venue(val) => val.show_caption_above_media,
             Self::Video(val) => val.show_caption_above_media,
             Self::VideoChatEnded(val) => val.show_caption_above_media,
             Self::VideoChatParticipantsInvited(val) => val.show_caption_above_media,
@@ -4286,6 +4286,8 @@ impl Message {
     pub fn suggested_post_info(&self) -> Option<&crate::types::SuggestedPostInfo> {
         match self {
             Self::Animation(val) => val.suggested_post_info.as_ref(),
+            Self::LivePhoto(val) => val.suggested_post_info.as_ref(),
+            Self::Venue(val) => val.suggested_post_info.as_ref(),
             Self::Audio(val) => val.suggested_post_info.as_ref(),
             Self::BoostAdded(val) => val.suggested_post_info.as_ref(),
             Self::ChannelChatCreated(val) => val.suggested_post_info.as_ref(),
@@ -4320,7 +4322,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.suggested_post_info.as_ref(),
             Self::Invoice(val) => val.suggested_post_info.as_ref(),
             Self::LeftChatMember(val) => val.suggested_post_info.as_ref(),
-            Self::LivePhoto(val) => val.suggested_post_info.as_ref(),
             Self::Location(val) => val.suggested_post_info.as_ref(),
             Self::ManagedBotCreated(val) => val.suggested_post_info.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.suggested_post_info.as_ref(),
@@ -4352,7 +4353,6 @@ impl Message {
             Self::Text(val) => val.suggested_post_info.as_ref(),
             Self::UniqueGift(val) => val.suggested_post_info.as_ref(),
             Self::UsersShared(val) => val.suggested_post_info.as_ref(),
-            Self::Venue(val) => val.suggested_post_info.as_ref(),
             Self::Video(val) => val.suggested_post_info.as_ref(),
             Self::VideoChatEnded(val) => val.suggested_post_info.as_ref(),
             Self::VideoChatParticipantsInvited(val) => val.suggested_post_info.as_ref(),
@@ -4449,6 +4449,8 @@ impl Message {
     pub fn via_bot(&self) -> Option<&crate::types::User> {
         match self {
             Self::Animation(val) => val.via_bot.as_deref(),
+            Self::LivePhoto(val) => val.via_bot.as_deref(),
+            Self::Venue(val) => val.via_bot.as_deref(),
             Self::Audio(val) => val.via_bot.as_deref(),
             Self::BoostAdded(val) => val.via_bot.as_deref(),
             Self::ChannelChatCreated(val) => val.via_bot.as_deref(),
@@ -4483,7 +4485,6 @@ impl Message {
             Self::GroupChatCreated(val) => val.via_bot.as_deref(),
             Self::Invoice(val) => val.via_bot.as_deref(),
             Self::LeftChatMember(val) => val.via_bot.as_deref(),
-            Self::LivePhoto(val) => val.via_bot.as_deref(),
             Self::Location(val) => val.via_bot.as_deref(),
             Self::ManagedBotCreated(val) => val.via_bot.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.via_bot.as_deref(),
@@ -4515,7 +4516,6 @@ impl Message {
             Self::Text(val) => val.via_bot.as_deref(),
             Self::UniqueGift(val) => val.via_bot.as_deref(),
             Self::UsersShared(val) => val.via_bot.as_deref(),
-            Self::Venue(val) => val.via_bot.as_deref(),
             Self::Video(val) => val.via_bot.as_deref(),
             Self::VideoChatEnded(val) => val.via_bot.as_deref(),
             Self::VideoChatParticipantsInvited(val) => val.via_bot.as_deref(),
@@ -6735,6 +6735,44 @@ impl TryFrom<Message> for crate::types::MessageAnimation {
         }
     }
 }
+impl From<crate::types::MessageLivePhoto> for Message {
+    fn from(val: crate::types::MessageLivePhoto) -> Self {
+        Self::LivePhoto(val)
+    }
+}
+impl TryFrom<Message> for crate::types::MessageLivePhoto {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Message) -> Result<Self, Self::Error> {
+        if let Message::LivePhoto(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Message),
+                stringify!(MessageLivePhoto),
+            ))
+        }
+    }
+}
+impl From<crate::types::MessageVenue> for Message {
+    fn from(val: crate::types::MessageVenue) -> Self {
+        Self::Venue(val)
+    }
+}
+impl TryFrom<Message> for crate::types::MessageVenue {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Message) -> Result<Self, Self::Error> {
+        if let Message::Venue(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Message),
+                stringify!(MessageVenue),
+            ))
+        }
+    }
+}
 impl From<crate::types::MessageAudio> for Message {
     fn from(val: crate::types::MessageAudio) -> Self {
         Self::Audio(val)
@@ -7381,25 +7419,6 @@ impl TryFrom<Message> for crate::types::MessageLeftChatMember {
         }
     }
 }
-impl From<crate::types::MessageLivePhoto> for Message {
-    fn from(val: crate::types::MessageLivePhoto) -> Self {
-        Self::LivePhoto(val)
-    }
-}
-impl TryFrom<Message> for crate::types::MessageLivePhoto {
-    type Error = crate::errors::ConvertToTypeError;
-
-    fn try_from(val: Message) -> Result<Self, Self::Error> {
-        if let Message::LivePhoto(inner) = val {
-            Ok(inner)
-        } else {
-            Err(Self::Error::new(
-                stringify!(Message),
-                stringify!(MessageLivePhoto),
-            ))
-        }
-    }
-}
 impl From<crate::types::MessageLocation> for Message {
     fn from(val: crate::types::MessageLocation) -> Self {
         Self::Location(val)
@@ -7985,25 +8004,6 @@ impl TryFrom<Message> for crate::types::MessageUsersShared {
             Err(Self::Error::new(
                 stringify!(Message),
                 stringify!(MessageUsersShared),
-            ))
-        }
-    }
-}
-impl From<crate::types::MessageVenue> for Message {
-    fn from(val: crate::types::MessageVenue) -> Self {
-        Self::Venue(val)
-    }
-}
-impl TryFrom<Message> for crate::types::MessageVenue {
-    type Error = crate::errors::ConvertToTypeError;
-
-    fn try_from(val: Message) -> Result<Self, Self::Error> {
-        if let Message::Venue(inner) = val {
-            Ok(inner)
-        } else {
-            Err(Self::Error::new(
-                stringify!(Message),
-                stringify!(MessageVenue),
             ))
         }
     }

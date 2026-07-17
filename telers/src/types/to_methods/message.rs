@@ -93,6 +93,44 @@ impl MessageAnimation {
         DeleteMessage::new(self.chat.id(), self.message_id)
     }
 }
+impl MessageLivePhoto {
+    /// Creates [`CopyMessage`] for this message.
+    #[must_use]
+    pub fn to_copy_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> CopyMessage {
+        CopyMessage::new(chat_id, self.chat.id(), self.message_id)
+    }
+
+    /// Creates [`ForwardMessage`] for this message.
+    #[must_use]
+    pub fn to_forward_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> ForwardMessage {
+        ForwardMessage::new(chat_id, self.chat.id(), self.message_id)
+    }
+
+    /// Creates [`DeleteMessage`] for this message.
+    #[must_use]
+    pub fn delete_message(&self) -> DeleteMessage {
+        DeleteMessage::new(self.chat.id(), self.message_id)
+    }
+}
+impl MessageVenue {
+    /// Creates [`CopyMessage`] for this message.
+    #[must_use]
+    pub fn to_copy_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> CopyMessage {
+        CopyMessage::new(chat_id, self.chat.id(), self.message_id)
+    }
+
+    /// Creates [`ForwardMessage`] for this message.
+    #[must_use]
+    pub fn to_forward_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> ForwardMessage {
+        ForwardMessage::new(chat_id, self.chat.id(), self.message_id)
+    }
+
+    /// Creates [`DeleteMessage`] for this message.
+    #[must_use]
+    pub fn delete_message(&self) -> DeleteMessage {
+        DeleteMessage::new(self.chat.id(), self.message_id)
+    }
+}
 impl MessageAudio {
     /// Creates [`CopyMessage`] for this message.
     #[must_use]
@@ -739,25 +777,6 @@ impl MessageLeftChatMember {
         DeleteMessage::new(self.chat.id(), self.message_id)
     }
 }
-impl MessageLivePhoto {
-    /// Creates [`CopyMessage`] for this message.
-    #[must_use]
-    pub fn to_copy_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> CopyMessage {
-        CopyMessage::new(chat_id, self.chat.id(), self.message_id)
-    }
-
-    /// Creates [`ForwardMessage`] for this message.
-    #[must_use]
-    pub fn to_forward_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> ForwardMessage {
-        ForwardMessage::new(chat_id, self.chat.id(), self.message_id)
-    }
-
-    /// Creates [`DeleteMessage`] for this message.
-    #[must_use]
-    pub fn delete_message(&self) -> DeleteMessage {
-        DeleteMessage::new(self.chat.id(), self.message_id)
-    }
-}
 impl MessageLocation {
     /// Creates [`CopyMessage`] for this message.
     #[must_use]
@@ -1329,25 +1348,6 @@ impl MessageUniqueGift {
     }
 }
 impl MessageUsersShared {
-    /// Creates [`CopyMessage`] for this message.
-    #[must_use]
-    pub fn to_copy_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> CopyMessage {
-        CopyMessage::new(chat_id, self.chat.id(), self.message_id)
-    }
-
-    /// Creates [`ForwardMessage`] for this message.
-    #[must_use]
-    pub fn to_forward_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> ForwardMessage {
-        ForwardMessage::new(chat_id, self.chat.id(), self.message_id)
-    }
-
-    /// Creates [`DeleteMessage`] for this message.
-    #[must_use]
-    pub fn delete_message(&self) -> DeleteMessage {
-        DeleteMessage::new(self.chat.id(), self.message_id)
-    }
-}
-impl MessageVenue {
     /// Creates [`CopyMessage`] for this message.
     #[must_use]
     pub fn to_copy_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> CopyMessage {

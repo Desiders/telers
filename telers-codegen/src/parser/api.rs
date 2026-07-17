@@ -588,16 +588,26 @@ impl NormalizedSchema {
     ///
     /// This avoids premature matching of broad variants during serde untagged deserialization.
     pub fn reorder_untagged_subtypes(&mut self) {
+        // "For backward compatibility, ... the X field will also be set": a payload for such
+        // a variant also contains `X` (venue -> location, animation -> document,
+        // live_photo -> photo), so `X` is folded into the variant's field fingerprint. The
+        // superset rule below then tries the coupled variant first — otherwise a venue
+        // message matches the location variant and the venue is silently lost.
+        let also_sets_re =
+            Regex::new(r"the (\w+) field will also be set").expect("valid coupling regex");
         let required_fields_map: HashMap<_, _> = self
             .types
             .iter()
             .map(|(name, ty)| {
-                let required: HashSet<String> = ty
-                    .fields
-                    .iter()
-                    .filter(|f| f.required)
-                    .map(|f| f.name.clone())
-                    .collect();
+                let required: HashSet<String> =
+                    ty.fields
+                        .iter()
+                        .filter(|f| f.required)
+                        .map(|f| f.name.clone())
+                        .chain(ty.fields.iter().filter_map(|f| {
+                            Some(also_sets_re.captures(&f.description)?[1].to_owned())
+                        }))
+                        .collect();
                 (name.clone(), (required, ty.fields.len()))
             })
             .collect();

@@ -99,6 +99,10 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 pub enum MessageType {
     #[strum(serialize = "animation")]
     Animation,
+    #[strum(serialize = "live_photo")]
+    LivePhoto,
+    #[strum(serialize = "venue")]
+    Venue,
     #[strum(serialize = "audio")]
     Audio,
     #[strum(serialize = "boost_added")]
@@ -167,8 +171,6 @@ pub enum MessageType {
     Invoice,
     #[strum(serialize = "left_chat_member")]
     LeftChatMember,
-    #[strum(serialize = "live_photo")]
-    LivePhoto,
     #[strum(serialize = "location")]
     Location,
     #[strum(serialize = "managed_bot_created")]
@@ -231,8 +233,6 @@ pub enum MessageType {
     UniqueGift,
     #[strum(serialize = "users_shared")]
     UsersShared,
-    #[strum(serialize = "venue")]
-    Venue,
     #[strum(serialize = "video")]
     Video,
     #[strum(serialize = "video_chat_ended")]
@@ -257,6 +257,8 @@ impl MessageType {
     pub const fn all() -> [MessageType; 77usize] {
         [
             MessageType::Animation,
+            MessageType::LivePhoto,
+            MessageType::Venue,
             MessageType::Audio,
             MessageType::BoostAdded,
             MessageType::ChannelChatCreated,
@@ -291,7 +293,6 @@ impl MessageType {
             MessageType::GroupChatCreated,
             MessageType::Invoice,
             MessageType::LeftChatMember,
-            MessageType::LivePhoto,
             MessageType::Location,
             MessageType::ManagedBotCreated,
             MessageType::MessageAutoDeleteTimerChanged,
@@ -323,7 +324,6 @@ impl MessageType {
             MessageType::Text,
             MessageType::UniqueGift,
             MessageType::UsersShared,
-            MessageType::Venue,
             MessageType::Video,
             MessageType::VideoChatEnded,
             MessageType::VideoChatParticipantsInvited,
@@ -355,6 +355,8 @@ impl<'a> From<&'a Message> for MessageType {
     fn from(val: &'a Message) -> Self {
         match val {
             Message::Animation(_) => MessageType::Animation,
+            Message::LivePhoto(_) => MessageType::LivePhoto,
+            Message::Venue(_) => MessageType::Venue,
             Message::Audio(_) => MessageType::Audio,
             Message::BoostAdded(_) => MessageType::BoostAdded,
             Message::ChannelChatCreated(_) => MessageType::ChannelChatCreated,
@@ -389,7 +391,6 @@ impl<'a> From<&'a Message> for MessageType {
             Message::GroupChatCreated(_) => MessageType::GroupChatCreated,
             Message::Invoice(_) => MessageType::Invoice,
             Message::LeftChatMember(_) => MessageType::LeftChatMember,
-            Message::LivePhoto(_) => MessageType::LivePhoto,
             Message::Location(_) => MessageType::Location,
             Message::ManagedBotCreated(_) => MessageType::ManagedBotCreated,
             Message::MessageAutoDeleteTimerChanged(_) => MessageType::MessageAutoDeleteTimerChanged,
@@ -421,7 +422,6 @@ impl<'a> From<&'a Message> for MessageType {
             Message::Text(_) => MessageType::Text,
             Message::UniqueGift(_) => MessageType::UniqueGift,
             Message::UsersShared(_) => MessageType::UsersShared,
-            Message::Venue(_) => MessageType::Venue,
             Message::Video(_) => MessageType::Video,
             Message::VideoChatEnded(_) => MessageType::VideoChatEnded,
             Message::VideoChatParticipantsInvited(_) => MessageType::VideoChatParticipantsInvited,
