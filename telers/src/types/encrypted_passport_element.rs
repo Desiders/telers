@@ -141,10 +141,10 @@ impl EncryptedPassportElement {
     #[must_use]
     pub fn selfie(&self) -> Option<&crate::types::PassportFile> {
         match self {
-            Self::Passport(val) => Some(&val.selfie),
-            Self::DriverLicense(val) => Some(&val.selfie),
-            Self::IdentityCard(val) => Some(&val.selfie),
-            Self::InternalPassport(val) => Some(&val.selfie),
+            Self::Passport(val) => val.selfie.as_ref(),
+            Self::DriverLicense(val) => val.selfie.as_ref(),
+            Self::IdentityCard(val) => val.selfie.as_ref(),
+            Self::InternalPassport(val) => val.selfie.as_ref(),
             _ => None,
         }
     }
@@ -155,15 +155,15 @@ impl EncryptedPassportElement {
     #[must_use]
     pub fn translation(&self) -> Option<&[crate::types::PassportFile]> {
         match self {
-            Self::Passport(val) => Some(val.translation.as_ref()),
-            Self::DriverLicense(val) => Some(val.translation.as_ref()),
-            Self::IdentityCard(val) => Some(val.translation.as_ref()),
-            Self::InternalPassport(val) => Some(val.translation.as_ref()),
-            Self::UtilityBill(val) => Some(val.translation.as_ref()),
-            Self::BankStatement(val) => Some(val.translation.as_ref()),
-            Self::RentalAgreement(val) => Some(val.translation.as_ref()),
-            Self::PassportRegistration(val) => Some(val.translation.as_ref()),
-            Self::TemporaryRegistration(val) => Some(val.translation.as_ref()),
+            Self::Passport(val) => val.translation.as_deref(),
+            Self::DriverLicense(val) => val.translation.as_deref(),
+            Self::IdentityCard(val) => val.translation.as_deref(),
+            Self::InternalPassport(val) => val.translation.as_deref(),
+            Self::UtilityBill(val) => val.translation.as_deref(),
+            Self::BankStatement(val) => val.translation.as_deref(),
+            Self::RentalAgreement(val) => val.translation.as_deref(),
+            Self::PassportRegistration(val) => val.translation.as_deref(),
+            Self::TemporaryRegistration(val) => val.translation.as_deref(),
             _ => None,
         }
     }

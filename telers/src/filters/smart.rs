@@ -3356,7 +3356,7 @@ impl SmartFilterPath<crate::types::EncryptedPassportElementBankStatement> {
 
     #[must_use]
     pub fn translation(self) -> SmartFilterPath<[crate::types::PassportFile]> {
-        self.map(|value| value.translation.as_ref())
+        self.and_then(|value| value.translation.as_deref())
     }
 
     #[must_use]
@@ -3382,12 +3382,12 @@ impl SmartFilterPath<crate::types::EncryptedPassportElementDriverLicense> {
 
     #[must_use]
     pub fn selfie(self) -> SmartFilterPath<crate::types::PassportFile> {
-        self.map(|value| &value.selfie)
+        self.and_then(|value| value.selfie.as_ref())
     }
 
     #[must_use]
     pub fn translation(self) -> SmartFilterPath<[crate::types::PassportFile]> {
-        self.map(|value| value.translation.as_ref())
+        self.and_then(|value| value.translation.as_deref())
     }
 
     #[must_use]
@@ -3424,12 +3424,12 @@ impl SmartFilterPath<crate::types::EncryptedPassportElementIdentityCard> {
 
     #[must_use]
     pub fn selfie(self) -> SmartFilterPath<crate::types::PassportFile> {
-        self.map(|value| &value.selfie)
+        self.and_then(|value| value.selfie.as_ref())
     }
 
     #[must_use]
     pub fn translation(self) -> SmartFilterPath<[crate::types::PassportFile]> {
-        self.map(|value| value.translation.as_ref())
+        self.and_then(|value| value.translation.as_deref())
     }
 
     #[must_use]
@@ -3450,12 +3450,12 @@ impl SmartFilterPath<crate::types::EncryptedPassportElementInternalPassport> {
 
     #[must_use]
     pub fn selfie(self) -> SmartFilterPath<crate::types::PassportFile> {
-        self.map(|value| &value.selfie)
+        self.and_then(|value| value.selfie.as_ref())
     }
 
     #[must_use]
     pub fn translation(self) -> SmartFilterPath<[crate::types::PassportFile]> {
-        self.map(|value| value.translation.as_ref())
+        self.and_then(|value| value.translation.as_deref())
     }
 
     #[must_use]
@@ -3476,12 +3476,12 @@ impl SmartFilterPath<crate::types::EncryptedPassportElementPassport> {
 
     #[must_use]
     pub fn selfie(self) -> SmartFilterPath<crate::types::PassportFile> {
-        self.map(|value| &value.selfie)
+        self.and_then(|value| value.selfie.as_ref())
     }
 
     #[must_use]
     pub fn translation(self) -> SmartFilterPath<[crate::types::PassportFile]> {
-        self.map(|value| value.translation.as_ref())
+        self.and_then(|value| value.translation.as_deref())
     }
 
     #[must_use]
@@ -3497,7 +3497,7 @@ impl SmartFilterPath<crate::types::EncryptedPassportElementPassportRegistration>
 
     #[must_use]
     pub fn translation(self) -> SmartFilterPath<[crate::types::PassportFile]> {
-        self.map(|value| value.translation.as_ref())
+        self.and_then(|value| value.translation.as_deref())
     }
 
     #[must_use]
@@ -3535,7 +3535,7 @@ impl SmartFilterPath<crate::types::EncryptedPassportElementRentalAgreement> {
 
     #[must_use]
     pub fn translation(self) -> SmartFilterPath<[crate::types::PassportFile]> {
-        self.map(|value| value.translation.as_ref())
+        self.and_then(|value| value.translation.as_deref())
     }
 
     #[must_use]
@@ -3551,7 +3551,7 @@ impl SmartFilterPath<crate::types::EncryptedPassportElementTemporaryRegistration
 
     #[must_use]
     pub fn translation(self) -> SmartFilterPath<[crate::types::PassportFile]> {
-        self.map(|value| value.translation.as_ref())
+        self.and_then(|value| value.translation.as_deref())
     }
 
     #[must_use]
@@ -3567,7 +3567,7 @@ impl SmartFilterPath<crate::types::EncryptedPassportElementUtilityBill> {
 
     #[must_use]
     pub fn translation(self) -> SmartFilterPath<[crate::types::PassportFile]> {
-        self.map(|value| value.translation.as_ref())
+        self.and_then(|value| value.translation.as_deref())
     }
 
     #[must_use]
@@ -28919,11 +28919,6 @@ impl SmartFilterPath<crate::types::StickerMask> {
     }
 
     #[must_use]
-    pub fn custom_emoji_id(self) -> SmartFilterPath<str> {
-        self.and_then(|value| value.custom_emoji_id.as_deref())
-    }
-
-    #[must_use]
     pub fn needs_repainting(self) -> SmartFilterPath<bool> {
         self.and_then(|value| value.needs_repainting.as_ref())
     }
@@ -28982,11 +28977,6 @@ impl SmartFilterPath<crate::types::StickerRegular> {
     #[must_use]
     pub fn premium_animation(self) -> SmartFilterPath<crate::types::File> {
         self.and_then(|value| value.premium_animation.as_ref())
-    }
-
-    #[must_use]
-    pub fn custom_emoji_id(self) -> SmartFilterPath<str> {
-        self.and_then(|value| value.custom_emoji_id.as_deref())
     }
 
     #[must_use]

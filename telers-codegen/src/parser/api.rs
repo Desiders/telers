@@ -1322,7 +1322,7 @@ impl NormalizedSchema {
             if desc.contains("mask") {
                 applicable.push("mask");
             }
-            if desc.contains("custom_emoji") {
+            if desc.contains("custom_emoji") || desc.contains("custom emoji") {
                 applicable.push("custom_emoji");
             }
             if applicable.is_empty() {
@@ -1694,7 +1694,10 @@ impl NormalizedSchema {
             if applicable.is_empty() {
                 applicable.extend(element_types);
             } else {
-                field.required = true;
+                // "available if requested" fields (`selfie`, `translation`) are present only
+                // when the service asked for them, unlike "available only for" fields which
+                // always accompany their element types.
+                field.required = !desc.contains("if requested");
             }
 
             for &element_type in &applicable {

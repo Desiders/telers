@@ -1099,9 +1099,7 @@ fn test_encrypted_passport_element_address_serialize_deserialize() {
 fn test_encrypted_passport_element_bank_statement_serialize_deserialize() {
     let value = serde_json::json!(
         { "type" : "bank_statement", "files" : [{ "file_id" : "used", "file_unique_id" :
-        "test", "file_size" : 1, "file_date" : 1 }], "translation" : [{ "file_id" :
-        "used", "file_unique_id" : "test", "file_size" : 1, "file_date" : 1 }], "hash" :
-        "test" }
+        "test", "file_size" : 1, "file_date" : 1 }], "hash" : "test" }
     );
     let parsed: EncryptedPassportElement = must_parse(stringify!(EncryptedPassportElement), &value);
     assert!(
@@ -1121,9 +1119,7 @@ fn test_encrypted_passport_element_driver_license_serialize_deserialize() {
         { "type" : "driver_license", "data" : "decrypted", "front_side" : { "file_id" :
         "used", "file_unique_id" : "test", "file_size" : 1, "file_date" : 1 },
         "reverse_side" : { "file_id" : "used", "file_unique_id" : "test", "file_size" :
-        1, "file_date" : 1 }, "selfie" : { "file_id" : "used", "file_unique_id" : "test",
-        "file_size" : 1, "file_date" : 1 }, "translation" : [{ "file_id" : "used",
-        "file_unique_id" : "test", "file_size" : 1, "file_date" : 1 }], "hash" : "test" }
+        1, "file_date" : 1 }, "hash" : "test" }
     );
     let parsed: EncryptedPassportElement = must_parse(stringify!(EncryptedPassportElement), &value);
     assert!(
@@ -1160,9 +1156,7 @@ fn test_encrypted_passport_element_identity_card_serialize_deserialize() {
         { "type" : "identity_card", "data" : "decrypted", "front_side" : { "file_id" :
         "used", "file_unique_id" : "test", "file_size" : 1, "file_date" : 1 },
         "reverse_side" : { "file_id" : "used", "file_unique_id" : "test", "file_size" :
-        1, "file_date" : 1 }, "selfie" : { "file_id" : "used", "file_unique_id" : "test",
-        "file_size" : 1, "file_date" : 1 }, "translation" : [{ "file_id" : "used",
-        "file_unique_id" : "test", "file_size" : 1, "file_date" : 1 }], "hash" : "test" }
+        1, "file_date" : 1 }, "hash" : "test" }
     );
     let parsed: EncryptedPassportElement = must_parse(stringify!(EncryptedPassportElement), &value);
     assert!(
@@ -1180,10 +1174,8 @@ fn test_encrypted_passport_element_identity_card_serialize_deserialize() {
 fn test_encrypted_passport_element_internal_passport_serialize_deserialize() {
     let value = serde_json::json!(
         { "type" : "internal_passport", "data" : "decrypted", "front_side" : { "file_id"
-        : "used", "file_unique_id" : "test", "file_size" : 1, "file_date" : 1 }, "selfie"
-        : { "file_id" : "used", "file_unique_id" : "test", "file_size" : 1, "file_date" :
-        1 }, "translation" : [{ "file_id" : "used", "file_unique_id" : "test",
-        "file_size" : 1, "file_date" : 1 }], "hash" : "test" }
+        : "used", "file_unique_id" : "test", "file_size" : 1, "file_date" : 1 }, "hash" :
+        "test" }
     );
     let parsed: EncryptedPassportElement = must_parse(stringify!(EncryptedPassportElement), &value);
     assert!(
@@ -1201,10 +1193,7 @@ fn test_encrypted_passport_element_internal_passport_serialize_deserialize() {
 fn test_encrypted_passport_element_passport_serialize_deserialize() {
     let value = serde_json::json!(
         { "type" : "passport", "data" : "decrypted", "front_side" : { "file_id" : "used",
-        "file_unique_id" : "test", "file_size" : 1, "file_date" : 1 }, "selfie" : {
-        "file_id" : "used", "file_unique_id" : "test", "file_size" : 1, "file_date" : 1
-        }, "translation" : [{ "file_id" : "used", "file_unique_id" : "test", "file_size"
-        : 1, "file_date" : 1 }], "hash" : "test" }
+        "file_unique_id" : "test", "file_size" : 1, "file_date" : 1 }, "hash" : "test" }
     );
     let parsed: EncryptedPassportElement = must_parse(stringify!(EncryptedPassportElement), &value);
     assert!(
@@ -1222,9 +1211,7 @@ fn test_encrypted_passport_element_passport_serialize_deserialize() {
 fn test_encrypted_passport_element_passport_registration_serialize_deserialize() {
     let value = serde_json::json!(
         { "type" : "passport_registration", "files" : [{ "file_id" : "used",
-        "file_unique_id" : "test", "file_size" : 1, "file_date" : 1 }], "translation" :
-        [{ "file_id" : "used", "file_unique_id" : "test", "file_size" : 1, "file_date" :
-        1 }], "hash" : "test" }
+        "file_unique_id" : "test", "file_size" : 1, "file_date" : 1 }], "hash" : "test" }
     );
     let parsed: EncryptedPassportElement = must_parse(stringify!(EncryptedPassportElement), &value);
     assert!(
@@ -1276,9 +1263,7 @@ fn test_encrypted_passport_element_phone_number_serialize_deserialize() {
 fn test_encrypted_passport_element_rental_agreement_serialize_deserialize() {
     let value = serde_json::json!(
         { "type" : "rental_agreement", "files" : [{ "file_id" : "used", "file_unique_id"
-        : "test", "file_size" : 1, "file_date" : 1 }], "translation" : [{ "file_id" :
-        "used", "file_unique_id" : "test", "file_size" : 1, "file_date" : 1 }], "hash" :
-        "test" }
+        : "test", "file_size" : 1, "file_date" : 1 }], "hash" : "test" }
     );
     let parsed: EncryptedPassportElement = must_parse(stringify!(EncryptedPassportElement), &value);
     assert!(
@@ -1296,9 +1281,7 @@ fn test_encrypted_passport_element_rental_agreement_serialize_deserialize() {
 fn test_encrypted_passport_element_temporary_registration_serialize_deserialize() {
     let value = serde_json::json!(
         { "type" : "temporary_registration", "files" : [{ "file_id" : "used",
-        "file_unique_id" : "test", "file_size" : 1, "file_date" : 1 }], "translation" :
-        [{ "file_id" : "used", "file_unique_id" : "test", "file_size" : 1, "file_date" :
-        1 }], "hash" : "test" }
+        "file_unique_id" : "test", "file_size" : 1, "file_date" : 1 }], "hash" : "test" }
     );
     let parsed: EncryptedPassportElement = must_parse(stringify!(EncryptedPassportElement), &value);
     assert!(
@@ -1316,9 +1299,7 @@ fn test_encrypted_passport_element_temporary_registration_serialize_deserialize(
 fn test_encrypted_passport_element_utility_bill_serialize_deserialize() {
     let value = serde_json::json!(
         { "type" : "utility_bill", "files" : [{ "file_id" : "used", "file_unique_id" :
-        "test", "file_size" : 1, "file_date" : 1 }], "translation" : [{ "file_id" :
-        "used", "file_unique_id" : "test", "file_size" : 1, "file_date" : 1 }], "hash" :
-        "test" }
+        "test", "file_size" : 1, "file_date" : 1 }], "hash" : "test" }
     );
     let parsed: EncryptedPassportElement = must_parse(stringify!(EncryptedPassportElement), &value);
     assert!(

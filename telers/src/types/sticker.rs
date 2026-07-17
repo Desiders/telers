@@ -20,9 +20,8 @@ impl Sticker {
     #[must_use]
     pub fn custom_emoji_id(&self) -> Option<&str> {
         match self {
-            Self::Regular(val) => val.custom_emoji_id.as_deref(),
-            Self::Mask(val) => val.custom_emoji_id.as_deref(),
             Self::CustomEmoji(val) => val.custom_emoji_id.as_deref(),
+            _ => None,
         }
     }
 

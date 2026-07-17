@@ -30,9 +30,6 @@ pub struct StickerMask {
     /// For mask stickers, the position where the mask should be placed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mask_position: Option<crate::types::MaskPosition>,
-    /// For custom emoji stickers, unique identifier of the custom emoji
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub custom_emoji_id: Option<Box<str>>,
     /// `true`, if the sticker must be repainted to a text color in messages, the color of the Telegram Premium badge in emoji status, white color on chat photos, or another appropriate color in other places
     #[serde(skip_serializing_if = "Option::is_none")]
     pub needs_repainting: Option<bool>,
@@ -80,7 +77,6 @@ impl StickerMask {
             emoji: None,
             set_name: None,
             mask_position: None,
-            custom_emoji_id: None,
             needs_repainting: None,
             file_size: None,
         }
@@ -184,20 +180,6 @@ impl StickerMask {
         val: Option<T>,
     ) -> Self {
         self.mask_position = val.map(Into::into);
-        self
-    }
-
-    /// For custom emoji stickers, unique identifier of the custom emoji
-    #[must_use]
-    pub fn custom_emoji_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
-        self.custom_emoji_id = Some(val.into());
-        self
-    }
-
-    /// For custom emoji stickers, unique identifier of the custom emoji
-    #[must_use]
-    pub fn custom_emoji_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
-        self.custom_emoji_id = val.map(Into::into);
         self
     }
 
