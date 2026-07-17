@@ -1031,6 +1031,35 @@ impl NormalizedSchema {
             subtypes.push((variant_name, type_name));
         }
 
+        // Replies to text messages (and to content types unknown to the schema) have no
+        // content field in `ExternalReplyInfo`, so a variant with only the common fields is
+        // needed. It has the fewest required fields, so `reorder_untagged_subtypes` places it
+        // last and it doesn't shadow the content variants.
+        let type_name = format!("{}Unknown", info.name);
+        types.insert(
+            type_name.clone(),
+            NormalizedType {
+                name: type_name.clone(),
+                href: info.href.clone(),
+                description: vec![
+                    "Message is a text message or a message with content unknown to the library"
+                        .to_owned(),
+                    "# Notes".to_owned(),
+                    "This object represents an external reply info without a content field; the \
+                     quoted part of the original message is available in the message's `quote` \
+                     field."
+                        .to_owned(),
+                ],
+                fields: common_fields,
+                subtype_kind: Some(SubtypeKind::Untagged),
+                subtypes: vec![],
+                extra_subtypes: vec![],
+                subtype_of: vec![info.name.clone()],
+                has_extra_fields: false,
+            },
+        );
+        subtypes.push(("Unknown".to_owned(), type_name));
+
         Self::finalize_split(&mut info, &subtypes, SubtypeKind::Untagged);
         self.types.insert(info.name.clone(), info);
         self.types.extend(types);

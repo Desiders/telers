@@ -17,6 +17,7 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::ExternalReplyInfoPoll`]
 /// - [`crate::types::ExternalReplyInfoSticker`]
 /// - [`crate::types::ExternalReplyInfoStory`]
+/// - [`crate::types::ExternalReplyInfoUnknown`]
 /// - [`crate::types::ExternalReplyInfoVenue`]
 /// - [`crate::types::ExternalReplyInfoVideo`]
 /// - [`crate::types::ExternalReplyInfoVideoNote`]
@@ -46,6 +47,7 @@ pub enum ExternalReplyInfo {
     Video(crate::types::ExternalReplyInfoVideo),
     VideoNote(crate::types::ExternalReplyInfoVideoNote),
     Voice(crate::types::ExternalReplyInfoVoice),
+    Unknown(crate::types::ExternalReplyInfoUnknown),
 }
 impl ExternalReplyInfo {
     /// Helper method for field `animation`.
@@ -96,6 +98,7 @@ impl ExternalReplyInfo {
             Self::Video(val) => val.chat.as_deref(),
             Self::VideoNote(val) => val.chat.as_deref(),
             Self::Voice(val) => val.chat.as_deref(),
+            Self::Unknown(val) => val.chat.as_deref(),
         }
     }
 
@@ -202,6 +205,7 @@ impl ExternalReplyInfo {
             Self::Video(val) => val.has_media_spoiler,
             Self::VideoNote(val) => val.has_media_spoiler,
             Self::Voice(val) => val.has_media_spoiler,
+            Self::Unknown(val) => val.has_media_spoiler,
         }
     }
 
@@ -242,6 +246,7 @@ impl ExternalReplyInfo {
             Self::Video(val) => val.link_preview_options.as_ref(),
             Self::VideoNote(val) => val.link_preview_options.as_ref(),
             Self::Voice(val) => val.link_preview_options.as_ref(),
+            Self::Unknown(val) => val.link_preview_options.as_ref(),
         }
     }
 
@@ -293,6 +298,7 @@ impl ExternalReplyInfo {
             Self::Video(val) => val.message_id,
             Self::VideoNote(val) => val.message_id,
             Self::Voice(val) => val.message_id,
+            Self::Unknown(val) => val.message_id,
         }
     }
 
@@ -322,6 +328,7 @@ impl ExternalReplyInfo {
             Self::Video(val) => &val.origin,
             Self::VideoNote(val) => &val.origin,
             Self::Voice(val) => &val.origin,
+            Self::Unknown(val) => &val.origin,
         }
     }
 
@@ -351,6 +358,7 @@ impl ExternalReplyInfo {
             Self::Video(val) => val.paid_media.as_ref(),
             Self::VideoNote(val) => val.paid_media.as_ref(),
             Self::Voice(val) => val.paid_media.as_ref(),
+            Self::Unknown(val) => val.paid_media.as_ref(),
         }
     }
 
@@ -2063,6 +2071,25 @@ impl TryFrom<ExternalReplyInfo> for crate::types::ExternalReplyInfoVoice {
             Err(Self::Error::new(
                 stringify!(ExternalReplyInfo),
                 stringify!(ExternalReplyInfoVoice),
+            ))
+        }
+    }
+}
+impl From<crate::types::ExternalReplyInfoUnknown> for ExternalReplyInfo {
+    fn from(val: crate::types::ExternalReplyInfoUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<ExternalReplyInfo> for crate::types::ExternalReplyInfoUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: ExternalReplyInfo) -> Result<Self, Self::Error> {
+        if let ExternalReplyInfo::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(ExternalReplyInfo),
+                stringify!(ExternalReplyInfoUnknown),
             ))
         }
     }

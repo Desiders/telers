@@ -1636,6 +1636,24 @@ fn test_external_reply_info_story_serialize_deserialize() {
     must_roundtrip(stringify!(ExternalReplyInfo), &parsed);
 }
 #[test]
+fn test_external_reply_info_unknown_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "origin" : { "type" : "user", "date" : 1, "sender_user" : { "id" : 1, "is_bot"
+        : true, "first_name" : "test" } } }
+    );
+    let parsed: ExternalReplyInfo = must_parse(stringify!(ExternalReplyInfo), &value);
+    assert!(
+        matches!(&parsed, ExternalReplyInfo::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(ExternalReplyInfo),
+        stringify!(Unknown),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(ExternalReplyInfo), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(ExternalReplyInfo), &parsed);
+}
+#[test]
 fn test_external_reply_info_venue_serialize_deserialize() {
     let value = serde_json::json!(
         { "origin" : { "type" : "user", "date" : 1, "sender_user" : { "id" : 1, "is_bot"

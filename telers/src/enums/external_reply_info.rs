@@ -19,6 +19,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::ExternalReplyInfoPoll`]
 /// - [`crate::types::ExternalReplyInfoSticker`]
 /// - [`crate::types::ExternalReplyInfoStory`]
+/// - [`crate::types::ExternalReplyInfoUnknown`]
 /// - [`crate::types::ExternalReplyInfoVenue`]
 /// - [`crate::types::ExternalReplyInfoVideo`]
 /// - [`crate::types::ExternalReplyInfoVideoNote`]
@@ -80,10 +81,12 @@ pub enum ExternalReplyInfoType {
     VideoNote,
     #[strum(serialize = "voice")]
     Voice,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl ExternalReplyInfoType {
     #[must_use]
-    pub const fn all() -> [ExternalReplyInfoType; 20usize] {
+    pub const fn all() -> [ExternalReplyInfoType; 21usize] {
         [
             ExternalReplyInfoType::Animation,
             ExternalReplyInfoType::Audio,
@@ -105,6 +108,7 @@ impl ExternalReplyInfoType {
             ExternalReplyInfoType::Video,
             ExternalReplyInfoType::VideoNote,
             ExternalReplyInfoType::Voice,
+            ExternalReplyInfoType::Unknown,
         ]
     }
 }
@@ -146,6 +150,7 @@ impl<'a> From<&'a ExternalReplyInfo> for ExternalReplyInfoType {
             ExternalReplyInfo::Video(_) => ExternalReplyInfoType::Video,
             ExternalReplyInfo::VideoNote(_) => ExternalReplyInfoType::VideoNote,
             ExternalReplyInfo::Voice(_) => ExternalReplyInfoType::Voice,
+            ExternalReplyInfo::Unknown(_) => ExternalReplyInfoType::Unknown,
         }
     }
 }
