@@ -5134,6 +5134,16 @@ impl SmartFilterPath<crate::types::InlineQueryResult> {
     }
 
     #[must_use]
+    pub fn mpeg4_file_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.mpeg4_file_id())
+    }
+
+    #[must_use]
+    pub fn mpeg4_url(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.mpeg4_url())
+    }
+
+    #[must_use]
     pub fn parse_mode(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.parse_mode())
     }
@@ -6155,6 +6165,62 @@ impl SmartFilterPath<crate::types::InlineQueryResultMpeg4Gif> {
     #[must_use]
     pub fn input_message_content(self) -> SmartFilterPath<crate::types::InputMessageContent> {
         self.and_then(|value| value.input_message_content.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::InlineQueryResultMpeg4GifKind> {
+    #[must_use]
+    pub fn caption(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.caption())
+    }
+
+    #[must_use]
+    pub fn caption_entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.caption_entities())
+    }
+
+    #[must_use]
+    pub fn id(self) -> SmartFilterPath<str> {
+        self.map(|value| value.id())
+    }
+
+    #[must_use]
+    pub fn input_message_content(self) -> SmartFilterPath<crate::types::InputMessageContent> {
+        self.and_then(|value| value.input_message_content())
+    }
+
+    #[must_use]
+    pub fn mpeg4_file_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.mpeg4_file_id())
+    }
+
+    #[must_use]
+    pub fn mpeg4_url(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.mpeg4_url())
+    }
+
+    #[must_use]
+    pub fn parse_mode(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.parse_mode())
+    }
+
+    #[must_use]
+    pub fn reply_markup(self) -> SmartFilterPath<crate::types::InlineKeyboardMarkup> {
+        self.and_then(|value| value.reply_markup())
+    }
+
+    #[must_use]
+    pub fn thumbnail_mime_type(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.thumbnail_mime_type())
+    }
+
+    #[must_use]
+    pub fn thumbnail_url(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.thumbnail_url())
+    }
+
+    #[must_use]
+    pub fn title(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.title())
     }
 }
 impl SmartFilterPath<crate::types::InlineQueryResultPhoto> {
@@ -29298,7 +29364,7 @@ impl SmartFilterPath<crate::types::SuggestedPostPrice> {
     }
 
     #[must_use]
-    pub fn amount(self) -> SmartFilterPath<u32> {
+    pub fn amount(self) -> SmartFilterPath<u64> {
         self.map(|value| &value.amount)
     }
 }

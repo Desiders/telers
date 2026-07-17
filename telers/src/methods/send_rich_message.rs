@@ -242,7 +242,9 @@ impl super::TelegramMethod for SendRichMessage {
     type Method = Self;
     type Return = crate::types::Message;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
-        super::Request::new("sendRichMessage", self, None)
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        let mut files = vec![];
+        super::prepare_input_rich_message(&mut files, &mut self.rich_message);
+        super::Request::new("sendRichMessage", self, Some(files))
     }
 }

@@ -119,7 +119,7 @@ fn main() {
             Some(name.as_str())
         })
         .collect::<Vec<_>>();
-    let tokens_with_names = generator::enums::tokenize_own_enums();
+    let tokens_with_names = generator::enums::tokenize_own_enums(&schema);
     let mut own_enum_names = vec![];
     for (name, tokens) in &tokens_with_names {
         let filename = camel_to_filename(name, Some("rs"));

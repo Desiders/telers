@@ -111,7 +111,11 @@ fn tokenize_field(field: &NormalizedField, ctx: &TypeDocContext<'_>) -> TokenStr
     };
 
     if field.required {
-        quote! { #[doc = #doc] pub #name: #ty, }
+        if field.force_default {
+            quote! { #[doc = #doc] #[serde(default)] pub #name: #ty, }
+        } else {
+            quote! { #[doc = #doc] pub #name: #ty, }
+        }
     } else {
         quote! {
             #[doc = #doc]

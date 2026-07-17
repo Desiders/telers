@@ -1,7 +1,7 @@
 use crate::{
     file::camel_to_filename,
     generator::helpers::{camel_to_snake, format_description},
-    parser::api::NormalizedType,
+    parser::api::{NormalizedSchema, NormalizedType},
 };
 
 use proc_macro2::TokenStream;
@@ -211,12 +211,12 @@ pub fn tokenize_kind_enum_file(type_quote: &NormalizedType) -> Option<TokenStrea
 }
 
 #[must_use]
-pub fn tokenize_own_enums() -> Vec<(&'static str, TokenStream)> {
+pub fn tokenize_own_enums(schema: &NormalizedSchema) -> Vec<(&'static str, TokenStream)> {
     vec![
         ("ParseMode", tokenize_enum_parse_mode()),
         (
             "TelegramObserverType",
-            tokenize_enum_telegram_observer_type(),
+            tokenize_enum_telegram_observer_type(schema),
         ),
     ]
 }
@@ -291,36 +291,21 @@ pub fn tokenize_enum_parse_mode() -> TokenStream {
 
 #[must_use]
 #[allow(clippy::too_many_lines)]
-pub fn tokenize_enum_telegram_observer_type() -> TokenStream {
-    let variants = [
-        ("BusinessConnection", "business_connection"),
-        ("BusinessMessage", "business_message"),
-        ("CallbackQuery", "callback_query"),
-        ("ChannelPost", "channel_post"),
-        ("ChatBoost", "chat_boost"),
-        ("ChatJoinRequest", "chat_join_request"),
-        ("ChatMember", "chat_member"),
-        ("ChosenInlineResult", "chosen_inline_result"),
-        ("DeletedBusinessMessages", "deleted_business_messages"),
-        ("EditedBusinessMessage", "edited_business_message"),
-        ("EditedChannelPost", "edited_channel_post"),
-        ("EditedMessage", "edited_message"),
-        ("InlineQuery", "inline_query"),
-        ("ManagedBot", "managed_bot"),
-        ("Message", "message"),
-        ("GuestMessage", "guest_message"),
-        ("MessageReaction", "message_reaction"),
-        ("MessageReactionCount", "message_reaction_count"),
-        ("MyChatMember", "my_chat_member"),
-        ("Poll", "poll"),
-        ("PollAnswer", "poll_answer"),
-        ("PreCheckoutQuery", "pre_checkout_query"),
-        ("PurchasedPaidMedia", "purchased_paid_media"),
-        ("RemovedChatBoost", "removed_chat_boost"),
-        ("ShippingQuery", "shipping_query"),
-        ("Subscription", "subscription"),
-        ("Update", "update"),
-    ];
+pub fn tokenize_enum_telegram_observer_type(schema: &NormalizedSchema) -> TokenStream {
+    // Derived from the `Update` subtypes so new update types can't drift out of sync
+    // (the previous hardcoded list missed `subscription` when it was added), plus the
+    // extra `Update` observer that receives every update kind.
+    let update = schema
+        .types
+        .get("Update")
+        .expect("Update type must exist in schema");
+    let mut variants: Vec<(String, String)> = update
+        .subtypes
+        .iter()
+        .map(|subtype| (subtype.variant.clone(), camel_to_snake(&subtype.variant)))
+        .collect();
+    variants.sort();
+    variants.push(("Update".to_owned(), "update".to_owned()));
 
     let variant_count = variants.len();
 

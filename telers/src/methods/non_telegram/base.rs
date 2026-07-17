@@ -1,9 +1,12 @@
 use crate::{
     client::Bot,
     types::{
-        InputFile, InputMedia, InputPaidMedia, InputPollMedia, InputPollOption,
-        InputPollOptionMedia, InputProfilePhoto, InputSticker, InputStoryContent,
-        ResponseParameters,
+        InlineQueryResult, InlineQueryResultAudioKind, InlineQueryResultDocumentKind,
+        InlineQueryResultGifKind, InlineQueryResultMpeg4GifKind, InlineQueryResultPhotoKind,
+        InlineQueryResultVideoKind, InlineQueryResultVoiceKind, InputFile, InputMedia,
+        InputMessageContent, InputPaidMedia, InputPollMedia, InputPollOption, InputPollOptionMedia,
+        InputProfilePhoto, InputRichBlock, InputRichMessage, InputRichMessageMediaContent,
+        InputSticker, InputStoryContent, ResponseParameters,
     },
     utils::format_error_report,
 };
@@ -238,6 +241,209 @@ pub fn prepare_input_poll_options(
     for input_poll_option in input_poll_options {
         if let Some(media) = &mut input_poll_option.media {
             prepare_input_poll_option_media(files, media);
+        }
+    }
+}
+
+pub fn prepare_input_rich_message_media_content(
+    files: &mut Vec<InputFile>,
+    content: &mut InputRichMessageMediaContent,
+) {
+    match content {
+        InputRichMessageMediaContent::Animation(inner) => {
+            prepare_file(files, &mut inner.media);
+            prepare_optional_file(files, &mut inner.thumbnail);
+        }
+        InputRichMessageMediaContent::Audio(inner) => {
+            prepare_file(files, &mut inner.media);
+            prepare_optional_file(files, &mut inner.thumbnail);
+        }
+        InputRichMessageMediaContent::Photo(inner) => {
+            prepare_file(files, &mut inner.media);
+        }
+        InputRichMessageMediaContent::Video(inner) => {
+            prepare_file(files, &mut inner.media);
+            prepare_optional_file(files, &mut inner.thumbnail);
+            prepare_optional_file(files, &mut inner.cover);
+        }
+        InputRichMessageMediaContent::VoiceNote(inner) => {
+            prepare_file(files, &mut inner.media);
+        }
+    }
+}
+
+pub fn prepare_input_rich_block(files: &mut Vec<InputFile>, block: &mut InputRichBlock) {
+    match block {
+        InputRichBlock::Animation(inner) => {
+            prepare_file(files, &mut inner.animation.media);
+            prepare_optional_file(files, &mut inner.animation.thumbnail);
+        }
+        InputRichBlock::Audio(inner) => {
+            prepare_file(files, &mut inner.audio.media);
+            prepare_optional_file(files, &mut inner.audio.thumbnail);
+        }
+        InputRichBlock::Photo(inner) => {
+            prepare_file(files, &mut inner.photo.media);
+        }
+        InputRichBlock::Video(inner) => {
+            prepare_file(files, &mut inner.video.media);
+            prepare_optional_file(files, &mut inner.video.thumbnail);
+            prepare_optional_file(files, &mut inner.video.cover);
+        }
+        InputRichBlock::VoiceNote(inner) => {
+            prepare_file(files, &mut inner.voice_note.media);
+        }
+        InputRichBlock::Collage(inner) => {
+            for block in &mut inner.blocks {
+                prepare_input_rich_block(files, block);
+            }
+        }
+        InputRichBlock::Slideshow(inner) => {
+            for block in &mut inner.blocks {
+                prepare_input_rich_block(files, block);
+            }
+        }
+        InputRichBlock::Details(inner) => {
+            for block in &mut inner.blocks {
+                prepare_input_rich_block(files, block);
+            }
+        }
+        InputRichBlock::List(inner) => {
+            for item in &mut inner.items {
+                for block in &mut item.blocks {
+                    prepare_input_rich_block(files, block);
+                }
+            }
+        }
+        // No media in these blocks. Listed explicitly so a new block kind is a compile
+        // error here instead of silently skipping its files.
+        InputRichBlock::Paragraph(_)
+        | InputRichBlock::Heading(_)
+        | InputRichBlock::Pre(_)
+        | InputRichBlock::Footer(_)
+        | InputRichBlock::Divider(_)
+        | InputRichBlock::MathematicalExpression(_)
+        | InputRichBlock::Anchor(_)
+        | InputRichBlock::Blockquote(_)
+        | InputRichBlock::Pullquote(_)
+        | InputRichBlock::Table(_)
+        | InputRichBlock::Map(_)
+        | InputRichBlock::Thinking(_) => {}
+    }
+}
+
+pub fn prepare_input_rich_message(
+    files: &mut Vec<InputFile>,
+    input_rich_message: &mut InputRichMessage,
+) {
+    if let Some(media) = &mut input_rich_message.media {
+        for media in &mut *media {
+            prepare_input_rich_message_media_content(files, &mut media.media);
+        }
+    }
+    if let Some(blocks) = &mut input_rich_message.blocks {
+        for block in &mut *blocks {
+            prepare_input_rich_block(files, block);
+        }
+    }
+}
+
+pub fn prepare_input_message_content(
+    files: &mut Vec<InputFile>,
+    content: &mut InputMessageContent,
+) {
+    if let InputMessageContent::InputRichMessageContent(inner) = content {
+        prepare_input_rich_message(files, &mut inner.rich_message);
+    }
+}
+
+pub fn prepare_optional_input_message_content(
+    files: &mut Vec<InputFile>,
+    content: &mut Option<InputMessageContent>,
+) {
+    if let Some(content) = content {
+        prepare_input_message_content(files, content);
+    }
+}
+
+pub fn prepare_inline_query_results(
+    files: &mut Vec<InputFile>,
+    results: Vec<&mut InlineQueryResult>,
+) {
+    for result in results {
+        match result {
+            InlineQueryResult::Audio(kind) => match kind {
+                InlineQueryResultAudioKind::Cached(inner) => {
+                    prepare_optional_input_message_content(files, &mut inner.input_message_content);
+                }
+                InlineQueryResultAudioKind::Uncached(inner) => {
+                    prepare_optional_input_message_content(files, &mut inner.input_message_content);
+                }
+            },
+            InlineQueryResult::Document(kind) => match kind {
+                InlineQueryResultDocumentKind::Cached(inner) => {
+                    prepare_optional_input_message_content(files, &mut inner.input_message_content);
+                }
+                InlineQueryResultDocumentKind::Uncached(inner) => {
+                    prepare_optional_input_message_content(files, &mut inner.input_message_content);
+                }
+            },
+            InlineQueryResult::Gif(kind) => match kind {
+                InlineQueryResultGifKind::Cached(inner) => {
+                    prepare_optional_input_message_content(files, &mut inner.input_message_content);
+                }
+                InlineQueryResultGifKind::Uncached(inner) => {
+                    prepare_optional_input_message_content(files, &mut inner.input_message_content);
+                }
+            },
+            InlineQueryResult::Mpeg4Gif(kind) => match kind {
+                InlineQueryResultMpeg4GifKind::Cached(inner) => {
+                    prepare_optional_input_message_content(files, &mut inner.input_message_content);
+                }
+                InlineQueryResultMpeg4GifKind::Uncached(inner) => {
+                    prepare_optional_input_message_content(files, &mut inner.input_message_content);
+                }
+            },
+            InlineQueryResult::Photo(kind) => match kind {
+                InlineQueryResultPhotoKind::Cached(inner) => {
+                    prepare_optional_input_message_content(files, &mut inner.input_message_content);
+                }
+                InlineQueryResultPhotoKind::Uncached(inner) => {
+                    prepare_optional_input_message_content(files, &mut inner.input_message_content);
+                }
+            },
+            InlineQueryResult::Video(kind) => match kind {
+                InlineQueryResultVideoKind::Cached(inner) => {
+                    prepare_optional_input_message_content(files, &mut inner.input_message_content);
+                }
+                InlineQueryResultVideoKind::Uncached(inner) => {
+                    prepare_optional_input_message_content(files, &mut inner.input_message_content);
+                }
+            },
+            InlineQueryResult::Voice(kind) => match kind {
+                InlineQueryResultVoiceKind::Cached(inner) => {
+                    prepare_optional_input_message_content(files, &mut inner.input_message_content);
+                }
+                InlineQueryResultVoiceKind::Uncached(inner) => {
+                    prepare_optional_input_message_content(files, &mut inner.input_message_content);
+                }
+            },
+            InlineQueryResult::Sticker(inner) => {
+                prepare_optional_input_message_content(files, &mut inner.input_message_content);
+            }
+            InlineQueryResult::Article(inner) => {
+                prepare_input_message_content(files, &mut inner.input_message_content);
+            }
+            InlineQueryResult::Contact(inner) => {
+                prepare_optional_input_message_content(files, &mut inner.input_message_content);
+            }
+            InlineQueryResult::Location(inner) => {
+                prepare_optional_input_message_content(files, &mut inner.input_message_content);
+            }
+            InlineQueryResult::Venue(inner) => {
+                prepare_optional_input_message_content(files, &mut inner.input_message_content);
+            }
+            InlineQueryResult::Game(_) => {}
         }
     }
 }

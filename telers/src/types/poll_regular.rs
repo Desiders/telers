@@ -26,6 +26,7 @@ pub struct PollRegular {
     /// `true`, if the poll allows to change the chosen answer options
     pub allows_revoting: bool,
     /// `true` if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
+    #[serde(default)]
     pub members_only: bool,
     /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. The country code `FT` is used for users with anonymous numbers. If omitted, then users from any country can participate in the poll.
     #[serde(skip_serializing_if = "Option::is_none")]

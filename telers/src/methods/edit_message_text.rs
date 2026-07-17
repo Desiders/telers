@@ -260,7 +260,11 @@ impl super::TelegramMethod for EditMessageText {
     type Method = Self;
     type Return = crate::Either<crate::types::Message, bool>;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
-        super::Request::new("editMessageText", self, None)
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        let mut files = vec![];
+        if let Some(rich_message) = &mut self.rich_message {
+            super::prepare_input_rich_message(&mut files, rich_message);
+        }
+        super::Request::new("editMessageText", self, Some(files))
     }
 }

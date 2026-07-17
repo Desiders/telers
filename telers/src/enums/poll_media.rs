@@ -32,22 +32,22 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 pub enum PollMediaType {
     #[strum(serialize = "animation")]
     Animation,
+    #[strum(serialize = "live_photo")]
+    LivePhoto,
+    #[strum(serialize = "venue")]
+    Venue,
     #[strum(serialize = "audio")]
     Audio,
     #[strum(serialize = "document")]
     Document,
     #[strum(serialize = "link")]
     Link,
-    #[strum(serialize = "live_photo")]
-    LivePhoto,
     #[strum(serialize = "location")]
     Location,
     #[strum(serialize = "photo")]
     Photo,
     #[strum(serialize = "sticker")]
     Sticker,
-    #[strum(serialize = "venue")]
-    Venue,
     #[strum(serialize = "video")]
     Video,
 }
@@ -56,14 +56,14 @@ impl PollMediaType {
     pub const fn all() -> [PollMediaType; 10usize] {
         [
             PollMediaType::Animation,
+            PollMediaType::LivePhoto,
+            PollMediaType::Venue,
             PollMediaType::Audio,
             PollMediaType::Document,
             PollMediaType::Link,
-            PollMediaType::LivePhoto,
             PollMediaType::Location,
             PollMediaType::Photo,
             PollMediaType::Sticker,
-            PollMediaType::Venue,
             PollMediaType::Video,
         ]
     }
@@ -87,14 +87,14 @@ impl<'a> From<&'a PollMedia> for PollMediaType {
     fn from(val: &'a PollMedia) -> Self {
         match val {
             PollMedia::Animation(_) => PollMediaType::Animation,
+            PollMedia::LivePhoto(_) => PollMediaType::LivePhoto,
+            PollMedia::Venue(_) => PollMediaType::Venue,
             PollMedia::Audio(_) => PollMediaType::Audio,
             PollMedia::Document(_) => PollMediaType::Document,
             PollMedia::Link(_) => PollMediaType::Link,
-            PollMedia::LivePhoto(_) => PollMediaType::LivePhoto,
             PollMedia::Location(_) => PollMediaType::Location,
             PollMedia::Photo(_) => PollMediaType::Photo,
             PollMedia::Sticker(_) => PollMediaType::Sticker,
-            PollMedia::Venue(_) => PollMediaType::Venue,
             PollMedia::Video(_) => PollMediaType::Video,
         }
     }

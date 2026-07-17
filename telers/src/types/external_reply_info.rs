@@ -29,6 +29,8 @@ use serde::{Deserialize, Serialize};
 #[serde(untagged)]
 pub enum ExternalReplyInfo {
     Animation(crate::types::ExternalReplyInfoAnimation),
+    LivePhoto(crate::types::ExternalReplyInfoLivePhoto),
+    Venue(crate::types::ExternalReplyInfoVenue),
     Audio(crate::types::ExternalReplyInfoAudio),
     Checklist(crate::types::ExternalReplyInfoChecklist),
     Contact(crate::types::ExternalReplyInfoContact),
@@ -38,14 +40,12 @@ pub enum ExternalReplyInfo {
     Giveaway(crate::types::ExternalReplyInfoGiveaway),
     GiveawayWinners(crate::types::ExternalReplyInfoGiveawayWinners),
     Invoice(crate::types::ExternalReplyInfoInvoice),
-    LivePhoto(crate::types::ExternalReplyInfoLivePhoto),
     Location(crate::types::ExternalReplyInfoLocation),
     PaidMedia(crate::types::ExternalReplyInfoPaidMedia),
     Photo(crate::types::ExternalReplyInfoPhoto),
     Poll(crate::types::ExternalReplyInfoPoll),
     Sticker(crate::types::ExternalReplyInfoSticker),
     Story(crate::types::ExternalReplyInfoStory),
-    Venue(crate::types::ExternalReplyInfoVenue),
     Video(crate::types::ExternalReplyInfoVideo),
     VideoNote(crate::types::ExternalReplyInfoVideoNote),
     Voice(crate::types::ExternalReplyInfoVoice),
@@ -81,6 +81,8 @@ impl ExternalReplyInfo {
     pub fn chat(&self) -> Option<&crate::types::Chat> {
         match self {
             Self::Animation(val) => val.chat.as_deref(),
+            Self::LivePhoto(val) => val.chat.as_deref(),
+            Self::Venue(val) => val.chat.as_deref(),
             Self::Audio(val) => val.chat.as_deref(),
             Self::Checklist(val) => val.chat.as_deref(),
             Self::Contact(val) => val.chat.as_deref(),
@@ -90,14 +92,12 @@ impl ExternalReplyInfo {
             Self::Giveaway(val) => val.chat.as_deref(),
             Self::GiveawayWinners(val) => val.chat.as_deref(),
             Self::Invoice(val) => val.chat.as_deref(),
-            Self::LivePhoto(val) => val.chat.as_deref(),
             Self::Location(val) => val.chat.as_deref(),
             Self::PaidMedia(val) => val.chat.as_deref(),
             Self::Photo(val) => val.chat.as_deref(),
             Self::Poll(val) => val.chat.as_deref(),
             Self::Sticker(val) => val.chat.as_deref(),
             Self::Story(val) => val.chat.as_deref(),
-            Self::Venue(val) => val.chat.as_deref(),
             Self::Video(val) => val.chat.as_deref(),
             Self::VideoNote(val) => val.chat.as_deref(),
             Self::Voice(val) => val.chat.as_deref(),
@@ -189,6 +189,8 @@ impl ExternalReplyInfo {
     pub fn has_media_spoiler(&self) -> Option<bool> {
         match self {
             Self::Animation(val) => val.has_media_spoiler,
+            Self::LivePhoto(val) => val.has_media_spoiler,
+            Self::Venue(val) => val.has_media_spoiler,
             Self::Audio(val) => val.has_media_spoiler,
             Self::Checklist(val) => val.has_media_spoiler,
             Self::Contact(val) => val.has_media_spoiler,
@@ -198,14 +200,12 @@ impl ExternalReplyInfo {
             Self::Giveaway(val) => val.has_media_spoiler,
             Self::GiveawayWinners(val) => val.has_media_spoiler,
             Self::Invoice(val) => val.has_media_spoiler,
-            Self::LivePhoto(val) => val.has_media_spoiler,
             Self::Location(val) => val.has_media_spoiler,
             Self::PaidMedia(val) => val.has_media_spoiler,
             Self::Photo(val) => val.has_media_spoiler,
             Self::Poll(val) => val.has_media_spoiler,
             Self::Sticker(val) => val.has_media_spoiler,
             Self::Story(val) => val.has_media_spoiler,
-            Self::Venue(val) => val.has_media_spoiler,
             Self::Video(val) => val.has_media_spoiler,
             Self::VideoNote(val) => val.has_media_spoiler,
             Self::Voice(val) => val.has_media_spoiler,
@@ -231,6 +231,8 @@ impl ExternalReplyInfo {
     pub fn link_preview_options(&self) -> Option<&crate::types::LinkPreviewOptions> {
         match self {
             Self::Animation(val) => val.link_preview_options.as_ref(),
+            Self::LivePhoto(val) => val.link_preview_options.as_ref(),
+            Self::Venue(val) => val.link_preview_options.as_ref(),
             Self::Audio(val) => val.link_preview_options.as_ref(),
             Self::Checklist(val) => val.link_preview_options.as_ref(),
             Self::Contact(val) => val.link_preview_options.as_ref(),
@@ -240,14 +242,12 @@ impl ExternalReplyInfo {
             Self::Giveaway(val) => val.link_preview_options.as_ref(),
             Self::GiveawayWinners(val) => val.link_preview_options.as_ref(),
             Self::Invoice(val) => val.link_preview_options.as_ref(),
-            Self::LivePhoto(val) => val.link_preview_options.as_ref(),
             Self::Location(val) => val.link_preview_options.as_ref(),
             Self::PaidMedia(val) => val.link_preview_options.as_ref(),
             Self::Photo(val) => val.link_preview_options.as_ref(),
             Self::Poll(val) => val.link_preview_options.as_ref(),
             Self::Sticker(val) => val.link_preview_options.as_ref(),
             Self::Story(val) => val.link_preview_options.as_ref(),
-            Self::Venue(val) => val.link_preview_options.as_ref(),
             Self::Video(val) => val.link_preview_options.as_ref(),
             Self::VideoNote(val) => val.link_preview_options.as_ref(),
             Self::Voice(val) => val.link_preview_options.as_ref(),
@@ -284,6 +284,8 @@ impl ExternalReplyInfo {
     pub fn message_id(&self) -> Option<i64> {
         match self {
             Self::Animation(val) => val.message_id,
+            Self::LivePhoto(val) => val.message_id,
+            Self::Venue(val) => val.message_id,
             Self::Audio(val) => val.message_id,
             Self::Checklist(val) => val.message_id,
             Self::Contact(val) => val.message_id,
@@ -293,14 +295,12 @@ impl ExternalReplyInfo {
             Self::Giveaway(val) => val.message_id,
             Self::GiveawayWinners(val) => val.message_id,
             Self::Invoice(val) => val.message_id,
-            Self::LivePhoto(val) => val.message_id,
             Self::Location(val) => val.message_id,
             Self::PaidMedia(val) => val.message_id,
             Self::Photo(val) => val.message_id,
             Self::Poll(val) => val.message_id,
             Self::Sticker(val) => val.message_id,
             Self::Story(val) => val.message_id,
-            Self::Venue(val) => val.message_id,
             Self::Video(val) => val.message_id,
             Self::VideoNote(val) => val.message_id,
             Self::Voice(val) => val.message_id,
@@ -315,6 +315,8 @@ impl ExternalReplyInfo {
     pub fn origin(&self) -> &crate::types::MessageOrigin {
         match self {
             Self::Animation(val) => &val.origin,
+            Self::LivePhoto(val) => &val.origin,
+            Self::Venue(val) => &val.origin,
             Self::Audio(val) => &val.origin,
             Self::Checklist(val) => &val.origin,
             Self::Contact(val) => &val.origin,
@@ -324,14 +326,12 @@ impl ExternalReplyInfo {
             Self::Giveaway(val) => &val.origin,
             Self::GiveawayWinners(val) => &val.origin,
             Self::Invoice(val) => &val.origin,
-            Self::LivePhoto(val) => &val.origin,
             Self::Location(val) => &val.origin,
             Self::PaidMedia(val) => &val.origin,
             Self::Photo(val) => &val.origin,
             Self::Poll(val) => &val.origin,
             Self::Sticker(val) => &val.origin,
             Self::Story(val) => &val.origin,
-            Self::Venue(val) => &val.origin,
             Self::Video(val) => &val.origin,
             Self::VideoNote(val) => &val.origin,
             Self::Voice(val) => &val.origin,
@@ -1708,6 +1708,44 @@ impl TryFrom<ExternalReplyInfo> for crate::types::ExternalReplyInfoAnimation {
         }
     }
 }
+impl From<crate::types::ExternalReplyInfoLivePhoto> for ExternalReplyInfo {
+    fn from(val: crate::types::ExternalReplyInfoLivePhoto) -> Self {
+        Self::LivePhoto(val)
+    }
+}
+impl TryFrom<ExternalReplyInfo> for crate::types::ExternalReplyInfoLivePhoto {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: ExternalReplyInfo) -> Result<Self, Self::Error> {
+        if let ExternalReplyInfo::LivePhoto(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(ExternalReplyInfo),
+                stringify!(ExternalReplyInfoLivePhoto),
+            ))
+        }
+    }
+}
+impl From<crate::types::ExternalReplyInfoVenue> for ExternalReplyInfo {
+    fn from(val: crate::types::ExternalReplyInfoVenue) -> Self {
+        Self::Venue(val)
+    }
+}
+impl TryFrom<ExternalReplyInfo> for crate::types::ExternalReplyInfoVenue {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: ExternalReplyInfo) -> Result<Self, Self::Error> {
+        if let ExternalReplyInfo::Venue(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(ExternalReplyInfo),
+                stringify!(ExternalReplyInfoVenue),
+            ))
+        }
+    }
+}
 impl From<crate::types::ExternalReplyInfoAudio> for ExternalReplyInfo {
     fn from(val: crate::types::ExternalReplyInfoAudio) -> Self {
         Self::Audio(val)
@@ -1879,25 +1917,6 @@ impl TryFrom<ExternalReplyInfo> for crate::types::ExternalReplyInfoInvoice {
         }
     }
 }
-impl From<crate::types::ExternalReplyInfoLivePhoto> for ExternalReplyInfo {
-    fn from(val: crate::types::ExternalReplyInfoLivePhoto) -> Self {
-        Self::LivePhoto(val)
-    }
-}
-impl TryFrom<ExternalReplyInfo> for crate::types::ExternalReplyInfoLivePhoto {
-    type Error = crate::errors::ConvertToTypeError;
-
-    fn try_from(val: ExternalReplyInfo) -> Result<Self, Self::Error> {
-        if let ExternalReplyInfo::LivePhoto(inner) = val {
-            Ok(inner)
-        } else {
-            Err(Self::Error::new(
-                stringify!(ExternalReplyInfo),
-                stringify!(ExternalReplyInfoLivePhoto),
-            ))
-        }
-    }
-}
 impl From<crate::types::ExternalReplyInfoLocation> for ExternalReplyInfo {
     fn from(val: crate::types::ExternalReplyInfoLocation) -> Self {
         Self::Location(val)
@@ -2008,25 +2027,6 @@ impl TryFrom<ExternalReplyInfo> for crate::types::ExternalReplyInfoStory {
             Err(Self::Error::new(
                 stringify!(ExternalReplyInfo),
                 stringify!(ExternalReplyInfoStory),
-            ))
-        }
-    }
-}
-impl From<crate::types::ExternalReplyInfoVenue> for ExternalReplyInfo {
-    fn from(val: crate::types::ExternalReplyInfoVenue) -> Self {
-        Self::Venue(val)
-    }
-}
-impl TryFrom<ExternalReplyInfo> for crate::types::ExternalReplyInfoVenue {
-    type Error = crate::errors::ConvertToTypeError;
-
-    fn try_from(val: ExternalReplyInfo) -> Result<Self, Self::Error> {
-        if let ExternalReplyInfo::Venue(inner) = val {
-            Ok(inner)
-        } else {
-            Err(Self::Error::new(
-                stringify!(ExternalReplyInfo),
-                stringify!(ExternalReplyInfoVenue),
             ))
         }
     }

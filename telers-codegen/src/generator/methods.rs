@@ -109,6 +109,12 @@ fn get_prepare_step_kind(kind: &TypeKindInField) -> Option<PrepareStepKind> {
         _ if is_array_of_telegram_type(kind, "InputPollOption") => {
             Some(group("prepare_input_poll_options", "options"))
         }
+        _ if is_telegram_type(kind, "InputRichMessage") => {
+            Some(single("prepare_input_rich_message", "rich_message"))
+        }
+        _ if is_array_of_telegram_type(kind, "InlineQueryResult") => {
+            Some(group("prepare_inline_query_results", "results"))
+        }
         _ => None,
     }
 }

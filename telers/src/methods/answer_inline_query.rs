@@ -156,7 +156,9 @@ impl super::TelegramMethod for AnswerInlineQuery {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
-        super::Request::new("answerInlineQuery", self, None)
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        let mut files = vec![];
+        super::prepare_inline_query_results(&mut files, self.results.iter_mut().collect());
+        super::Request::new("answerInlineQuery", self, Some(files))
     }
 }

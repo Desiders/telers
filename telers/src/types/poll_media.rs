@@ -17,14 +17,14 @@ use serde::{Deserialize, Serialize};
 #[serde(untagged)]
 pub enum PollMedia {
     Animation(crate::types::PollMediaAnimation),
+    LivePhoto(crate::types::PollMediaLivePhoto),
+    Venue(crate::types::PollMediaVenue),
     Audio(crate::types::PollMediaAudio),
     Document(crate::types::PollMediaDocument),
     Link(crate::types::PollMediaLink),
-    LivePhoto(crate::types::PollMediaLivePhoto),
     Location(crate::types::PollMediaLocation),
     Photo(crate::types::PollMediaPhoto),
     Sticker(crate::types::PollMediaSticker),
-    Venue(crate::types::PollMediaVenue),
     Video(crate::types::PollMediaVideo),
 }
 impl PollMedia {
@@ -709,6 +709,44 @@ impl TryFrom<PollMedia> for crate::types::PollMediaAnimation {
         }
     }
 }
+impl From<crate::types::PollMediaLivePhoto> for PollMedia {
+    fn from(val: crate::types::PollMediaLivePhoto) -> Self {
+        Self::LivePhoto(val)
+    }
+}
+impl TryFrom<PollMedia> for crate::types::PollMediaLivePhoto {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: PollMedia) -> Result<Self, Self::Error> {
+        if let PollMedia::LivePhoto(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(PollMedia),
+                stringify!(PollMediaLivePhoto),
+            ))
+        }
+    }
+}
+impl From<crate::types::PollMediaVenue> for PollMedia {
+    fn from(val: crate::types::PollMediaVenue) -> Self {
+        Self::Venue(val)
+    }
+}
+impl TryFrom<PollMedia> for crate::types::PollMediaVenue {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: PollMedia) -> Result<Self, Self::Error> {
+        if let PollMedia::Venue(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(PollMedia),
+                stringify!(PollMediaVenue),
+            ))
+        }
+    }
+}
 impl From<crate::types::PollMediaAudio> for PollMedia {
     fn from(val: crate::types::PollMediaAudio) -> Self {
         Self::Audio(val)
@@ -766,25 +804,6 @@ impl TryFrom<PollMedia> for crate::types::PollMediaLink {
         }
     }
 }
-impl From<crate::types::PollMediaLivePhoto> for PollMedia {
-    fn from(val: crate::types::PollMediaLivePhoto) -> Self {
-        Self::LivePhoto(val)
-    }
-}
-impl TryFrom<PollMedia> for crate::types::PollMediaLivePhoto {
-    type Error = crate::errors::ConvertToTypeError;
-
-    fn try_from(val: PollMedia) -> Result<Self, Self::Error> {
-        if let PollMedia::LivePhoto(inner) = val {
-            Ok(inner)
-        } else {
-            Err(Self::Error::new(
-                stringify!(PollMedia),
-                stringify!(PollMediaLivePhoto),
-            ))
-        }
-    }
-}
 impl From<crate::types::PollMediaLocation> for PollMedia {
     fn from(val: crate::types::PollMediaLocation) -> Self {
         Self::Location(val)
@@ -838,25 +857,6 @@ impl TryFrom<PollMedia> for crate::types::PollMediaSticker {
             Err(Self::Error::new(
                 stringify!(PollMedia),
                 stringify!(PollMediaSticker),
-            ))
-        }
-    }
-}
-impl From<crate::types::PollMediaVenue> for PollMedia {
-    fn from(val: crate::types::PollMediaVenue) -> Self {
-        Self::Venue(val)
-    }
-}
-impl TryFrom<PollMedia> for crate::types::PollMediaVenue {
-    type Error = crate::errors::ConvertToTypeError;
-
-    fn try_from(val: PollMedia) -> Result<Self, Self::Error> {
-        if let PollMedia::Venue(inner) = val {
-            Ok(inner)
-        } else {
-            Err(Self::Error::new(
-                stringify!(PollMedia),
-                stringify!(PollMediaVenue),
             ))
         }
     }

@@ -80,7 +80,9 @@ impl super::TelegramMethod for SendRichMessageDraft {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
-        super::Request::new("sendRichMessageDraft", self, None)
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        let mut files = vec![];
+        super::prepare_input_rich_message(&mut files, &mut self.rich_message);
+        super::Request::new("sendRichMessageDraft", self, Some(files))
     }
 }

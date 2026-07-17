@@ -13,7 +13,6 @@ use std::{
     mem,
 };
 use syn::{Path, PathSegment, punctuated::Punctuated};
-use tracing::warn;
 
 use crate::generator::helpers::{capitalize, snake_to_upper_camel};
 
@@ -41,6 +40,16 @@ const BOXED_TYPES: &[&str] = &[
     "Video",
     "Document",
     "RichText",
+];
+
+/// Fields the Bot API documents as required but omits in practice for some objects
+/// (e.g. `Poll.members_only` is absent on poll snapshots stored before its rollout and is
+/// never backfilled). Keyed by (owner type name as it appears in the schema *before* any
+/// custom splitting, field name). These get `#[serde(default)]` so deserialization
+/// tolerates their absence instead of failing the whole update.
+const DEFAULTED_FIELDS: &[(&str, &str)] = &[
+    ("Poll", "members_only"),
+    ("PollAnswer", "option_persistent_ids"),
 ];
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -130,9 +139,9 @@ impl Field {
         let desc = self.description.to_lowercase();
         let patterns = [
             r#"always "([^"]+)""#,
-            r"always ([a-z_]+)",
+            r"always ([a-z0-9_]+)",
             r#"must be "([^"]+)""#,
-            r"must be ([a-z_]+)",
+            r"must be ([a-z0-9_]+)",
         ];
 
         for pattern in patterns {
@@ -206,7 +215,12 @@ impl Schema {
         }
         tagged_values.insert(
             first_ty.name.clone(),
-            first_ty_tagged_field.get_tagged_value().unwrap(),
+            first_ty_tagged_field.get_tagged_value().unwrap_or_else(|| {
+                panic!(
+                    "Tag value can't be extracted from `{}.{}` description",
+                    first_ty.name, first_ty_tagged_field.name
+                )
+            }),
         );
 
         for subtype in subtypes.iter().skip(1) {
@@ -217,7 +231,15 @@ impl Schema {
             if !ty_tagged_field.is_tagged() {
                 return Some((SubtypeKind::Untagged, tagged_values));
             }
-            tagged_values.insert(ty.name.clone(), ty_tagged_field.get_tagged_value().unwrap());
+            tagged_values.insert(
+                ty.name.clone(),
+                ty_tagged_field.get_tagged_value().unwrap_or_else(|| {
+                    panic!(
+                        "Tag value can't be extracted from `{}.{}` description",
+                        ty.name, ty_tagged_field.name
+                    )
+                }),
+            );
         }
 
         Some((
@@ -265,6 +287,8 @@ impl Schema {
                             matches!(&field_type, TypeKindInField::Telegram(ty) if *ty == name);
                         let is_boxed = matches!(&field_type,
                             TypeKindInField::Telegram(ty) if BOXED_TYPES.contains(&ty.as_str()));
+                        let force_default =
+                            DEFAULTED_FIELDS.contains(&(name.as_str(), field.name.as_str()));
                         NormalizedField {
                             name: field.name,
                             required: field.required,
@@ -273,6 +297,7 @@ impl Schema {
                             is_recursive,
                             is_boxed,
                             is_update_variant_field: false,
+                            force_default,
                         }
                     })
                     .collect();
@@ -335,6 +360,7 @@ impl Schema {
                             is_recursive: false,
                             is_boxed: false,
                             is_update_variant_field: false,
+                            force_default: false,
                         }
                     })
                     .collect::<Vec<_>>();
@@ -388,6 +414,9 @@ pub struct NormalizedField {
     pub is_recursive: bool,
     pub is_boxed: bool,
     pub is_update_variant_field: bool,
+    /// Documented as required but tolerated as absent on deserialization via
+    /// `#[serde(default)]` (see [`DEFAULTED_FIELDS`]).
+    pub force_default: bool,
 }
 
 impl NormalizedField {
@@ -593,13 +622,21 @@ impl NormalizedSchema {
         // live_photo -> photo), so `X` is folded into the variant's field fingerprint. The
         // superset rule below then tries the coupled variant first — otherwise a venue
         // message matches the location variant and the venue is silently lost.
+        // The same couplings hold for the mirrored content unions (`ExternalReplyInfo`,
+        // `PollMedia`), where the descriptions lack the wording; applied by field name so the
+        // specific variant is ordered before the generic one there too.
+        const KNOWN_COUPLED_FIELDS: &[(&str, &str)] = &[
+            ("venue", "location"),
+            ("animation", "document"),
+            ("live_photo", "photo"),
+        ];
         let also_sets_re =
             Regex::new(r"the (\w+) field will also be set").expect("valid coupling regex");
         let required_fields_map: HashMap<_, _> = self
             .types
             .iter()
             .map(|(name, ty)| {
-                let required: HashSet<String> =
+                let mut required: HashSet<String> =
                     ty.fields
                         .iter()
                         .filter(|f| f.required)
@@ -608,6 +645,11 @@ impl NormalizedSchema {
                             Some(also_sets_re.captures(&f.description)?[1].to_owned())
                         }))
                         .collect();
+                for (field, also_set) in KNOWN_COUPLED_FIELDS {
+                    if required.contains(*field) {
+                        required.insert((*also_set).to_owned());
+                    }
+                }
                 (name.clone(), (required, ty.fields.len()))
             })
             .collect();
@@ -683,8 +725,14 @@ impl NormalizedSchema {
                 .iter()
                 .find(|(variant, _)| subtype.variant == *variant)
             else {
-                warn!("Unknown inline query type: {}", subtype.variant);
-                continue;
+                // A dropped variant means a whole inline result type silently disappears from
+                // the generated enum (happened with `Mpeg4Gif`), so fail loudly instead.
+                panic!(
+                    "Unknown inline query result variant `{variant}` (type `{ty_name}`); add it \
+                     to the list in `split_inline_query_result`",
+                    variant = subtype.variant,
+                    ty_name = subtype.ty_name,
+                );
             };
 
             if let TypeKind::CachedAndNotCached = kind {
@@ -936,6 +984,20 @@ impl NormalizedSchema {
             } else {
                 common_fields.push(field);
             }
+        }
+
+        // An unlisted content/service field lands in every variant as optional, so a message
+        // carrying only it matches no variant and the whole update fails to parse (happened
+        // with `rich_message`). Fail the generation instead.
+        for field in &common_fields {
+            assert!(
+                !(field.description.starts_with("Optional. Message is")
+                    || field.description.starts_with("Optional. Service message")),
+                "`Message.{}` looks like a content/service field, but isn't listed in \
+                 `split_message_types`: {}",
+                field.name,
+                field.description,
+            );
         }
 
         let mut types = HashMap::new();
@@ -2158,16 +2220,32 @@ fn extract_range(description: &str) -> Option<(i64, i64)> {
     let doc = description.to_lowercase();
     let re =
         Regex::new(r"(?:from|between|must be)?\s*([-]?\d+)\s*(?:-|to|and)\s*([-]?\d+)").ok()?;
-    let caps = re.captures(&doc)?;
-    // A match followed by an arithmetic operator is part of an expression, not a range:
-    // e.g. "0 - 7 * 24 * 60" is the value `7 * 24 * 60`, not the range `0-7`.
-    let rest = doc[caps.get(0)?.end()..].trim_start();
-    if rest.starts_with(['*', '/', '+']) {
-        return None;
+    // A description can carry several ranges (e.g. `SuggestedPostPrice.amount`: Stars
+    // 5-100000 AND nanograms up to 10000000000000; `Dice.value`: 1-6, 1-5 and 1-64), so the
+    // type is sized to the union of all of them — the first range alone would truncate.
+    let mut union: Option<(i64, i64)> = None;
+    for caps in re.captures_iter(&doc) {
+        // A match followed by an arithmetic operator is part of an expression, not a range:
+        // e.g. "0 - 7 * 24 * 60" is the value `7 * 24 * 60`, not the range `0-7`.
+        let Some(full_match) = caps.get(0) else {
+            continue;
+        };
+        let rest = doc[full_match.end()..].trim_start();
+        if rest.starts_with(['*', '/', '+']) {
+            continue;
+        }
+        let (Ok(min), Ok(max)) = (caps[1].parse::<i64>(), caps[2].parse::<i64>()) else {
+            continue;
+        };
+        if min > max {
+            continue;
+        }
+        union = Some(match union {
+            None => (min, max),
+            Some((lo, hi)) => (lo.min(min), hi.max(max)),
+        });
     }
-    let min: i64 = caps[1].parse().ok()?;
-    let max: i64 = caps[2].parse().ok()?;
-    (min <= max).then_some((min, max))
+    union
 }
 
 /// Remove the first numeric range (e.g. "1-100", "from 1 to 3") from a description.
@@ -2381,6 +2459,42 @@ mod tests {
             Some(IntegerKind::Float64)
         );
         assert_eq!(get_if_integer(&"String".to_owned(), ""), None);
+    }
+
+    #[test]
+    fn test_extract_range() {
+        assert_eq!(
+            extract_range("values between 1-100 are accepted"),
+            Some((1, 100))
+        );
+        // Arithmetic expressions are values, not ranges.
+        assert_eq!(
+            extract_range("sequence number in a week; 0 - 7 * 24 * 60"),
+            None
+        );
+        // Several ranges are sized as their union (`SuggestedPostPrice.amount`).
+        assert_eq!(
+            extract_range(
+                "price in Telegram Stars must be between 5 and 100000, and price in nanograms \
+                 must be between 10000000 and 10000000000000"
+            ),
+            Some((5, 10_000_000_000_000)),
+        );
+        assert_eq!(
+            extract_range("1-6 for basic emoji, 1-5 for others, 1-64 for slot machine"),
+            Some((1, 64)),
+        );
+    }
+
+    #[test]
+    fn test_get_tagged_value_with_digits() {
+        let field = Field {
+            name: "type".to_owned(),
+            required: true,
+            description: "Type of the result, must be mpeg4_gif".to_owned(),
+            types: vec!["String".to_owned()],
+        };
+        assert_eq!(field.get_tagged_value(), Some("mpeg4_gif".to_owned()));
     }
 
     #[test]

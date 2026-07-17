@@ -2304,6 +2304,24 @@ fn test_inline_query_result_mpeg4_gif_serialize_deserialize() {
     must_roundtrip(stringify!(InlineQueryResultMpeg4Gif), &parsed);
 }
 #[test]
+fn test_inline_query_result_mpeg4_gif_kind_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "mpeg4_gif", "id" : "test", "mpeg4_url" : "test", "thumbnail_url" :
+        "test" }
+    );
+    let parsed: InlineQueryResult = must_parse(stringify!(InlineQueryResult), &value);
+    assert!(
+        matches!(&parsed, InlineQueryResult::Mpeg4Gif(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InlineQueryResult),
+        stringify!(Mpeg4Gif),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InlineQueryResult), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InlineQueryResult), &parsed);
+}
+#[test]
 fn test_inline_query_result_photo_serialize_deserialize() {
     let value = serde_json::json!(
         { "type" : "photo", "id" : "test", "photo_url" : "in", "thumbnail_url" : "test" }

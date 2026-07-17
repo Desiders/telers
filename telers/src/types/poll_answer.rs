@@ -15,6 +15,7 @@ pub struct PollAnswer {
     /// 0-based identifiers of chosen answer options. May be empty if the vote was retracted.
     pub option_ids: Box<[i64]>,
     /// Persistent identifiers of the chosen answer options. May be empty if the vote was retracted.
+    #[serde(default)]
     pub option_persistent_ids: Box<[Box<str>]>,
 }
 impl PollAnswer {

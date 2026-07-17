@@ -44,6 +44,10 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 pub enum ExternalReplyInfoType {
     #[strum(serialize = "animation")]
     Animation,
+    #[strum(serialize = "live_photo")]
+    LivePhoto,
+    #[strum(serialize = "venue")]
+    Venue,
     #[strum(serialize = "audio")]
     Audio,
     #[strum(serialize = "checklist")]
@@ -62,8 +66,6 @@ pub enum ExternalReplyInfoType {
     GiveawayWinners,
     #[strum(serialize = "invoice")]
     Invoice,
-    #[strum(serialize = "live_photo")]
-    LivePhoto,
     #[strum(serialize = "location")]
     Location,
     #[strum(serialize = "paid_media")]
@@ -76,8 +78,6 @@ pub enum ExternalReplyInfoType {
     Sticker,
     #[strum(serialize = "story")]
     Story,
-    #[strum(serialize = "venue")]
-    Venue,
     #[strum(serialize = "video")]
     Video,
     #[strum(serialize = "video_note")]
@@ -92,6 +92,8 @@ impl ExternalReplyInfoType {
     pub const fn all() -> [ExternalReplyInfoType; 22usize] {
         [
             ExternalReplyInfoType::Animation,
+            ExternalReplyInfoType::LivePhoto,
+            ExternalReplyInfoType::Venue,
             ExternalReplyInfoType::Audio,
             ExternalReplyInfoType::Checklist,
             ExternalReplyInfoType::Contact,
@@ -101,14 +103,12 @@ impl ExternalReplyInfoType {
             ExternalReplyInfoType::Giveaway,
             ExternalReplyInfoType::GiveawayWinners,
             ExternalReplyInfoType::Invoice,
-            ExternalReplyInfoType::LivePhoto,
             ExternalReplyInfoType::Location,
             ExternalReplyInfoType::PaidMedia,
             ExternalReplyInfoType::Photo,
             ExternalReplyInfoType::Poll,
             ExternalReplyInfoType::Sticker,
             ExternalReplyInfoType::Story,
-            ExternalReplyInfoType::Venue,
             ExternalReplyInfoType::Video,
             ExternalReplyInfoType::VideoNote,
             ExternalReplyInfoType::Voice,
@@ -135,6 +135,8 @@ impl<'a> From<&'a ExternalReplyInfo> for ExternalReplyInfoType {
     fn from(val: &'a ExternalReplyInfo) -> Self {
         match val {
             ExternalReplyInfo::Animation(_) => ExternalReplyInfoType::Animation,
+            ExternalReplyInfo::LivePhoto(_) => ExternalReplyInfoType::LivePhoto,
+            ExternalReplyInfo::Venue(_) => ExternalReplyInfoType::Venue,
             ExternalReplyInfo::Audio(_) => ExternalReplyInfoType::Audio,
             ExternalReplyInfo::Checklist(_) => ExternalReplyInfoType::Checklist,
             ExternalReplyInfo::Contact(_) => ExternalReplyInfoType::Contact,
@@ -144,14 +146,12 @@ impl<'a> From<&'a ExternalReplyInfo> for ExternalReplyInfoType {
             ExternalReplyInfo::Giveaway(_) => ExternalReplyInfoType::Giveaway,
             ExternalReplyInfo::GiveawayWinners(_) => ExternalReplyInfoType::GiveawayWinners,
             ExternalReplyInfo::Invoice(_) => ExternalReplyInfoType::Invoice,
-            ExternalReplyInfo::LivePhoto(_) => ExternalReplyInfoType::LivePhoto,
             ExternalReplyInfo::Location(_) => ExternalReplyInfoType::Location,
             ExternalReplyInfo::PaidMedia(_) => ExternalReplyInfoType::PaidMedia,
             ExternalReplyInfo::Photo(_) => ExternalReplyInfoType::Photo,
             ExternalReplyInfo::Poll(_) => ExternalReplyInfoType::Poll,
             ExternalReplyInfo::Sticker(_) => ExternalReplyInfoType::Sticker,
             ExternalReplyInfo::Story(_) => ExternalReplyInfoType::Story,
-            ExternalReplyInfo::Venue(_) => ExternalReplyInfoType::Venue,
             ExternalReplyInfo::Video(_) => ExternalReplyInfoType::Video,
             ExternalReplyInfo::VideoNote(_) => ExternalReplyInfoType::VideoNote,
             ExternalReplyInfo::Voice(_) => ExternalReplyInfoType::Voice,
