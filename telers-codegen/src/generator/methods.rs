@@ -97,6 +97,18 @@ fn get_prepare_step_kind(kind: &TypeKindInField) -> Option<PrepareStepKind> {
         _ if is_telegram_type(kind, "InputStoryContent") => {
             Some(single("prepare_input_story_content", "content"))
         }
+        _ if is_telegram_type(kind, "InputProfilePhoto") => {
+            Some(single("prepare_input_profile_photo", "photo"))
+        }
+        _ if is_telegram_type(kind, "InputPollMedia") => {
+            Some(single("prepare_input_poll_media", "media"))
+        }
+        _ if is_telegram_type(kind, "InputPollOptionMedia") => {
+            Some(single("prepare_input_poll_option_media", "media"))
+        }
+        _ if is_array_of_telegram_type(kind, "InputPollOption") => {
+            Some(group("prepare_input_poll_options", "options"))
+        }
         _ => None,
     }
 }

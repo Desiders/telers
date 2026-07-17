@@ -1,7 +1,9 @@
 use crate::{
     client::Bot,
     types::{
-        InputFile, InputMedia, InputPaidMedia, InputSticker, InputStoryContent, ResponseParameters,
+        InputFile, InputMedia, InputPaidMedia, InputPollMedia, InputPollOption,
+        InputPollOptionMedia, InputProfilePhoto, InputSticker, InputStoryContent,
+        ResponseParameters,
     },
     utils::format_error_report,
 };
@@ -98,25 +100,37 @@ pub fn prepare_file(files: &mut Vec<InputFile>, file: &mut InputFile) {
     }
 }
 
+pub fn prepare_optional_file(files: &mut Vec<InputFile>, file: &mut Option<InputFile>) {
+    if let Some(file) = file {
+        prepare_file(files, file);
+    }
+}
+
 pub fn prepare_input_media(files: &mut Vec<InputFile>, input_media: &mut InputMedia) {
     match input_media {
         InputMedia::Animation(inner) => {
             prepare_file(files, &mut inner.media);
+            prepare_optional_file(files, &mut inner.thumbnail);
         }
         InputMedia::Audio(inner) => {
             prepare_file(files, &mut inner.media);
+            prepare_optional_file(files, &mut inner.thumbnail);
         }
         InputMedia::Document(inner) => {
             prepare_file(files, &mut inner.media);
+            prepare_optional_file(files, &mut inner.thumbnail);
         }
         InputMedia::LivePhoto(inner) => {
             prepare_file(files, &mut inner.media);
+            prepare_file(files, &mut inner.photo);
         }
         InputMedia::Photo(inner) => {
             prepare_file(files, &mut inner.media);
         }
         InputMedia::Video(inner) => {
             prepare_file(files, &mut inner.media);
+            prepare_optional_file(files, &mut inner.thumbnail);
+            prepare_optional_file(files, &mut inner.cover);
         }
     }
 }
@@ -144,12 +158,86 @@ pub fn prepare_input_paid_media(files: &mut Vec<InputFile>, input_paid_media: &m
     match input_paid_media {
         InputPaidMedia::LivePhoto(inner) => {
             prepare_file(files, &mut inner.media);
+            prepare_file(files, &mut inner.photo);
         }
         InputPaidMedia::Photo(inner) => {
             prepare_file(files, &mut inner.media);
         }
         InputPaidMedia::Video(inner) => {
             prepare_file(files, &mut inner.media);
+            prepare_optional_file(files, &mut inner.thumbnail);
+            prepare_optional_file(files, &mut inner.cover);
+        }
+    }
+}
+
+pub fn prepare_input_poll_media(files: &mut Vec<InputFile>, input_poll_media: &mut InputPollMedia) {
+    match input_poll_media {
+        InputPollMedia::Animation(inner) => {
+            prepare_file(files, &mut inner.media);
+            prepare_optional_file(files, &mut inner.thumbnail);
+        }
+        InputPollMedia::Audio(inner) => {
+            prepare_file(files, &mut inner.media);
+            prepare_optional_file(files, &mut inner.thumbnail);
+        }
+        InputPollMedia::Document(inner) => {
+            prepare_file(files, &mut inner.media);
+            prepare_optional_file(files, &mut inner.thumbnail);
+        }
+        InputPollMedia::LivePhoto(inner) => {
+            prepare_file(files, &mut inner.media);
+            prepare_file(files, &mut inner.photo);
+        }
+        InputPollMedia::Photo(inner) => {
+            prepare_file(files, &mut inner.media);
+        }
+        InputPollMedia::Video(inner) => {
+            prepare_file(files, &mut inner.media);
+            prepare_optional_file(files, &mut inner.thumbnail);
+            prepare_optional_file(files, &mut inner.cover);
+        }
+        InputPollMedia::Location(_) | InputPollMedia::Venue(_) => {}
+    }
+}
+
+pub fn prepare_input_poll_option_media(
+    files: &mut Vec<InputFile>,
+    input_poll_option_media: &mut InputPollOptionMedia,
+) {
+    match input_poll_option_media {
+        InputPollOptionMedia::Animation(inner) => {
+            prepare_file(files, &mut inner.media);
+            prepare_optional_file(files, &mut inner.thumbnail);
+        }
+        InputPollOptionMedia::LivePhoto(inner) => {
+            prepare_file(files, &mut inner.media);
+            prepare_file(files, &mut inner.photo);
+        }
+        InputPollOptionMedia::Photo(inner) => {
+            prepare_file(files, &mut inner.media);
+        }
+        InputPollOptionMedia::Sticker(inner) => {
+            prepare_file(files, &mut inner.media);
+        }
+        InputPollOptionMedia::Video(inner) => {
+            prepare_file(files, &mut inner.media);
+            prepare_optional_file(files, &mut inner.thumbnail);
+            prepare_optional_file(files, &mut inner.cover);
+        }
+        InputPollOptionMedia::Link(_)
+        | InputPollOptionMedia::Location(_)
+        | InputPollOptionMedia::Venue(_) => {}
+    }
+}
+
+pub fn prepare_input_poll_options(
+    files: &mut Vec<InputFile>,
+    input_poll_options: Vec<&mut InputPollOption>,
+) {
+    for input_poll_option in input_poll_options {
+        if let Some(media) = &mut input_poll_option.media {
+            prepare_input_poll_option_media(files, media);
         }
     }
 }
@@ -173,6 +261,20 @@ pub fn prepare_input_story_content(
         }
         InputStoryContent::Video(inner) => {
             prepare_file(files, &mut inner.video);
+        }
+    }
+}
+
+pub fn prepare_input_profile_photo(
+    files: &mut Vec<InputFile>,
+    input_profile_photo: &mut InputProfilePhoto,
+) {
+    match input_profile_photo {
+        InputProfilePhoto::Static(inner) => {
+            prepare_file(files, &mut inner.photo);
+        }
+        InputProfilePhoto::Animated(inner) => {
+            prepare_file(files, &mut inner.animation);
         }
     }
 }

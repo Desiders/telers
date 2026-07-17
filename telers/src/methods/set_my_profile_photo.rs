@@ -33,7 +33,9 @@ impl super::TelegramMethod for SetMyProfilePhoto {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
-        super::Request::new("setMyProfilePhoto", self, None)
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        let mut files = vec![];
+        super::prepare_input_profile_photo(&mut files, &mut self.photo);
+        super::Request::new("setMyProfilePhoto", self, Some(files))
     }
 }
