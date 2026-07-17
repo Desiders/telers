@@ -108,7 +108,6 @@ async fn dynamic_media_from_field_parses_known_content_type() {
 async fn dynamic_media_from_field_skips_unknown_content_type() {
     let ctx = Context::new("", "state", serde_json::Value::Null);
     let mut data = DataMap::new();
-    // A typo (here `vidoe`) used to be silently coerced to a photo; it must be skipped instead.
     data.insert(
         "media".into(),
         json!({ "content_type": "vidoe", "url": "https://example.com/v.mp4" }),
