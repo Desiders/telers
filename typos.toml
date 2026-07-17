@@ -1,5 +1,6 @@
 [files]
 extend-exclude = [
     "telers/src/filters/text.rs",
-    "examples/dialogs_mega/src/dialogs/scrolls.rs"
+    "examples/dialogs_mega/src/dialogs/scrolls.rs",
+    "telers-dialog/src/widgets/media/tests.rs"
 ]
