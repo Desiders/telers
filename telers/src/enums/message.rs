@@ -57,6 +57,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::MessagePollOptionDeleted`]
 /// - [`crate::types::MessageProximityAlertTriggered`]
 /// - [`crate::types::MessageRefundedPayment`]
+/// - [`crate::types::MessageRichMessage`]
 /// - [`crate::types::MessageSticker`]
 /// - [`crate::types::MessageStory`]
 /// - [`crate::types::MessageSuccessfulPayment`]
@@ -204,6 +205,8 @@ pub enum MessageType {
     ProximityAlertTriggered,
     #[strum(serialize = "refunded_payment")]
     RefundedPayment,
+    #[strum(serialize = "rich_message")]
+    RichMessage,
     #[strum(serialize = "sticker")]
     Sticker,
     #[strum(serialize = "story")]
@@ -251,7 +254,7 @@ pub enum MessageType {
 }
 impl MessageType {
     #[must_use]
-    pub const fn all() -> [MessageType; 76usize] {
+    pub const fn all() -> [MessageType; 77usize] {
         [
             MessageType::Animation,
             MessageType::Audio,
@@ -307,6 +310,7 @@ impl MessageType {
             MessageType::PollOptionDeleted,
             MessageType::ProximityAlertTriggered,
             MessageType::RefundedPayment,
+            MessageType::RichMessage,
             MessageType::Sticker,
             MessageType::Story,
             MessageType::SuccessfulPayment,
@@ -404,6 +408,7 @@ impl<'a> From<&'a Message> for MessageType {
             Message::PollOptionDeleted(_) => MessageType::PollOptionDeleted,
             Message::ProximityAlertTriggered(_) => MessageType::ProximityAlertTriggered,
             Message::RefundedPayment(_) => MessageType::RefundedPayment,
+            Message::RichMessage(_) => MessageType::RichMessage,
             Message::Sticker(_) => MessageType::Sticker,
             Message::Story(_) => MessageType::Story,
             Message::SuccessfulPayment(_) => MessageType::SuccessfulPayment,

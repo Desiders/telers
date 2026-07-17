@@ -15,6 +15,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::ExternalReplyInfoInvoice`]
 /// - [`crate::types::ExternalReplyInfoLivePhoto`]
 /// - [`crate::types::ExternalReplyInfoLocation`]
+/// - [`crate::types::ExternalReplyInfoPaidMedia`]
 /// - [`crate::types::ExternalReplyInfoPhoto`]
 /// - [`crate::types::ExternalReplyInfoPoll`]
 /// - [`crate::types::ExternalReplyInfoSticker`]
@@ -65,6 +66,8 @@ pub enum ExternalReplyInfoType {
     LivePhoto,
     #[strum(serialize = "location")]
     Location,
+    #[strum(serialize = "paid_media")]
+    PaidMedia,
     #[strum(serialize = "photo")]
     Photo,
     #[strum(serialize = "poll")]
@@ -86,7 +89,7 @@ pub enum ExternalReplyInfoType {
 }
 impl ExternalReplyInfoType {
     #[must_use]
-    pub const fn all() -> [ExternalReplyInfoType; 21usize] {
+    pub const fn all() -> [ExternalReplyInfoType; 22usize] {
         [
             ExternalReplyInfoType::Animation,
             ExternalReplyInfoType::Audio,
@@ -100,6 +103,7 @@ impl ExternalReplyInfoType {
             ExternalReplyInfoType::Invoice,
             ExternalReplyInfoType::LivePhoto,
             ExternalReplyInfoType::Location,
+            ExternalReplyInfoType::PaidMedia,
             ExternalReplyInfoType::Photo,
             ExternalReplyInfoType::Poll,
             ExternalReplyInfoType::Sticker,
@@ -142,6 +146,7 @@ impl<'a> From<&'a ExternalReplyInfo> for ExternalReplyInfoType {
             ExternalReplyInfo::Invoice(_) => ExternalReplyInfoType::Invoice,
             ExternalReplyInfo::LivePhoto(_) => ExternalReplyInfoType::LivePhoto,
             ExternalReplyInfo::Location(_) => ExternalReplyInfoType::Location,
+            ExternalReplyInfo::PaidMedia(_) => ExternalReplyInfoType::PaidMedia,
             ExternalReplyInfo::Photo(_) => ExternalReplyInfoType::Photo,
             ExternalReplyInfo::Poll(_) => ExternalReplyInfoType::Poll,
             ExternalReplyInfo::Sticker(_) => ExternalReplyInfoType::Sticker,

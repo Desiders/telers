@@ -851,6 +851,7 @@ impl NormalizedSchema {
             "poll",
             "venue",
             "location",
+            "rich_message",
         ];
         let service_fields = [
             "new_chat_members",
@@ -986,7 +987,10 @@ impl NormalizedSchema {
         for field in mem::take(&mut info.fields) {
             let name = field.name.clone();
             let desc = field.description.to_lowercase();
-            let is_content_field = desc.contains("message is") || name == "giveaway_winners";
+            // "message is ..." for most content fields; "message contains ..." for `paid_media`.
+            let is_content_field = desc.contains("message is")
+                || desc.contains("message contains")
+                || name == "giveaway_winners";
             if is_content_field {
                 content_fields_map.insert(name, field);
             } else {
@@ -2108,6 +2112,12 @@ fn extract_range(description: &str) -> Option<(i64, i64)> {
     let re =
         Regex::new(r"(?:from|between|must be)?\s*([-]?\d+)\s*(?:-|to|and)\s*([-]?\d+)").ok()?;
     let caps = re.captures(&doc)?;
+    // A match followed by an arithmetic operator is part of an expression, not a range:
+    // e.g. "0 - 7 * 24 * 60" is the value `7 * 24 * 60`, not the range `0-7`.
+    let rest = doc[caps.get(0)?.end()..].trim_start();
+    if rest.starts_with(['*', '/', '+']) {
+        return None;
+    }
     let min: i64 = caps[1].parse().ok()?;
     let max: i64 = caps[2].parse().ok()?;
     (min <= max).then_some((min, max))

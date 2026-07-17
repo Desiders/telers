@@ -55,6 +55,7 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::MessagePollOptionDeleted`]
 /// - [`crate::types::MessageProximityAlertTriggered`]
 /// - [`crate::types::MessageRefundedPayment`]
+/// - [`crate::types::MessageRichMessage`]
 /// - [`crate::types::MessageSticker`]
 /// - [`crate::types::MessageStory`]
 /// - [`crate::types::MessageSuccessfulPayment`]
@@ -136,6 +137,7 @@ pub enum Message {
     PollOptionDeleted(crate::types::MessagePollOptionDeleted),
     ProximityAlertTriggered(crate::types::MessageProximityAlertTriggered),
     RefundedPayment(crate::types::MessageRefundedPayment),
+    RichMessage(crate::types::MessageRichMessage),
     Sticker(crate::types::MessageSticker),
     Story(crate::types::MessageStory),
     SuccessfulPayment(crate::types::MessageSuccessfulPayment),
@@ -242,6 +244,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.author_signature.as_deref(),
             Self::ProximityAlertTriggered(val) => val.author_signature.as_deref(),
             Self::RefundedPayment(val) => val.author_signature.as_deref(),
+            Self::RichMessage(val) => val.author_signature.as_deref(),
             Self::Sticker(val) => val.author_signature.as_deref(),
             Self::Story(val) => val.author_signature.as_deref(),
             Self::SuccessfulPayment(val) => val.author_signature.as_deref(),
@@ -338,6 +341,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.business_connection_id.as_deref(),
             Self::ProximityAlertTriggered(val) => val.business_connection_id.as_deref(),
             Self::RefundedPayment(val) => val.business_connection_id.as_deref(),
+            Self::RichMessage(val) => val.business_connection_id.as_deref(),
             Self::Sticker(val) => val.business_connection_id.as_deref(),
             Self::Story(val) => val.business_connection_id.as_deref(),
             Self::SuccessfulPayment(val) => val.business_connection_id.as_deref(),
@@ -423,6 +427,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.caption.as_deref(),
             Self::ProximityAlertTriggered(val) => val.caption.as_deref(),
             Self::RefundedPayment(val) => val.caption.as_deref(),
+            Self::RichMessage(val) => val.caption.as_deref(),
             Self::Sticker(val) => val.caption.as_deref(),
             Self::Story(val) => val.caption.as_deref(),
             Self::SuccessfulPayment(val) => val.caption.as_deref(),
@@ -508,6 +513,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.caption_entities.as_deref(),
             Self::ProximityAlertTriggered(val) => val.caption_entities.as_deref(),
             Self::RefundedPayment(val) => val.caption_entities.as_deref(),
+            Self::RichMessage(val) => val.caption_entities.as_deref(),
             Self::Sticker(val) => val.caption_entities.as_deref(),
             Self::Story(val) => val.caption_entities.as_deref(),
             Self::SuccessfulPayment(val) => val.caption_entities.as_deref(),
@@ -604,6 +610,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.chat.as_ref(),
             Self::ProximityAlertTriggered(val) => val.chat.as_ref(),
             Self::RefundedPayment(val) => val.chat.as_ref(),
+            Self::RichMessage(val) => val.chat.as_ref(),
             Self::Sticker(val) => val.chat.as_ref(),
             Self::Story(val) => val.chat.as_ref(),
             Self::SuccessfulPayment(val) => val.chat.as_ref(),
@@ -810,6 +817,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.date,
             Self::ProximityAlertTriggered(val) => val.date,
             Self::RefundedPayment(val) => val.date,
+            Self::RichMessage(val) => val.date,
             Self::Sticker(val) => val.date,
             Self::Story(val) => val.date,
             Self::SuccessfulPayment(val) => val.date,
@@ -928,6 +936,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.direct_messages_topic.as_ref(),
             Self::ProximityAlertTriggered(val) => val.direct_messages_topic.as_ref(),
             Self::RefundedPayment(val) => val.direct_messages_topic.as_ref(),
+            Self::RichMessage(val) => val.direct_messages_topic.as_ref(),
             Self::Sticker(val) => val.direct_messages_topic.as_ref(),
             Self::Story(val) => val.direct_messages_topic.as_ref(),
             Self::SuccessfulPayment(val) => val.direct_messages_topic.as_ref(),
@@ -1024,6 +1033,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.edit_date,
             Self::ProximityAlertTriggered(val) => val.edit_date,
             Self::RefundedPayment(val) => val.edit_date,
+            Self::RichMessage(val) => val.edit_date,
             Self::Sticker(val) => val.edit_date,
             Self::Story(val) => val.edit_date,
             Self::SuccessfulPayment(val) => val.edit_date,
@@ -1109,6 +1119,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.effect_id.as_deref(),
             Self::ProximityAlertTriggered(val) => val.effect_id.as_deref(),
             Self::RefundedPayment(val) => val.effect_id.as_deref(),
+            Self::RichMessage(val) => val.effect_id.as_deref(),
             Self::Sticker(val) => val.effect_id.as_deref(),
             Self::Story(val) => val.effect_id.as_deref(),
             Self::SuccessfulPayment(val) => val.effect_id.as_deref(),
@@ -1194,6 +1205,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.entities.as_deref(),
             Self::ProximityAlertTriggered(val) => val.entities.as_deref(),
             Self::RefundedPayment(val) => val.entities.as_deref(),
+            Self::RichMessage(val) => val.entities.as_deref(),
             Self::Sticker(val) => val.entities.as_deref(),
             Self::Story(val) => val.entities.as_deref(),
             Self::SuccessfulPayment(val) => val.entities.as_deref(),
@@ -1279,6 +1291,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.ephemeral_message_id,
             Self::ProximityAlertTriggered(val) => val.ephemeral_message_id,
             Self::RefundedPayment(val) => val.ephemeral_message_id,
+            Self::RichMessage(val) => val.ephemeral_message_id,
             Self::Sticker(val) => val.ephemeral_message_id,
             Self::Story(val) => val.ephemeral_message_id,
             Self::SuccessfulPayment(val) => val.ephemeral_message_id,
@@ -1364,6 +1377,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.external_reply.as_deref(),
             Self::ProximityAlertTriggered(val) => val.external_reply.as_deref(),
             Self::RefundedPayment(val) => val.external_reply.as_deref(),
+            Self::RichMessage(val) => val.external_reply.as_deref(),
             Self::Sticker(val) => val.external_reply.as_deref(),
             Self::Story(val) => val.external_reply.as_deref(),
             Self::SuccessfulPayment(val) => val.external_reply.as_deref(),
@@ -1493,6 +1507,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.forward_origin.as_ref(),
             Self::ProximityAlertTriggered(val) => val.forward_origin.as_ref(),
             Self::RefundedPayment(val) => val.forward_origin.as_ref(),
+            Self::RichMessage(val) => val.forward_origin.as_ref(),
             Self::Sticker(val) => val.forward_origin.as_ref(),
             Self::Story(val) => val.forward_origin.as_ref(),
             Self::SuccessfulPayment(val) => val.forward_origin.as_ref(),
@@ -1578,6 +1593,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.from.as_deref(),
             Self::ProximityAlertTriggered(val) => val.from.as_deref(),
             Self::RefundedPayment(val) => val.from.as_deref(),
+            Self::RichMessage(val) => val.from.as_deref(),
             Self::Sticker(val) => val.from.as_deref(),
             Self::Story(val) => val.from.as_deref(),
             Self::SuccessfulPayment(val) => val.from.as_deref(),
@@ -1773,6 +1789,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.guest_bot_caller_chat.as_deref(),
             Self::ProximityAlertTriggered(val) => val.guest_bot_caller_chat.as_deref(),
             Self::RefundedPayment(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::RichMessage(val) => val.guest_bot_caller_chat.as_deref(),
             Self::Sticker(val) => val.guest_bot_caller_chat.as_deref(),
             Self::Story(val) => val.guest_bot_caller_chat.as_deref(),
             Self::SuccessfulPayment(val) => val.guest_bot_caller_chat.as_deref(),
@@ -1858,6 +1875,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.guest_bot_caller_user.as_deref(),
             Self::ProximityAlertTriggered(val) => val.guest_bot_caller_user.as_deref(),
             Self::RefundedPayment(val) => val.guest_bot_caller_user.as_deref(),
+            Self::RichMessage(val) => val.guest_bot_caller_user.as_deref(),
             Self::Sticker(val) => val.guest_bot_caller_user.as_deref(),
             Self::Story(val) => val.guest_bot_caller_user.as_deref(),
             Self::SuccessfulPayment(val) => val.guest_bot_caller_user.as_deref(),
@@ -1943,6 +1961,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.guest_query_id.as_deref(),
             Self::ProximityAlertTriggered(val) => val.guest_query_id.as_deref(),
             Self::RefundedPayment(val) => val.guest_query_id.as_deref(),
+            Self::RichMessage(val) => val.guest_query_id.as_deref(),
             Self::Sticker(val) => val.guest_query_id.as_deref(),
             Self::Story(val) => val.guest_query_id.as_deref(),
             Self::SuccessfulPayment(val) => val.guest_query_id.as_deref(),
@@ -2028,6 +2047,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.has_media_spoiler,
             Self::ProximityAlertTriggered(val) => val.has_media_spoiler,
             Self::RefundedPayment(val) => val.has_media_spoiler,
+            Self::RichMessage(val) => val.has_media_spoiler,
             Self::Sticker(val) => val.has_media_spoiler,
             Self::Story(val) => val.has_media_spoiler,
             Self::SuccessfulPayment(val) => val.has_media_spoiler,
@@ -2113,6 +2133,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.has_protected_content,
             Self::ProximityAlertTriggered(val) => val.has_protected_content,
             Self::RefundedPayment(val) => val.has_protected_content,
+            Self::RichMessage(val) => val.has_protected_content,
             Self::Sticker(val) => val.has_protected_content,
             Self::Story(val) => val.has_protected_content,
             Self::SuccessfulPayment(val) => val.has_protected_content,
@@ -2209,6 +2230,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.is_automatic_forward,
             Self::ProximityAlertTriggered(val) => val.is_automatic_forward,
             Self::RefundedPayment(val) => val.is_automatic_forward,
+            Self::RichMessage(val) => val.is_automatic_forward,
             Self::Sticker(val) => val.is_automatic_forward,
             Self::Story(val) => val.is_automatic_forward,
             Self::SuccessfulPayment(val) => val.is_automatic_forward,
@@ -2294,6 +2316,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.is_from_offline,
             Self::ProximityAlertTriggered(val) => val.is_from_offline,
             Self::RefundedPayment(val) => val.is_from_offline,
+            Self::RichMessage(val) => val.is_from_offline,
             Self::Sticker(val) => val.is_from_offline,
             Self::Story(val) => val.is_from_offline,
             Self::SuccessfulPayment(val) => val.is_from_offline,
@@ -2379,6 +2402,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.is_paid_post,
             Self::ProximityAlertTriggered(val) => val.is_paid_post,
             Self::RefundedPayment(val) => val.is_paid_post,
+            Self::RichMessage(val) => val.is_paid_post,
             Self::Sticker(val) => val.is_paid_post,
             Self::Story(val) => val.is_paid_post,
             Self::SuccessfulPayment(val) => val.is_paid_post,
@@ -2464,6 +2488,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.is_topic_message,
             Self::ProximityAlertTriggered(val) => val.is_topic_message,
             Self::RefundedPayment(val) => val.is_topic_message,
+            Self::RichMessage(val) => val.is_topic_message,
             Self::Sticker(val) => val.is_topic_message,
             Self::Story(val) => val.is_topic_message,
             Self::SuccessfulPayment(val) => val.is_topic_message,
@@ -2560,6 +2585,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.link_preview_options.as_ref(),
             Self::ProximityAlertTriggered(val) => val.link_preview_options.as_ref(),
             Self::RefundedPayment(val) => val.link_preview_options.as_ref(),
+            Self::RichMessage(val) => val.link_preview_options.as_ref(),
             Self::Sticker(val) => val.link_preview_options.as_ref(),
             Self::Story(val) => val.link_preview_options.as_ref(),
             Self::SuccessfulPayment(val) => val.link_preview_options.as_ref(),
@@ -2678,6 +2704,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.media_group_id.as_deref(),
             Self::ProximityAlertTriggered(val) => val.media_group_id.as_deref(),
             Self::RefundedPayment(val) => val.media_group_id.as_deref(),
+            Self::RichMessage(val) => val.media_group_id.as_deref(),
             Self::Sticker(val) => val.media_group_id.as_deref(),
             Self::Story(val) => val.media_group_id.as_deref(),
             Self::SuccessfulPayment(val) => val.media_group_id.as_deref(),
@@ -2778,6 +2805,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.message_id,
             Self::ProximityAlertTriggered(val) => val.message_id,
             Self::RefundedPayment(val) => val.message_id,
+            Self::RichMessage(val) => val.message_id,
             Self::Sticker(val) => val.message_id,
             Self::Story(val) => val.message_id,
             Self::SuccessfulPayment(val) => val.message_id,
@@ -2863,6 +2891,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.message_thread_id,
             Self::ProximityAlertTriggered(val) => val.message_thread_id,
             Self::RefundedPayment(val) => val.message_thread_id,
+            Self::RichMessage(val) => val.message_thread_id,
             Self::Sticker(val) => val.message_thread_id,
             Self::Story(val) => val.message_thread_id,
             Self::SuccessfulPayment(val) => val.message_thread_id,
@@ -3025,6 +3054,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.paid_star_count,
             Self::ProximityAlertTriggered(val) => val.paid_star_count,
             Self::RefundedPayment(val) => val.paid_star_count,
+            Self::RichMessage(val) => val.paid_star_count,
             Self::Sticker(val) => val.paid_star_count,
             Self::Story(val) => val.paid_star_count,
             Self::SuccessfulPayment(val) => val.paid_star_count,
@@ -3187,6 +3217,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.quote.as_ref(),
             Self::ProximityAlertTriggered(val) => val.quote.as_ref(),
             Self::RefundedPayment(val) => val.quote.as_ref(),
+            Self::RichMessage(val) => val.quote.as_ref(),
             Self::Sticker(val) => val.quote.as_ref(),
             Self::Story(val) => val.quote.as_ref(),
             Self::SuccessfulPayment(val) => val.quote.as_ref(),
@@ -3272,6 +3303,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.receiver_user.as_deref(),
             Self::ProximityAlertTriggered(val) => val.receiver_user.as_deref(),
             Self::RefundedPayment(val) => val.receiver_user.as_deref(),
+            Self::RichMessage(val) => val.receiver_user.as_deref(),
             Self::Sticker(val) => val.receiver_user.as_deref(),
             Self::Story(val) => val.receiver_user.as_deref(),
             Self::SuccessfulPayment(val) => val.receiver_user.as_deref(),
@@ -3368,6 +3400,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.reply_markup.as_ref(),
             Self::ProximityAlertTriggered(val) => val.reply_markup.as_ref(),
             Self::RefundedPayment(val) => val.reply_markup.as_ref(),
+            Self::RichMessage(val) => val.reply_markup.as_ref(),
             Self::Sticker(val) => val.reply_markup.as_ref(),
             Self::Story(val) => val.reply_markup.as_ref(),
             Self::SuccessfulPayment(val) => val.reply_markup.as_ref(),
@@ -3453,6 +3486,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.reply_to_checklist_task_id,
             Self::ProximityAlertTriggered(val) => val.reply_to_checklist_task_id,
             Self::RefundedPayment(val) => val.reply_to_checklist_task_id,
+            Self::RichMessage(val) => val.reply_to_checklist_task_id,
             Self::Sticker(val) => val.reply_to_checklist_task_id,
             Self::Story(val) => val.reply_to_checklist_task_id,
             Self::SuccessfulPayment(val) => val.reply_to_checklist_task_id,
@@ -3538,6 +3572,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.reply_to_message.as_deref(),
             Self::ProximityAlertTriggered(val) => val.reply_to_message.as_deref(),
             Self::RefundedPayment(val) => val.reply_to_message.as_deref(),
+            Self::RichMessage(val) => val.reply_to_message.as_deref(),
             Self::Sticker(val) => val.reply_to_message.as_deref(),
             Self::Story(val) => val.reply_to_message.as_deref(),
             Self::SuccessfulPayment(val) => val.reply_to_message.as_deref(),
@@ -3623,6 +3658,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.reply_to_poll_option_id.as_deref(),
             Self::ProximityAlertTriggered(val) => val.reply_to_poll_option_id.as_deref(),
             Self::RefundedPayment(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::RichMessage(val) => val.reply_to_poll_option_id.as_deref(),
             Self::Sticker(val) => val.reply_to_poll_option_id.as_deref(),
             Self::Story(val) => val.reply_to_poll_option_id.as_deref(),
             Self::SuccessfulPayment(val) => val.reply_to_poll_option_id.as_deref(),
@@ -3708,6 +3744,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.reply_to_story.as_ref(),
             Self::ProximityAlertTriggered(val) => val.reply_to_story.as_ref(),
             Self::RefundedPayment(val) => val.reply_to_story.as_ref(),
+            Self::RichMessage(val) => val.reply_to_story.as_ref(),
             Self::Sticker(val) => val.reply_to_story.as_ref(),
             Self::Story(val) => val.reply_to_story.as_ref(),
             Self::SuccessfulPayment(val) => val.reply_to_story.as_ref(),
@@ -3739,82 +3776,8 @@ impl Message {
     #[must_use]
     pub fn rich_message(&self) -> Option<&crate::types::RichMessage> {
         match self {
-            Self::Animation(val) => val.rich_message.as_ref(),
-            Self::Audio(val) => val.rich_message.as_ref(),
-            Self::BoostAdded(val) => val.rich_message.as_ref(),
-            Self::ChannelChatCreated(val) => val.rich_message.as_ref(),
-            Self::ChatBackgroundSet(val) => val.rich_message.as_ref(),
-            Self::ChatOwnerChanged(val) => val.rich_message.as_ref(),
-            Self::ChatOwnerLeft(val) => val.rich_message.as_ref(),
-            Self::ChatShared(val) => val.rich_message.as_ref(),
-            Self::Checklist(val) => val.rich_message.as_ref(),
-            Self::ChecklistTasksAdded(val) => val.rich_message.as_ref(),
-            Self::ChecklistTasksDone(val) => val.rich_message.as_ref(),
-            Self::CommunityChatAdded(val) => val.rich_message.as_ref(),
-            Self::CommunityChatRemoved(val) => val.rich_message.as_ref(),
-            Self::ConnectedWebsite(val) => val.rich_message.as_ref(),
-            Self::Contact(val) => val.rich_message.as_ref(),
-            Self::DeleteChatPhoto(val) => val.rich_message.as_ref(),
-            Self::Dice(val) => val.rich_message.as_ref(),
-            Self::DirectMessagePriceChanged(val) => val.rich_message.as_ref(),
-            Self::Document(val) => val.rich_message.as_ref(),
-            Self::ForumTopicClosed(val) => val.rich_message.as_ref(),
-            Self::ForumTopicCreated(val) => val.rich_message.as_ref(),
-            Self::ForumTopicEdited(val) => val.rich_message.as_ref(),
-            Self::ForumTopicReopened(val) => val.rich_message.as_ref(),
-            Self::Game(val) => val.rich_message.as_ref(),
-            Self::GeneralForumTopicHidden(val) => val.rich_message.as_ref(),
-            Self::GeneralForumTopicUnhidden(val) => val.rich_message.as_ref(),
-            Self::Gift(val) => val.rich_message.as_ref(),
-            Self::GiftUpgradeSent(val) => val.rich_message.as_ref(),
-            Self::Giveaway(val) => val.rich_message.as_ref(),
-            Self::GiveawayCompleted(val) => val.rich_message.as_ref(),
-            Self::GiveawayCreated(val) => val.rich_message.as_ref(),
-            Self::GiveawayWinners(val) => val.rich_message.as_ref(),
-            Self::GroupChatCreated(val) => val.rich_message.as_ref(),
-            Self::Invoice(val) => val.rich_message.as_ref(),
-            Self::LeftChatMember(val) => val.rich_message.as_ref(),
-            Self::LivePhoto(val) => val.rich_message.as_ref(),
-            Self::Location(val) => val.rich_message.as_ref(),
-            Self::ManagedBotCreated(val) => val.rich_message.as_ref(),
-            Self::MessageAutoDeleteTimerChanged(val) => val.rich_message.as_ref(),
-            Self::MigrateFromChatId(val) => val.rich_message.as_ref(),
-            Self::MigrateToChatId(val) => val.rich_message.as_ref(),
-            Self::NewChatMembers(val) => val.rich_message.as_ref(),
-            Self::NewChatPhoto(val) => val.rich_message.as_ref(),
-            Self::NewChatTitle(val) => val.rich_message.as_ref(),
-            Self::PaidMedia(val) => val.rich_message.as_ref(),
-            Self::PaidMessagePriceChanged(val) => val.rich_message.as_ref(),
-            Self::PassportData(val) => val.rich_message.as_ref(),
-            Self::Photo(val) => val.rich_message.as_ref(),
-            Self::PinnedMessage(val) => val.rich_message.as_ref(),
-            Self::Poll(val) => val.rich_message.as_ref(),
-            Self::PollOptionAdded(val) => val.rich_message.as_ref(),
-            Self::PollOptionDeleted(val) => val.rich_message.as_ref(),
-            Self::ProximityAlertTriggered(val) => val.rich_message.as_ref(),
-            Self::RefundedPayment(val) => val.rich_message.as_ref(),
-            Self::Sticker(val) => val.rich_message.as_ref(),
-            Self::Story(val) => val.rich_message.as_ref(),
-            Self::SuccessfulPayment(val) => val.rich_message.as_ref(),
-            Self::SuggestedPostApprovalFailed(val) => val.rich_message.as_ref(),
-            Self::SuggestedPostApproved(val) => val.rich_message.as_ref(),
-            Self::SuggestedPostDeclined(val) => val.rich_message.as_ref(),
-            Self::SuggestedPostPaid(val) => val.rich_message.as_ref(),
-            Self::SuggestedPostRefunded(val) => val.rich_message.as_ref(),
-            Self::SupergroupChatCreated(val) => val.rich_message.as_ref(),
-            Self::Text(val) => val.rich_message.as_ref(),
-            Self::UniqueGift(val) => val.rich_message.as_ref(),
-            Self::UsersShared(val) => val.rich_message.as_ref(),
-            Self::Venue(val) => val.rich_message.as_ref(),
-            Self::Video(val) => val.rich_message.as_ref(),
-            Self::VideoChatEnded(val) => val.rich_message.as_ref(),
-            Self::VideoChatParticipantsInvited(val) => val.rich_message.as_ref(),
-            Self::VideoChatScheduled(val) => val.rich_message.as_ref(),
-            Self::VideoChatStarted(val) => val.rich_message.as_ref(),
-            Self::VideoNote(val) => val.rich_message.as_ref(),
-            Self::Voice(val) => val.rich_message.as_ref(),
-            Self::WebAppData(val) => val.rich_message.as_ref(),
-            Self::WriteAccessAllowed(val) => val.rich_message.as_ref(),
+            Self::RichMessage(val) => Some(&val.rich_message),
+            _ => None,
         }
     }
 
@@ -3878,6 +3841,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.sender_boost_count,
             Self::ProximityAlertTriggered(val) => val.sender_boost_count,
             Self::RefundedPayment(val) => val.sender_boost_count,
+            Self::RichMessage(val) => val.sender_boost_count,
             Self::Sticker(val) => val.sender_boost_count,
             Self::Story(val) => val.sender_boost_count,
             Self::SuccessfulPayment(val) => val.sender_boost_count,
@@ -3963,6 +3927,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.sender_business_bot.as_deref(),
             Self::ProximityAlertTriggered(val) => val.sender_business_bot.as_deref(),
             Self::RefundedPayment(val) => val.sender_business_bot.as_deref(),
+            Self::RichMessage(val) => val.sender_business_bot.as_deref(),
             Self::Sticker(val) => val.sender_business_bot.as_deref(),
             Self::Story(val) => val.sender_business_bot.as_deref(),
             Self::SuccessfulPayment(val) => val.sender_business_bot.as_deref(),
@@ -4048,6 +4013,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.sender_chat.as_deref(),
             Self::ProximityAlertTriggered(val) => val.sender_chat.as_deref(),
             Self::RefundedPayment(val) => val.sender_chat.as_deref(),
+            Self::RichMessage(val) => val.sender_chat.as_deref(),
             Self::Sticker(val) => val.sender_chat.as_deref(),
             Self::Story(val) => val.sender_chat.as_deref(),
             Self::SuccessfulPayment(val) => val.sender_chat.as_deref(),
@@ -4133,6 +4099,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.sender_tag.as_deref(),
             Self::ProximityAlertTriggered(val) => val.sender_tag.as_deref(),
             Self::RefundedPayment(val) => val.sender_tag.as_deref(),
+            Self::RichMessage(val) => val.sender_tag.as_deref(),
             Self::Sticker(val) => val.sender_tag.as_deref(),
             Self::Story(val) => val.sender_tag.as_deref(),
             Self::SuccessfulPayment(val) => val.sender_tag.as_deref(),
@@ -4218,6 +4185,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.show_caption_above_media,
             Self::ProximityAlertTriggered(val) => val.show_caption_above_media,
             Self::RefundedPayment(val) => val.show_caption_above_media,
+            Self::RichMessage(val) => val.show_caption_above_media,
             Self::Sticker(val) => val.show_caption_above_media,
             Self::Story(val) => val.show_caption_above_media,
             Self::SuccessfulPayment(val) => val.show_caption_above_media,
@@ -4371,6 +4339,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.suggested_post_info.as_ref(),
             Self::ProximityAlertTriggered(val) => val.suggested_post_info.as_ref(),
             Self::RefundedPayment(val) => val.suggested_post_info.as_ref(),
+            Self::RichMessage(val) => val.suggested_post_info.as_ref(),
             Self::Sticker(val) => val.suggested_post_info.as_ref(),
             Self::Story(val) => val.suggested_post_info.as_ref(),
             Self::SuccessfulPayment(val) => val.suggested_post_info.as_ref(),
@@ -4533,6 +4502,7 @@ impl Message {
             Self::PollOptionDeleted(val) => val.via_bot.as_deref(),
             Self::ProximityAlertTriggered(val) => val.via_bot.as_deref(),
             Self::RefundedPayment(val) => val.via_bot.as_deref(),
+            Self::RichMessage(val) => val.via_bot.as_deref(),
             Self::Sticker(val) => val.via_bot.as_deref(),
             Self::Story(val) => val.via_bot.as_deref(),
             Self::SuccessfulPayment(val) => val.via_bot.as_deref(),
@@ -4734,7 +4704,13 @@ impl Message {
     /// Helper method for nested field `blocks`.
     #[must_use]
     pub fn blocks(&self) -> Option<&[crate::types::RichBlock]> {
-        self.rich_message().map(|inner| inner.blocks.as_ref())
+        match self {
+            Self::RichMessage(val) => {
+                let inner = &val.rich_message;
+                Some(inner.blocks.as_ref())
+            }
+            _ => None,
+        }
     }
 
     /// Helper method for nested field `boost_count`.
@@ -5568,7 +5544,13 @@ impl Message {
     /// Helper method for nested field `is_rtl`.
     #[must_use]
     pub fn is_rtl(&self) -> Option<bool> {
-        self.rich_message().and_then(|inner| inner.is_rtl)
+        match self {
+            Self::RichMessage(val) => {
+                let inner = &val.rich_message;
+                inner.is_rtl
+            }
+            _ => None,
+        }
     }
 
     /// Helper method for nested field `is_star_giveaway`.
@@ -7756,6 +7738,25 @@ impl TryFrom<Message> for crate::types::MessageRefundedPayment {
             Err(Self::Error::new(
                 stringify!(Message),
                 stringify!(MessageRefundedPayment),
+            ))
+        }
+    }
+}
+impl From<crate::types::MessageRichMessage> for Message {
+    fn from(val: crate::types::MessageRichMessage) -> Self {
+        Self::RichMessage(val)
+    }
+}
+impl TryFrom<Message> for crate::types::MessageRichMessage {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Message) -> Result<Self, Self::Error> {
+        if let Message::RichMessage(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Message),
+                stringify!(MessageRichMessage),
             ))
         }
     }

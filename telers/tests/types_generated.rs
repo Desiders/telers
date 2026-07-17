@@ -1556,6 +1556,26 @@ fn test_external_reply_info_location_serialize_deserialize() {
     must_roundtrip(stringify!(ExternalReplyInfo), &parsed);
 }
 #[test]
+fn test_external_reply_info_paid_media_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "origin" : { "type" : "user", "date" : 1, "sender_user" : { "id" : 1, "is_bot"
+        : true, "first_name" : "test" } }, "paid_media" : { "star_count" : 1,
+        "paid_media" : [{ "type" : "live_photo", "live_photo" : { "file_id" : "used",
+        "file_unique_id" : "test", "width" : 1, "height" : 1, "duration" : 1 } }] } }
+    );
+    let parsed: ExternalReplyInfo = must_parse(stringify!(ExternalReplyInfo), &value);
+    assert!(
+        matches!(&parsed, ExternalReplyInfo::PaidMedia(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(ExternalReplyInfo),
+        stringify!(PaidMedia),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(ExternalReplyInfo), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(ExternalReplyInfo), &parsed);
+}
+#[test]
 fn test_external_reply_info_photo_serialize_deserialize() {
     let value = serde_json::json!(
         { "origin" : { "type" : "user", "date" : 1, "sender_user" : { "id" : 1, "is_bot"
@@ -4432,6 +4452,24 @@ fn test_message_refunded_payment_serialize_deserialize() {
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
         stringify!(Message),
         stringify!(RefundedPayment),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(Message), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(Message), &parsed);
+}
+#[test]
+fn test_message_rich_message_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "message_id" : 1, "date" : 1, "chat" : { "type" : "private", "id" : 1 },
+        "rich_message" : { "blocks" : [{ "type" : "paragraph", "text" : "test" }] } }
+    );
+    let parsed: Message = must_parse(stringify!(Message), &value);
+    assert!(
+        matches!(&parsed, Message::RichMessage(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(Message),
+        stringify!(RichMessage),
         parsed
     );
     let parsed_value = must_to_value(stringify!(Message), &parsed);

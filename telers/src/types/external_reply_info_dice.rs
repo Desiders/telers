@@ -17,9 +17,6 @@ pub struct ExternalReplyInfoDice {
     /// Options used for link preview generation for the original message, if it is a text message
     #[serde(skip_serializing_if = "Option::is_none")]
     pub link_preview_options: Option<crate::types::LinkPreviewOptions>,
-    /// Message contains paid media; information about the paid media
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub paid_media: Option<crate::types::PaidMediaInfo>,
     /// `true`, if the message media is covered by a spoiler animation
     #[serde(skip_serializing_if = "Option::is_none")]
     pub has_media_spoiler: Option<bool>,
@@ -45,7 +42,6 @@ impl ExternalReplyInfoDice {
             chat: None,
             message_id: None,
             link_preview_options: None,
-            paid_media: None,
             has_media_spoiler: None,
             dice: dice.into(),
         }
@@ -103,23 +99,6 @@ impl ExternalReplyInfoDice {
         val: Option<T>,
     ) -> Self {
         self.link_preview_options = val.map(Into::into);
-        self
-    }
-
-    /// Message contains paid media; information about the paid media
-    #[must_use]
-    pub fn paid_media<T: Into<crate::types::PaidMediaInfo>>(mut self, val: T) -> Self {
-        self.paid_media = Some(val.into());
-        self
-    }
-
-    /// Message contains paid media; information about the paid media
-    #[must_use]
-    pub fn paid_media_option<T: Into<crate::types::PaidMediaInfo>>(
-        mut self,
-        val: Option<T>,
-    ) -> Self {
-        self.paid_media = val.map(Into::into);
         self
     }
 

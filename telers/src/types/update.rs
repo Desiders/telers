@@ -6835,6 +6835,24 @@ impl<Client> crate::Extractor<Client> for crate::types::MessageRefundedPayment {
         async move { val }
     }
 }
+impl TryFrom<Update> for crate::types::MessageRichMessage {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, Self::Error> {
+        let parent: crate::types::Message = val.try_into()?;
+        parent.try_into()
+    }
+}
+impl<Client> crate::Extractor<Client> for crate::types::MessageRichMessage {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
 impl TryFrom<Update> for crate::types::MessageSticker {
     type Error = crate::errors::ConvertToTypeError;
 

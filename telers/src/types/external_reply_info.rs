@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::ExternalReplyInfoInvoice`]
 /// - [`crate::types::ExternalReplyInfoLivePhoto`]
 /// - [`crate::types::ExternalReplyInfoLocation`]
+/// - [`crate::types::ExternalReplyInfoPaidMedia`]
 /// - [`crate::types::ExternalReplyInfoPhoto`]
 /// - [`crate::types::ExternalReplyInfoPoll`]
 /// - [`crate::types::ExternalReplyInfoSticker`]
@@ -39,6 +40,7 @@ pub enum ExternalReplyInfo {
     Invoice(crate::types::ExternalReplyInfoInvoice),
     LivePhoto(crate::types::ExternalReplyInfoLivePhoto),
     Location(crate::types::ExternalReplyInfoLocation),
+    PaidMedia(crate::types::ExternalReplyInfoPaidMedia),
     Photo(crate::types::ExternalReplyInfoPhoto),
     Poll(crate::types::ExternalReplyInfoPoll),
     Sticker(crate::types::ExternalReplyInfoSticker),
@@ -90,6 +92,7 @@ impl ExternalReplyInfo {
             Self::Invoice(val) => val.chat.as_deref(),
             Self::LivePhoto(val) => val.chat.as_deref(),
             Self::Location(val) => val.chat.as_deref(),
+            Self::PaidMedia(val) => val.chat.as_deref(),
             Self::Photo(val) => val.chat.as_deref(),
             Self::Poll(val) => val.chat.as_deref(),
             Self::Sticker(val) => val.chat.as_deref(),
@@ -197,6 +200,7 @@ impl ExternalReplyInfo {
             Self::Invoice(val) => val.has_media_spoiler,
             Self::LivePhoto(val) => val.has_media_spoiler,
             Self::Location(val) => val.has_media_spoiler,
+            Self::PaidMedia(val) => val.has_media_spoiler,
             Self::Photo(val) => val.has_media_spoiler,
             Self::Poll(val) => val.has_media_spoiler,
             Self::Sticker(val) => val.has_media_spoiler,
@@ -238,6 +242,7 @@ impl ExternalReplyInfo {
             Self::Invoice(val) => val.link_preview_options.as_ref(),
             Self::LivePhoto(val) => val.link_preview_options.as_ref(),
             Self::Location(val) => val.link_preview_options.as_ref(),
+            Self::PaidMedia(val) => val.link_preview_options.as_ref(),
             Self::Photo(val) => val.link_preview_options.as_ref(),
             Self::Poll(val) => val.link_preview_options.as_ref(),
             Self::Sticker(val) => val.link_preview_options.as_ref(),
@@ -290,6 +295,7 @@ impl ExternalReplyInfo {
             Self::Invoice(val) => val.message_id,
             Self::LivePhoto(val) => val.message_id,
             Self::Location(val) => val.message_id,
+            Self::PaidMedia(val) => val.message_id,
             Self::Photo(val) => val.message_id,
             Self::Poll(val) => val.message_id,
             Self::Sticker(val) => val.message_id,
@@ -320,6 +326,7 @@ impl ExternalReplyInfo {
             Self::Invoice(val) => &val.origin,
             Self::LivePhoto(val) => &val.origin,
             Self::Location(val) => &val.origin,
+            Self::PaidMedia(val) => &val.origin,
             Self::Photo(val) => &val.origin,
             Self::Poll(val) => &val.origin,
             Self::Sticker(val) => &val.origin,
@@ -338,27 +345,8 @@ impl ExternalReplyInfo {
     #[must_use]
     pub fn paid_media(&self) -> Option<&crate::types::PaidMediaInfo> {
         match self {
-            Self::Animation(val) => val.paid_media.as_ref(),
-            Self::Audio(val) => val.paid_media.as_ref(),
-            Self::Checklist(val) => val.paid_media.as_ref(),
-            Self::Contact(val) => val.paid_media.as_ref(),
-            Self::Dice(val) => val.paid_media.as_ref(),
-            Self::Document(val) => val.paid_media.as_ref(),
-            Self::Game(val) => val.paid_media.as_ref(),
-            Self::Giveaway(val) => val.paid_media.as_ref(),
-            Self::GiveawayWinners(val) => val.paid_media.as_ref(),
-            Self::Invoice(val) => val.paid_media.as_ref(),
-            Self::LivePhoto(val) => val.paid_media.as_ref(),
-            Self::Location(val) => val.paid_media.as_ref(),
-            Self::Photo(val) => val.paid_media.as_ref(),
-            Self::Poll(val) => val.paid_media.as_ref(),
-            Self::Sticker(val) => val.paid_media.as_ref(),
-            Self::Story(val) => val.paid_media.as_ref(),
-            Self::Venue(val) => val.paid_media.as_ref(),
-            Self::Video(val) => val.paid_media.as_ref(),
-            Self::VideoNote(val) => val.paid_media.as_ref(),
-            Self::Voice(val) => val.paid_media.as_ref(),
-            Self::Unknown(val) => val.paid_media.as_ref(),
+            Self::PaidMedia(val) => Some(&val.paid_media),
+            _ => None,
         }
     }
 
@@ -1423,7 +1411,13 @@ impl ExternalReplyInfo {
     /// Helper method for nested field `star_count`.
     #[must_use]
     pub fn star_count(&self) -> Option<i64> {
-        self.paid_media().map(|inner| inner.star_count)
+        match self {
+            Self::PaidMedia(val) => {
+                let inner = &val.paid_media;
+                Some(inner.star_count)
+            }
+            _ => None,
+        }
     }
 
     /// Helper method for nested field `start_parameter`.
@@ -1919,6 +1913,25 @@ impl TryFrom<ExternalReplyInfo> for crate::types::ExternalReplyInfoLocation {
             Err(Self::Error::new(
                 stringify!(ExternalReplyInfo),
                 stringify!(ExternalReplyInfoLocation),
+            ))
+        }
+    }
+}
+impl From<crate::types::ExternalReplyInfoPaidMedia> for ExternalReplyInfo {
+    fn from(val: crate::types::ExternalReplyInfoPaidMedia) -> Self {
+        Self::PaidMedia(val)
+    }
+}
+impl TryFrom<ExternalReplyInfo> for crate::types::ExternalReplyInfoPaidMedia {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: ExternalReplyInfo) -> Result<Self, Self::Error> {
+        if let ExternalReplyInfo::PaidMedia(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(ExternalReplyInfo),
+                stringify!(ExternalReplyInfoPaidMedia),
             ))
         }
     }

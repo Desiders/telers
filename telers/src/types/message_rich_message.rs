@@ -1,11 +1,11 @@
 use serde::{Deserialize, Serialize};
-/// Message is a video note, information about the video message
+/// Message is a rich formatted message
 /// # Notes
-/// This object represents a message from original message field `video_note`.
+/// This object represents a message from original message field `rich_message`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#message>
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct MessageVideoNote {
+pub struct MessageRichMessage {
     /// Unique message identifier inside this chat; 0 for ephemeral messages. In specific instances (e.g., a message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     pub message_id: i64,
     /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
@@ -129,17 +129,17 @@ pub struct MessageVideoNote {
     /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
-    /// Message is a video note, information about the video message
-    pub video_note: Box<crate::types::VideoNote>,
+    /// Message is a rich formatted message
+    pub rich_message: crate::types::RichMessage,
 }
-impl MessageVideoNote {
-    /// Creates a new `MessageVideoNote`.
+impl MessageRichMessage {
+    /// Creates a new `MessageRichMessage`.
     ///
     /// # Arguments
     /// * `message_id` - Unique message identifier inside this chat; 0 for ephemeral messages. In specific instances (e.g., a message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     /// * `date` - Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     /// * `chat` - Chat the message belongs to
-    /// * `video_note` - Message is a video note, information about the video message
+    /// * `rich_message` - Message is a rich formatted message
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -148,12 +148,12 @@ impl MessageVideoNote {
         T0: Into<i64>,
         T1: Into<i64>,
         T2: Into<crate::types::Chat>,
-        T3: Into<crate::types::VideoNote>,
+        T3: Into<crate::types::RichMessage>,
     >(
         message_id: T0,
         date: T1,
         chat: T2,
-        video_note: T3,
+        rich_message: T3,
     ) -> Self {
         Self {
             message_id: message_id.into(),
@@ -198,7 +198,7 @@ impl MessageVideoNote {
             show_caption_above_media: None,
             has_media_spoiler: None,
             reply_markup: None,
-            video_note: Box::new(video_note.into()),
+            rich_message: rich_message.into(),
         }
     }
 
@@ -871,10 +871,10 @@ impl MessageVideoNote {
         self
     }
 
-    /// Message is a video note, information about the video message
+    /// Message is a rich formatted message
     #[must_use]
-    pub fn video_note<T: Into<crate::types::VideoNote>>(mut self, val: T) -> Self {
-        self.video_note = Box::new(val.into());
+    pub fn rich_message<T: Into<crate::types::RichMessage>>(mut self, val: T) -> Self {
+        self.rich_message = val.into();
         self
     }
 }

@@ -114,9 +114,6 @@ pub struct MessagePaidMessagePriceChanged {
     /// Unique identifier of the message effect added to the message
     #[serde(skip_serializing_if = "Option::is_none")]
     pub effect_id: Option<Box<str>>,
-    /// Message is a rich formatted message
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub rich_message: Option<crate::types::RichMessage>,
     /// Caption for the animation, audio, document, paid media, photo, video or voice
     #[serde(skip_serializing_if = "Option::is_none")]
     pub caption: Option<Box<str>>,
@@ -196,7 +193,6 @@ impl MessagePaidMessagePriceChanged {
             link_preview_options: None,
             suggested_post_info: None,
             effect_id: None,
-            rich_message: None,
             caption: None,
             caption_entities: None,
             show_caption_above_media: None,
@@ -766,23 +762,6 @@ impl MessagePaidMessagePriceChanged {
     #[must_use]
     pub fn effect_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.effect_id = val.map(Into::into);
-        self
-    }
-
-    /// Message is a rich formatted message
-    #[must_use]
-    pub fn rich_message<T: Into<crate::types::RichMessage>>(mut self, val: T) -> Self {
-        self.rich_message = Some(val.into());
-        self
-    }
-
-    /// Message is a rich formatted message
-    #[must_use]
-    pub fn rich_message_option<T: Into<crate::types::RichMessage>>(
-        mut self,
-        val: Option<T>,
-    ) -> Self {
-        self.rich_message = val.map(Into::into);
         self
     }
 

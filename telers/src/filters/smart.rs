@@ -1394,12 +1394,12 @@ impl SmartFilterPath<crate::types::BusinessOpeningHours> {
 }
 impl SmartFilterPath<crate::types::BusinessOpeningHoursInterval> {
     #[must_use]
-    pub fn opening_minute(self) -> SmartFilterPath<u8> {
+    pub fn opening_minute(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.opening_minute)
     }
 
     #[must_use]
-    pub fn closing_minute(self) -> SmartFilterPath<u8> {
+    pub fn closing_minute(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.closing_minute)
     }
 }
@@ -3683,11 +3683,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoAnimation> {
     }
 
     #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
-    }
-
-    #[must_use]
     pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
         self.and_then(|value| value.has_media_spoiler.as_ref())
     }
@@ -3716,11 +3711,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoAudio> {
     #[must_use]
     pub fn link_preview_options(self) -> SmartFilterPath<crate::types::LinkPreviewOptions> {
         self.and_then(|value| value.link_preview_options.as_ref())
-    }
-
-    #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
     }
 
     #[must_use]
@@ -3755,11 +3745,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoChecklist> {
     }
 
     #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
-    }
-
-    #[must_use]
     pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
         self.and_then(|value| value.has_media_spoiler.as_ref())
     }
@@ -3788,11 +3773,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoContact> {
     #[must_use]
     pub fn link_preview_options(self) -> SmartFilterPath<crate::types::LinkPreviewOptions> {
         self.and_then(|value| value.link_preview_options.as_ref())
-    }
-
-    #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
     }
 
     #[must_use]
@@ -3827,11 +3807,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoDice> {
     }
 
     #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
-    }
-
-    #[must_use]
     pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
         self.and_then(|value| value.has_media_spoiler.as_ref())
     }
@@ -3860,11 +3835,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoDocument> {
     #[must_use]
     pub fn link_preview_options(self) -> SmartFilterPath<crate::types::LinkPreviewOptions> {
         self.and_then(|value| value.link_preview_options.as_ref())
-    }
-
-    #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
     }
 
     #[must_use]
@@ -3899,11 +3869,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoGame> {
     }
 
     #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
-    }
-
-    #[must_use]
     pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
         self.and_then(|value| value.has_media_spoiler.as_ref())
     }
@@ -3932,11 +3897,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoGiveaway> {
     #[must_use]
     pub fn link_preview_options(self) -> SmartFilterPath<crate::types::LinkPreviewOptions> {
         self.and_then(|value| value.link_preview_options.as_ref())
-    }
-
-    #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
     }
 
     #[must_use]
@@ -3971,11 +3931,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoGiveawayWinners> {
     }
 
     #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
-    }
-
-    #[must_use]
     pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
         self.and_then(|value| value.has_media_spoiler.as_ref())
     }
@@ -4004,11 +3959,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoInvoice> {
     #[must_use]
     pub fn link_preview_options(self) -> SmartFilterPath<crate::types::LinkPreviewOptions> {
         self.and_then(|value| value.link_preview_options.as_ref())
-    }
-
-    #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
     }
 
     #[must_use]
@@ -4043,11 +3993,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoLivePhoto> {
     }
 
     #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
-    }
-
-    #[must_use]
     pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
         self.and_then(|value| value.has_media_spoiler.as_ref())
     }
@@ -4079,11 +4024,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoLocation> {
     }
 
     #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
-    }
-
-    #[must_use]
     pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
         self.and_then(|value| value.has_media_spoiler.as_ref())
     }
@@ -4093,7 +4033,7 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoLocation> {
         self.map(|value| &value.location)
     }
 }
-impl SmartFilterPath<crate::types::ExternalReplyInfoPhoto> {
+impl SmartFilterPath<crate::types::ExternalReplyInfoPaidMedia> {
     #[must_use]
     pub fn origin(self) -> SmartFilterPath<crate::types::MessageOrigin> {
         self.map(|value| &value.origin)
@@ -4115,8 +4055,34 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoPhoto> {
     }
 
     #[must_use]
+    pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.has_media_spoiler.as_ref())
+    }
+
+    #[must_use]
     pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
+        self.map(|value| &value.paid_media)
+    }
+}
+impl SmartFilterPath<crate::types::ExternalReplyInfoPhoto> {
+    #[must_use]
+    pub fn origin(self) -> SmartFilterPath<crate::types::MessageOrigin> {
+        self.map(|value| &value.origin)
+    }
+
+    #[must_use]
+    pub fn chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.and_then(|value| value.chat.as_deref())
+    }
+
+    #[must_use]
+    pub fn message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.message_id.as_ref())
+    }
+
+    #[must_use]
+    pub fn link_preview_options(self) -> SmartFilterPath<crate::types::LinkPreviewOptions> {
+        self.and_then(|value| value.link_preview_options.as_ref())
     }
 
     #[must_use]
@@ -4151,11 +4117,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoPoll> {
     }
 
     #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
-    }
-
-    #[must_use]
     pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
         self.and_then(|value| value.has_media_spoiler.as_ref())
     }
@@ -4184,11 +4145,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoSticker> {
     #[must_use]
     pub fn link_preview_options(self) -> SmartFilterPath<crate::types::LinkPreviewOptions> {
         self.and_then(|value| value.link_preview_options.as_ref())
-    }
-
-    #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
     }
 
     #[must_use]
@@ -4223,11 +4179,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoStory> {
     }
 
     #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
-    }
-
-    #[must_use]
     pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
         self.and_then(|value| value.has_media_spoiler.as_ref())
     }
@@ -4259,11 +4210,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoUnknown> {
     }
 
     #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
-    }
-
-    #[must_use]
     pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
         self.and_then(|value| value.has_media_spoiler.as_ref())
     }
@@ -4287,11 +4233,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoVenue> {
     #[must_use]
     pub fn link_preview_options(self) -> SmartFilterPath<crate::types::LinkPreviewOptions> {
         self.and_then(|value| value.link_preview_options.as_ref())
-    }
-
-    #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
     }
 
     #[must_use]
@@ -4326,11 +4267,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoVideo> {
     }
 
     #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
-    }
-
-    #[must_use]
     pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
         self.and_then(|value| value.has_media_spoiler.as_ref())
     }
@@ -4362,11 +4298,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoVideoNote> {
     }
 
     #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
-    }
-
-    #[must_use]
     pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
         self.and_then(|value| value.has_media_spoiler.as_ref())
     }
@@ -4395,11 +4326,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoVoice> {
     #[must_use]
     pub fn link_preview_options(self) -> SmartFilterPath<crate::types::LinkPreviewOptions> {
         self.and_then(|value| value.link_preview_options.as_ref())
-    }
-
-    #[must_use]
-    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
-        self.and_then(|value| value.paid_media.as_ref())
     }
 
     #[must_use]
@@ -9787,11 +9713,6 @@ impl SmartFilterPath<crate::types::MessageAnimation> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -10005,11 +9926,6 @@ impl SmartFilterPath<crate::types::MessageAudio> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -10235,11 +10151,6 @@ impl SmartFilterPath<crate::types::MessageBoostAdded> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -10453,11 +10364,6 @@ impl SmartFilterPath<crate::types::MessageChannelChatCreated> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -10677,11 +10583,6 @@ impl SmartFilterPath<crate::types::MessageChatBackgroundSet> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -10895,11 +10796,6 @@ impl SmartFilterPath<crate::types::MessageChatOwnerChanged> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -11119,11 +11015,6 @@ impl SmartFilterPath<crate::types::MessageChatOwnerLeft> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -11337,11 +11228,6 @@ impl SmartFilterPath<crate::types::MessageChatShared> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -11561,11 +11447,6 @@ impl SmartFilterPath<crate::types::MessageChecklist> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -11779,11 +11660,6 @@ impl SmartFilterPath<crate::types::MessageChecklistTasksAdded> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -12003,11 +11879,6 @@ impl SmartFilterPath<crate::types::MessageChecklistTasksDone> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -12221,11 +12092,6 @@ impl SmartFilterPath<crate::types::MessageCommunityChatAdded> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -12445,11 +12311,6 @@ impl SmartFilterPath<crate::types::MessageCommunityChatRemoved> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -12663,11 +12524,6 @@ impl SmartFilterPath<crate::types::MessageConnectedWebsite> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -12887,11 +12743,6 @@ impl SmartFilterPath<crate::types::MessageContact> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -13105,11 +12956,6 @@ impl SmartFilterPath<crate::types::MessageDeleteChatPhoto> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -13329,11 +13175,6 @@ impl SmartFilterPath<crate::types::MessageDice> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -13547,11 +13388,6 @@ impl SmartFilterPath<crate::types::MessageDirectMessagePriceChanged> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -13770,11 +13606,6 @@ impl SmartFilterPath<crate::types::MessageDocument> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -14270,11 +14101,6 @@ impl SmartFilterPath<crate::types::MessageForumTopicClosed> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -14488,11 +14314,6 @@ impl SmartFilterPath<crate::types::MessageForumTopicCreated> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -14712,11 +14533,6 @@ impl SmartFilterPath<crate::types::MessageForumTopicEdited> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -14930,11 +14746,6 @@ impl SmartFilterPath<crate::types::MessageForumTopicReopened> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -15154,11 +14965,6 @@ impl SmartFilterPath<crate::types::MessageGame> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -15372,11 +15178,6 @@ impl SmartFilterPath<crate::types::MessageGeneralForumTopicHidden> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -15598,11 +15399,6 @@ impl SmartFilterPath<crate::types::MessageGeneralForumTopicUnhidden> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -15818,11 +15614,6 @@ impl SmartFilterPath<crate::types::MessageGift> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -16042,11 +15833,6 @@ impl SmartFilterPath<crate::types::MessageGiftUpgradeSent> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -16260,11 +16046,6 @@ impl SmartFilterPath<crate::types::MessageGiveaway> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -16484,11 +16265,6 @@ impl SmartFilterPath<crate::types::MessageGiveawayCompleted> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -16702,11 +16478,6 @@ impl SmartFilterPath<crate::types::MessageGiveawayCreated> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -16926,11 +16697,6 @@ impl SmartFilterPath<crate::types::MessageGiveawayWinners> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -17144,11 +16910,6 @@ impl SmartFilterPath<crate::types::MessageGroupChatCreated> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -17374,11 +17135,6 @@ impl SmartFilterPath<crate::types::MessageInvoice> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -17592,11 +17348,6 @@ impl SmartFilterPath<crate::types::MessageLeftChatMember> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -17816,11 +17567,6 @@ impl SmartFilterPath<crate::types::MessageLivePhoto> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -18034,11 +17780,6 @@ impl SmartFilterPath<crate::types::MessageLocation> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -18258,11 +17999,6 @@ impl SmartFilterPath<crate::types::MessageManagedBotCreated> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -18476,11 +18212,6 @@ impl SmartFilterPath<crate::types::MessageMessageAutoDeleteTimerChanged> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -18702,11 +18433,6 @@ impl SmartFilterPath<crate::types::MessageMigrateFromChatId> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -18920,11 +18646,6 @@ impl SmartFilterPath<crate::types::MessageMigrateToChatId> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -19144,11 +18865,6 @@ impl SmartFilterPath<crate::types::MessageNewChatMembers> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -19365,11 +19081,6 @@ impl SmartFilterPath<crate::types::MessageNewChatPhoto> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -19583,11 +19294,6 @@ impl SmartFilterPath<crate::types::MessageNewChatTitle> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -19892,11 +19598,6 @@ impl SmartFilterPath<crate::types::MessagePaidMedia> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -20110,11 +19811,6 @@ impl SmartFilterPath<crate::types::MessagePaidMessagePriceChanged> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -20336,11 +20032,6 @@ impl SmartFilterPath<crate::types::MessagePassportData> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -20554,11 +20245,6 @@ impl SmartFilterPath<crate::types::MessagePhoto> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -20778,11 +20464,6 @@ impl SmartFilterPath<crate::types::MessagePinnedMessage> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -20996,11 +20677,6 @@ impl SmartFilterPath<crate::types::MessagePoll> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -21220,11 +20896,6 @@ impl SmartFilterPath<crate::types::MessagePollOptionAdded> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -21441,11 +21112,6 @@ impl SmartFilterPath<crate::types::MessagePollOptionDeleted> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -21659,11 +21325,6 @@ impl SmartFilterPath<crate::types::MessageProximityAlertTriggered> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -21942,11 +21603,6 @@ impl SmartFilterPath<crate::types::MessageRefundedPayment> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -21976,7 +21632,7 @@ impl SmartFilterPath<crate::types::MessageRefundedPayment> {
         self.map(|value| &value.refunded_payment)
     }
 }
-impl SmartFilterPath<crate::types::MessageSticker> {
+impl SmartFilterPath<crate::types::MessageRichMessage> {
     #[must_use]
     pub fn message_id(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.message_id)
@@ -22163,8 +21819,219 @@ impl SmartFilterPath<crate::types::MessageSticker> {
     }
 
     #[must_use]
+    pub fn caption(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.caption.as_deref())
+    }
+
+    #[must_use]
+    pub fn caption_entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.caption_entities.as_deref())
+    }
+
+    #[must_use]
+    pub fn show_caption_above_media(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.show_caption_above_media.as_ref())
+    }
+
+    #[must_use]
+    pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.has_media_spoiler.as_ref())
+    }
+
+    #[must_use]
+    pub fn reply_markup(self) -> SmartFilterPath<crate::types::InlineKeyboardMarkup> {
+        self.and_then(|value| value.reply_markup.as_ref())
+    }
+
+    #[must_use]
     pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
+        self.map(|value| &value.rich_message)
+    }
+}
+impl SmartFilterPath<crate::types::MessageSticker> {
+    #[must_use]
+    pub fn message_id(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.message_id)
+    }
+
+    #[must_use]
+    pub fn message_thread_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.message_thread_id.as_ref())
+    }
+
+    #[must_use]
+    pub fn direct_messages_topic(self) -> SmartFilterPath<crate::types::DirectMessagesTopic> {
+        self.and_then(|value| value.direct_messages_topic.as_ref())
+    }
+
+    #[must_use]
+    pub fn from(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.from.as_deref())
+    }
+
+    #[must_use]
+    pub fn sender_chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.and_then(|value| value.sender_chat.as_deref())
+    }
+
+    #[must_use]
+    pub fn sender_boost_count(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.sender_boost_count.as_ref())
+    }
+
+    #[must_use]
+    pub fn sender_business_bot(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.sender_business_bot.as_deref())
+    }
+
+    #[must_use]
+    pub fn sender_tag(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    #[must_use]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    #[must_use]
+    pub fn date(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.date)
+    }
+
+    #[must_use]
+    pub fn guest_query_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.guest_query_id.as_deref())
+    }
+
+    #[must_use]
+    pub fn business_connection_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.business_connection_id.as_deref())
+    }
+
+    #[must_use]
+    pub fn chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.map(|value| value.chat.as_ref())
+    }
+
+    #[must_use]
+    pub fn forward_origin(self) -> SmartFilterPath<crate::types::MessageOrigin> {
+        self.and_then(|value| value.forward_origin.as_ref())
+    }
+
+    #[must_use]
+    pub fn is_topic_message(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_topic_message.as_ref())
+    }
+
+    #[must_use]
+    pub fn is_automatic_forward(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_automatic_forward.as_ref())
+    }
+
+    #[must_use]
+    pub fn reply_to_message(self) -> SmartFilterPath<crate::types::Message> {
+        self.and_then(|value| value.reply_to_message.as_deref())
+    }
+
+    #[must_use]
+    pub fn external_reply(self) -> SmartFilterPath<crate::types::ExternalReplyInfo> {
+        self.and_then(|value| value.external_reply.as_deref())
+    }
+
+    #[must_use]
+    pub fn quote(self) -> SmartFilterPath<crate::types::TextQuote> {
+        self.and_then(|value| value.quote.as_ref())
+    }
+
+    #[must_use]
+    pub fn reply_to_story(self) -> SmartFilterPath<crate::types::Story> {
+        self.and_then(|value| value.reply_to_story.as_ref())
+    }
+
+    #[must_use]
+    pub fn reply_to_checklist_task_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.reply_to_checklist_task_id.as_ref())
+    }
+
+    #[must_use]
+    pub fn reply_to_poll_option_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.reply_to_poll_option_id.as_deref())
+    }
+
+    #[must_use]
+    pub fn via_bot(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.via_bot.as_deref())
+    }
+
+    #[must_use]
+    pub fn guest_bot_caller_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.guest_bot_caller_user.as_deref())
+    }
+
+    #[must_use]
+    pub fn guest_bot_caller_chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.and_then(|value| value.guest_bot_caller_chat.as_deref())
+    }
+
+    #[must_use]
+    pub fn edit_date(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.edit_date.as_ref())
+    }
+
+    #[must_use]
+    pub fn has_protected_content(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.has_protected_content.as_ref())
+    }
+
+    #[must_use]
+    pub fn is_from_offline(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_from_offline.as_ref())
+    }
+
+    #[must_use]
+    pub fn is_paid_post(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_paid_post.as_ref())
+    }
+
+    #[must_use]
+    pub fn media_group_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.media_group_id.as_deref())
+    }
+
+    #[must_use]
+    pub fn author_signature(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.author_signature.as_deref())
+    }
+
+    #[must_use]
+    pub fn paid_star_count(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.paid_star_count.as_ref())
+    }
+
+    #[must_use]
+    pub fn entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.entities.as_deref())
+    }
+
+    #[must_use]
+    pub fn link_preview_options(self) -> SmartFilterPath<crate::types::LinkPreviewOptions> {
+        self.and_then(|value| value.link_preview_options.as_ref())
+    }
+
+    #[must_use]
+    pub fn suggested_post_info(self) -> SmartFilterPath<crate::types::SuggestedPostInfo> {
+        self.and_then(|value| value.suggested_post_info.as_ref())
+    }
+
+    #[must_use]
+    pub fn effect_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.effect_id.as_deref())
     }
 
     #[must_use]
@@ -22384,11 +22251,6 @@ impl SmartFilterPath<crate::types::MessageStory> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -22605,11 +22467,6 @@ impl SmartFilterPath<crate::types::MessageSuccessfulPayment> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -22823,11 +22680,6 @@ impl SmartFilterPath<crate::types::MessageSuggestedPostApprovalFailed> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -23049,11 +22901,6 @@ impl SmartFilterPath<crate::types::MessageSuggestedPostApproved> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -23267,11 +23114,6 @@ impl SmartFilterPath<crate::types::MessageSuggestedPostDeclined> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -23491,11 +23333,6 @@ impl SmartFilterPath<crate::types::MessageSuggestedPostPaid> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -23709,11 +23546,6 @@ impl SmartFilterPath<crate::types::MessageSuggestedPostRefunded> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -23933,11 +23765,6 @@ impl SmartFilterPath<crate::types::MessageSupergroupChatCreated> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -24151,11 +23978,6 @@ impl SmartFilterPath<crate::types::MessageText> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -24375,11 +24197,6 @@ impl SmartFilterPath<crate::types::MessageUniqueGift> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -24593,11 +24410,6 @@ impl SmartFilterPath<crate::types::MessageUsersShared> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -24817,11 +24629,6 @@ impl SmartFilterPath<crate::types::MessageVenue> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -25035,11 +24842,6 @@ impl SmartFilterPath<crate::types::MessageVideo> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -25259,11 +25061,6 @@ impl SmartFilterPath<crate::types::MessageVideoChatEnded> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -25477,11 +25274,6 @@ impl SmartFilterPath<crate::types::MessageVideoChatParticipantsInvited> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -25703,11 +25495,6 @@ impl SmartFilterPath<crate::types::MessageVideoChatScheduled> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -25921,11 +25708,6 @@ impl SmartFilterPath<crate::types::MessageVideoChatStarted> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -26145,11 +25927,6 @@ impl SmartFilterPath<crate::types::MessageVideoNote> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -26363,11 +26140,6 @@ impl SmartFilterPath<crate::types::MessageVoice> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]
@@ -26587,11 +26359,6 @@ impl SmartFilterPath<crate::types::MessageWebAppData> {
     }
 
     #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
-    }
-
-    #[must_use]
     pub fn caption(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.caption.as_deref())
     }
@@ -26805,11 +26572,6 @@ impl SmartFilterPath<crate::types::MessageWriteAccessAllowed> {
     #[must_use]
     pub fn effect_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.effect_id.as_deref())
-    }
-
-    #[must_use]
-    pub fn rich_message(self) -> SmartFilterPath<crate::types::RichMessage> {
-        self.and_then(|value| value.rich_message.as_ref())
     }
 
     #[must_use]

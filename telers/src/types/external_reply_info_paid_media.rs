@@ -1,11 +1,11 @@
 use serde::{Deserialize, Serialize};
-/// Message is an animation, information about the animation
+/// Message contains paid media; information about the paid media
 /// # Notes
-/// This object represents an external reply info from original field `animation`.
+/// This object represents an external reply info from original field `paid_media`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#externalreplyinfo>
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct ExternalReplyInfoAnimation {
+pub struct ExternalReplyInfoPaidMedia {
     /// Origin of the message replied to by the given message
     pub origin: crate::types::MessageOrigin,
     /// Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
@@ -20,22 +20,22 @@ pub struct ExternalReplyInfoAnimation {
     /// `true`, if the message media is covered by a spoiler animation
     #[serde(skip_serializing_if = "Option::is_none")]
     pub has_media_spoiler: Option<bool>,
-    /// Message is an animation, information about the animation
-    pub animation: Box<crate::types::Animation>,
+    /// Message contains paid media; information about the paid media
+    pub paid_media: crate::types::PaidMediaInfo,
 }
-impl ExternalReplyInfoAnimation {
-    /// Creates a new `ExternalReplyInfoAnimation`.
+impl ExternalReplyInfoPaidMedia {
+    /// Creates a new `ExternalReplyInfoPaidMedia`.
     ///
     /// # Arguments
     /// * `origin` - Origin of the message replied to by the given message
-    /// * `animation` - Message is an animation, information about the animation
+    /// * `paid_media` - Message contains paid media; information about the paid media
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new<T0: Into<crate::types::MessageOrigin>, T1: Into<crate::types::Animation>>(
+    pub fn new<T0: Into<crate::types::MessageOrigin>, T1: Into<crate::types::PaidMediaInfo>>(
         origin: T0,
-        animation: T1,
+        paid_media: T1,
     ) -> Self {
         Self {
             origin: origin.into(),
@@ -43,7 +43,7 @@ impl ExternalReplyInfoAnimation {
             message_id: None,
             link_preview_options: None,
             has_media_spoiler: None,
-            animation: Box::new(animation.into()),
+            paid_media: paid_media.into(),
         }
     }
 
@@ -116,10 +116,10 @@ impl ExternalReplyInfoAnimation {
         self
     }
 
-    /// Message is an animation, information about the animation
+    /// Message contains paid media; information about the paid media
     #[must_use]
-    pub fn animation<T: Into<crate::types::Animation>>(mut self, val: T) -> Self {
-        self.animation = Box::new(val.into());
+    pub fn paid_media<T: Into<crate::types::PaidMediaInfo>>(mut self, val: T) -> Self {
+        self.paid_media = val.into();
         self
     }
 }

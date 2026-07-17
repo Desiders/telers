@@ -16,13 +16,13 @@ use crate::{
         MessageNewChatMembers, MessageNewChatPhoto, MessageNewChatTitle, MessagePaidMedia,
         MessagePaidMessagePriceChanged, MessagePassportData, MessagePhoto, MessagePinnedMessage,
         MessagePoll, MessagePollOptionAdded, MessagePollOptionDeleted,
-        MessageProximityAlertTriggered, MessageRefundedPayment, MessageSticker, MessageStory,
-        MessageSuccessfulPayment, MessageSuggestedPostApprovalFailed, MessageSuggestedPostApproved,
-        MessageSuggestedPostDeclined, MessageSuggestedPostPaid, MessageSuggestedPostRefunded,
-        MessageSupergroupChatCreated, MessageText, MessageUniqueGift, MessageUsersShared,
-        MessageVenue, MessageVideo, MessageVideoChatEnded, MessageVideoChatParticipantsInvited,
-        MessageVideoChatScheduled, MessageVideoChatStarted, MessageVideoNote, MessageVoice,
-        MessageWebAppData, MessageWriteAccessAllowed,
+        MessageProximityAlertTriggered, MessageRefundedPayment, MessageRichMessage, MessageSticker,
+        MessageStory, MessageSuccessfulPayment, MessageSuggestedPostApprovalFailed,
+        MessageSuggestedPostApproved, MessageSuggestedPostDeclined, MessageSuggestedPostPaid,
+        MessageSuggestedPostRefunded, MessageSupergroupChatCreated, MessageText, MessageUniqueGift,
+        MessageUsersShared, MessageVenue, MessageVideo, MessageVideoChatEnded,
+        MessageVideoChatParticipantsInvited, MessageVideoChatScheduled, MessageVideoChatStarted,
+        MessageVideoNote, MessageVoice, MessageWebAppData, MessageWriteAccessAllowed,
     },
     utils::text::Renderer,
 };
@@ -1082,6 +1082,25 @@ impl MessageProximityAlertTriggered {
     }
 }
 impl MessageRefundedPayment {
+    /// Creates [`CopyMessage`] for this message.
+    #[must_use]
+    pub fn to_copy_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> CopyMessage {
+        CopyMessage::new(chat_id, self.chat.id(), self.message_id)
+    }
+
+    /// Creates [`ForwardMessage`] for this message.
+    #[must_use]
+    pub fn to_forward_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> ForwardMessage {
+        ForwardMessage::new(chat_id, self.chat.id(), self.message_id)
+    }
+
+    /// Creates [`DeleteMessage`] for this message.
+    #[must_use]
+    pub fn delete_message(&self) -> DeleteMessage {
+        DeleteMessage::new(self.chat.id(), self.message_id)
+    }
+}
+impl MessageRichMessage {
     /// Creates [`CopyMessage`] for this message.
     #[must_use]
     pub fn to_copy_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> CopyMessage {
