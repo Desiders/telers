@@ -27,12 +27,6 @@ pub struct ChatFullInfoChannel {
     /// If non-empty, the list of all active chat usernames; for private chats, supergroups and channels
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active_usernames: Option<Box<[Box<str>]>>,
-    /// For private chats, the personal channel of the user
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub personal_chat: Option<Box<crate::types::Chat>>,
-    /// Information about the corresponding channel chat; for direct messages chats only
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub parent_chat: Option<Box<crate::types::Chat>>,
     /// List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub available_reactions: Option<Box<[crate::types::ReactionType]>>,
@@ -54,6 +48,8 @@ pub struct ChatFullInfoChannel {
     /// The most recent pinned message (by sending date)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pinned_message: Option<Box<crate::types::Message>>,
+    /// Information about types of gifts that are accepted by the chat or by the corresponding user for private chats
+    pub accepted_gift_types: crate::types::AcceptedGiftTypes,
     /// `true`, if paid media messages can be sent or forwarded to the channel chat. The field is available only for channel chats.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_send_paid_media: Option<bool>,
@@ -92,14 +88,21 @@ impl ChatFullInfoChannel {
     /// * `id` - Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     /// * `accent_color_id` - Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details.
     /// * `max_reaction_count` - The maximum number of reactions that can be set on a message in the chat
+    /// * `accepted_gift_types` - Information about types of gifts that are accepted by the chat or by the corresponding user for private chats
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new<T0: Into<i64>, T1: Into<i64>, T2: Into<i64>>(
+    pub fn new<
+        T0: Into<i64>,
+        T1: Into<i64>,
+        T2: Into<i64>,
+        T3: Into<crate::types::AcceptedGiftTypes>,
+    >(
         id: T0,
         accent_color_id: T1,
         max_reaction_count: T2,
+        accepted_gift_types: T3,
     ) -> Self {
         Self {
             id: id.into(),
@@ -110,8 +113,6 @@ impl ChatFullInfoChannel {
             max_reaction_count: max_reaction_count.into(),
             photo: None,
             active_usernames: None,
-            personal_chat: None,
-            parent_chat: None,
             available_reactions: None,
             background_custom_emoji_id: None,
             profile_accent_color_id: None,
@@ -119,6 +120,7 @@ impl ChatFullInfoChannel {
             description: None,
             invite_link: None,
             pinned_message: None,
+            accepted_gift_types: accepted_gift_types.into(),
             can_send_paid_media: None,
             message_auto_delete_time: None,
             has_hidden_members: None,
@@ -250,34 +252,6 @@ impl ChatFullInfoChannel {
     #[must_use]
     pub fn active_usernames_option<T: Into<Box<[Box<str>]>>>(mut self, val: Option<T>) -> Self {
         self.active_usernames = val.map(Into::into);
-        self
-    }
-
-    /// For private chats, the personal channel of the user
-    #[must_use]
-    pub fn personal_chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
-        self.personal_chat = Some(Box::new(val.into()));
-        self
-    }
-
-    /// For private chats, the personal channel of the user
-    #[must_use]
-    pub fn personal_chat_option<T: Into<crate::types::Chat>>(mut self, val: Option<T>) -> Self {
-        self.personal_chat = val.map(|val| Box::new(val.into()));
-        self
-    }
-
-    /// Information about the corresponding channel chat; for direct messages chats only
-    #[must_use]
-    pub fn parent_chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
-        self.parent_chat = Some(Box::new(val.into()));
-        self
-    }
-
-    /// Information about the corresponding channel chat; for direct messages chats only
-    #[must_use]
-    pub fn parent_chat_option<T: Into<crate::types::Chat>>(mut self, val: Option<T>) -> Self {
-        self.parent_chat = val.map(|val| Box::new(val.into()));
         self
     }
 
@@ -415,6 +389,13 @@ impl ChatFullInfoChannel {
     #[must_use]
     pub fn pinned_message_option<T: Into<crate::types::Message>>(mut self, val: Option<T>) -> Self {
         self.pinned_message = val.map(|val| Box::new(val.into()));
+        self
+    }
+
+    /// Information about types of gifts that are accepted by the chat or by the corresponding user for private chats
+    #[must_use]
+    pub fn accepted_gift_types<T: Into<crate::types::AcceptedGiftTypes>>(mut self, val: T) -> Self {
+        self.accepted_gift_types = val.into();
         self
     }
 

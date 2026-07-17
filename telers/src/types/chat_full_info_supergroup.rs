@@ -30,6 +30,9 @@ pub struct ChatFullInfoSupergroup {
     /// If non-empty, the list of all active chat usernames; for private chats, supergroups and channels
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active_usernames: Option<Box<[Box<str>]>>,
+    /// Information about the corresponding channel chat; for direct messages chats only
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parent_chat: Option<Box<crate::types::Chat>>,
     /// List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub available_reactions: Option<Box<[crate::types::ReactionType]>>,
@@ -60,6 +63,8 @@ pub struct ChatFullInfoSupergroup {
     /// Default chat member permissions, for groups and supergroups
     #[serde(skip_serializing_if = "Option::is_none")]
     pub permissions: Option<crate::types::ChatPermissions>,
+    /// Information about types of gifts that are accepted by the chat or by the corresponding user for private chats
+    pub accepted_gift_types: crate::types::AcceptedGiftTypes,
     /// For supergroups, the minimum allowed delay between consecutive messages sent by each unprivileged user; in seconds
     #[serde(skip_serializing_if = "Option::is_none")]
     pub slow_mode_delay: Option<i64>,
@@ -84,6 +89,9 @@ pub struct ChatFullInfoSupergroup {
     /// For supergroups, name of the group sticker set
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sticker_set_name: Option<Box<str>>,
+    /// `true`, if the bot can change the group sticker set
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_set_sticker_set: Option<bool>,
     /// For supergroups, the name of the group's custom emoji sticker set. Custom emoji from this set can be used by all users and bots in the group.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_emoji_sticker_set_name: Option<Box<str>>,
@@ -113,14 +121,21 @@ impl ChatFullInfoSupergroup {
     /// * `id` - Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     /// * `accent_color_id` - Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details.
     /// * `max_reaction_count` - The maximum number of reactions that can be set on a message in the chat
+    /// * `accepted_gift_types` - Information about types of gifts that are accepted by the chat or by the corresponding user for private chats
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new<T0: Into<i64>, T1: Into<i64>, T2: Into<i64>>(
+    pub fn new<
+        T0: Into<i64>,
+        T1: Into<i64>,
+        T2: Into<i64>,
+        T3: Into<crate::types::AcceptedGiftTypes>,
+    >(
         id: T0,
         accent_color_id: T1,
         max_reaction_count: T2,
+        accepted_gift_types: T3,
     ) -> Self {
         Self {
             id: id.into(),
@@ -132,6 +147,7 @@ impl ChatFullInfoSupergroup {
             max_reaction_count: max_reaction_count.into(),
             photo: None,
             active_usernames: None,
+            parent_chat: None,
             available_reactions: None,
             background_custom_emoji_id: None,
             profile_accent_color_id: None,
@@ -142,6 +158,7 @@ impl ChatFullInfoSupergroup {
             invite_link: None,
             pinned_message: None,
             permissions: None,
+            accepted_gift_types: accepted_gift_types.into(),
             slow_mode_delay: None,
             unrestrict_boost_count: None,
             message_auto_delete_time: None,
@@ -150,6 +167,7 @@ impl ChatFullInfoSupergroup {
             has_protected_content: None,
             has_visible_history: None,
             sticker_set_name: None,
+            can_set_sticker_set: None,
             custom_emoji_sticker_set_name: None,
             linked_chat_id: None,
             location: None,
@@ -292,6 +310,20 @@ impl ChatFullInfoSupergroup {
     #[must_use]
     pub fn active_usernames_option<T: Into<Box<[Box<str>]>>>(mut self, val: Option<T>) -> Self {
         self.active_usernames = val.map(Into::into);
+        self
+    }
+
+    /// Information about the corresponding channel chat; for direct messages chats only
+    #[must_use]
+    pub fn parent_chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
+        self.parent_chat = Some(Box::new(val.into()));
+        self
+    }
+
+    /// Information about the corresponding channel chat; for direct messages chats only
+    #[must_use]
+    pub fn parent_chat_option<T: Into<crate::types::Chat>>(mut self, val: Option<T>) -> Self {
+        self.parent_chat = val.map(|val| Box::new(val.into()));
         self
     }
 
@@ -477,6 +509,13 @@ impl ChatFullInfoSupergroup {
         self
     }
 
+    /// Information about types of gifts that are accepted by the chat or by the corresponding user for private chats
+    #[must_use]
+    pub fn accepted_gift_types<T: Into<crate::types::AcceptedGiftTypes>>(mut self, val: T) -> Self {
+        self.accepted_gift_types = val.into();
+        self
+    }
+
     /// For supergroups, the minimum allowed delay between consecutive messages sent by each unprivileged user; in seconds
     #[must_use]
     pub fn slow_mode_delay<T: Into<i64>>(mut self, val: T) -> Self {
@@ -589,6 +628,20 @@ impl ChatFullInfoSupergroup {
     #[must_use]
     pub fn sticker_set_name_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.sticker_set_name = val.map(Into::into);
+        self
+    }
+
+    /// `true`, if the bot can change the group sticker set
+    #[must_use]
+    pub fn can_set_sticker_set<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_set_sticker_set = Some(val.into());
+        self
+    }
+
+    /// `true`, if the bot can change the group sticker set
+    #[must_use]
+    pub fn can_set_sticker_set_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.can_set_sticker_set = val.map(Into::into);
         self
     }
 

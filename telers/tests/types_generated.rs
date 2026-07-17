@@ -652,7 +652,10 @@ fn test_chat_boost_updated_serialize_deserialize() {
 #[test]
 fn test_chat_full_info_channel_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "channel", "id" : 1, "accent_color_id" : 1, "max_reaction_count" : 1 }
+        { "type" : "channel", "id" : 1, "accent_color_id" : 1, "max_reaction_count" : 1,
+        "accepted_gift_types" : { "unlimited_gifts" : true, "limited_gifts" : true,
+        "unique_gifts" : true, "premium_subscription" : true, "gifts_from_channels" :
+        true } }
     );
     let parsed: ChatFullInfo = must_parse(stringify!(ChatFullInfo), &value);
     assert!(
@@ -669,7 +672,10 @@ fn test_chat_full_info_channel_serialize_deserialize() {
 #[test]
 fn test_chat_full_info_group_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "group", "id" : 1, "accent_color_id" : 1, "max_reaction_count" : 1 }
+        { "type" : "group", "id" : 1, "accent_color_id" : 1, "max_reaction_count" : 1,
+        "accepted_gift_types" : { "unlimited_gifts" : true, "limited_gifts" : true,
+        "unique_gifts" : true, "premium_subscription" : true, "gifts_from_channels" :
+        true } }
     );
     let parsed: ChatFullInfo = must_parse(stringify!(ChatFullInfo), &value);
     assert!(
@@ -707,7 +713,9 @@ fn test_chat_full_info_private_serialize_deserialize() {
 fn test_chat_full_info_supergroup_serialize_deserialize() {
     let value = serde_json::json!(
         { "type" : "supergroup", "id" : 1, "accent_color_id" : 1, "max_reaction_count" :
-        1 }
+        1, "accepted_gift_types" : { "unlimited_gifts" : true, "limited_gifts" : true,
+        "unique_gifts" : true, "premium_subscription" : true, "gifts_from_channels" :
+        true } }
     );
     let parsed: ChatFullInfo = must_parse(stringify!(ChatFullInfo), &value);
     assert!(

@@ -1187,24 +1187,58 @@ impl NormalizedSchema {
         let mut common_fields = vec![];
         let mut type_fields_map: HashMap<&str, Vec<_>> = HashMap::new();
 
+        // Fields whose descriptions use chat-type words incidentally rather than as an
+        // applicability list (e.g. "the group sticker set" on supergroup-only fields, "the
+        // personal channel" on a private-chat field), assigned explicitly instead.
+        const CHAT_FIELD_OVERRIDES: &[(&str, &[&str])] = &[
+            ("sticker_set_name", &["supergroup"]),
+            ("can_set_sticker_set", &["supergroup"]),
+            ("custom_emoji_sticker_set_name", &["supergroup"]),
+            ("personal_chat", &["private"]),
+            ("parent_chat", &["supergroup"]),
+            ("linked_chat_id", &["supergroup", "channel"]),
+            (
+                "accepted_gift_types",
+                &["private", "group", "supergroup", "channel"],
+            ),
+            (
+                "is_direct_messages",
+                &["private", "group", "supergroup", "channel"],
+            ),
+        ];
+
+        // Word boundaries are required: "supergroups" must not count as "group".
+        let private_re = Regex::new(r"\bprivate\b").expect("valid regex");
+        let group_re = Regex::new(r"\bgroups?\b").expect("valid regex");
+        let supergroup_re = Regex::new(r"\bsupergroups?\b").expect("valid regex");
+        let channel_re = Regex::new(r"\bchannels?\b").expect("valid regex");
+
         for field in mem::take(&mut chat.fields) {
             if field.name == "type" {
                 common_fields.push(field);
                 continue;
             }
 
-            let desc = field.description.to_lowercase();
             let mut applicable = vec![];
-            if desc.contains("private") {
-                applicable.push("private");
-            }
-            if desc.contains("supergroup") {
-                applicable.push("supergroup");
-            } else if desc.contains("group") {
-                applicable.push("group");
-            }
-            if desc.contains("channel") && field.name != "is_direct_messages" {
-                applicable.push("channel");
+            if let Some((_, chat_types)) = CHAT_FIELD_OVERRIDES
+                .iter()
+                .find(|(name, _)| *name == field.name)
+            {
+                applicable.extend(chat_types.iter().copied());
+            } else {
+                let desc = field.description.to_lowercase();
+                if private_re.is_match(&desc) {
+                    applicable.push("private");
+                }
+                if group_re.is_match(&desc) {
+                    applicable.push("group");
+                }
+                if supergroup_re.is_match(&desc) {
+                    applicable.push("supergroup");
+                }
+                if channel_re.is_match(&desc) {
+                    applicable.push("channel");
+                }
             }
             if applicable.is_empty() {
                 applicable.extend(chat_types);

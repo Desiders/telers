@@ -81,9 +81,10 @@ impl Chat {
     #[must_use]
     pub fn title(&self) -> Option<&str> {
         match self {
+            Self::Group(val) => val.title.as_deref(),
             Self::Supergroup(val) => val.title.as_deref(),
             Self::Channel(val) => val.title.as_deref(),
-            _ => None,
+            Self::Private(_) => None,
         }
     }
 

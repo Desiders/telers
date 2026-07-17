@@ -1675,7 +1675,7 @@ impl SmartFilterPath<crate::types::ChatChannel> {
 impl SmartFilterPath<crate::types::ChatFullInfo> {
     #[must_use]
     pub fn accepted_gift_types(self) -> SmartFilterPath<crate::types::AcceptedGiftTypes> {
-        self.and_then(|value| value.accepted_gift_types())
+        self.map(|value| value.accepted_gift_types())
     }
 
     #[must_use]
@@ -1865,16 +1865,6 @@ impl SmartFilterPath<crate::types::ChatFullInfoChannel> {
     }
 
     #[must_use]
-    pub fn personal_chat(self) -> SmartFilterPath<crate::types::Chat> {
-        self.and_then(|value| value.personal_chat.as_deref())
-    }
-
-    #[must_use]
-    pub fn parent_chat(self) -> SmartFilterPath<crate::types::Chat> {
-        self.and_then(|value| value.parent_chat.as_deref())
-    }
-
-    #[must_use]
     pub fn available_reactions(self) -> SmartFilterPath<[crate::types::ReactionType]> {
         self.and_then(|value| value.available_reactions.as_deref())
     }
@@ -1907,6 +1897,11 @@ impl SmartFilterPath<crate::types::ChatFullInfoChannel> {
     #[must_use]
     pub fn pinned_message(self) -> SmartFilterPath<crate::types::Message> {
         self.and_then(|value| value.pinned_message.as_deref())
+    }
+
+    #[must_use]
+    pub fn accepted_gift_types(self) -> SmartFilterPath<crate::types::AcceptedGiftTypes> {
+        self.map(|value| &value.accepted_gift_types)
     }
 
     #[must_use]
@@ -1966,6 +1961,11 @@ impl SmartFilterPath<crate::types::ChatFullInfoGroup> {
     }
 
     #[must_use]
+    pub fn title(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.title.as_deref())
+    }
+
+    #[must_use]
     pub fn is_direct_messages(self) -> SmartFilterPath<bool> {
         self.and_then(|value| value.is_direct_messages.as_ref())
     }
@@ -2006,8 +2006,28 @@ impl SmartFilterPath<crate::types::ChatFullInfoGroup> {
     }
 
     #[must_use]
+    pub fn description(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.description.as_deref())
+    }
+
+    #[must_use]
+    pub fn invite_link(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.invite_link.as_deref())
+    }
+
+    #[must_use]
     pub fn pinned_message(self) -> SmartFilterPath<crate::types::Message> {
         self.and_then(|value| value.pinned_message.as_deref())
+    }
+
+    #[must_use]
+    pub fn permissions(self) -> SmartFilterPath<crate::types::ChatPermissions> {
+        self.and_then(|value| value.permissions.as_ref())
+    }
+
+    #[must_use]
+    pub fn accepted_gift_types(self) -> SmartFilterPath<crate::types::AcceptedGiftTypes> {
+        self.map(|value| &value.accepted_gift_types)
     }
 
     #[must_use]
@@ -2028,11 +2048,6 @@ impl SmartFilterPath<crate::types::ChatFullInfoGroup> {
     #[must_use]
     pub fn has_visible_history(self) -> SmartFilterPath<bool> {
         self.and_then(|value| value.has_visible_history.as_ref())
-    }
-
-    #[must_use]
-    pub fn can_set_sticker_set(self) -> SmartFilterPath<bool> {
-        self.and_then(|value| value.can_set_sticker_set.as_ref())
     }
 
     #[must_use]
@@ -2278,6 +2293,11 @@ impl SmartFilterPath<crate::types::ChatFullInfoSupergroup> {
     }
 
     #[must_use]
+    pub fn parent_chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.and_then(|value| value.parent_chat.as_deref())
+    }
+
+    #[must_use]
     pub fn available_reactions(self) -> SmartFilterPath<[crate::types::ReactionType]> {
         self.and_then(|value| value.available_reactions.as_deref())
     }
@@ -2328,6 +2348,11 @@ impl SmartFilterPath<crate::types::ChatFullInfoSupergroup> {
     }
 
     #[must_use]
+    pub fn accepted_gift_types(self) -> SmartFilterPath<crate::types::AcceptedGiftTypes> {
+        self.map(|value| &value.accepted_gift_types)
+    }
+
+    #[must_use]
     pub fn slow_mode_delay(self) -> SmartFilterPath<i64> {
         self.and_then(|value| value.slow_mode_delay.as_ref())
     }
@@ -2365,6 +2390,11 @@ impl SmartFilterPath<crate::types::ChatFullInfoSupergroup> {
     #[must_use]
     pub fn sticker_set_name(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sticker_set_name.as_deref())
+    }
+
+    #[must_use]
+    pub fn can_set_sticker_set(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.can_set_sticker_set.as_ref())
     }
 
     #[must_use]
@@ -2406,6 +2436,11 @@ impl SmartFilterPath<crate::types::ChatGroup> {
     #[must_use]
     pub fn id(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.id)
+    }
+
+    #[must_use]
+    pub fn title(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.title.as_deref())
     }
 
     #[must_use]

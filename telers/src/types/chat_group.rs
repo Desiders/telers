@@ -8,6 +8,9 @@ use serde::{Deserialize, Serialize};
 pub struct ChatGroup {
     /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     pub id: i64,
+    /// Title, for supergroups, channels and group chats
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<Box<str>>,
     /// `true`, if the chat is the direct messages chat of a channel
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_direct_messages: Option<bool>,
@@ -24,6 +27,7 @@ impl ChatGroup {
     pub fn new<T0: Into<i64>>(id: T0) -> Self {
         Self {
             id: id.into(),
+            title: None,
             is_direct_messages: None,
         }
     }
@@ -32,6 +36,20 @@ impl ChatGroup {
     #[must_use]
     pub fn id<T: Into<i64>>(mut self, val: T) -> Self {
         self.id = val.into();
+        self
+    }
+
+    /// Title, for supergroups, channels and group chats
+    #[must_use]
+    pub fn title<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.title = Some(val.into());
+        self
+    }
+
+    /// Title, for supergroups, channels and group chats
+    #[must_use]
+    pub fn title_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.title = val.map(Into::into);
         self
     }
 

@@ -8,6 +8,9 @@ use serde::{Deserialize, Serialize};
 pub struct ChatFullInfoGroup {
     /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     pub id: i64,
+    /// Title, for supergroups, channels and group chats
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<Box<str>>,
     /// `true`, if the chat is the direct messages chat of a channel
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_direct_messages: Option<bool>,
@@ -30,9 +33,20 @@ pub struct ChatFullInfoGroup {
     /// Custom emoji identifier of the emoji chosen by the chat for its profile background
     #[serde(skip_serializing_if = "Option::is_none")]
     pub profile_background_custom_emoji_id: Option<Box<str>>,
+    /// Description, for groups, supergroups and channel chats
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<Box<str>>,
+    /// Primary invite link, for groups, supergroups and channel chats
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub invite_link: Option<Box<str>>,
     /// The most recent pinned message (by sending date)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pinned_message: Option<Box<crate::types::Message>>,
+    /// Default chat member permissions, for groups and supergroups
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub permissions: Option<crate::types::ChatPermissions>,
+    /// Information about types of gifts that are accepted by the chat or by the corresponding user for private chats
+    pub accepted_gift_types: crate::types::AcceptedGiftTypes,
     /// The time after which all messages sent to the chat will be automatically deleted; in seconds
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message_auto_delete_time: Option<i64>,
@@ -45,9 +59,6 @@ pub struct ChatFullInfoGroup {
     /// `true`, if new chat members will have access to old messages; available only to chat administrators
     #[serde(skip_serializing_if = "Option::is_none")]
     pub has_visible_history: Option<bool>,
-    /// `true`, if the bot can change the group sticker set
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub can_set_sticker_set: Option<bool>,
     /// The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unique_gift_colors: Option<crate::types::UniqueGiftColors>,
@@ -68,17 +79,25 @@ impl ChatFullInfoGroup {
     /// * `id` - Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     /// * `accent_color_id` - Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details.
     /// * `max_reaction_count` - The maximum number of reactions that can be set on a message in the chat
+    /// * `accepted_gift_types` - Information about types of gifts that are accepted by the chat or by the corresponding user for private chats
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new<T0: Into<i64>, T1: Into<i64>, T2: Into<i64>>(
+    pub fn new<
+        T0: Into<i64>,
+        T1: Into<i64>,
+        T2: Into<i64>,
+        T3: Into<crate::types::AcceptedGiftTypes>,
+    >(
         id: T0,
         accent_color_id: T1,
         max_reaction_count: T2,
+        accepted_gift_types: T3,
     ) -> Self {
         Self {
             id: id.into(),
+            title: None,
             is_direct_messages: None,
             accent_color_id: accent_color_id.into(),
             max_reaction_count: max_reaction_count.into(),
@@ -87,12 +106,15 @@ impl ChatFullInfoGroup {
             background_custom_emoji_id: None,
             profile_accent_color_id: None,
             profile_background_custom_emoji_id: None,
+            description: None,
+            invite_link: None,
             pinned_message: None,
+            permissions: None,
+            accepted_gift_types: accepted_gift_types.into(),
             message_auto_delete_time: None,
             has_hidden_members: None,
             has_protected_content: None,
             has_visible_history: None,
-            can_set_sticker_set: None,
             unique_gift_colors: None,
             paid_message_star_count: None,
             guard_bot: None,
@@ -104,6 +126,20 @@ impl ChatFullInfoGroup {
     #[must_use]
     pub fn id<T: Into<i64>>(mut self, val: T) -> Self {
         self.id = val.into();
+        self
+    }
+
+    /// Title, for supergroups, channels and group chats
+    #[must_use]
+    pub fn title<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.title = Some(val.into());
+        self
+    }
+
+    /// Title, for supergroups, channels and group chats
+    #[must_use]
+    pub fn title_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.title = val.map(Into::into);
         self
     }
 
@@ -244,6 +280,34 @@ impl ChatFullInfoGroup {
         self
     }
 
+    /// Description, for groups, supergroups and channel chats
+    #[must_use]
+    pub fn description<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.description = Some(val.into());
+        self
+    }
+
+    /// Description, for groups, supergroups and channel chats
+    #[must_use]
+    pub fn description_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.description = val.map(Into::into);
+        self
+    }
+
+    /// Primary invite link, for groups, supergroups and channel chats
+    #[must_use]
+    pub fn invite_link<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.invite_link = Some(val.into());
+        self
+    }
+
+    /// Primary invite link, for groups, supergroups and channel chats
+    #[must_use]
+    pub fn invite_link_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.invite_link = val.map(Into::into);
+        self
+    }
+
     /// The most recent pinned message (by sending date)
     #[must_use]
     pub fn pinned_message<T: Into<crate::types::Message>>(mut self, val: T) -> Self {
@@ -255,6 +319,30 @@ impl ChatFullInfoGroup {
     #[must_use]
     pub fn pinned_message_option<T: Into<crate::types::Message>>(mut self, val: Option<T>) -> Self {
         self.pinned_message = val.map(|val| Box::new(val.into()));
+        self
+    }
+
+    /// Default chat member permissions, for groups and supergroups
+    #[must_use]
+    pub fn permissions<T: Into<crate::types::ChatPermissions>>(mut self, val: T) -> Self {
+        self.permissions = Some(val.into());
+        self
+    }
+
+    /// Default chat member permissions, for groups and supergroups
+    #[must_use]
+    pub fn permissions_option<T: Into<crate::types::ChatPermissions>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.permissions = val.map(Into::into);
+        self
+    }
+
+    /// Information about types of gifts that are accepted by the chat or by the corresponding user for private chats
+    #[must_use]
+    pub fn accepted_gift_types<T: Into<crate::types::AcceptedGiftTypes>>(mut self, val: T) -> Self {
+        self.accepted_gift_types = val.into();
         self
     }
 
@@ -311,20 +399,6 @@ impl ChatFullInfoGroup {
     #[must_use]
     pub fn has_visible_history_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.has_visible_history = val.map(Into::into);
-        self
-    }
-
-    /// `true`, if the bot can change the group sticker set
-    #[must_use]
-    pub fn can_set_sticker_set<T: Into<bool>>(mut self, val: T) -> Self {
-        self.can_set_sticker_set = Some(val.into());
-        self
-    }
-
-    /// `true`, if the bot can change the group sticker set
-    #[must_use]
-    pub fn can_set_sticker_set_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
-        self.can_set_sticker_set = val.map(Into::into);
         self
     }
 

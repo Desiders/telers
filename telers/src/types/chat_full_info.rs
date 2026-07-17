@@ -33,10 +33,12 @@ impl ChatFullInfo {
     ///
     /// Information about types of gifts that are accepted by the chat or by the corresponding user for private chats
     #[must_use]
-    pub fn accepted_gift_types(&self) -> Option<&crate::types::AcceptedGiftTypes> {
+    pub fn accepted_gift_types(&self) -> &crate::types::AcceptedGiftTypes {
         match self {
-            Self::Private(val) => Some(&val.accepted_gift_types),
-            _ => None,
+            Self::Private(val) => &val.accepted_gift_types,
+            Self::Group(val) => &val.accepted_gift_types,
+            Self::Supergroup(val) => &val.accepted_gift_types,
+            Self::Channel(val) => &val.accepted_gift_types,
         }
     }
 
@@ -151,7 +153,7 @@ impl ChatFullInfo {
     #[must_use]
     pub fn can_set_sticker_set(&self) -> Option<bool> {
         match self {
-            Self::Group(val) => val.can_set_sticker_set,
+            Self::Supergroup(val) => val.can_set_sticker_set,
             _ => None,
         }
     }
@@ -186,9 +188,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn description(&self) -> Option<&str> {
         match self {
+            Self::Group(val) => val.description.as_deref(),
             Self::Supergroup(val) => val.description.as_deref(),
             Self::Channel(val) => val.description.as_deref(),
-            _ => None,
+            Self::Private(_) => None,
         }
     }
 
@@ -340,9 +343,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn invite_link(&self) -> Option<&str> {
         match self {
+            Self::Group(val) => val.invite_link.as_deref(),
             Self::Supergroup(val) => val.invite_link.as_deref(),
             Self::Channel(val) => val.invite_link.as_deref(),
-            _ => None,
+            Self::Private(_) => None,
         }
     }
 
@@ -471,7 +475,7 @@ impl ChatFullInfo {
     #[must_use]
     pub fn parent_chat(&self) -> Option<&crate::types::Chat> {
         match self {
-            Self::Channel(val) => val.parent_chat.as_deref(),
+            Self::Supergroup(val) => val.parent_chat.as_deref(),
             _ => None,
         }
     }
@@ -482,6 +486,7 @@ impl ChatFullInfo {
     #[must_use]
     pub fn permissions(&self) -> Option<&crate::types::ChatPermissions> {
         match self {
+            Self::Group(val) => val.permissions.as_ref(),
             Self::Supergroup(val) => val.permissions.as_ref(),
             _ => None,
         }
@@ -494,7 +499,6 @@ impl ChatFullInfo {
     pub fn personal_chat(&self) -> Option<&crate::types::Chat> {
         match self {
             Self::Private(val) => val.personal_chat.as_deref(),
-            Self::Channel(val) => val.personal_chat.as_deref(),
             _ => None,
         }
     }
@@ -590,9 +594,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn title(&self) -> Option<&str> {
         match self {
+            Self::Group(val) => val.title.as_deref(),
             Self::Supergroup(val) => val.title.as_deref(),
             Self::Channel(val) => val.title.as_deref(),
-            _ => None,
+            Self::Private(_) => None,
         }
     }
 
@@ -710,6 +715,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn can_add_web_page_previews(&self) -> Option<bool> {
         match self {
+            Self::Group(val) => val
+                .permissions
+                .as_ref()
+                .and_then(|inner| inner.can_add_web_page_previews),
             Self::Supergroup(val) => val
                 .permissions
                 .as_ref()
@@ -722,6 +731,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn can_change_info(&self) -> Option<bool> {
         match self {
+            Self::Group(val) => val
+                .permissions
+                .as_ref()
+                .and_then(|inner| inner.can_change_info),
             Self::Supergroup(val) => val
                 .permissions
                 .as_ref()
@@ -741,6 +754,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn can_edit_tag(&self) -> Option<bool> {
         match self {
+            Self::Group(val) => val
+                .permissions
+                .as_ref()
+                .and_then(|inner| inner.can_edit_tag),
             Self::Supergroup(val) => val
                 .permissions
                 .as_ref()
@@ -753,6 +770,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn can_invite_users(&self) -> Option<bool> {
         match self {
+            Self::Group(val) => val
+                .permissions
+                .as_ref()
+                .and_then(|inner| inner.can_invite_users),
             Self::Supergroup(val) => val
                 .permissions
                 .as_ref()
@@ -777,6 +798,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn can_manage_topics(&self) -> Option<bool> {
         match self {
+            Self::Group(val) => val
+                .permissions
+                .as_ref()
+                .and_then(|inner| inner.can_manage_topics),
             Self::Supergroup(val) => val
                 .permissions
                 .as_ref()
@@ -789,6 +814,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn can_pin_messages(&self) -> Option<bool> {
         match self {
+            Self::Group(val) => val
+                .permissions
+                .as_ref()
+                .and_then(|inner| inner.can_pin_messages),
             Self::Supergroup(val) => val
                 .permissions
                 .as_ref()
@@ -801,6 +830,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn can_react_to_messages(&self) -> Option<bool> {
         match self {
+            Self::Group(val) => val
+                .permissions
+                .as_ref()
+                .and_then(|inner| inner.can_react_to_messages),
             Self::Supergroup(val) => val
                 .permissions
                 .as_ref()
@@ -820,6 +853,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn can_send_audios(&self) -> Option<bool> {
         match self {
+            Self::Group(val) => val
+                .permissions
+                .as_ref()
+                .and_then(|inner| inner.can_send_audios),
             Self::Supergroup(val) => val
                 .permissions
                 .as_ref()
@@ -832,6 +869,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn can_send_documents(&self) -> Option<bool> {
         match self {
+            Self::Group(val) => val
+                .permissions
+                .as_ref()
+                .and_then(|inner| inner.can_send_documents),
             Self::Supergroup(val) => val
                 .permissions
                 .as_ref()
@@ -844,6 +885,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn can_send_messages(&self) -> Option<bool> {
         match self {
+            Self::Group(val) => val
+                .permissions
+                .as_ref()
+                .and_then(|inner| inner.can_send_messages),
             Self::Supergroup(val) => val
                 .permissions
                 .as_ref()
@@ -856,6 +901,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn can_send_other_messages(&self) -> Option<bool> {
         match self {
+            Self::Group(val) => val
+                .permissions
+                .as_ref()
+                .and_then(|inner| inner.can_send_other_messages),
             Self::Supergroup(val) => val
                 .permissions
                 .as_ref()
@@ -868,6 +917,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn can_send_photos(&self) -> Option<bool> {
         match self {
+            Self::Group(val) => val
+                .permissions
+                .as_ref()
+                .and_then(|inner| inner.can_send_photos),
             Self::Supergroup(val) => val
                 .permissions
                 .as_ref()
@@ -880,6 +933,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn can_send_polls(&self) -> Option<bool> {
         match self {
+            Self::Group(val) => val
+                .permissions
+                .as_ref()
+                .and_then(|inner| inner.can_send_polls),
             Self::Supergroup(val) => val
                 .permissions
                 .as_ref()
@@ -892,6 +949,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn can_send_video_notes(&self) -> Option<bool> {
         match self {
+            Self::Group(val) => val
+                .permissions
+                .as_ref()
+                .and_then(|inner| inner.can_send_video_notes),
             Self::Supergroup(val) => val
                 .permissions
                 .as_ref()
@@ -904,6 +965,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn can_send_videos(&self) -> Option<bool> {
         match self {
+            Self::Group(val) => val
+                .permissions
+                .as_ref()
+                .and_then(|inner| inner.can_send_videos),
             Self::Supergroup(val) => val
                 .permissions
                 .as_ref()
@@ -916,6 +981,10 @@ impl ChatFullInfo {
     #[must_use]
     pub fn can_send_voice_notes(&self) -> Option<bool> {
         match self {
+            Self::Group(val) => val
+                .permissions
+                .as_ref()
+                .and_then(|inner| inner.can_send_voice_notes),
             Self::Supergroup(val) => val
                 .permissions
                 .as_ref()
@@ -1271,13 +1340,10 @@ impl ChatFullInfo {
 
     /// Helper method for nested field `gifts_from_channels`.
     #[must_use]
-    pub fn gifts_from_channels(&self) -> Option<bool> {
-        match self {
-            Self::Private(val) => {
-                let inner = &val.accepted_gift_types;
-                Some(inner.gifts_from_channels)
-            }
-            _ => None,
+    pub fn gifts_from_channels(&self) -> bool {
+        {
+            let inner = self.accepted_gift_types();
+            inner.gifts_from_channels
         }
     }
 
@@ -1442,13 +1508,10 @@ impl ChatFullInfo {
 
     /// Helper method for nested field `limited_gifts`.
     #[must_use]
-    pub fn limited_gifts(&self) -> Option<bool> {
-        match self {
-            Self::Private(val) => {
-                let inner = &val.accepted_gift_types;
-                Some(inner.limited_gifts)
-            }
-            _ => None,
+    pub fn limited_gifts(&self) -> bool {
+        {
+            let inner = self.accepted_gift_types();
+            inner.limited_gifts
         }
     }
 
@@ -1669,13 +1732,10 @@ impl ChatFullInfo {
 
     /// Helper method for nested field `premium_subscription`.
     #[must_use]
-    pub fn premium_subscription(&self) -> Option<bool> {
-        match self {
-            Self::Private(val) => {
-                let inner = &val.accepted_gift_types;
-                Some(inner.premium_subscription)
-            }
-            _ => None,
+    pub fn premium_subscription(&self) -> bool {
+        {
+            let inner = self.accepted_gift_types();
+            inner.premium_subscription
         }
     }
 
@@ -1927,25 +1987,19 @@ impl ChatFullInfo {
 
     /// Helper method for nested field `unique_gifts`.
     #[must_use]
-    pub fn unique_gifts(&self) -> Option<bool> {
-        match self {
-            Self::Private(val) => {
-                let inner = &val.accepted_gift_types;
-                Some(inner.unique_gifts)
-            }
-            _ => None,
+    pub fn unique_gifts(&self) -> bool {
+        {
+            let inner = self.accepted_gift_types();
+            inner.unique_gifts
         }
     }
 
     /// Helper method for nested field `unlimited_gifts`.
     #[must_use]
-    pub fn unlimited_gifts(&self) -> Option<bool> {
-        match self {
-            Self::Private(val) => {
-                let inner = &val.accepted_gift_types;
-                Some(inner.unlimited_gifts)
-            }
-            _ => None,
+    pub fn unlimited_gifts(&self) -> bool {
+        {
+            let inner = self.accepted_gift_types();
+            inner.unlimited_gifts
         }
     }
 
