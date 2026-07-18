@@ -1,5 +1,10 @@
 use super::{Middleware, MiddlewareResponse};
-use crate::{errors::EventErrorKind, event::EventReturn, Request};
+use crate::{
+    errors::EventErrorKind,
+    event::EventReturn,
+    types::{Chat, MaybeInaccessibleMessage, Update, User},
+    Request,
+};
 
 use tracing::instrument;
 
@@ -16,6 +21,38 @@ impl UserContext {
     }
 }
 
+fn resolve_event_chat(update: &Update) -> Option<&Chat> {
+    if let Some(chat) = update.chat() {
+        return Some(chat);
+    }
+    if let Update::CallbackQuery(update) = update {
+        return update
+            .callback_query
+            .message
+            .as_deref()
+            .and_then(MaybeInaccessibleMessage::chat);
+    }
+    None
+}
+
+fn resolve_event_user(update: &Update) -> Option<&User> {
+    update.from().or_else(|| update.user())
+}
+
+fn resolve_event_message_thread_id(update: &Update) -> Option<i64> {
+    if let Some(message_thread_id) = update.message_thread_id() {
+        return Some(message_thread_id);
+    }
+    if let Update::CallbackQuery(update) = update {
+        return update
+            .callback_query
+            .message
+            .as_deref()
+            .and_then(MaybeInaccessibleMessage::message_thread_id);
+    }
+    None
+}
+
 impl<Client> Middleware<Client> for UserContext
 where
     Client: Send + Sync + 'static,
@@ -25,13 +62,13 @@ where
         &mut self,
         mut request: Request<Client>,
     ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
-        if let Some(from) = request.update.from() {
+        if let Some(from) = resolve_event_user(&request.update) {
             request.context.insert("event_user", from.clone());
         }
-        if let Some(chat) = request.update.chat() {
+        if let Some(chat) = resolve_event_chat(&request.update) {
             request.context.insert("event_chat", chat.clone());
         }
-        if let Some(message_thread_id) = request.update.message_thread_id() {
+        if let Some(message_thread_id) = resolve_event_message_thread_id(&request.update) {
             request
                 .context
                 .insert("event_message_thread_id", message_thread_id);
