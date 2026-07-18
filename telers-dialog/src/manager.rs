@@ -15,7 +15,7 @@ use telers::{
     enums::ReplyMarkupType,
     fsm::Storage,
     methods::AnswerCallbackQuery,
-    types::{CallbackQuery, MaybeInaccessibleMessage, Message, ReplyMarkup},
+    types::{CallbackQuery, MaybeInaccessibleMessage, Message},
     Bot,
 };
 use tracing::{debug, error, trace, warn};
@@ -151,34 +151,9 @@ impl<S: Storage> DialogManager<S> {
     fn get_last_message(&self, stack: &Stack, event_ctx: &EventContext) -> Option<OldMessage> {
         if let ChatEvent::CallbackQuery(cb) = &self.event {
             if let Some(message) = cb.message.clone() {
-                let (
-                    chat,
-                    message_id,
-                    text,
-                    reply_markup_type,
-                    reply_markup_value,
-                    link_preview_options_value,
-                ) = match *message {
-                    MaybeInaccessibleMessage::InaccessibleMessage(m) => (
-                        *m.chat,
-                        m.message_id,
-                        stack.last_text.clone(),
-                        stack.last_reply_markup_type,
-                        stack.last_reply_markup.clone(),
-                        stack.last_link_preview_options.clone(),
-                    ),
-                    MaybeInaccessibleMessage::Message(m) => (
-                        m.chat().clone(),
-                        m.message_id(),
-                        m.text().map(Into::into),
-                        m.reply_markup()
-                            .map(|_| ReplyMarkupType::InlineKeyboardMarkup),
-                        m.reply_markup()
-                            .cloned()
-                            .map(ReplyMarkup::InlineKeyboardMarkup)
-                            .and_then(|markup| serde_json::to_value(markup).ok()),
-                        None,
-                    ),
+                let (chat, message_id) = match *message {
+                    MaybeInaccessibleMessage::InaccessibleMessage(m) => (*m.chat, m.message_id),
+                    MaybeInaccessibleMessage::Message(m) => (m.chat().clone(), m.message_id()),
                     MaybeInaccessibleMessage::Unknown(_) => unreachable!(
                         "callback message payloads with `chat` are absorbed by `Message::Unknown`"
                     ),
@@ -187,13 +162,13 @@ impl<S: Storage> DialogManager<S> {
                     OldMessage::new(
                         chat,
                         message_id,
-                        text,
+                        stack.last_text.clone(),
                         stack.has_protected_content,
-                        reply_markup_type,
-                        reply_markup_value,
+                        stack.last_reply_markup_type,
+                        stack.last_reply_markup.clone(),
                         event_ctx.business_connection_id.clone(),
                         stack.message_type,
-                        link_preview_options_value,
+                        stack.last_link_preview_options.clone(),
                     )
                     .with_media(
                         stack.last_media_id.clone(),
