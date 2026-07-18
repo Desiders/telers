@@ -47,7 +47,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.close_date,
             Self::Quiz(val) => val.close_date,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.close_date,
         }
     }
 
@@ -70,7 +70,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.country_codes.as_deref(),
             Self::Quiz(val) => val.country_codes.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.country_codes.as_deref(),
         }
     }
 
@@ -82,7 +82,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.description.as_deref(),
             Self::Quiz(val) => val.description.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.description.as_deref(),
         }
     }
 
@@ -94,7 +94,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.description_entities.as_deref(),
             Self::Quiz(val) => val.description_entities.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.description_entities.as_deref(),
         }
     }
 
@@ -117,7 +117,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.explanation_entities.as_deref(),
             Self::Quiz(val) => val.explanation_entities.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.explanation_entities.as_deref(),
         }
     }
 
@@ -176,7 +176,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.media.as_ref(),
             Self::Quiz(val) => val.media.as_ref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.media.as_ref(),
         }
     }
 
@@ -200,7 +200,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.open_period,
             Self::Quiz(val) => val.open_period,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.open_period,
         }
     }
 
@@ -236,7 +236,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.question_entities.as_deref(),
             Self::Quiz(val) => val.question_entities.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.question_entities.as_deref(),
         }
     }
 

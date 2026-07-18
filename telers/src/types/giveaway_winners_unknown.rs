@@ -17,6 +17,21 @@ pub struct GiveawayWinnersUnknown {
     pub winner_count: i64,
     /// List of up to 100 winners of the giveaway
     pub winners: Box<[crate::types::User]>,
+    /// The number of other chats the user had to join in order to be eligible for the giveaway
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub additional_chat_count: Option<i64>,
+    /// Number of undistributed prizes
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unclaimed_prize_count: Option<i64>,
+    /// `true`, if only users who had joined the chats after the giveaway started were eligible to win
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub only_new_members: Option<bool>,
+    /// `true`, if the giveaway was canceled because the payment for it was refunded
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub was_refunded: Option<bool>,
+    /// Description of additional giveaway prize
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prize_description: Option<Box<str>>,
     #[serde(flatten)]
     pub extra: BTreeMap<Box<str>, serde_json::Value>,
 }
@@ -29,6 +44,9 @@ impl GiveawayWinnersUnknown {
     /// * `winners_selection_date` - Point in time (Unix timestamp) when winners of the giveaway were selected
     /// * `winner_count` - Total number of winners in the giveaway
     /// * `winners` - List of up to 100 winners of the giveaway
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
     pub fn new<
         T0: Into<crate::types::Chat>,
@@ -50,6 +68,11 @@ impl GiveawayWinnersUnknown {
             winners_selection_date: winners_selection_date.into(),
             winner_count: winner_count.into(),
             winners: winners.into_iter().map(Into::into).collect(),
+            additional_chat_count: None,
+            unclaimed_prize_count: None,
+            only_new_members: None,
+            was_refunded: None,
+            prize_description: None,
             extra: BTreeMap::new(),
         }
     }
@@ -109,6 +132,76 @@ impl GiveawayWinnersUnknown {
             .into_iter()
             .chain(Some(val.into()))
             .collect();
+        self
+    }
+
+    /// The number of other chats the user had to join in order to be eligible for the giveaway
+    #[must_use]
+    pub fn additional_chat_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.additional_chat_count = Some(val.into());
+        self
+    }
+
+    /// The number of other chats the user had to join in order to be eligible for the giveaway
+    #[must_use]
+    pub fn additional_chat_count_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.additional_chat_count = val.map(Into::into);
+        self
+    }
+
+    /// Number of undistributed prizes
+    #[must_use]
+    pub fn unclaimed_prize_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.unclaimed_prize_count = Some(val.into());
+        self
+    }
+
+    /// Number of undistributed prizes
+    #[must_use]
+    pub fn unclaimed_prize_count_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.unclaimed_prize_count = val.map(Into::into);
+        self
+    }
+
+    /// `true`, if only users who had joined the chats after the giveaway started were eligible to win
+    #[must_use]
+    pub fn only_new_members<T: Into<bool>>(mut self, val: T) -> Self {
+        self.only_new_members = Some(val.into());
+        self
+    }
+
+    /// `true`, if only users who had joined the chats after the giveaway started were eligible to win
+    #[must_use]
+    pub fn only_new_members_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.only_new_members = val.map(Into::into);
+        self
+    }
+
+    /// `true`, if the giveaway was canceled because the payment for it was refunded
+    #[must_use]
+    pub fn was_refunded<T: Into<bool>>(mut self, val: T) -> Self {
+        self.was_refunded = Some(val.into());
+        self
+    }
+
+    /// `true`, if the giveaway was canceled because the payment for it was refunded
+    #[must_use]
+    pub fn was_refunded_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.was_refunded = val.map(Into::into);
+        self
+    }
+
+    /// Description of additional giveaway prize
+    #[must_use]
+    pub fn prize_description<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.prize_description = Some(val.into());
+        self
+    }
+
+    /// Description of additional giveaway prize
+    #[must_use]
+    pub fn prize_description_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.prize_description = val.map(Into::into);
         self
     }
 }

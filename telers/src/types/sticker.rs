@@ -37,7 +37,7 @@ impl Sticker {
             Self::Regular(val) => val.emoji.as_deref(),
             Self::Mask(val) => val.emoji.as_deref(),
             Self::CustomEmoji(val) => val.emoji.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.emoji.as_deref(),
         }
     }
 
@@ -63,7 +63,7 @@ impl Sticker {
             Self::Regular(val) => val.file_size,
             Self::Mask(val) => val.file_size,
             Self::CustomEmoji(val) => val.file_size,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.file_size,
         }
     }
 
@@ -139,7 +139,7 @@ impl Sticker {
             Self::Regular(val) => val.needs_repainting,
             Self::Mask(val) => val.needs_repainting,
             Self::CustomEmoji(val) => val.needs_repainting,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.needs_repainting,
         }
     }
 
@@ -163,7 +163,7 @@ impl Sticker {
             Self::Regular(val) => val.set_name.as_deref(),
             Self::Mask(val) => val.set_name.as_deref(),
             Self::CustomEmoji(val) => val.set_name.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.set_name.as_deref(),
         }
     }
 
@@ -176,7 +176,7 @@ impl Sticker {
             Self::Regular(val) => val.thumbnail.as_ref(),
             Self::Mask(val) => val.thumbnail.as_ref(),
             Self::CustomEmoji(val) => val.thumbnail.as_ref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.thumbnail.as_ref(),
         }
     }
 

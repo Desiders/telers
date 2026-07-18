@@ -268,7 +268,7 @@ impl Message {
             Self::Voice(val) => val.author_signature.as_deref(),
             Self::WebAppData(val) => val.author_signature.as_deref(),
             Self::WriteAccessAllowed(val) => val.author_signature.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.author_signature.as_deref(),
         }
     }
 
@@ -366,7 +366,7 @@ impl Message {
             Self::Voice(val) => val.business_connection_id.as_deref(),
             Self::WebAppData(val) => val.business_connection_id.as_deref(),
             Self::WriteAccessAllowed(val) => val.business_connection_id.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.business_connection_id.as_deref(),
         }
     }
 
@@ -453,7 +453,7 @@ impl Message {
             Self::Voice(val) => val.caption.as_deref(),
             Self::WebAppData(val) => val.caption.as_deref(),
             Self::WriteAccessAllowed(val) => val.caption.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.caption.as_deref(),
         }
     }
 
@@ -540,7 +540,7 @@ impl Message {
             Self::Voice(val) => val.caption_entities.as_deref(),
             Self::WebAppData(val) => val.caption_entities.as_deref(),
             Self::WriteAccessAllowed(val) => val.caption_entities.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.caption_entities.as_deref(),
         }
     }
 
@@ -966,7 +966,7 @@ impl Message {
             Self::Voice(val) => val.direct_messages_topic.as_ref(),
             Self::WebAppData(val) => val.direct_messages_topic.as_ref(),
             Self::WriteAccessAllowed(val) => val.direct_messages_topic.as_ref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.direct_messages_topic.as_ref(),
         }
     }
 
@@ -1064,7 +1064,7 @@ impl Message {
             Self::Voice(val) => val.edit_date,
             Self::WebAppData(val) => val.edit_date,
             Self::WriteAccessAllowed(val) => val.edit_date,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.edit_date,
         }
     }
 
@@ -1151,7 +1151,7 @@ impl Message {
             Self::Voice(val) => val.effect_id.as_deref(),
             Self::WebAppData(val) => val.effect_id.as_deref(),
             Self::WriteAccessAllowed(val) => val.effect_id.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.effect_id.as_deref(),
         }
     }
 
@@ -1238,7 +1238,7 @@ impl Message {
             Self::Voice(val) => val.entities.as_deref(),
             Self::WebAppData(val) => val.entities.as_deref(),
             Self::WriteAccessAllowed(val) => val.entities.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.entities.as_deref(),
         }
     }
 
@@ -1325,7 +1325,7 @@ impl Message {
             Self::Voice(val) => val.ephemeral_message_id,
             Self::WebAppData(val) => val.ephemeral_message_id,
             Self::WriteAccessAllowed(val) => val.ephemeral_message_id,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.ephemeral_message_id,
         }
     }
 
@@ -1412,7 +1412,7 @@ impl Message {
             Self::Voice(val) => val.external_reply.as_deref(),
             Self::WebAppData(val) => val.external_reply.as_deref(),
             Self::WriteAccessAllowed(val) => val.external_reply.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.external_reply.as_deref(),
         }
     }
 
@@ -1543,7 +1543,7 @@ impl Message {
             Self::Voice(val) => val.forward_origin.as_ref(),
             Self::WebAppData(val) => val.forward_origin.as_ref(),
             Self::WriteAccessAllowed(val) => val.forward_origin.as_ref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.forward_origin.as_ref(),
         }
     }
 
@@ -1630,7 +1630,7 @@ impl Message {
             Self::Voice(val) => val.from.as_deref(),
             Self::WebAppData(val) => val.from.as_deref(),
             Self::WriteAccessAllowed(val) => val.from.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.from.as_deref(),
         }
     }
 
@@ -1827,7 +1827,7 @@ impl Message {
             Self::Voice(val) => val.guest_bot_caller_chat.as_deref(),
             Self::WebAppData(val) => val.guest_bot_caller_chat.as_deref(),
             Self::WriteAccessAllowed(val) => val.guest_bot_caller_chat.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.guest_bot_caller_chat.as_deref(),
         }
     }
 
@@ -1914,7 +1914,7 @@ impl Message {
             Self::Voice(val) => val.guest_bot_caller_user.as_deref(),
             Self::WebAppData(val) => val.guest_bot_caller_user.as_deref(),
             Self::WriteAccessAllowed(val) => val.guest_bot_caller_user.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.guest_bot_caller_user.as_deref(),
         }
     }
 
@@ -2001,7 +2001,7 @@ impl Message {
             Self::Voice(val) => val.guest_query_id.as_deref(),
             Self::WebAppData(val) => val.guest_query_id.as_deref(),
             Self::WriteAccessAllowed(val) => val.guest_query_id.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.guest_query_id.as_deref(),
         }
     }
 
@@ -2088,7 +2088,7 @@ impl Message {
             Self::Voice(val) => val.has_media_spoiler,
             Self::WebAppData(val) => val.has_media_spoiler,
             Self::WriteAccessAllowed(val) => val.has_media_spoiler,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.has_media_spoiler,
         }
     }
 
@@ -2175,7 +2175,7 @@ impl Message {
             Self::Voice(val) => val.has_protected_content,
             Self::WebAppData(val) => val.has_protected_content,
             Self::WriteAccessAllowed(val) => val.has_protected_content,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.has_protected_content,
         }
     }
 
@@ -2273,7 +2273,7 @@ impl Message {
             Self::Voice(val) => val.is_automatic_forward,
             Self::WebAppData(val) => val.is_automatic_forward,
             Self::WriteAccessAllowed(val) => val.is_automatic_forward,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.is_automatic_forward,
         }
     }
 
@@ -2360,7 +2360,7 @@ impl Message {
             Self::Voice(val) => val.is_from_offline,
             Self::WebAppData(val) => val.is_from_offline,
             Self::WriteAccessAllowed(val) => val.is_from_offline,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.is_from_offline,
         }
     }
 
@@ -2447,7 +2447,7 @@ impl Message {
             Self::Voice(val) => val.is_paid_post,
             Self::WebAppData(val) => val.is_paid_post,
             Self::WriteAccessAllowed(val) => val.is_paid_post,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.is_paid_post,
         }
     }
 
@@ -2534,7 +2534,7 @@ impl Message {
             Self::Voice(val) => val.is_topic_message,
             Self::WebAppData(val) => val.is_topic_message,
             Self::WriteAccessAllowed(val) => val.is_topic_message,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.is_topic_message,
         }
     }
 
@@ -2632,7 +2632,7 @@ impl Message {
             Self::Voice(val) => val.link_preview_options.as_ref(),
             Self::WebAppData(val) => val.link_preview_options.as_ref(),
             Self::WriteAccessAllowed(val) => val.link_preview_options.as_ref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.link_preview_options.as_ref(),
         }
     }
 
@@ -2752,7 +2752,7 @@ impl Message {
             Self::Voice(val) => val.media_group_id.as_deref(),
             Self::WebAppData(val) => val.media_group_id.as_deref(),
             Self::WriteAccessAllowed(val) => val.media_group_id.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.media_group_id.as_deref(),
         }
     }
 
@@ -2941,7 +2941,7 @@ impl Message {
             Self::Voice(val) => val.message_thread_id,
             Self::WebAppData(val) => val.message_thread_id,
             Self::WriteAccessAllowed(val) => val.message_thread_id,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.message_thread_id,
         }
     }
 
@@ -3105,7 +3105,7 @@ impl Message {
             Self::Voice(val) => val.paid_star_count,
             Self::WebAppData(val) => val.paid_star_count,
             Self::WriteAccessAllowed(val) => val.paid_star_count,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.paid_star_count,
         }
     }
 
@@ -3269,7 +3269,7 @@ impl Message {
             Self::Voice(val) => val.quote.as_ref(),
             Self::WebAppData(val) => val.quote.as_ref(),
             Self::WriteAccessAllowed(val) => val.quote.as_ref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.quote.as_ref(),
         }
     }
 
@@ -3356,7 +3356,7 @@ impl Message {
             Self::Voice(val) => val.receiver_user.as_deref(),
             Self::WebAppData(val) => val.receiver_user.as_deref(),
             Self::WriteAccessAllowed(val) => val.receiver_user.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.receiver_user.as_deref(),
         }
     }
 
@@ -3454,7 +3454,7 @@ impl Message {
             Self::Voice(val) => val.reply_markup.as_ref(),
             Self::WebAppData(val) => val.reply_markup.as_ref(),
             Self::WriteAccessAllowed(val) => val.reply_markup.as_ref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.reply_markup.as_ref(),
         }
     }
 
@@ -3541,7 +3541,7 @@ impl Message {
             Self::Voice(val) => val.reply_to_checklist_task_id,
             Self::WebAppData(val) => val.reply_to_checklist_task_id,
             Self::WriteAccessAllowed(val) => val.reply_to_checklist_task_id,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.reply_to_checklist_task_id,
         }
     }
 
@@ -3628,7 +3628,7 @@ impl Message {
             Self::Voice(val) => val.reply_to_message.as_deref(),
             Self::WebAppData(val) => val.reply_to_message.as_deref(),
             Self::WriteAccessAllowed(val) => val.reply_to_message.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.reply_to_message.as_deref(),
         }
     }
 
@@ -3715,7 +3715,7 @@ impl Message {
             Self::Voice(val) => val.reply_to_poll_option_id.as_deref(),
             Self::WebAppData(val) => val.reply_to_poll_option_id.as_deref(),
             Self::WriteAccessAllowed(val) => val.reply_to_poll_option_id.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.reply_to_poll_option_id.as_deref(),
         }
     }
 
@@ -3802,7 +3802,7 @@ impl Message {
             Self::Voice(val) => val.reply_to_story.as_ref(),
             Self::WebAppData(val) => val.reply_to_story.as_ref(),
             Self::WriteAccessAllowed(val) => val.reply_to_story.as_ref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.reply_to_story.as_ref(),
         }
     }
 
@@ -3900,7 +3900,7 @@ impl Message {
             Self::Voice(val) => val.sender_boost_count,
             Self::WebAppData(val) => val.sender_boost_count,
             Self::WriteAccessAllowed(val) => val.sender_boost_count,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.sender_boost_count,
         }
     }
 
@@ -3987,7 +3987,7 @@ impl Message {
             Self::Voice(val) => val.sender_business_bot.as_deref(),
             Self::WebAppData(val) => val.sender_business_bot.as_deref(),
             Self::WriteAccessAllowed(val) => val.sender_business_bot.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.sender_business_bot.as_deref(),
         }
     }
 
@@ -4074,7 +4074,7 @@ impl Message {
             Self::Voice(val) => val.sender_chat.as_deref(),
             Self::WebAppData(val) => val.sender_chat.as_deref(),
             Self::WriteAccessAllowed(val) => val.sender_chat.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.sender_chat.as_deref(),
         }
     }
 
@@ -4161,7 +4161,7 @@ impl Message {
             Self::Voice(val) => val.sender_tag.as_deref(),
             Self::WebAppData(val) => val.sender_tag.as_deref(),
             Self::WriteAccessAllowed(val) => val.sender_tag.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.sender_tag.as_deref(),
         }
     }
 
@@ -4248,7 +4248,7 @@ impl Message {
             Self::Voice(val) => val.show_caption_above_media,
             Self::WebAppData(val) => val.show_caption_above_media,
             Self::WriteAccessAllowed(val) => val.show_caption_above_media,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.show_caption_above_media,
         }
     }
 
@@ -4403,7 +4403,7 @@ impl Message {
             Self::Voice(val) => val.suggested_post_info.as_ref(),
             Self::WebAppData(val) => val.suggested_post_info.as_ref(),
             Self::WriteAccessAllowed(val) => val.suggested_post_info.as_ref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.suggested_post_info.as_ref(),
         }
     }
 
@@ -4567,7 +4567,7 @@ impl Message {
             Self::Voice(val) => val.via_bot.as_deref(),
             Self::WebAppData(val) => val.via_bot.as_deref(),
             Self::WriteAccessAllowed(val) => val.via_bot.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.via_bot.as_deref(),
         }
     }
 
@@ -5463,317 +5463,8 @@ impl Message {
     /// Helper method for nested field `inline_keyboard`.
     #[must_use]
     pub fn inline_keyboard(&self) -> Option<&[Box<[crate::types::InlineKeyboardButton]>]> {
-        match self {
-            Self::Animation(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::LivePhoto(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Venue(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Audio(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::BoostAdded(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::ChannelChatCreated(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::ChatBackgroundSet(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::ChatOwnerChanged(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::ChatOwnerLeft(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::ChatShared(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Checklist(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::ChecklistTasksAdded(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::ChecklistTasksDone(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::CommunityChatAdded(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::CommunityChatRemoved(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::ConnectedWebsite(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Contact(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::DeleteChatPhoto(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Dice(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::DirectMessagePriceChanged(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Document(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::ForumTopicClosed(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::ForumTopicCreated(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::ForumTopicEdited(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::ForumTopicReopened(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Game(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::GeneralForumTopicHidden(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::GeneralForumTopicUnhidden(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Gift(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::GiftUpgradeSent(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Giveaway(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::GiveawayCompleted(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::GiveawayCreated(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::GiveawayWinners(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::GroupChatCreated(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Invoice(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::LeftChatMember(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Location(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::ManagedBotCreated(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::MessageAutoDeleteTimerChanged(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::MigrateFromChatId(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::MigrateToChatId(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::NewChatMembers(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::NewChatPhoto(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::NewChatTitle(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::PaidMedia(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::PaidMessagePriceChanged(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::PassportData(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Photo(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::PinnedMessage(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Poll(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::PollOptionAdded(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::PollOptionDeleted(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::ProximityAlertTriggered(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::RefundedPayment(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::RichMessage(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Sticker(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Story(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::SuccessfulPayment(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::SuggestedPostApprovalFailed(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::SuggestedPostApproved(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::SuggestedPostDeclined(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::SuggestedPostPaid(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::SuggestedPostRefunded(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::SupergroupChatCreated(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Text(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::UniqueGift(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::UsersShared(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Video(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::VideoChatEnded(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::VideoChatParticipantsInvited(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::VideoChatScheduled(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::VideoChatStarted(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::VideoNote(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Voice(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::WebAppData(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::WriteAccessAllowed(val) => val
-                .reply_markup
-                .as_ref()
-                .map(|inner| inner.inline_keyboard.as_ref()),
-            Self::Unknown(_) => None,
-        }
+        self.reply_markup()
+            .map(|inner| inner.inline_keyboard.as_ref())
     }
 
     /// Helper method for nested field `invoice_payload`.
@@ -5831,317 +5522,8 @@ impl Message {
     /// Helper method for nested field `is_disabled`.
     #[must_use]
     pub fn is_disabled(&self) -> Option<bool> {
-        match self {
-            Self::Animation(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::LivePhoto(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Venue(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Audio(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::BoostAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::ChannelChatCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::ChatBackgroundSet(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::ChatOwnerChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::ChatOwnerLeft(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::ChatShared(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Checklist(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::ChecklistTasksAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::ChecklistTasksDone(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::CommunityChatAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::CommunityChatRemoved(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::ConnectedWebsite(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Contact(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::DeleteChatPhoto(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Dice(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::DirectMessagePriceChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Document(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::ForumTopicClosed(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::ForumTopicCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::ForumTopicEdited(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::ForumTopicReopened(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Game(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::GeneralForumTopicHidden(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::GeneralForumTopicUnhidden(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Gift(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::GiftUpgradeSent(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Giveaway(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::GiveawayCompleted(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::GiveawayCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::GiveawayWinners(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::GroupChatCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Invoice(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::LeftChatMember(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Location(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::ManagedBotCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::MessageAutoDeleteTimerChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::MigrateFromChatId(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::MigrateToChatId(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::NewChatMembers(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::NewChatPhoto(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::NewChatTitle(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::PaidMedia(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::PaidMessagePriceChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::PassportData(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Photo(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::PinnedMessage(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Poll(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::PollOptionAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::PollOptionDeleted(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::ProximityAlertTriggered(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::RefundedPayment(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::RichMessage(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Sticker(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Story(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::SuccessfulPayment(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::SuggestedPostApprovalFailed(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::SuggestedPostApproved(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::SuggestedPostDeclined(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::SuggestedPostPaid(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::SuggestedPostRefunded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::SupergroupChatCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Text(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::UniqueGift(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::UsersShared(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Video(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::VideoChatEnded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::VideoChatParticipantsInvited(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::VideoChatScheduled(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::VideoChatStarted(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::VideoNote(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Voice(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::WebAppData(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::WriteAccessAllowed(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.is_disabled),
-            Self::Unknown(_) => None,
-        }
+        self.link_preview_options()
+            .and_then(|inner| inner.is_disabled)
     }
 
     /// Helper method for nested field `is_first_recurring`.
@@ -6159,110 +5541,7 @@ impl Message {
     /// Helper method for nested field `is_manual`.
     #[must_use]
     pub fn is_manual(&self) -> Option<bool> {
-        match self {
-            Self::Animation(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::LivePhoto(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::Venue(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::Audio(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::BoostAdded(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::ChannelChatCreated(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::ChatBackgroundSet(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::ChatOwnerChanged(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::ChatOwnerLeft(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::ChatShared(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::Checklist(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::ChecklistTasksAdded(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::ChecklistTasksDone(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::CommunityChatAdded(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::CommunityChatRemoved(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::ConnectedWebsite(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::Contact(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::DeleteChatPhoto(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::Dice(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::DirectMessagePriceChanged(val) => {
-                val.quote.as_ref().and_then(|inner| inner.is_manual)
-            }
-            Self::Document(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::ForumTopicClosed(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::ForumTopicCreated(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::ForumTopicEdited(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::ForumTopicReopened(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::Game(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::GeneralForumTopicHidden(val) => {
-                val.quote.as_ref().and_then(|inner| inner.is_manual)
-            }
-            Self::GeneralForumTopicUnhidden(val) => {
-                val.quote.as_ref().and_then(|inner| inner.is_manual)
-            }
-            Self::Gift(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::GiftUpgradeSent(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::Giveaway(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::GiveawayCompleted(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::GiveawayCreated(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::GiveawayWinners(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::GroupChatCreated(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::Invoice(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::LeftChatMember(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::Location(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::ManagedBotCreated(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::MessageAutoDeleteTimerChanged(val) => {
-                val.quote.as_ref().and_then(|inner| inner.is_manual)
-            }
-            Self::MigrateFromChatId(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::MigrateToChatId(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::NewChatMembers(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::NewChatPhoto(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::NewChatTitle(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::PaidMedia(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::PaidMessagePriceChanged(val) => {
-                val.quote.as_ref().and_then(|inner| inner.is_manual)
-            }
-            Self::PassportData(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::Photo(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::PinnedMessage(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::Poll(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::PollOptionAdded(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::PollOptionDeleted(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::ProximityAlertTriggered(val) => {
-                val.quote.as_ref().and_then(|inner| inner.is_manual)
-            }
-            Self::RefundedPayment(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::RichMessage(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::Sticker(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::Story(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::SuccessfulPayment(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::SuggestedPostApprovalFailed(val) => {
-                val.quote.as_ref().and_then(|inner| inner.is_manual)
-            }
-            Self::SuggestedPostApproved(val) => {
-                val.quote.as_ref().and_then(|inner| inner.is_manual)
-            }
-            Self::SuggestedPostDeclined(val) => {
-                val.quote.as_ref().and_then(|inner| inner.is_manual)
-            }
-            Self::SuggestedPostPaid(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::SuggestedPostRefunded(val) => {
-                val.quote.as_ref().and_then(|inner| inner.is_manual)
-            }
-            Self::SupergroupChatCreated(val) => {
-                val.quote.as_ref().and_then(|inner| inner.is_manual)
-            }
-            Self::Text(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::UniqueGift(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::UsersShared(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::Video(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::VideoChatEnded(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::VideoChatParticipantsInvited(val) => {
-                val.quote.as_ref().and_then(|inner| inner.is_manual)
-            }
-            Self::VideoChatScheduled(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::VideoChatStarted(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::VideoNote(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::Voice(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::WebAppData(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::WriteAccessAllowed(val) => val.quote.as_ref().and_then(|inner| inner.is_manual),
-            Self::Unknown(_) => None,
-        }
+        self.quote().and_then(|inner| inner.is_manual)
     }
 
     /// Helper method for nested field `is_name_implicit`.
@@ -6788,724 +6067,21 @@ impl Message {
     /// Helper method for nested field `position`.
     #[must_use]
     pub fn position(&self) -> Option<i64> {
-        match self {
-            Self::Animation(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::LivePhoto(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Venue(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Audio(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::BoostAdded(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::ChannelChatCreated(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::ChatBackgroundSet(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::ChatOwnerChanged(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::ChatOwnerLeft(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::ChatShared(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Checklist(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::ChecklistTasksAdded(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::ChecklistTasksDone(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::CommunityChatAdded(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::CommunityChatRemoved(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::ConnectedWebsite(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Contact(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::DeleteChatPhoto(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Dice(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::DirectMessagePriceChanged(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Document(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::ForumTopicClosed(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::ForumTopicCreated(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::ForumTopicEdited(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::ForumTopicReopened(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Game(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::GeneralForumTopicHidden(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::GeneralForumTopicUnhidden(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Gift(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::GiftUpgradeSent(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Giveaway(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::GiveawayCompleted(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::GiveawayCreated(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::GiveawayWinners(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::GroupChatCreated(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Invoice(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::LeftChatMember(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Location(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::ManagedBotCreated(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::MessageAutoDeleteTimerChanged(val) => {
-                val.quote.as_ref().map(|inner| inner.position)
-            }
-            Self::MigrateFromChatId(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::MigrateToChatId(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::NewChatMembers(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::NewChatPhoto(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::NewChatTitle(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::PaidMedia(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::PaidMessagePriceChanged(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::PassportData(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Photo(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::PinnedMessage(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Poll(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::PollOptionAdded(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::PollOptionDeleted(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::ProximityAlertTriggered(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::RefundedPayment(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::RichMessage(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Sticker(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Story(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::SuccessfulPayment(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::SuggestedPostApprovalFailed(val) => {
-                val.quote.as_ref().map(|inner| inner.position)
-            }
-            Self::SuggestedPostApproved(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::SuggestedPostDeclined(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::SuggestedPostPaid(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::SuggestedPostRefunded(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::SupergroupChatCreated(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Text(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::UniqueGift(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::UsersShared(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Video(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::VideoChatEnded(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::VideoChatParticipantsInvited(val) => {
-                val.quote.as_ref().map(|inner| inner.position)
-            }
-            Self::VideoChatScheduled(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::VideoChatStarted(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::VideoNote(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Voice(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::WebAppData(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::WriteAccessAllowed(val) => val.quote.as_ref().map(|inner| inner.position),
-            Self::Unknown(_) => None,
-        }
+        self.quote().map(|inner| inner.position)
     }
 
     /// Helper method for nested field `prefer_large_media`.
     #[must_use]
     pub fn prefer_large_media(&self) -> Option<bool> {
-        match self {
-            Self::Animation(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::LivePhoto(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Venue(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Audio(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::BoostAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::ChannelChatCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::ChatBackgroundSet(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::ChatOwnerChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::ChatOwnerLeft(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::ChatShared(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Checklist(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::ChecklistTasksAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::ChecklistTasksDone(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::CommunityChatAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::CommunityChatRemoved(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::ConnectedWebsite(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Contact(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::DeleteChatPhoto(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Dice(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::DirectMessagePriceChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Document(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::ForumTopicClosed(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::ForumTopicCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::ForumTopicEdited(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::ForumTopicReopened(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Game(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::GeneralForumTopicHidden(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::GeneralForumTopicUnhidden(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Gift(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::GiftUpgradeSent(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Giveaway(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::GiveawayCompleted(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::GiveawayCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::GiveawayWinners(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::GroupChatCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Invoice(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::LeftChatMember(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Location(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::ManagedBotCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::MessageAutoDeleteTimerChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::MigrateFromChatId(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::MigrateToChatId(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::NewChatMembers(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::NewChatPhoto(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::NewChatTitle(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::PaidMedia(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::PaidMessagePriceChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::PassportData(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Photo(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::PinnedMessage(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Poll(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::PollOptionAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::PollOptionDeleted(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::ProximityAlertTriggered(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::RefundedPayment(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::RichMessage(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Sticker(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Story(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::SuccessfulPayment(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::SuggestedPostApprovalFailed(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::SuggestedPostApproved(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::SuggestedPostDeclined(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::SuggestedPostPaid(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::SuggestedPostRefunded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::SupergroupChatCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Text(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::UniqueGift(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::UsersShared(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Video(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::VideoChatEnded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::VideoChatParticipantsInvited(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::VideoChatScheduled(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::VideoChatStarted(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::VideoNote(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Voice(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::WebAppData(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::WriteAccessAllowed(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_large_media),
-            Self::Unknown(_) => None,
-        }
+        self.link_preview_options()
+            .and_then(|inner| inner.prefer_large_media)
     }
 
     /// Helper method for nested field `prefer_small_media`.
     #[must_use]
     pub fn prefer_small_media(&self) -> Option<bool> {
-        match self {
-            Self::Animation(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::LivePhoto(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Venue(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Audio(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::BoostAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::ChannelChatCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::ChatBackgroundSet(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::ChatOwnerChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::ChatOwnerLeft(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::ChatShared(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Checklist(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::ChecklistTasksAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::ChecklistTasksDone(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::CommunityChatAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::CommunityChatRemoved(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::ConnectedWebsite(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Contact(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::DeleteChatPhoto(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Dice(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::DirectMessagePriceChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Document(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::ForumTopicClosed(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::ForumTopicCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::ForumTopicEdited(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::ForumTopicReopened(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Game(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::GeneralForumTopicHidden(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::GeneralForumTopicUnhidden(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Gift(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::GiftUpgradeSent(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Giveaway(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::GiveawayCompleted(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::GiveawayCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::GiveawayWinners(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::GroupChatCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Invoice(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::LeftChatMember(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Location(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::ManagedBotCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::MessageAutoDeleteTimerChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::MigrateFromChatId(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::MigrateToChatId(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::NewChatMembers(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::NewChatPhoto(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::NewChatTitle(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::PaidMedia(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::PaidMessagePriceChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::PassportData(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Photo(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::PinnedMessage(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Poll(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::PollOptionAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::PollOptionDeleted(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::ProximityAlertTriggered(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::RefundedPayment(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::RichMessage(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Sticker(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Story(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::SuccessfulPayment(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::SuggestedPostApprovalFailed(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::SuggestedPostApproved(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::SuggestedPostDeclined(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::SuggestedPostPaid(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::SuggestedPostRefunded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::SupergroupChatCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Text(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::UniqueGift(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::UsersShared(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Video(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::VideoChatEnded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::VideoChatParticipantsInvited(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::VideoChatScheduled(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::VideoChatStarted(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::VideoNote(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Voice(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::WebAppData(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::WriteAccessAllowed(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.prefer_small_media),
-            Self::Unknown(_) => None,
-        }
+        self.link_preview_options()
+            .and_then(|inner| inner.prefer_small_media)
     }
 
     /// Helper method for nested field `premium_animation`.
@@ -7683,633 +6259,15 @@ impl Message {
     /// Helper method for nested field `sender_user`.
     #[must_use]
     pub fn sender_user(&self) -> Option<&crate::types::User> {
-        match self {
-            Self::Animation(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::LivePhoto(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Venue(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Audio(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::BoostAdded(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::ChannelChatCreated(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::ChatBackgroundSet(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::ChatOwnerChanged(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::ChatOwnerLeft(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::ChatShared(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Checklist(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::ChecklistTasksAdded(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::ChecklistTasksDone(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::CommunityChatAdded(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::CommunityChatRemoved(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::ConnectedWebsite(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Contact(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::DeleteChatPhoto(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Dice(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::DirectMessagePriceChanged(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Document(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::ForumTopicClosed(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::ForumTopicCreated(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::ForumTopicEdited(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::ForumTopicReopened(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Game(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::GeneralForumTopicHidden(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::GeneralForumTopicUnhidden(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Gift(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::GiftUpgradeSent(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Giveaway(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::GiveawayCompleted(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::GiveawayCreated(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::GiveawayWinners(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::GroupChatCreated(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Invoice(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::LeftChatMember(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Location(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::ManagedBotCreated(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::MessageAutoDeleteTimerChanged(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::MigrateFromChatId(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::MigrateToChatId(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::NewChatMembers(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::NewChatPhoto(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::NewChatTitle(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::PaidMedia(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::PaidMessagePriceChanged(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::PassportData(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Photo(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::PinnedMessage(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Poll(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::PollOptionAdded(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::PollOptionDeleted(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::ProximityAlertTriggered(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::RefundedPayment(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::RichMessage(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Sticker(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Story(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::SuccessfulPayment(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::SuggestedPostApprovalFailed(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::SuggestedPostApproved(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::SuggestedPostDeclined(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::SuggestedPostPaid(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::SuggestedPostRefunded(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::SupergroupChatCreated(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Text(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::UniqueGift(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::UsersShared(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Video(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::VideoChatEnded(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::VideoChatParticipantsInvited(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::VideoChatScheduled(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::VideoChatStarted(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::VideoNote(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Voice(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::WebAppData(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::WriteAccessAllowed(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user),
-            Self::Unknown(_) => None,
-        }
+        self.forward_origin()
+            .and_then(crate::types::MessageOrigin::sender_user)
     }
 
     /// Helper method for nested field `sender_user_name`.
     #[must_use]
     pub fn sender_user_name(&self) -> Option<&str> {
-        match self {
-            Self::Animation(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::LivePhoto(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Venue(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Audio(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::BoostAdded(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::ChannelChatCreated(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::ChatBackgroundSet(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::ChatOwnerChanged(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::ChatOwnerLeft(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::ChatShared(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Checklist(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::ChecklistTasksAdded(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::ChecklistTasksDone(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::CommunityChatAdded(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::CommunityChatRemoved(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::ConnectedWebsite(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Contact(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::DeleteChatPhoto(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Dice(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::DirectMessagePriceChanged(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Document(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::ForumTopicClosed(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::ForumTopicCreated(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::ForumTopicEdited(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::ForumTopicReopened(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Game(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::GeneralForumTopicHidden(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::GeneralForumTopicUnhidden(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Gift(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::GiftUpgradeSent(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Giveaway(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::GiveawayCompleted(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::GiveawayCreated(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::GiveawayWinners(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::GroupChatCreated(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Invoice(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::LeftChatMember(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Location(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::ManagedBotCreated(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::MessageAutoDeleteTimerChanged(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::MigrateFromChatId(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::MigrateToChatId(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::NewChatMembers(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::NewChatPhoto(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::NewChatTitle(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::PaidMedia(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::PaidMessagePriceChanged(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::PassportData(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Photo(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::PinnedMessage(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Poll(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::PollOptionAdded(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::PollOptionDeleted(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::ProximityAlertTriggered(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::RefundedPayment(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::RichMessage(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Sticker(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Story(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::SuccessfulPayment(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::SuggestedPostApprovalFailed(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::SuggestedPostApproved(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::SuggestedPostDeclined(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::SuggestedPostPaid(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::SuggestedPostRefunded(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::SupergroupChatCreated(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Text(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::UniqueGift(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::UsersShared(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Video(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::VideoChatEnded(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::VideoChatParticipantsInvited(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::VideoChatScheduled(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::VideoChatStarted(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::VideoNote(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Voice(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::WebAppData(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::WriteAccessAllowed(val) => val
-                .forward_origin
-                .as_ref()
-                .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::Unknown(_) => None,
-        }
+        self.forward_origin()
+            .and_then(crate::types::MessageOrigin::sender_user_name)
     }
 
     /// Helper method for nested field `set_name`.
@@ -8339,317 +6297,8 @@ impl Message {
     /// Helper method for nested field `show_above_text`.
     #[must_use]
     pub fn show_above_text(&self) -> Option<bool> {
-        match self {
-            Self::Animation(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::LivePhoto(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Venue(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Audio(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::BoostAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::ChannelChatCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::ChatBackgroundSet(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::ChatOwnerChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::ChatOwnerLeft(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::ChatShared(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Checklist(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::ChecklistTasksAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::ChecklistTasksDone(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::CommunityChatAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::CommunityChatRemoved(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::ConnectedWebsite(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Contact(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::DeleteChatPhoto(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Dice(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::DirectMessagePriceChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Document(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::ForumTopicClosed(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::ForumTopicCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::ForumTopicEdited(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::ForumTopicReopened(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Game(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::GeneralForumTopicHidden(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::GeneralForumTopicUnhidden(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Gift(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::GiftUpgradeSent(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Giveaway(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::GiveawayCompleted(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::GiveawayCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::GiveawayWinners(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::GroupChatCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Invoice(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::LeftChatMember(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Location(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::ManagedBotCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::MessageAutoDeleteTimerChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::MigrateFromChatId(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::MigrateToChatId(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::NewChatMembers(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::NewChatPhoto(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::NewChatTitle(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::PaidMedia(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::PaidMessagePriceChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::PassportData(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Photo(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::PinnedMessage(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Poll(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::PollOptionAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::PollOptionDeleted(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::ProximityAlertTriggered(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::RefundedPayment(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::RichMessage(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Sticker(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Story(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::SuccessfulPayment(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::SuggestedPostApprovalFailed(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::SuggestedPostApproved(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::SuggestedPostDeclined(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::SuggestedPostPaid(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::SuggestedPostRefunded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::SupergroupChatCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Text(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::UniqueGift(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::UsersShared(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Video(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::VideoChatEnded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::VideoChatParticipantsInvited(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::VideoChatScheduled(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::VideoChatStarted(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::VideoNote(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Voice(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::WebAppData(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::WriteAccessAllowed(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.show_above_text),
-            Self::Unknown(_) => None,
-        }
+        self.link_preview_options()
+            .and_then(|inner| inner.show_above_text)
     }
 
     /// Helper method for nested field `star_amount`.
@@ -8715,317 +6364,7 @@ impl Message {
     /// Helper method for nested field `state`.
     #[must_use]
     pub fn state(&self) -> Option<&str> {
-        match self {
-            Self::Animation(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::LivePhoto(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Venue(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Audio(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::BoostAdded(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::ChannelChatCreated(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::ChatBackgroundSet(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::ChatOwnerChanged(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::ChatOwnerLeft(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::ChatShared(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Checklist(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::ChecklistTasksAdded(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::ChecklistTasksDone(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::CommunityChatAdded(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::CommunityChatRemoved(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::ConnectedWebsite(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Contact(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::DeleteChatPhoto(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Dice(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::DirectMessagePriceChanged(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Document(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::ForumTopicClosed(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::ForumTopicCreated(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::ForumTopicEdited(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::ForumTopicReopened(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Game(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::GeneralForumTopicHidden(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::GeneralForumTopicUnhidden(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Gift(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::GiftUpgradeSent(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Giveaway(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::GiveawayCompleted(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::GiveawayCreated(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::GiveawayWinners(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::GroupChatCreated(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Invoice(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::LeftChatMember(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Location(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::ManagedBotCreated(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::MessageAutoDeleteTimerChanged(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::MigrateFromChatId(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::MigrateToChatId(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::NewChatMembers(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::NewChatPhoto(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::NewChatTitle(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::PaidMedia(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::PaidMessagePriceChanged(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::PassportData(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Photo(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::PinnedMessage(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Poll(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::PollOptionAdded(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::PollOptionDeleted(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::ProximityAlertTriggered(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::RefundedPayment(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::RichMessage(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Sticker(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Story(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::SuccessfulPayment(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::SuggestedPostApprovalFailed(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::SuggestedPostApproved(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::SuggestedPostDeclined(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::SuggestedPostPaid(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::SuggestedPostRefunded(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::SupergroupChatCreated(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Text(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::UniqueGift(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::UsersShared(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Video(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::VideoChatEnded(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::VideoChatParticipantsInvited(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::VideoChatScheduled(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::VideoChatStarted(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::VideoNote(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Voice(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::WebAppData(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::WriteAccessAllowed(val) => val
-                .suggested_post_info
-                .as_ref()
-                .map(|inner| inner.state.as_ref()),
-            Self::Unknown(_) => None,
-        }
+        self.suggested_post_info().map(|inner| inner.state.as_ref())
     }
 
     /// Helper method for nested field `subscription_expiration_date`.
@@ -9159,317 +6498,7 @@ impl Message {
     /// Helper method for nested field `topic_id`.
     #[must_use]
     pub fn topic_id(&self) -> Option<i64> {
-        match self {
-            Self::Animation(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::LivePhoto(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Venue(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Audio(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::BoostAdded(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::ChannelChatCreated(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::ChatBackgroundSet(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::ChatOwnerChanged(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::ChatOwnerLeft(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::ChatShared(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Checklist(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::ChecklistTasksAdded(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::ChecklistTasksDone(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::CommunityChatAdded(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::CommunityChatRemoved(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::ConnectedWebsite(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Contact(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::DeleteChatPhoto(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Dice(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::DirectMessagePriceChanged(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Document(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::ForumTopicClosed(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::ForumTopicCreated(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::ForumTopicEdited(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::ForumTopicReopened(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Game(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::GeneralForumTopicHidden(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::GeneralForumTopicUnhidden(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Gift(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::GiftUpgradeSent(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Giveaway(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::GiveawayCompleted(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::GiveawayCreated(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::GiveawayWinners(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::GroupChatCreated(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Invoice(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::LeftChatMember(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Location(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::ManagedBotCreated(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::MessageAutoDeleteTimerChanged(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::MigrateFromChatId(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::MigrateToChatId(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::NewChatMembers(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::NewChatPhoto(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::NewChatTitle(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::PaidMedia(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::PaidMessagePriceChanged(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::PassportData(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Photo(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::PinnedMessage(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Poll(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::PollOptionAdded(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::PollOptionDeleted(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::ProximityAlertTriggered(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::RefundedPayment(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::RichMessage(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Sticker(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Story(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::SuccessfulPayment(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::SuggestedPostApprovalFailed(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::SuggestedPostApproved(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::SuggestedPostDeclined(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::SuggestedPostPaid(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::SuggestedPostRefunded(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::SupergroupChatCreated(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Text(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::UniqueGift(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::UsersShared(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Video(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::VideoChatEnded(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::VideoChatParticipantsInvited(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::VideoChatScheduled(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::VideoChatStarted(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::VideoNote(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Voice(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::WebAppData(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::WriteAccessAllowed(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .map(|inner| inner.topic_id),
-            Self::Unknown(_) => None,
-        }
+        self.direct_messages_topic().map(|inner| inner.topic_id)
     }
 
     /// Helper method for nested field `total_amount`.
@@ -9575,633 +6604,15 @@ impl Message {
     /// Helper method for nested field `url`.
     #[must_use]
     pub fn url(&self) -> Option<&str> {
-        match self {
-            Self::Animation(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::LivePhoto(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Venue(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Audio(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::BoostAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::ChannelChatCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::ChatBackgroundSet(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::ChatOwnerChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::ChatOwnerLeft(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::ChatShared(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Checklist(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::ChecklistTasksAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::ChecklistTasksDone(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::CommunityChatAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::CommunityChatRemoved(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::ConnectedWebsite(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Contact(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::DeleteChatPhoto(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Dice(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::DirectMessagePriceChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Document(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::ForumTopicClosed(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::ForumTopicCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::ForumTopicEdited(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::ForumTopicReopened(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Game(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::GeneralForumTopicHidden(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::GeneralForumTopicUnhidden(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Gift(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::GiftUpgradeSent(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Giveaway(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::GiveawayCompleted(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::GiveawayCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::GiveawayWinners(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::GroupChatCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Invoice(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::LeftChatMember(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Location(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::ManagedBotCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::MessageAutoDeleteTimerChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::MigrateFromChatId(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::MigrateToChatId(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::NewChatMembers(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::NewChatPhoto(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::NewChatTitle(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::PaidMedia(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::PaidMessagePriceChanged(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::PassportData(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Photo(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::PinnedMessage(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Poll(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::PollOptionAdded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::PollOptionDeleted(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::ProximityAlertTriggered(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::RefundedPayment(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::RichMessage(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Sticker(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Story(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::SuccessfulPayment(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::SuggestedPostApprovalFailed(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::SuggestedPostApproved(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::SuggestedPostDeclined(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::SuggestedPostPaid(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::SuggestedPostRefunded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::SupergroupChatCreated(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Text(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::UniqueGift(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::UsersShared(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Video(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::VideoChatEnded(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::VideoChatParticipantsInvited(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::VideoChatScheduled(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::VideoChatStarted(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::VideoNote(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Voice(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::WebAppData(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::WriteAccessAllowed(val) => val
-                .link_preview_options
-                .as_ref()
-                .and_then(|inner| inner.url.as_deref()),
-            Self::Unknown(_) => None,
-        }
+        self.link_preview_options()
+            .and_then(|inner| inner.url.as_deref())
     }
 
     /// Helper method for nested field `user`.
     #[must_use]
     pub fn user(&self) -> Option<&crate::types::User> {
-        match self {
-            Self::Animation(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::LivePhoto(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Venue(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Audio(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::BoostAdded(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::ChannelChatCreated(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::ChatBackgroundSet(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::ChatOwnerChanged(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::ChatOwnerLeft(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::ChatShared(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Checklist(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::ChecklistTasksAdded(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::ChecklistTasksDone(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::CommunityChatAdded(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::CommunityChatRemoved(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::ConnectedWebsite(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Contact(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::DeleteChatPhoto(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Dice(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::DirectMessagePriceChanged(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Document(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::ForumTopicClosed(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::ForumTopicCreated(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::ForumTopicEdited(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::ForumTopicReopened(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Game(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::GeneralForumTopicHidden(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::GeneralForumTopicUnhidden(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Gift(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::GiftUpgradeSent(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Giveaway(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::GiveawayCompleted(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::GiveawayCreated(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::GiveawayWinners(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::GroupChatCreated(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Invoice(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::LeftChatMember(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Location(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::ManagedBotCreated(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::MessageAutoDeleteTimerChanged(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::MigrateFromChatId(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::MigrateToChatId(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::NewChatMembers(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::NewChatPhoto(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::NewChatTitle(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::PaidMedia(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::PaidMessagePriceChanged(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::PassportData(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Photo(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::PinnedMessage(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Poll(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::PollOptionAdded(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::PollOptionDeleted(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::ProximityAlertTriggered(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::RefundedPayment(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::RichMessage(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Sticker(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Story(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::SuccessfulPayment(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::SuggestedPostApprovalFailed(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::SuggestedPostApproved(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::SuggestedPostDeclined(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::SuggestedPostPaid(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::SuggestedPostRefunded(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::SupergroupChatCreated(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Text(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::UniqueGift(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::UsersShared(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Video(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::VideoChatEnded(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::VideoChatParticipantsInvited(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::VideoChatScheduled(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::VideoChatStarted(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::VideoNote(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Voice(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::WebAppData(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::WriteAccessAllowed(val) => val
-                .direct_messages_topic
-                .as_ref()
-                .and_then(|inner| inner.user.as_deref()),
-            Self::Unknown(_) => None,
-        }
+        self.direct_messages_topic()
+            .and_then(|inner| inner.user.as_deref())
     }
 
     /// Helper method for nested field `user_id`.

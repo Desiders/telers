@@ -52,7 +52,7 @@ impl ChatBoostSource {
     /// Helper method for field `user`.
     ///
     /// # Variants
-    /// - `ChatBoostSourcePremium`. User that boosted the chat
+    /// - `ChatBoostSourcePremium`, `ChatBoostSourceUnknown`. User that boosted the chat
     /// - `ChatBoostSourceGiftCode`. User for which the gift code was created
     /// - `ChatBoostSourceGiveaway`. User that won the prize in the giveaway if any; for Telegram Premium giveaways only
     #[must_use]
@@ -61,347 +61,119 @@ impl ChatBoostSource {
             Self::Premium(val) => Some(val.user.as_ref()),
             Self::GiftCode(val) => Some(val.user.as_ref()),
             Self::Giveaway(val) => val.user.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.user.as_deref(),
         }
     }
 
     /// Helper method for nested field `added_to_attachment_menu`.
     #[must_use]
     pub fn added_to_attachment_menu(&self) -> Option<bool> {
-        match self {
-            Self::Premium(val) => {
-                let inner = val.user.as_ref();
-                inner.added_to_attachment_menu
-            }
-            Self::GiftCode(val) => {
-                let inner = val.user.as_ref();
-                inner.added_to_attachment_menu
-            }
-            Self::Giveaway(val) => val
-                .user
-                .as_deref()
-                .and_then(|inner| inner.added_to_attachment_menu),
-            Self::Unknown(_) => None,
-        }
+        self.user().and_then(|inner| inner.added_to_attachment_menu)
     }
 
     /// Helper method for nested field `allows_users_to_create_topics`.
     #[must_use]
     pub fn allows_users_to_create_topics(&self) -> Option<bool> {
-        match self {
-            Self::Premium(val) => {
-                let inner = val.user.as_ref();
-                inner.allows_users_to_create_topics
-            }
-            Self::GiftCode(val) => {
-                let inner = val.user.as_ref();
-                inner.allows_users_to_create_topics
-            }
-            Self::Giveaway(val) => val
-                .user
-                .as_deref()
-                .and_then(|inner| inner.allows_users_to_create_topics),
-            Self::Unknown(_) => None,
-        }
+        self.user()
+            .and_then(|inner| inner.allows_users_to_create_topics)
     }
 
     /// Helper method for nested field `can_connect_to_business`.
     #[must_use]
     pub fn can_connect_to_business(&self) -> Option<bool> {
-        match self {
-            Self::Premium(val) => {
-                let inner = val.user.as_ref();
-                inner.can_connect_to_business
-            }
-            Self::GiftCode(val) => {
-                let inner = val.user.as_ref();
-                inner.can_connect_to_business
-            }
-            Self::Giveaway(val) => val
-                .user
-                .as_deref()
-                .and_then(|inner| inner.can_connect_to_business),
-            Self::Unknown(_) => None,
-        }
+        self.user().and_then(|inner| inner.can_connect_to_business)
     }
 
     /// Helper method for nested field `can_join_groups`.
     #[must_use]
     pub fn can_join_groups(&self) -> Option<bool> {
-        match self {
-            Self::Premium(val) => {
-                let inner = val.user.as_ref();
-                inner.can_join_groups
-            }
-            Self::GiftCode(val) => {
-                let inner = val.user.as_ref();
-                inner.can_join_groups
-            }
-            Self::Giveaway(val) => val.user.as_deref().and_then(|inner| inner.can_join_groups),
-            Self::Unknown(_) => None,
-        }
+        self.user().and_then(|inner| inner.can_join_groups)
     }
 
     /// Helper method for nested field `can_manage_bots`.
     #[must_use]
     pub fn can_manage_bots(&self) -> Option<bool> {
-        match self {
-            Self::Premium(val) => {
-                let inner = val.user.as_ref();
-                inner.can_manage_bots
-            }
-            Self::GiftCode(val) => {
-                let inner = val.user.as_ref();
-                inner.can_manage_bots
-            }
-            Self::Giveaway(val) => val.user.as_deref().and_then(|inner| inner.can_manage_bots),
-            Self::Unknown(_) => None,
-        }
+        self.user().and_then(|inner| inner.can_manage_bots)
     }
 
     /// Helper method for nested field `can_read_all_group_messages`.
     #[must_use]
     pub fn can_read_all_group_messages(&self) -> Option<bool> {
-        match self {
-            Self::Premium(val) => {
-                let inner = val.user.as_ref();
-                inner.can_read_all_group_messages
-            }
-            Self::GiftCode(val) => {
-                let inner = val.user.as_ref();
-                inner.can_read_all_group_messages
-            }
-            Self::Giveaway(val) => val
-                .user
-                .as_deref()
-                .and_then(|inner| inner.can_read_all_group_messages),
-            Self::Unknown(_) => None,
-        }
+        self.user()
+            .and_then(|inner| inner.can_read_all_group_messages)
     }
 
     /// Helper method for nested field `first_name`.
     #[must_use]
     pub fn first_name(&self) -> Option<&str> {
-        match self {
-            Self::Premium(val) => {
-                let inner = val.user.as_ref();
-                Some(inner.first_name.as_ref())
-            }
-            Self::GiftCode(val) => {
-                let inner = val.user.as_ref();
-                Some(inner.first_name.as_ref())
-            }
-            Self::Giveaway(val) => val.user.as_deref().map(|inner| inner.first_name.as_ref()),
-            Self::Unknown(_) => None,
-        }
+        self.user().map(|inner| inner.first_name.as_ref())
     }
 
     /// Helper method for nested field `has_main_web_app`.
     #[must_use]
     pub fn has_main_web_app(&self) -> Option<bool> {
-        match self {
-            Self::Premium(val) => {
-                let inner = val.user.as_ref();
-                inner.has_main_web_app
-            }
-            Self::GiftCode(val) => {
-                let inner = val.user.as_ref();
-                inner.has_main_web_app
-            }
-            Self::Giveaway(val) => val.user.as_deref().and_then(|inner| inner.has_main_web_app),
-            Self::Unknown(_) => None,
-        }
+        self.user().and_then(|inner| inner.has_main_web_app)
     }
 
     /// Helper method for nested field `has_topics_enabled`.
     #[must_use]
     pub fn has_topics_enabled(&self) -> Option<bool> {
-        match self {
-            Self::Premium(val) => {
-                let inner = val.user.as_ref();
-                inner.has_topics_enabled
-            }
-            Self::GiftCode(val) => {
-                let inner = val.user.as_ref();
-                inner.has_topics_enabled
-            }
-            Self::Giveaway(val) => val
-                .user
-                .as_deref()
-                .and_then(|inner| inner.has_topics_enabled),
-            Self::Unknown(_) => None,
-        }
+        self.user().and_then(|inner| inner.has_topics_enabled)
     }
 
     /// Helper method for nested field `id`.
     #[must_use]
     pub fn id(&self) -> Option<i64> {
-        match self {
-            Self::Premium(val) => {
-                let inner = val.user.as_ref();
-                Some(inner.id)
-            }
-            Self::GiftCode(val) => {
-                let inner = val.user.as_ref();
-                Some(inner.id)
-            }
-            Self::Giveaway(val) => val.user.as_deref().map(|inner| inner.id),
-            Self::Unknown(_) => None,
-        }
+        self.user().map(|inner| inner.id)
     }
 
     /// Helper method for nested field `is_bot`.
     #[must_use]
     pub fn is_bot(&self) -> Option<bool> {
-        match self {
-            Self::Premium(val) => {
-                let inner = val.user.as_ref();
-                Some(inner.is_bot)
-            }
-            Self::GiftCode(val) => {
-                let inner = val.user.as_ref();
-                Some(inner.is_bot)
-            }
-            Self::Giveaway(val) => val.user.as_deref().map(|inner| inner.is_bot),
-            Self::Unknown(_) => None,
-        }
+        self.user().map(|inner| inner.is_bot)
     }
 
     /// Helper method for nested field `is_premium`.
     #[must_use]
     pub fn is_premium(&self) -> Option<bool> {
-        match self {
-            Self::Premium(val) => {
-                let inner = val.user.as_ref();
-                inner.is_premium
-            }
-            Self::GiftCode(val) => {
-                let inner = val.user.as_ref();
-                inner.is_premium
-            }
-            Self::Giveaway(val) => val.user.as_deref().and_then(|inner| inner.is_premium),
-            Self::Unknown(_) => None,
-        }
+        self.user().and_then(|inner| inner.is_premium)
     }
 
     /// Helper method for nested field `language_code`.
     #[must_use]
     pub fn language_code(&self) -> Option<&str> {
-        match self {
-            Self::Premium(val) => {
-                let inner = val.user.as_ref();
-                inner.language_code.as_deref()
-            }
-            Self::GiftCode(val) => {
-                let inner = val.user.as_ref();
-                inner.language_code.as_deref()
-            }
-            Self::Giveaway(val) => val
-                .user
-                .as_deref()
-                .and_then(|inner| inner.language_code.as_deref()),
-            Self::Unknown(_) => None,
-        }
+        self.user().and_then(|inner| inner.language_code.as_deref())
     }
 
     /// Helper method for nested field `last_name`.
     #[must_use]
     pub fn last_name(&self) -> Option<&str> {
-        match self {
-            Self::Premium(val) => {
-                let inner = val.user.as_ref();
-                inner.last_name.as_deref()
-            }
-            Self::GiftCode(val) => {
-                let inner = val.user.as_ref();
-                inner.last_name.as_deref()
-            }
-            Self::Giveaway(val) => val
-                .user
-                .as_deref()
-                .and_then(|inner| inner.last_name.as_deref()),
-            Self::Unknown(_) => None,
-        }
+        self.user().and_then(|inner| inner.last_name.as_deref())
     }
 
     /// Helper method for nested field `supports_guest_queries`.
     #[must_use]
     pub fn supports_guest_queries(&self) -> Option<bool> {
-        match self {
-            Self::Premium(val) => {
-                let inner = val.user.as_ref();
-                inner.supports_guest_queries
-            }
-            Self::GiftCode(val) => {
-                let inner = val.user.as_ref();
-                inner.supports_guest_queries
-            }
-            Self::Giveaway(val) => val
-                .user
-                .as_deref()
-                .and_then(|inner| inner.supports_guest_queries),
-            Self::Unknown(_) => None,
-        }
+        self.user().and_then(|inner| inner.supports_guest_queries)
     }
 
     /// Helper method for nested field `supports_inline_queries`.
     #[must_use]
     pub fn supports_inline_queries(&self) -> Option<bool> {
-        match self {
-            Self::Premium(val) => {
-                let inner = val.user.as_ref();
-                inner.supports_inline_queries
-            }
-            Self::GiftCode(val) => {
-                let inner = val.user.as_ref();
-                inner.supports_inline_queries
-            }
-            Self::Giveaway(val) => val
-                .user
-                .as_deref()
-                .and_then(|inner| inner.supports_inline_queries),
-            Self::Unknown(_) => None,
-        }
+        self.user().and_then(|inner| inner.supports_inline_queries)
     }
 
     /// Helper method for nested field `supports_join_request_queries`.
     #[must_use]
     pub fn supports_join_request_queries(&self) -> Option<bool> {
-        match self {
-            Self::Premium(val) => {
-                let inner = val.user.as_ref();
-                inner.supports_join_request_queries
-            }
-            Self::GiftCode(val) => {
-                let inner = val.user.as_ref();
-                inner.supports_join_request_queries
-            }
-            Self::Giveaway(val) => val
-                .user
-                .as_deref()
-                .and_then(|inner| inner.supports_join_request_queries),
-            Self::Unknown(_) => None,
-        }
+        self.user()
+            .and_then(|inner| inner.supports_join_request_queries)
     }
 
     /// Helper method for nested field `username`.
     #[must_use]
     pub fn username(&self) -> Option<&str> {
-        match self {
-            Self::Premium(val) => {
-                let inner = val.user.as_ref();
-                inner.username.as_deref()
-            }
-            Self::GiftCode(val) => {
-                let inner = val.user.as_ref();
-                inner.username.as_deref()
-            }
-            Self::Giveaway(val) => val
-                .user
-                .as_deref()
-                .and_then(|inner| inner.username.as_deref()),
-            Self::Unknown(_) => None,
-        }
+        self.user().and_then(|inner| inner.username.as_deref())
     }
 }
 impl From<crate::types::ChatBoostSourcePremium> for ChatBoostSource {

@@ -57,7 +57,7 @@ impl StarTransaction {
         match self {
             Self::Incoming(val) => val.nanostar_amount,
             Self::Outgoing(val) => val.nanostar_amount,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.nanostar_amount,
         }
     }
 

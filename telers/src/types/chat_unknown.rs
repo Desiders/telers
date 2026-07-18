@@ -11,6 +11,9 @@ pub struct ChatUnknown {
     pub r#type: Box<str>,
     /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     pub id: i64,
+    /// `true`, if the chat is the direct messages chat of a channel
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_direct_messages: Option<bool>,
     #[serde(flatten)]
     pub extra: BTreeMap<Box<str>, serde_json::Value>,
 }
@@ -20,11 +23,15 @@ impl ChatUnknown {
     /// # Arguments
     /// * `type` - Raw `type` value of the variant unknown to this version of the library
     /// * `id` - Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
     pub fn new<T0: Into<Box<str>>, T1: Into<i64>>(r#type: T0, id: T1) -> Self {
         Self {
             r#type: r#type.into(),
             id: id.into(),
+            is_direct_messages: None,
             extra: BTreeMap::new(),
         }
     }
@@ -40,6 +47,20 @@ impl ChatUnknown {
     #[must_use]
     pub fn id<T: Into<i64>>(mut self, val: T) -> Self {
         self.id = val.into();
+        self
+    }
+
+    /// `true`, if the chat is the direct messages chat of a channel
+    #[must_use]
+    pub fn is_direct_messages<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_direct_messages = Some(val.into());
+        self
+    }
+
+    /// `true`, if the chat is the direct messages chat of a channel
+    #[must_use]
+    pub fn is_direct_messages_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_direct_messages = val.map(Into::into);
         self
     }
 }

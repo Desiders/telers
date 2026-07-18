@@ -753,7 +753,11 @@ impl NormalizedSchema {
                 .iter()
                 .filter_map(|subtype| self.types.get(&subtype.ty_name))
                 .collect();
-            // Fields present and required in every variant, in the first variant's order.
+            // Fields present with the same type in every variant, in the first variant's
+            // order: required if required everywhere, optional otherwise. Copying the
+            // optional 100%-present fields too keeps the enum helpers and smart-filter
+            // commonness identical to the pre-fallback shape, and keeps that data typed
+            // on unknown payloads instead of burying it in `extra`.
             let common_fields: Vec<NormalizedField> = members.first().map_or_else(Vec::new, {
                 let members = &members;
                 move |first| {
@@ -761,15 +765,23 @@ impl NormalizedSchema {
                         .fields
                         .iter()
                         .filter(|field| {
-                            field.required
-                                && members.iter().all(|member| {
-                                    member
-                                        .fields
-                                        .iter()
-                                        .any(|f| f.required && f.name == field.name)
-                                })
+                            members.iter().all(|member| {
+                                member
+                                    .fields
+                                    .iter()
+                                    .any(|f| f.name == field.name && f.r#type == field.r#type)
+                            })
                         })
-                        .cloned()
+                        .map(|field| {
+                            let mut field = field.clone();
+                            field.required = members.iter().all(|member| {
+                                member
+                                    .fields
+                                    .iter()
+                                    .any(|f| f.required && f.name == field.name)
+                            });
+                            field
+                        })
                         .collect()
                 }
             });

@@ -77,7 +77,7 @@ impl OwnedGift {
         match self {
             Self::Regular(val) => val.is_saved,
             Self::Unique(val) => val.is_saved,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.is_saved,
         }
     }
 
@@ -106,14 +106,14 @@ impl OwnedGift {
     /// Helper method for field `owned_gift_id`.
     ///
     /// # Variants
-    /// - `OwnedGiftRegular`. Unique identifier of the gift for the bot; for gifts received on behalf of business accounts only
+    /// - `OwnedGiftRegular`, `OwnedGiftUnknown`. Unique identifier of the gift for the bot; for gifts received on behalf of business accounts only
     /// - `OwnedGiftUnique`. Unique identifier of the received gift for the bot; for gifts received on behalf of business accounts only
     #[must_use]
     pub fn owned_gift_id(&self) -> Option<&str> {
         match self {
             Self::Regular(val) => val.owned_gift_id.as_deref(),
             Self::Unique(val) => val.owned_gift_id.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.owned_gift_id.as_deref(),
         }
     }
 
@@ -148,7 +148,7 @@ impl OwnedGift {
         match self {
             Self::Regular(val) => val.sender_user.as_deref(),
             Self::Unique(val) => val.sender_user.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.sender_user.as_deref(),
         }
     }
 
@@ -199,277 +199,120 @@ impl OwnedGift {
     /// Helper method for nested field `added_to_attachment_menu`.
     #[must_use]
     pub fn added_to_attachment_menu(&self) -> Option<bool> {
-        match self {
-            Self::Regular(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.added_to_attachment_menu),
-            Self::Unique(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.added_to_attachment_menu),
-            Self::Unknown(_) => None,
-        }
+        self.sender_user()
+            .and_then(|inner| inner.added_to_attachment_menu)
     }
 
     /// Helper method for nested field `allows_users_to_create_topics`.
     #[must_use]
     pub fn allows_users_to_create_topics(&self) -> Option<bool> {
-        match self {
-            Self::Regular(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.allows_users_to_create_topics),
-            Self::Unique(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.allows_users_to_create_topics),
-            Self::Unknown(_) => None,
-        }
+        self.sender_user()
+            .and_then(|inner| inner.allows_users_to_create_topics)
     }
 
     /// Helper method for nested field `can_connect_to_business`.
     #[must_use]
     pub fn can_connect_to_business(&self) -> Option<bool> {
-        match self {
-            Self::Regular(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.can_connect_to_business),
-            Self::Unique(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.can_connect_to_business),
-            Self::Unknown(_) => None,
-        }
+        self.sender_user()
+            .and_then(|inner| inner.can_connect_to_business)
     }
 
     /// Helper method for nested field `can_join_groups`.
     #[must_use]
     pub fn can_join_groups(&self) -> Option<bool> {
-        match self {
-            Self::Regular(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.can_join_groups),
-            Self::Unique(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.can_join_groups),
-            Self::Unknown(_) => None,
-        }
+        self.sender_user().and_then(|inner| inner.can_join_groups)
     }
 
     /// Helper method for nested field `can_manage_bots`.
     #[must_use]
     pub fn can_manage_bots(&self) -> Option<bool> {
-        match self {
-            Self::Regular(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.can_manage_bots),
-            Self::Unique(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.can_manage_bots),
-            Self::Unknown(_) => None,
-        }
+        self.sender_user().and_then(|inner| inner.can_manage_bots)
     }
 
     /// Helper method for nested field `can_read_all_group_messages`.
     #[must_use]
     pub fn can_read_all_group_messages(&self) -> Option<bool> {
-        match self {
-            Self::Regular(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.can_read_all_group_messages),
-            Self::Unique(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.can_read_all_group_messages),
-            Self::Unknown(_) => None,
-        }
+        self.sender_user()
+            .and_then(|inner| inner.can_read_all_group_messages)
     }
 
     /// Helper method for nested field `first_name`.
     #[must_use]
     pub fn first_name(&self) -> Option<&str> {
-        match self {
-            Self::Regular(val) => val
-                .sender_user
-                .as_deref()
-                .map(|inner| inner.first_name.as_ref()),
-            Self::Unique(val) => val
-                .sender_user
-                .as_deref()
-                .map(|inner| inner.first_name.as_ref()),
-            Self::Unknown(_) => None,
-        }
+        self.sender_user().map(|inner| inner.first_name.as_ref())
     }
 
     /// Helper method for nested field `has_main_web_app`.
     #[must_use]
     pub fn has_main_web_app(&self) -> Option<bool> {
-        match self {
-            Self::Regular(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.has_main_web_app),
-            Self::Unique(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.has_main_web_app),
-            Self::Unknown(_) => None,
-        }
+        self.sender_user().and_then(|inner| inner.has_main_web_app)
     }
 
     /// Helper method for nested field `has_topics_enabled`.
     #[must_use]
     pub fn has_topics_enabled(&self) -> Option<bool> {
-        match self {
-            Self::Regular(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.has_topics_enabled),
-            Self::Unique(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.has_topics_enabled),
-            Self::Unknown(_) => None,
-        }
+        self.sender_user()
+            .and_then(|inner| inner.has_topics_enabled)
     }
 
     /// Helper method for nested field `id`.
     #[must_use]
     pub fn id(&self) -> Option<i64> {
-        match self {
-            Self::Regular(val) => val.sender_user.as_deref().map(|inner| inner.id),
-            Self::Unique(val) => val.sender_user.as_deref().map(|inner| inner.id),
-            Self::Unknown(_) => None,
-        }
+        self.sender_user().map(|inner| inner.id)
     }
 
     /// Helper method for nested field `is_bot`.
     #[must_use]
     pub fn is_bot(&self) -> Option<bool> {
-        match self {
-            Self::Regular(val) => val.sender_user.as_deref().map(|inner| inner.is_bot),
-            Self::Unique(val) => val.sender_user.as_deref().map(|inner| inner.is_bot),
-            Self::Unknown(_) => None,
-        }
+        self.sender_user().map(|inner| inner.is_bot)
     }
 
     /// Helper method for nested field `is_premium`.
     #[must_use]
     pub fn is_premium(&self) -> Option<bool> {
-        match self {
-            Self::Regular(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.is_premium),
-            Self::Unique(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.is_premium),
-            Self::Unknown(_) => None,
-        }
+        self.sender_user().and_then(|inner| inner.is_premium)
     }
 
     /// Helper method for nested field `language_code`.
     #[must_use]
     pub fn language_code(&self) -> Option<&str> {
-        match self {
-            Self::Regular(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.language_code.as_deref()),
-            Self::Unique(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.language_code.as_deref()),
-            Self::Unknown(_) => None,
-        }
+        self.sender_user()
+            .and_then(|inner| inner.language_code.as_deref())
     }
 
     /// Helper method for nested field `last_name`.
     #[must_use]
     pub fn last_name(&self) -> Option<&str> {
-        match self {
-            Self::Regular(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.last_name.as_deref()),
-            Self::Unique(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.last_name.as_deref()),
-            Self::Unknown(_) => None,
-        }
+        self.sender_user()
+            .and_then(|inner| inner.last_name.as_deref())
     }
 
     /// Helper method for nested field `supports_guest_queries`.
     #[must_use]
     pub fn supports_guest_queries(&self) -> Option<bool> {
-        match self {
-            Self::Regular(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.supports_guest_queries),
-            Self::Unique(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.supports_guest_queries),
-            Self::Unknown(_) => None,
-        }
+        self.sender_user()
+            .and_then(|inner| inner.supports_guest_queries)
     }
 
     /// Helper method for nested field `supports_inline_queries`.
     #[must_use]
     pub fn supports_inline_queries(&self) -> Option<bool> {
-        match self {
-            Self::Regular(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.supports_inline_queries),
-            Self::Unique(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.supports_inline_queries),
-            Self::Unknown(_) => None,
-        }
+        self.sender_user()
+            .and_then(|inner| inner.supports_inline_queries)
     }
 
     /// Helper method for nested field `supports_join_request_queries`.
     #[must_use]
     pub fn supports_join_request_queries(&self) -> Option<bool> {
-        match self {
-            Self::Regular(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.supports_join_request_queries),
-            Self::Unique(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.supports_join_request_queries),
-            Self::Unknown(_) => None,
-        }
+        self.sender_user()
+            .and_then(|inner| inner.supports_join_request_queries)
     }
 
     /// Helper method for nested field `username`.
     #[must_use]
     pub fn username(&self) -> Option<&str> {
-        match self {
-            Self::Regular(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.username.as_deref()),
-            Self::Unique(val) => val
-                .sender_user
-                .as_deref()
-                .and_then(|inner| inner.username.as_deref()),
-            Self::Unknown(_) => None,
-        }
+        self.sender_user()
+            .and_then(|inner| inner.username.as_deref())
     }
 }
 impl From<crate::types::OwnedGiftRegular> for OwnedGift {

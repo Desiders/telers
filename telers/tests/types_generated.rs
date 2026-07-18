@@ -5617,11 +5617,7 @@ fn test_owned_gift_unique_serialize_deserialize() {
 }
 #[test]
 fn test_owned_gift_unknown_serialize_deserialize() {
-    let value = serde_json::json!(
-        { "type" : "unknown", "gift" : { "id" : "test", "sticker" : { "type" : "regular",
-        "file_id" : "used", "file_unique_id" : "test", "width" : 1, "height" : 1,
-        "is_animated" : true, "is_video" : true }, "star_count" : 1 }, "send_date" : 1 }
-    );
+    let value = serde_json::json!({ "type" : "unknown", "send_date" : 1 });
     let parsed: OwnedGift = must_parse(stringify!(OwnedGift), &value);
     assert!(
         matches!(&parsed, OwnedGift::Unknown(_)),

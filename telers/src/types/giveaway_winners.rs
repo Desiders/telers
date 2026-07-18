@@ -21,7 +21,7 @@ impl GiveawayWinners {
         match self {
             Self::Premium(val) => val.additional_chat_count,
             Self::Star(val) => val.additional_chat_count,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.additional_chat_count,
         }
     }
 
@@ -57,7 +57,7 @@ impl GiveawayWinners {
         match self {
             Self::Premium(val) => val.only_new_members,
             Self::Star(val) => val.only_new_members,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.only_new_members,
         }
     }
 
@@ -80,7 +80,7 @@ impl GiveawayWinners {
         match self {
             Self::Premium(val) => val.prize_description.as_deref(),
             Self::Star(val) => val.prize_description.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.prize_description.as_deref(),
         }
     }
 
@@ -103,7 +103,7 @@ impl GiveawayWinners {
         match self {
             Self::Premium(val) => val.unclaimed_prize_count,
             Self::Star(val) => val.unclaimed_prize_count,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.unclaimed_prize_count,
         }
     }
 
@@ -115,7 +115,7 @@ impl GiveawayWinners {
         match self {
             Self::Premium(val) => val.was_refunded,
             Self::Star(val) => val.was_refunded,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.was_refunded,
         }
     }
 

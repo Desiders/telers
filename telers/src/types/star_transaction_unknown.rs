@@ -11,6 +11,9 @@ pub struct StarTransactionUnknown {
     pub id: Box<str>,
     /// Integer amount of Telegram Stars transferred by the transaction
     pub amount: i64,
+    /// The number of 1/1000000000 shares of Telegram Stars transferred by the transaction; from 0 to 999999999
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub nanostar_amount: Option<u32>,
     /// Date the transaction was created in Unix time
     pub date: i64,
     #[serde(flatten)]
@@ -23,6 +26,9 @@ impl StarTransactionUnknown {
     /// * `id` - Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`crate::types::SuccessfulPayment`].`telegram_payment_charge_id` for successful incoming payments from users.
     /// * `amount` - Integer amount of Telegram Stars transferred by the transaction
     /// * `date` - Date the transaction was created in Unix time
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
     pub fn new<T0: Into<Box<str>>, T1: Into<i64>, T2: Into<i64>>(
         id: T0,
@@ -32,6 +38,7 @@ impl StarTransactionUnknown {
         Self {
             id: id.into(),
             amount: amount.into(),
+            nanostar_amount: None,
             date: date.into(),
             extra: BTreeMap::new(),
         }
@@ -48,6 +55,20 @@ impl StarTransactionUnknown {
     #[must_use]
     pub fn amount<T: Into<i64>>(mut self, val: T) -> Self {
         self.amount = val.into();
+        self
+    }
+
+    /// The number of 1/1000000000 shares of Telegram Stars transferred by the transaction; from 0 to 999999999
+    #[must_use]
+    pub fn nanostar_amount<T: Into<u32>>(mut self, val: T) -> Self {
+        self.nanostar_amount = Some(val.into());
+        self
+    }
+
+    /// The number of 1/1000000000 shares of Telegram Stars transferred by the transaction; from 0 to 999999999
+    #[must_use]
+    pub fn nanostar_amount_option<T: Into<u32>>(mut self, val: Option<T>) -> Self {
+        self.nanostar_amount = val.map(Into::into);
         self
     }
 

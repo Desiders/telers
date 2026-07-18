@@ -54,7 +54,7 @@ impl Chat {
             Self::Group(val) => val.is_direct_messages,
             Self::Supergroup(val) => val.is_direct_messages,
             Self::Channel(val) => val.is_direct_messages,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.is_direct_messages,
         }
     }
 

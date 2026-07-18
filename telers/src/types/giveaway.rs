@@ -33,7 +33,7 @@ impl Giveaway {
         match self {
             Self::Premium(val) => val.country_codes.as_deref(),
             Self::Star(val) => val.country_codes.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.country_codes.as_deref(),
         }
     }
 
@@ -45,7 +45,7 @@ impl Giveaway {
         match self {
             Self::Premium(val) => val.has_public_winners,
             Self::Star(val) => val.has_public_winners,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.has_public_winners,
         }
     }
 
@@ -57,7 +57,7 @@ impl Giveaway {
         match self {
             Self::Premium(val) => val.only_new_members,
             Self::Star(val) => val.only_new_members,
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.only_new_members,
         }
     }
 
@@ -80,7 +80,7 @@ impl Giveaway {
         match self {
             Self::Premium(val) => val.prize_description.as_deref(),
             Self::Star(val) => val.prize_description.as_deref(),
-            Self::Unknown(_) => None,
+            Self::Unknown(val) => val.prize_description.as_deref(),
         }
     }
 
