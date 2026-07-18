@@ -318,8 +318,9 @@ impl Command {
             Ok(true)
         } else if let Some(ref mention) = command.mention {
             bot.send(GetMe {}).await.map(|user| {
-                // `unwrap` is safe here, because bot always has username
-                user.username.unwrap().eq(mention)
+                // `unwrap` is safe here, because bot always has username.
+                // Telegram usernames are case-insensitive, so compare accordingly.
+                user.username.unwrap().eq_ignore_ascii_case(mention)
             })
         } else {
             Ok(true)
@@ -395,12 +396,12 @@ impl CommandObject {
     /// Extracts [`CommandObject`] from text
     #[must_use]
     pub fn extract(text: &str) -> Option<Self> {
-        let result: Box<[&str]> = text.trim().split(' ').collect();
-        let full_command = result[0];
-        let args = result[1..]
-            .iter()
-            .map(|arg| (*arg).to_owned().into_boxed_str())
-            .collect();
+        // Split on any run of whitespace (spaces, tabs, newlines), skipping empties — a
+        // command is commonly followed by a newline (`/start\nfoo`), and splitting only on
+        // a single `' '` left the newline stuck to the command so it never matched.
+        let mut parts = text.split_whitespace();
+        let full_command = parts.next()?;
+        let args = parts.map(|arg| arg.to_owned().into_boxed_str()).collect();
 
         let mut full_command_chars = full_command.chars();
 
