@@ -438,6 +438,9 @@ impl<Client> Router<Client> {
             if observer.handlers.is_empty() {
                 continue;
             }
+            if observer.event_name == "update" {
+                continue;
+            }
             if skip_update_types.contains(observer.event_name) {
                 continue;
             }
