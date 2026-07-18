@@ -200,5 +200,5 @@ pub(crate) struct TagWriter {
     pub custom_emoji: ComplexTag,
     pub date_time: DateTimeTag,
     pub write_tag_fn: fn(&Tag, &mut String),
-    pub write_char_fn: fn(char, &mut String),
+    pub write_char_fn: fn(char, &mut String, bool),
 }

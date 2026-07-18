@@ -5,7 +5,7 @@ use std::fmt::Write;
 use super::tag::{
     ComplexTag, DateTimeTag, Kind, NewLineRepeatedTag, Place, SimpleTag, Tag, TagWriter,
 };
-use crate::utils::text::markdown_formatter::ESCAPE_CHARS;
+use crate::utils::text::markdown_formatter::{CODE_ESCAPE_CHARS, ESCAPE_CHARS, URL_ESCAPE_CHARS};
 
 pub(crate) static MARKDOWN: TagWriter = TagWriter {
     bold: SimpleTag::new("*", "*"),
@@ -59,12 +59,15 @@ fn write_tag(tag: &Tag, buf: &mut String) {
             Place::Start => buf.push_str(MARKDOWN.text_link.start),
             Place::MidNewLine => unreachable!(),
             Place::End => {
-                write!(
-                    buf,
-                    "{}{}{}",
-                    MARKDOWN.text_link.middle, url, MARKDOWN.text_link.end
-                )
-                .unwrap();
+                // A `)` or `\` in the URL would otherwise terminate/corrupt the `(...)`.
+                buf.push_str(MARKDOWN.text_link.middle);
+                for ch in url.chars() {
+                    if URL_ESCAPE_CHARS.contains(&ch) {
+                        buf.push('\\');
+                    }
+                    buf.push(ch);
+                }
+                buf.push_str(MARKDOWN.text_link.end);
             }
         },
         Kind::TextMention(id) => match tag.place {
@@ -119,8 +122,15 @@ fn write_tag(tag: &Tag, buf: &mut String) {
     }
 }
 
-fn write_char(ch: char, buf: &mut String) {
-    if ESCAPE_CHARS.contains(&ch) {
+fn write_char(ch: char, buf: &mut String, verbatim: bool) {
+    // Inside `code`/`pre`, MarkdownV2 only allows escaping `` ` `` and `\`; escaping the
+    // other special chars there would insert literal backslashes into the code content.
+    let escape_chars: &[char] = if verbatim {
+        &CODE_ESCAPE_CHARS
+    } else {
+        &ESCAPE_CHARS
+    };
+    if escape_chars.contains(&ch) {
         buf.push('\\');
     }
     buf.push(ch);

@@ -116,7 +116,7 @@ fn write_tag(tag: &Tag, buf: &mut String) {
     }
 }
 
-fn write_char(ch: char, buf: &mut String) {
+fn write_char(ch: char, buf: &mut String, _verbatim: bool) {
     match ch {
         '&' => buf.push_str("&amp;"),
         '<' => buf.push_str("&lt;"),

@@ -11,10 +11,10 @@ pub(crate) const ESCAPE_CHARS: [char; 18] = [
 ];
 
 /// Characters that MarkdownV2 requires to be escaped **inside** `code` and `pre` entities
-const CODE_ESCAPE_CHARS: [char; 2] = ['`', '\\'];
+pub(crate) const CODE_ESCAPE_CHARS: [char; 2] = ['`', '\\'];
 
 /// Characters that MarkdownV2 requires to be escaped **inside** the `(...)` of an inline link or custom emoji definition
-const URL_ESCAPE_CHARS: [char; 2] = [')', '\\'];
+pub(crate) const URL_ESCAPE_CHARS: [char; 2] = [')', '\\'];
 
 fn escape(text: impl Display, chars: &[char]) -> String {
     let text = text.to_string();
@@ -83,7 +83,7 @@ impl TextFormatter for Formatter {
     where
         T: Display,
     {
-        format!("|{text}|")
+        format!("||{text}||")
     }
 
     fn blockquote<T>(&self, text: T) -> String
@@ -369,7 +369,7 @@ mod tests {
     #[test]
     fn test_spoiler() {
         let formatter = Formatter;
-        assert_eq!(formatter.spoiler("text"), "|text|");
+        assert_eq!(formatter.spoiler("text"), "||text||");
     }
 
     #[test]

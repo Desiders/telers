@@ -106,10 +106,20 @@ impl<'a> Renderer<'a> {
         let mut tags = self.tags.iter();
         let mut current_tag = tags.next();
         let mut prev_point: Option<u16> = None;
+        // Characters inside a `code`/`pre` entity use reduced escaping. Nesting is tracked
+        // as a depth so overlapping verbatim spans behave correctly.
+        let mut verbatim_depth: usize = 0;
 
         for (idx, point) in self.text.encode_utf16().enumerate() {
             while let Some(tag) = current_tag {
                 if tag.offset == idx {
+                    if matches!(tag.kind, Kind::Code | Kind::Pre(_)) {
+                        match tag.place {
+                            tag::Place::Start => verbatim_depth += 1,
+                            tag::Place::End => verbatim_depth = verbatim_depth.saturating_sub(1),
+                            tag::Place::MidNewLine => {}
+                        }
+                    }
                     (writer.write_tag_fn)(tag, &mut buffer);
                     current_tag = tags.next();
                 } else {
@@ -132,7 +142,7 @@ impl<'a> Renderer<'a> {
                 }
             };
 
-            (writer.write_char_fn)(ch, &mut buffer);
+            (writer.write_char_fn)(ch, &mut buffer, verbatim_depth > 0);
         }
 
         for tag in current_tag.into_iter().chain(tags) {
