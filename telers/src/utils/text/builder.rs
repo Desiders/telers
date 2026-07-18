@@ -19,7 +19,11 @@ pub struct Builder<F> {
     text: String,
 }
 
-#[allow(clippy::cast_possible_truncation, clippy::missing_panics_doc)]
+#[allow(clippy::cast_possible_truncation)]
+fn utf16_len(text: &str) -> u16 {
+    text.encode_utf16().count() as u16
+}
+
 impl<F> Builder<F>
 where
     F: Formatter,
@@ -112,8 +116,8 @@ where
     pub fn mention(self, username: impl Into<Box<str>>) -> Self {
         let mention = format!("@{}", username.into());
         let entity = MessageEntity::Mention(MessageEntityMention::new(
-            self.text.len() as u16,
-            mention.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&mention),
         ));
 
         self.text(mention)
@@ -127,8 +131,8 @@ where
     pub fn hashtag(self, tag: impl Into<Box<str>>) -> Self {
         let hashtag = format!("#{}", tag.into());
         let entity = MessageEntity::Hashtag(MessageEntityHashtag::new(
-            self.text.len() as u16,
-            hashtag.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&hashtag),
         ));
 
         self.text(hashtag)
@@ -142,8 +146,8 @@ where
     pub fn cashtag(self, tag: impl Into<Box<str>>) -> Self {
         let cashtag = format!("${}", tag.into());
         let entity = MessageEntity::Cashtag(MessageEntityCashtag::new(
-            self.text.len() as u16,
-            cashtag.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&cashtag),
         ));
 
         self.text(cashtag)
@@ -157,8 +161,8 @@ where
     pub fn bot_command(self, command: impl Into<Box<str>>) -> Self {
         let bot_command = format!("/{}", command.into());
         let entity = MessageEntity::BotCommand(MessageEntityBotCommand::new(
-            self.text.len() as u16,
-            bot_command.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&bot_command),
         ));
 
         self.text(bot_command)
@@ -172,8 +176,8 @@ where
     pub fn url(self, url: impl Into<Box<str>>) -> Self {
         let url = url.into();
         let entity = MessageEntity::Url(MessageEntityUrl::new(
-            self.text.len() as u16,
-            url.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&url),
         ));
 
         self.text(url)
@@ -187,8 +191,8 @@ where
     pub fn email(self, email: impl Into<Box<str>>) -> Self {
         let email = email.into();
         let entity = MessageEntity::Email(MessageEntityEmail::new(
-            self.text.len() as u16,
-            email.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&email),
         ));
 
         self.text(email)
@@ -202,8 +206,8 @@ where
     pub fn phone_number(self, phone_number: impl Into<Box<str>>) -> Self {
         let phone_number = phone_number.into();
         let entity = MessageEntity::PhoneNumber(MessageEntityPhoneNumber::new(
-            self.text.len() as u16,
-            phone_number.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&phone_number),
         ));
 
         self.text(phone_number)
@@ -217,8 +221,8 @@ where
     pub fn bold(self, text: impl Into<Box<str>>) -> Self {
         let text = text.into();
         let entity = MessageEntity::Bold(MessageEntityBold::new(
-            self.text.len() as u16,
-            text.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&text),
         ));
 
         self.text(text)
@@ -232,8 +236,8 @@ where
     pub fn italic(self, text: impl Into<Box<str>>) -> Self {
         let text = text.into();
         let entity = MessageEntity::Italic(MessageEntityItalic::new(
-            self.text.len() as u16,
-            text.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&text),
         ));
 
         self.text(text)
@@ -247,8 +251,8 @@ where
     pub fn underline(self, text: impl Into<Box<str>>) -> Self {
         let text = text.into();
         let entity = MessageEntity::Underline(MessageEntityUnderline::new(
-            self.text.len() as u16,
-            text.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&text),
         ));
 
         self.text(text)
@@ -262,8 +266,8 @@ where
     pub fn strikethrough(self, text: impl Into<Box<str>>) -> Self {
         let text = text.into();
         let entity = MessageEntity::Strikethrough(MessageEntityStrikethrough::new(
-            self.text.len() as u16,
-            text.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&text),
         ));
 
         self.text(text)
@@ -277,8 +281,8 @@ where
     pub fn spoiler(self, text: impl Into<Box<str>>) -> Self {
         let text = text.into();
         let entity = MessageEntity::Spoiler(MessageEntitySpoiler::new(
-            self.text.len() as u16,
-            text.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&text),
         ));
 
         self.text(text)
@@ -292,8 +296,8 @@ where
     pub fn blockquote(self, text: impl Into<Box<str>>) -> Self {
         let text = text.into();
         let entity = MessageEntity::Blockquote(MessageEntityBlockquote::new(
-            self.text.len() as u16,
-            text.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&text),
         ));
 
         self.text(text)
@@ -307,8 +311,8 @@ where
     pub fn expandable_blockquote(self, text: impl Into<Box<str>>) -> Self {
         let text = text.into();
         let entity = MessageEntity::ExpandableBlockquote(MessageEntityExpandableBlockquote::new(
-            self.text.len() as u16,
-            text.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&text),
         ));
 
         self.text(text)
@@ -327,8 +331,8 @@ where
     pub fn code(self, code: impl Into<Box<str>>) -> Self {
         let code = code.into();
         let entity = MessageEntity::Code(MessageEntityCode::new(
-            self.text.len() as u16,
-            code.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&code),
         ));
 
         self.text(code)
@@ -362,8 +366,8 @@ where
     pub fn pre(self, code: impl Into<Box<str>>) -> Self {
         let code = code.into();
         let entity = MessageEntity::Pre(MessageEntityPre::new(
-            self.text.len() as u16,
-            code.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&code),
         ));
 
         self.text(code)
@@ -383,7 +387,7 @@ where
     pub fn pre_language(self, code: impl Into<Box<str>>, language: impl Into<Box<str>>) -> Self {
         let code = code.into();
         let entity = MessageEntity::Pre(
-            MessageEntityPre::new(self.text.len() as u16, code.len() as u16).language(language),
+            MessageEntityPre::new(utf16_len(&self.text), utf16_len(&code)).language(language),
         );
 
         self.text(code).entity(&entity).expect(
@@ -403,8 +407,8 @@ where
     pub fn text_link(self, text: impl Into<Box<str>>, url: impl Into<Box<str>>) -> Self {
         let text = text.into();
         let entity = MessageEntity::TextLink(MessageEntityTextLink::new(
-            self.text.len() as u16,
-            text.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&text),
             url,
         ));
 
@@ -423,8 +427,8 @@ where
     pub fn text_mention(self, text: impl Into<Box<str>>, user: User) -> Self {
         let text = text.into();
         let entity = MessageEntity::TextMention(MessageEntityTextMention::new(
-            self.text.len() as u16,
-            text.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&text),
             user,
         ));
 
@@ -450,8 +454,8 @@ where
     ) -> Self {
         let emoji = emoji.into();
         let entity = MessageEntity::CustomEmoji(MessageEntityCustomEmoji::new(
-            self.text.len() as u16,
-            emoji.len() as u16,
+            utf16_len(&self.text),
+            utf16_len(&emoji),
             custom_emoji_id,
         ));
 
