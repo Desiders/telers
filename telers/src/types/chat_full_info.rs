@@ -14,6 +14,9 @@ pub enum ChatFullInfo {
     Group(crate::types::ChatFullInfoGroup),
     Supergroup(crate::types::ChatFullInfoSupergroup),
     Channel(crate::types::ChatFullInfoChannel),
+    /// Content unknown to this version of the library
+    #[serde(untagged)]
+    Unknown(crate::types::ChatFullInfoUnknown),
 }
 impl ChatFullInfo {
     /// Helper method for field `accent_color_id`.
@@ -26,6 +29,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.accent_color_id,
             Self::Supergroup(val) => val.accent_color_id,
             Self::Channel(val) => val.accent_color_id,
+            Self::Unknown(val) => val.accent_color_id,
         }
     }
 
@@ -39,6 +43,7 @@ impl ChatFullInfo {
             Self::Group(val) => &val.accepted_gift_types,
             Self::Supergroup(val) => &val.accepted_gift_types,
             Self::Channel(val) => &val.accepted_gift_types,
+            Self::Unknown(val) => &val.accepted_gift_types,
         }
     }
 
@@ -51,7 +56,7 @@ impl ChatFullInfo {
             Self::Private(val) => val.active_usernames.as_deref(),
             Self::Supergroup(val) => val.active_usernames.as_deref(),
             Self::Channel(val) => val.active_usernames.as_deref(),
-            Self::Group(_) => None,
+            _ => None,
         }
     }
 
@@ -65,6 +70,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.available_reactions.as_deref(),
             Self::Supergroup(val) => val.available_reactions.as_deref(),
             Self::Channel(val) => val.available_reactions.as_deref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -78,6 +84,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.background_custom_emoji_id.as_deref(),
             Self::Supergroup(val) => val.background_custom_emoji_id.as_deref(),
             Self::Channel(val) => val.background_custom_emoji_id.as_deref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -168,6 +175,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.community.as_ref(),
             Self::Supergroup(val) => val.community.as_ref(),
             Self::Channel(val) => val.community.as_ref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -191,7 +199,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.description.as_deref(),
             Self::Supergroup(val) => val.description.as_deref(),
             Self::Channel(val) => val.description.as_deref(),
-            Self::Private(_) => None,
+            _ => None,
         }
     }
 
@@ -249,6 +257,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.guard_bot.as_deref(),
             Self::Supergroup(val) => val.guard_bot.as_deref(),
             Self::Channel(val) => val.guard_bot.as_deref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -273,6 +282,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.has_hidden_members,
             Self::Supergroup(val) => val.has_hidden_members,
             Self::Channel(val) => val.has_hidden_members,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -297,6 +307,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.has_protected_content,
             Self::Supergroup(val) => val.has_protected_content,
             Self::Channel(val) => val.has_protected_content,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -321,6 +332,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.has_visible_history,
             Self::Supergroup(val) => val.has_visible_history,
             Self::Channel(val) => val.has_visible_history,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -334,6 +346,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.id,
             Self::Supergroup(val) => val.id,
             Self::Channel(val) => val.id,
+            Self::Unknown(val) => val.id,
         }
     }
 
@@ -346,7 +359,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.invite_link.as_deref(),
             Self::Supergroup(val) => val.invite_link.as_deref(),
             Self::Channel(val) => val.invite_link.as_deref(),
-            Self::Private(_) => None,
+            _ => None,
         }
     }
 
@@ -360,6 +373,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.is_direct_messages,
             Self::Supergroup(val) => val.is_direct_messages,
             Self::Channel(val) => val.is_direct_messages,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -440,6 +454,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.max_reaction_count,
             Self::Supergroup(val) => val.max_reaction_count,
             Self::Channel(val) => val.max_reaction_count,
+            Self::Unknown(val) => val.max_reaction_count,
         }
     }
 
@@ -453,6 +468,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.message_auto_delete_time,
             Self::Supergroup(val) => val.message_auto_delete_time,
             Self::Channel(val) => val.message_auto_delete_time,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -466,6 +482,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.paid_message_star_count,
             Self::Supergroup(val) => val.paid_message_star_count,
             Self::Channel(val) => val.paid_message_star_count,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -513,6 +530,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.photo.as_ref(),
             Self::Supergroup(val) => val.photo.as_ref(),
             Self::Channel(val) => val.photo.as_ref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -526,6 +544,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.pinned_message.as_deref(),
             Self::Supergroup(val) => val.pinned_message.as_deref(),
             Self::Channel(val) => val.pinned_message.as_deref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -539,6 +558,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.profile_accent_color_id,
             Self::Supergroup(val) => val.profile_accent_color_id,
             Self::Channel(val) => val.profile_accent_color_id,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -552,6 +572,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.profile_background_custom_emoji_id.as_deref(),
             Self::Supergroup(val) => val.profile_background_custom_emoji_id.as_deref(),
             Self::Channel(val) => val.profile_background_custom_emoji_id.as_deref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -597,7 +618,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.title.as_deref(),
             Self::Supergroup(val) => val.title.as_deref(),
             Self::Channel(val) => val.title.as_deref(),
-            Self::Private(_) => None,
+            _ => None,
         }
     }
 
@@ -611,6 +632,7 @@ impl ChatFullInfo {
             Self::Group(val) => val.unique_gift_colors.as_ref(),
             Self::Supergroup(val) => val.unique_gift_colors.as_ref(),
             Self::Channel(val) => val.unique_gift_colors.as_ref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -634,15 +656,32 @@ impl ChatFullInfo {
             Self::Private(val) => val.username.as_deref(),
             Self::Supergroup(val) => val.username.as_deref(),
             Self::Channel(val) => val.username.as_deref(),
-            Self::Group(_) => None,
+            _ => None,
         }
     }
 
     /// Helper method for nested field `added_to_attachment_menu`.
     #[must_use]
     pub fn added_to_attachment_menu(&self) -> Option<bool> {
-        self.guard_bot()
-            .and_then(|inner| inner.added_to_attachment_menu)
+        match self {
+            Self::Private(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.added_to_attachment_menu),
+            Self::Group(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.added_to_attachment_menu),
+            Self::Supergroup(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.added_to_attachment_menu),
+            Self::Channel(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.added_to_attachment_menu),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `address`.
@@ -661,54 +700,181 @@ impl ChatFullInfo {
     /// Helper method for nested field `allows_users_to_create_topics`.
     #[must_use]
     pub fn allows_users_to_create_topics(&self) -> Option<bool> {
-        self.guard_bot()
-            .and_then(|inner| inner.allows_users_to_create_topics)
+        match self {
+            Self::Private(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.allows_users_to_create_topics),
+            Self::Group(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.allows_users_to_create_topics),
+            Self::Supergroup(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.allows_users_to_create_topics),
+            Self::Channel(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.allows_users_to_create_topics),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `animation`.
     #[must_use]
     pub fn animation(&self) -> Option<&crate::types::Animation> {
-        self.pinned_message()
-            .and_then(crate::types::Message::animation)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::animation),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::animation),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::animation),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::animation),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `audio`.
     #[must_use]
     pub fn audio(&self) -> Option<&crate::types::Audio> {
-        self.pinned_message().and_then(crate::types::Message::audio)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::audio),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::audio),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::audio),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::audio),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `author_signature`.
     #[must_use]
     pub fn author_signature(&self) -> Option<&str> {
-        self.pinned_message()
-            .and_then(crate::types::Message::author_signature)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::author_signature),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::author_signature),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::author_signature),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::author_signature),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `big_file_id`.
     #[must_use]
     pub fn big_file_id(&self) -> Option<&str> {
-        self.photo().map(|inner| inner.big_file_id.as_ref())
+        match self {
+            Self::Private(val) => val.photo.as_ref().map(|inner| inner.big_file_id.as_ref()),
+            Self::Group(val) => val.photo.as_ref().map(|inner| inner.big_file_id.as_ref()),
+            Self::Supergroup(val) => val.photo.as_ref().map(|inner| inner.big_file_id.as_ref()),
+            Self::Channel(val) => val.photo.as_ref().map(|inner| inner.big_file_id.as_ref()),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `big_file_unique_id`.
     #[must_use]
     pub fn big_file_unique_id(&self) -> Option<&str> {
-        self.photo().map(|inner| inner.big_file_unique_id.as_ref())
+        match self {
+            Self::Private(val) => val
+                .photo
+                .as_ref()
+                .map(|inner| inner.big_file_unique_id.as_ref()),
+            Self::Group(val) => val
+                .photo
+                .as_ref()
+                .map(|inner| inner.big_file_unique_id.as_ref()),
+            Self::Supergroup(val) => val
+                .photo
+                .as_ref()
+                .map(|inner| inner.big_file_unique_id.as_ref()),
+            Self::Channel(val) => val
+                .photo
+                .as_ref()
+                .map(|inner| inner.big_file_unique_id.as_ref()),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `boost_added`.
     #[must_use]
     pub fn boost_added(&self) -> Option<&crate::types::ChatBoostAdded> {
-        self.pinned_message()
-            .and_then(crate::types::Message::boost_added)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::boost_added),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::boost_added),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::boost_added),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::boost_added),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `business_connection_id`.
     #[must_use]
     pub fn business_connection_id(&self) -> Option<&str> {
-        self.pinned_message()
-            .and_then(crate::types::Message::business_connection_id)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::business_connection_id),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::business_connection_id),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::business_connection_id),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::business_connection_id),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `can_add_web_page_previews`.
@@ -746,8 +912,25 @@ impl ChatFullInfo {
     /// Helper method for nested field `can_connect_to_business`.
     #[must_use]
     pub fn can_connect_to_business(&self) -> Option<bool> {
-        self.guard_bot()
-            .and_then(|inner| inner.can_connect_to_business)
+        match self {
+            Self::Private(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.can_connect_to_business),
+            Self::Group(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.can_connect_to_business),
+            Self::Supergroup(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.can_connect_to_business),
+            Self::Channel(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.can_connect_to_business),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `can_edit_tag`.
@@ -785,13 +968,49 @@ impl ChatFullInfo {
     /// Helper method for nested field `can_join_groups`.
     #[must_use]
     pub fn can_join_groups(&self) -> Option<bool> {
-        self.guard_bot().and_then(|inner| inner.can_join_groups)
+        match self {
+            Self::Private(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.can_join_groups),
+            Self::Group(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.can_join_groups),
+            Self::Supergroup(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.can_join_groups),
+            Self::Channel(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.can_join_groups),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `can_manage_bots`.
     #[must_use]
     pub fn can_manage_bots(&self) -> Option<bool> {
-        self.guard_bot().and_then(|inner| inner.can_manage_bots)
+        match self {
+            Self::Private(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.can_manage_bots),
+            Self::Group(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.can_manage_bots),
+            Self::Supergroup(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.can_manage_bots),
+            Self::Channel(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.can_manage_bots),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `can_manage_topics`.
@@ -845,8 +1064,25 @@ impl ChatFullInfo {
     /// Helper method for nested field `can_read_all_group_messages`.
     #[must_use]
     pub fn can_read_all_group_messages(&self) -> Option<bool> {
-        self.guard_bot()
-            .and_then(|inner| inner.can_read_all_group_messages)
+        match self {
+            Self::Private(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.can_read_all_group_messages),
+            Self::Group(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.can_read_all_group_messages),
+            Self::Supergroup(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.can_read_all_group_messages),
+            Self::Channel(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.can_read_all_group_messages),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `can_send_audios`.
@@ -996,105 +1232,361 @@ impl ChatFullInfo {
     /// Helper method for nested field `caption`.
     #[must_use]
     pub fn caption(&self) -> Option<&str> {
-        self.pinned_message()
-            .and_then(crate::types::Message::caption)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::caption),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::caption),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::caption),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::caption),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `caption_entities`.
     #[must_use]
     pub fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
-        self.pinned_message()
-            .and_then(crate::types::Message::caption_entities)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::caption_entities),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::caption_entities),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::caption_entities),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::caption_entities),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `channel_chat_created`.
     #[must_use]
     pub fn channel_chat_created(&self) -> Option<bool> {
-        self.pinned_message()
-            .and_then(crate::types::Message::channel_chat_created)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::channel_chat_created),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::channel_chat_created),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::channel_chat_created),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::channel_chat_created),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `chat`.
     #[must_use]
     pub fn chat(&self) -> Option<&crate::types::Chat> {
-        self.pinned_message().map(crate::types::Message::chat)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .map(crate::types::Message::chat),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .map(crate::types::Message::chat),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .map(crate::types::Message::chat),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .map(crate::types::Message::chat),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `chat_background_set`.
     #[must_use]
     pub fn chat_background_set(&self) -> Option<&crate::types::ChatBackground> {
-        self.pinned_message()
-            .and_then(crate::types::Message::chat_background_set)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::chat_background_set),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::chat_background_set),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::chat_background_set),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::chat_background_set),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `chat_owner_changed`.
     #[must_use]
     pub fn chat_owner_changed(&self) -> Option<&crate::types::ChatOwnerChanged> {
-        self.pinned_message()
-            .and_then(crate::types::Message::chat_owner_changed)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::chat_owner_changed),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::chat_owner_changed),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::chat_owner_changed),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::chat_owner_changed),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `chat_owner_left`.
     #[must_use]
     pub fn chat_owner_left(&self) -> Option<&crate::types::ChatOwnerLeft> {
-        self.pinned_message()
-            .and_then(crate::types::Message::chat_owner_left)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::chat_owner_left),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::chat_owner_left),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::chat_owner_left),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::chat_owner_left),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `chat_shared`.
     #[must_use]
     pub fn chat_shared(&self) -> Option<&crate::types::ChatShared> {
-        self.pinned_message()
-            .and_then(crate::types::Message::chat_shared)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::chat_shared),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::chat_shared),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::chat_shared),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::chat_shared),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `checklist`.
     #[must_use]
     pub fn checklist(&self) -> Option<&crate::types::Checklist> {
-        self.pinned_message()
-            .and_then(crate::types::Message::checklist)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::checklist),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::checklist),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::checklist),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::checklist),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `checklist_tasks_added`.
     #[must_use]
     pub fn checklist_tasks_added(&self) -> Option<&crate::types::ChecklistTasksAdded> {
-        self.pinned_message()
-            .and_then(crate::types::Message::checklist_tasks_added)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::checklist_tasks_added),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::checklist_tasks_added),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::checklist_tasks_added),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::checklist_tasks_added),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `checklist_tasks_done`.
     #[must_use]
     pub fn checklist_tasks_done(&self) -> Option<&crate::types::ChecklistTasksDone> {
-        self.pinned_message()
-            .and_then(crate::types::Message::checklist_tasks_done)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::checklist_tasks_done),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::checklist_tasks_done),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::checklist_tasks_done),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::checklist_tasks_done),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `community_chat_added`.
     #[must_use]
     pub fn community_chat_added(&self) -> Option<&crate::types::CommunityChatAdded> {
-        self.pinned_message()
-            .and_then(crate::types::Message::community_chat_added)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::community_chat_added),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::community_chat_added),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::community_chat_added),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::community_chat_added),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `community_chat_removed`.
     #[must_use]
     pub fn community_chat_removed(&self) -> Option<&crate::types::CommunityChatRemoved> {
-        self.pinned_message()
-            .and_then(crate::types::Message::community_chat_removed)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::community_chat_removed),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::community_chat_removed),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::community_chat_removed),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::community_chat_removed),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `connected_website`.
     #[must_use]
     pub fn connected_website(&self) -> Option<&str> {
-        self.pinned_message()
-            .and_then(crate::types::Message::connected_website)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::connected_website),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::connected_website),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::connected_website),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::connected_website),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `contact`.
     #[must_use]
     pub fn contact(&self) -> Option<&crate::types::Contact> {
-        self.pinned_message()
-            .and_then(crate::types::Message::contact)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::contact),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::contact),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::contact),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::contact),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `current_level_rating`.
@@ -1109,21 +1601,73 @@ impl ChatFullInfo {
     /// Helper method for nested field `dark_theme_main_color`.
     #[must_use]
     pub fn dark_theme_main_color(&self) -> Option<i32> {
-        self.unique_gift_colors()
-            .map(|inner| inner.dark_theme_main_color)
+        match self {
+            Self::Private(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.dark_theme_main_color),
+            Self::Group(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.dark_theme_main_color),
+            Self::Supergroup(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.dark_theme_main_color),
+            Self::Channel(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.dark_theme_main_color),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `dark_theme_other_colors`.
     #[must_use]
     pub fn dark_theme_other_colors(&self) -> Option<&[i32]> {
-        self.unique_gift_colors()
-            .map(|inner| inner.dark_theme_other_colors.as_ref())
+        match self {
+            Self::Private(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.dark_theme_other_colors.as_ref()),
+            Self::Group(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.dark_theme_other_colors.as_ref()),
+            Self::Supergroup(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.dark_theme_other_colors.as_ref()),
+            Self::Channel(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.dark_theme_other_colors.as_ref()),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `date`.
     #[must_use]
     pub fn date(&self) -> Option<i64> {
-        self.pinned_message().map(crate::types::Message::date)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .map(crate::types::Message::date),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .map(crate::types::Message::date),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .map(crate::types::Message::date),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .map(crate::types::Message::date),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `day`.
@@ -1138,35 +1682,121 @@ impl ChatFullInfo {
     /// Helper method for nested field `delete_chat_photo`.
     #[must_use]
     pub fn delete_chat_photo(&self) -> Option<bool> {
-        self.pinned_message()
-            .and_then(crate::types::Message::delete_chat_photo)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::delete_chat_photo),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::delete_chat_photo),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::delete_chat_photo),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::delete_chat_photo),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `dice`.
     #[must_use]
     pub fn dice(&self) -> Option<&crate::types::Dice> {
-        self.pinned_message().and_then(crate::types::Message::dice)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::dice),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::dice),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::dice),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::dice),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `direct_message_price_changed`.
     #[must_use]
     pub fn direct_message_price_changed(&self) -> Option<&crate::types::DirectMessagePriceChanged> {
-        self.pinned_message()
-            .and_then(crate::types::Message::direct_message_price_changed)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::direct_message_price_changed),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::direct_message_price_changed),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::direct_message_price_changed),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::direct_message_price_changed),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `direct_messages_topic`.
     #[must_use]
     pub fn direct_messages_topic(&self) -> Option<&crate::types::DirectMessagesTopic> {
-        self.pinned_message()
-            .and_then(crate::types::Message::direct_messages_topic)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::direct_messages_topic),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::direct_messages_topic),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::direct_messages_topic),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::direct_messages_topic),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `document`.
     #[must_use]
     pub fn document(&self) -> Option<&crate::types::Document> {
-        self.pinned_message()
-            .and_then(crate::types::Message::document)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::document),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::document),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::document),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::document),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `duration`.
@@ -1184,36 +1814,121 @@ impl ChatFullInfo {
     /// Helper method for nested field `edit_date`.
     #[must_use]
     pub fn edit_date(&self) -> Option<i64> {
-        self.pinned_message()
-            .and_then(crate::types::Message::edit_date)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::edit_date),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::edit_date),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::edit_date),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::edit_date),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `effect_id`.
     #[must_use]
     pub fn effect_id(&self) -> Option<&str> {
-        self.pinned_message()
-            .and_then(crate::types::Message::effect_id)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::effect_id),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::effect_id),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::effect_id),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::effect_id),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `entities`.
     #[must_use]
     pub fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
-        self.pinned_message()
-            .and_then(crate::types::Message::entities)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::entities),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::entities),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::entities),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::entities),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `ephemeral_message_id`.
     #[must_use]
     pub fn ephemeral_message_id(&self) -> Option<i64> {
-        self.pinned_message()
-            .and_then(crate::types::Message::ephemeral_message_id)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::ephemeral_message_id),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::ephemeral_message_id),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::ephemeral_message_id),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::ephemeral_message_id),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `external_reply`.
     #[must_use]
     pub fn external_reply(&self) -> Option<&crate::types::ExternalReplyInfo> {
-        self.pinned_message()
-            .and_then(crate::types::Message::external_reply)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::external_reply),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::external_reply),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::external_reply),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::external_reply),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `file_id`.
@@ -1267,75 +1982,265 @@ impl ChatFullInfo {
     /// Helper method for nested field `forum_topic_closed`.
     #[must_use]
     pub fn forum_topic_closed(&self) -> Option<&crate::types::ForumTopicClosed> {
-        self.pinned_message()
-            .and_then(crate::types::Message::forum_topic_closed)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forum_topic_closed),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forum_topic_closed),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forum_topic_closed),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forum_topic_closed),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `forum_topic_created`.
     #[must_use]
     pub fn forum_topic_created(&self) -> Option<&crate::types::ForumTopicCreated> {
-        self.pinned_message()
-            .and_then(crate::types::Message::forum_topic_created)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forum_topic_created),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forum_topic_created),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forum_topic_created),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forum_topic_created),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `forum_topic_edited`.
     #[must_use]
     pub fn forum_topic_edited(&self) -> Option<&crate::types::ForumTopicEdited> {
-        self.pinned_message()
-            .and_then(crate::types::Message::forum_topic_edited)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forum_topic_edited),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forum_topic_edited),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forum_topic_edited),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forum_topic_edited),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `forum_topic_reopened`.
     #[must_use]
     pub fn forum_topic_reopened(&self) -> Option<&crate::types::ForumTopicReopened> {
-        self.pinned_message()
-            .and_then(crate::types::Message::forum_topic_reopened)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forum_topic_reopened),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forum_topic_reopened),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forum_topic_reopened),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forum_topic_reopened),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `forward_origin`.
     #[must_use]
     pub fn forward_origin(&self) -> Option<&crate::types::MessageOrigin> {
-        self.pinned_message()
-            .and_then(crate::types::Message::forward_origin)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forward_origin),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forward_origin),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forward_origin),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::forward_origin),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `from`.
     #[must_use]
     pub fn from(&self) -> Option<&crate::types::User> {
-        self.pinned_message().and_then(crate::types::Message::from)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::from),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::from),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::from),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::from),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `game`.
     #[must_use]
     pub fn game(&self) -> Option<&crate::types::Game> {
-        self.pinned_message().and_then(crate::types::Message::game)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::game),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::game),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::game),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::game),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `general_forum_topic_hidden`.
     #[must_use]
     pub fn general_forum_topic_hidden(&self) -> Option<&crate::types::GeneralForumTopicHidden> {
-        self.pinned_message()
-            .and_then(crate::types::Message::general_forum_topic_hidden)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::general_forum_topic_hidden),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::general_forum_topic_hidden),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::general_forum_topic_hidden),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::general_forum_topic_hidden),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `general_forum_topic_unhidden`.
     #[must_use]
     pub fn general_forum_topic_unhidden(&self) -> Option<&crate::types::GeneralForumTopicUnhidden> {
-        self.pinned_message()
-            .and_then(crate::types::Message::general_forum_topic_unhidden)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::general_forum_topic_unhidden),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::general_forum_topic_unhidden),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::general_forum_topic_unhidden),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::general_forum_topic_unhidden),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `gift`.
     #[must_use]
     pub fn gift(&self) -> Option<&crate::types::GiftInfo> {
-        self.pinned_message().and_then(crate::types::Message::gift)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::gift),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::gift),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::gift),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::gift),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `gift_upgrade_sent`.
     #[must_use]
     pub fn gift_upgrade_sent(&self) -> Option<&crate::types::GiftInfo> {
-        self.pinned_message()
-            .and_then(crate::types::Message::gift_upgrade_sent)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::gift_upgrade_sent),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::gift_upgrade_sent),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::gift_upgrade_sent),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::gift_upgrade_sent),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `gifts_from_channels`.
@@ -1350,137 +2255,457 @@ impl ChatFullInfo {
     /// Helper method for nested field `giveaway`.
     #[must_use]
     pub fn giveaway(&self) -> Option<&crate::types::Giveaway> {
-        self.pinned_message()
-            .and_then(crate::types::Message::giveaway)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::giveaway),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::giveaway),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::giveaway),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::giveaway),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `giveaway_completed`.
     #[must_use]
     pub fn giveaway_completed(&self) -> Option<&crate::types::GiveawayCompleted> {
-        self.pinned_message()
-            .and_then(crate::types::Message::giveaway_completed)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::giveaway_completed),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::giveaway_completed),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::giveaway_completed),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::giveaway_completed),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `giveaway_created`.
     #[must_use]
     pub fn giveaway_created(&self) -> Option<&crate::types::GiveawayCreated> {
-        self.pinned_message()
-            .and_then(crate::types::Message::giveaway_created)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::giveaway_created),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::giveaway_created),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::giveaway_created),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::giveaway_created),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `giveaway_winners`.
     #[must_use]
     pub fn giveaway_winners(&self) -> Option<&crate::types::GiveawayWinners> {
-        self.pinned_message()
-            .and_then(crate::types::Message::giveaway_winners)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::giveaway_winners),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::giveaway_winners),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::giveaway_winners),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::giveaway_winners),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `group_chat_created`.
     #[must_use]
     pub fn group_chat_created(&self) -> Option<bool> {
-        self.pinned_message()
-            .and_then(crate::types::Message::group_chat_created)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::group_chat_created),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::group_chat_created),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::group_chat_created),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::group_chat_created),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `guest_bot_caller_chat`.
     #[must_use]
     pub fn guest_bot_caller_chat(&self) -> Option<&crate::types::Chat> {
-        self.pinned_message()
-            .and_then(crate::types::Message::guest_bot_caller_chat)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::guest_bot_caller_chat),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::guest_bot_caller_chat),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::guest_bot_caller_chat),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::guest_bot_caller_chat),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `guest_bot_caller_user`.
     #[must_use]
     pub fn guest_bot_caller_user(&self) -> Option<&crate::types::User> {
-        self.pinned_message()
-            .and_then(crate::types::Message::guest_bot_caller_user)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::guest_bot_caller_user),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::guest_bot_caller_user),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::guest_bot_caller_user),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::guest_bot_caller_user),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `guest_query_id`.
     #[must_use]
     pub fn guest_query_id(&self) -> Option<&str> {
-        self.pinned_message()
-            .and_then(crate::types::Message::guest_query_id)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::guest_query_id),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::guest_query_id),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::guest_query_id),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::guest_query_id),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `has_main_web_app`.
     #[must_use]
     pub fn has_main_web_app(&self) -> Option<bool> {
-        self.guard_bot().and_then(|inner| inner.has_main_web_app)
+        match self {
+            Self::Private(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.has_main_web_app),
+            Self::Group(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.has_main_web_app),
+            Self::Supergroup(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.has_main_web_app),
+            Self::Channel(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.has_main_web_app),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `has_media_spoiler`.
     #[must_use]
     pub fn has_media_spoiler(&self) -> Option<bool> {
-        self.pinned_message()
-            .and_then(crate::types::Message::has_media_spoiler)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::has_media_spoiler),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::has_media_spoiler),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::has_media_spoiler),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::has_media_spoiler),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `has_topics_enabled`.
     #[must_use]
     pub fn has_topics_enabled(&self) -> Option<bool> {
-        self.guard_bot().and_then(|inner| inner.has_topics_enabled)
+        match self {
+            Self::Private(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.has_topics_enabled),
+            Self::Group(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.has_topics_enabled),
+            Self::Supergroup(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.has_topics_enabled),
+            Self::Channel(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.has_topics_enabled),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `invoice`.
     #[must_use]
     pub fn invoice(&self) -> Option<&crate::types::Invoice> {
-        self.pinned_message()
-            .and_then(crate::types::Message::invoice)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::invoice),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::invoice),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::invoice),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::invoice),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `is_automatic_forward`.
     #[must_use]
     pub fn is_automatic_forward(&self) -> Option<bool> {
-        self.pinned_message()
-            .and_then(crate::types::Message::is_automatic_forward)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::is_automatic_forward),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::is_automatic_forward),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::is_automatic_forward),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::is_automatic_forward),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `is_bot`.
     #[must_use]
     pub fn is_bot(&self) -> Option<bool> {
-        self.guard_bot().map(|inner| inner.is_bot)
+        match self {
+            Self::Private(val) => val.guard_bot.as_deref().map(|inner| inner.is_bot),
+            Self::Group(val) => val.guard_bot.as_deref().map(|inner| inner.is_bot),
+            Self::Supergroup(val) => val.guard_bot.as_deref().map(|inner| inner.is_bot),
+            Self::Channel(val) => val.guard_bot.as_deref().map(|inner| inner.is_bot),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `is_from_offline`.
     #[must_use]
     pub fn is_from_offline(&self) -> Option<bool> {
-        self.pinned_message()
-            .and_then(crate::types::Message::is_from_offline)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::is_from_offline),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::is_from_offline),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::is_from_offline),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::is_from_offline),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `is_paid_post`.
     #[must_use]
     pub fn is_paid_post(&self) -> Option<bool> {
-        self.pinned_message()
-            .and_then(crate::types::Message::is_paid_post)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::is_paid_post),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::is_paid_post),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::is_paid_post),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::is_paid_post),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `is_premium`.
     #[must_use]
     pub fn is_premium(&self) -> Option<bool> {
-        self.guard_bot().and_then(|inner| inner.is_premium)
+        match self {
+            Self::Private(val) => val.guard_bot.as_deref().and_then(|inner| inner.is_premium),
+            Self::Group(val) => val.guard_bot.as_deref().and_then(|inner| inner.is_premium),
+            Self::Supergroup(val) => val.guard_bot.as_deref().and_then(|inner| inner.is_premium),
+            Self::Channel(val) => val.guard_bot.as_deref().and_then(|inner| inner.is_premium),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `is_topic_message`.
     #[must_use]
     pub fn is_topic_message(&self) -> Option<bool> {
-        self.pinned_message()
-            .and_then(crate::types::Message::is_topic_message)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::is_topic_message),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::is_topic_message),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::is_topic_message),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::is_topic_message),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `language_code`.
     #[must_use]
     pub fn language_code(&self) -> Option<&str> {
-        self.guard_bot()
-            .and_then(|inner| inner.language_code.as_deref())
+        match self {
+            Self::Private(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.language_code.as_deref()),
+            Self::Group(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.language_code.as_deref()),
+            Self::Supergroup(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.language_code.as_deref()),
+            Self::Channel(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.language_code.as_deref()),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `left_chat_member`.
     #[must_use]
     pub fn left_chat_member(&self) -> Option<&crate::types::User> {
-        self.pinned_message()
-            .and_then(crate::types::Message::left_chat_member)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::left_chat_member),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::left_chat_member),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::left_chat_member),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::left_chat_member),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `level`.
@@ -1495,15 +2720,49 @@ impl ChatFullInfo {
     /// Helper method for nested field `light_theme_main_color`.
     #[must_use]
     pub fn light_theme_main_color(&self) -> Option<i32> {
-        self.unique_gift_colors()
-            .map(|inner| inner.light_theme_main_color)
+        match self {
+            Self::Private(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.light_theme_main_color),
+            Self::Group(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.light_theme_main_color),
+            Self::Supergroup(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.light_theme_main_color),
+            Self::Channel(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.light_theme_main_color),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `light_theme_other_colors`.
     #[must_use]
     pub fn light_theme_other_colors(&self) -> Option<&[i32]> {
-        self.unique_gift_colors()
-            .map(|inner| inner.light_theme_other_colors.as_ref())
+        match self {
+            Self::Private(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.light_theme_other_colors.as_ref()),
+            Self::Group(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.light_theme_other_colors.as_ref()),
+            Self::Supergroup(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.light_theme_other_colors.as_ref()),
+            Self::Channel(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.light_theme_other_colors.as_ref()),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `limited_gifts`.
@@ -1518,29 +2777,97 @@ impl ChatFullInfo {
     /// Helper method for nested field `link_preview_options`.
     #[must_use]
     pub fn link_preview_options(&self) -> Option<&crate::types::LinkPreviewOptions> {
-        self.pinned_message()
-            .and_then(crate::types::Message::link_preview_options)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::link_preview_options),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::link_preview_options),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::link_preview_options),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::link_preview_options),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `live_photo`.
     #[must_use]
     pub fn live_photo(&self) -> Option<&crate::types::LivePhoto> {
-        self.pinned_message()
-            .and_then(crate::types::Message::live_photo)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::live_photo),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::live_photo),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::live_photo),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::live_photo),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `managed_bot_created`.
     #[must_use]
     pub fn managed_bot_created(&self) -> Option<&crate::types::ManagedBotCreated> {
-        self.pinned_message()
-            .and_then(crate::types::Message::managed_bot_created)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::managed_bot_created),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::managed_bot_created),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::managed_bot_created),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::managed_bot_created),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `media_group_id`.
     #[must_use]
     pub fn media_group_id(&self) -> Option<&str> {
-        self.pinned_message()
-            .and_then(crate::types::Message::media_group_id)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::media_group_id),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::media_group_id),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::media_group_id),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::media_group_id),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `message`.
@@ -1560,35 +2887,121 @@ impl ChatFullInfo {
     pub fn message_auto_delete_timer_changed(
         &self,
     ) -> Option<&crate::types::MessageAutoDeleteTimerChanged> {
-        self.pinned_message()
-            .and_then(crate::types::Message::message_auto_delete_timer_changed)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::message_auto_delete_timer_changed),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::message_auto_delete_timer_changed),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::message_auto_delete_timer_changed),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::message_auto_delete_timer_changed),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `message_id`.
     #[must_use]
     pub fn message_id(&self) -> Option<i64> {
-        self.pinned_message().map(crate::types::Message::message_id)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .map(crate::types::Message::message_id),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .map(crate::types::Message::message_id),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .map(crate::types::Message::message_id),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .map(crate::types::Message::message_id),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `message_thread_id`.
     #[must_use]
     pub fn message_thread_id(&self) -> Option<i64> {
-        self.pinned_message()
-            .and_then(crate::types::Message::message_thread_id)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::message_thread_id),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::message_thread_id),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::message_thread_id),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::message_thread_id),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `migrate_from_chat_id`.
     #[must_use]
     pub fn migrate_from_chat_id(&self) -> Option<i64> {
-        self.pinned_message()
-            .and_then(crate::types::Message::migrate_from_chat_id)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::migrate_from_chat_id),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::migrate_from_chat_id),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::migrate_from_chat_id),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::migrate_from_chat_id),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `migrate_to_chat_id`.
     #[must_use]
     pub fn migrate_to_chat_id(&self) -> Option<i64> {
-        self.pinned_message()
-            .and_then(crate::types::Message::migrate_to_chat_id)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::migrate_to_chat_id),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::migrate_to_chat_id),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::migrate_to_chat_id),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::migrate_to_chat_id),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `mime_type`.
@@ -1606,8 +3019,25 @@ impl ChatFullInfo {
     /// Helper method for nested field `model_custom_emoji_id`.
     #[must_use]
     pub fn model_custom_emoji_id(&self) -> Option<&str> {
-        self.unique_gift_colors()
-            .map(|inner| inner.model_custom_emoji_id.as_ref())
+        match self {
+            Self::Private(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.model_custom_emoji_id.as_ref()),
+            Self::Group(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.model_custom_emoji_id.as_ref()),
+            Self::Supergroup(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.model_custom_emoji_id.as_ref()),
+            Self::Channel(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.model_custom_emoji_id.as_ref()),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `month`.
@@ -1622,28 +3052,85 @@ impl ChatFullInfo {
     /// Helper method for nested field `name`.
     #[must_use]
     pub fn name(&self) -> Option<&str> {
-        self.community().map(|inner| inner.name.as_ref())
+        match self {
+            Self::Private(val) => val.community.as_ref().map(|inner| inner.name.as_ref()),
+            Self::Group(val) => val.community.as_ref().map(|inner| inner.name.as_ref()),
+            Self::Supergroup(val) => val.community.as_ref().map(|inner| inner.name.as_ref()),
+            Self::Channel(val) => val.community.as_ref().map(|inner| inner.name.as_ref()),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `new_chat_members`.
     #[must_use]
     pub fn new_chat_members(&self) -> Option<&[crate::types::User]> {
-        self.pinned_message()
-            .and_then(crate::types::Message::new_chat_members)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::new_chat_members),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::new_chat_members),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::new_chat_members),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::new_chat_members),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `new_chat_photo`.
     #[must_use]
     pub fn new_chat_photo(&self) -> Option<&[crate::types::PhotoSize]> {
-        self.pinned_message()
-            .and_then(crate::types::Message::new_chat_photo)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::new_chat_photo),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::new_chat_photo),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::new_chat_photo),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::new_chat_photo),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `new_chat_title`.
     #[must_use]
     pub fn new_chat_title(&self) -> Option<&str> {
-        self.pinned_message()
-            .and_then(crate::types::Message::new_chat_title)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::new_chat_title),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::new_chat_title),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::new_chat_title),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::new_chat_title),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `next_level_rating`.
@@ -1673,29 +3160,97 @@ impl ChatFullInfo {
     /// Helper method for nested field `paid_media`.
     #[must_use]
     pub fn paid_media(&self) -> Option<&crate::types::PaidMediaInfo> {
-        self.pinned_message()
-            .and_then(crate::types::Message::paid_media)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::paid_media),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::paid_media),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::paid_media),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::paid_media),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `paid_message_price_changed`.
     #[must_use]
     pub fn paid_message_price_changed(&self) -> Option<&crate::types::PaidMessagePriceChanged> {
-        self.pinned_message()
-            .and_then(crate::types::Message::paid_message_price_changed)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::paid_message_price_changed),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::paid_message_price_changed),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::paid_message_price_changed),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::paid_message_price_changed),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `paid_star_count`.
     #[must_use]
     pub fn paid_star_count(&self) -> Option<i64> {
-        self.pinned_message()
-            .and_then(crate::types::Message::paid_star_count)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::paid_star_count),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::paid_star_count),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::paid_star_count),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::paid_star_count),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `passport_data`.
     #[must_use]
     pub fn passport_data(&self) -> Option<&crate::types::PassportData> {
-        self.pinned_message()
-            .and_then(crate::types::Message::passport_data)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::passport_data),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::passport_data),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::passport_data),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::passport_data),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `performer`.
@@ -1713,21 +3268,73 @@ impl ChatFullInfo {
     /// Helper method for nested field `poll`.
     #[must_use]
     pub fn poll(&self) -> Option<&crate::types::Poll> {
-        self.pinned_message().and_then(crate::types::Message::poll)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::poll),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::poll),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::poll),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::poll),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `poll_option_added`.
     #[must_use]
     pub fn poll_option_added(&self) -> Option<&crate::types::PollOptionAdded> {
-        self.pinned_message()
-            .and_then(crate::types::Message::poll_option_added)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::poll_option_added),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::poll_option_added),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::poll_option_added),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::poll_option_added),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `poll_option_deleted`.
     #[must_use]
     pub fn poll_option_deleted(&self) -> Option<&crate::types::PollOptionDeleted> {
-        self.pinned_message()
-            .and_then(crate::types::Message::poll_option_deleted)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::poll_option_deleted),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::poll_option_deleted),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::poll_option_deleted),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::poll_option_deleted),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `premium_subscription`.
@@ -1742,131 +3349,445 @@ impl ChatFullInfo {
     /// Helper method for nested field `proximity_alert_triggered`.
     #[must_use]
     pub fn proximity_alert_triggered(&self) -> Option<&crate::types::ProximityAlertTriggered> {
-        self.pinned_message()
-            .and_then(crate::types::Message::proximity_alert_triggered)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::proximity_alert_triggered),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::proximity_alert_triggered),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::proximity_alert_triggered),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::proximity_alert_triggered),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `quote`.
     #[must_use]
     pub fn quote(&self) -> Option<&crate::types::TextQuote> {
-        self.pinned_message().and_then(crate::types::Message::quote)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::quote),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::quote),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::quote),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::quote),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `receiver_user`.
     #[must_use]
     pub fn receiver_user(&self) -> Option<&crate::types::User> {
-        self.pinned_message()
-            .and_then(crate::types::Message::receiver_user)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::receiver_user),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::receiver_user),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::receiver_user),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::receiver_user),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `refunded_payment`.
     #[must_use]
     pub fn refunded_payment(&self) -> Option<&crate::types::RefundedPayment> {
-        self.pinned_message()
-            .and_then(crate::types::Message::refunded_payment)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::refunded_payment),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::refunded_payment),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::refunded_payment),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::refunded_payment),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `reply_markup`.
     #[must_use]
     pub fn reply_markup(&self) -> Option<&crate::types::InlineKeyboardMarkup> {
-        self.pinned_message()
-            .and_then(crate::types::Message::reply_markup)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_markup),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_markup),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_markup),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_markup),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `reply_to_checklist_task_id`.
     #[must_use]
     pub fn reply_to_checklist_task_id(&self) -> Option<i64> {
-        self.pinned_message()
-            .and_then(crate::types::Message::reply_to_checklist_task_id)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_to_checklist_task_id),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_to_checklist_task_id),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_to_checklist_task_id),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_to_checklist_task_id),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `reply_to_message`.
     #[must_use]
     pub fn reply_to_message(&self) -> Option<&crate::types::Message> {
-        self.pinned_message()
-            .and_then(crate::types::Message::reply_to_message)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_to_message),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_to_message),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_to_message),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_to_message),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `reply_to_poll_option_id`.
     #[must_use]
     pub fn reply_to_poll_option_id(&self) -> Option<&str> {
-        self.pinned_message()
-            .and_then(crate::types::Message::reply_to_poll_option_id)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_to_poll_option_id),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_to_poll_option_id),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_to_poll_option_id),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_to_poll_option_id),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `reply_to_story`.
     #[must_use]
     pub fn reply_to_story(&self) -> Option<&crate::types::Story> {
-        self.pinned_message()
-            .and_then(crate::types::Message::reply_to_story)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_to_story),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_to_story),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_to_story),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::reply_to_story),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `rich_message`.
     #[must_use]
     pub fn rich_message(&self) -> Option<&crate::types::RichMessage> {
-        self.pinned_message()
-            .and_then(crate::types::Message::rich_message)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::rich_message),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::rich_message),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::rich_message),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::rich_message),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `sender_boost_count`.
     #[must_use]
     pub fn sender_boost_count(&self) -> Option<i64> {
-        self.pinned_message()
-            .and_then(crate::types::Message::sender_boost_count)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::sender_boost_count),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::sender_boost_count),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::sender_boost_count),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::sender_boost_count),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `sender_business_bot`.
     #[must_use]
     pub fn sender_business_bot(&self) -> Option<&crate::types::User> {
-        self.pinned_message()
-            .and_then(crate::types::Message::sender_business_bot)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::sender_business_bot),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::sender_business_bot),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::sender_business_bot),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::sender_business_bot),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `sender_chat`.
     #[must_use]
     pub fn sender_chat(&self) -> Option<&crate::types::Chat> {
-        self.pinned_message()
-            .and_then(crate::types::Message::sender_chat)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::sender_chat),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::sender_chat),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::sender_chat),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::sender_chat),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `sender_tag`.
     #[must_use]
     pub fn sender_tag(&self) -> Option<&str> {
-        self.pinned_message()
-            .and_then(crate::types::Message::sender_tag)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::sender_tag),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::sender_tag),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::sender_tag),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::sender_tag),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `show_caption_above_media`.
     #[must_use]
     pub fn show_caption_above_media(&self) -> Option<bool> {
-        self.pinned_message()
-            .and_then(crate::types::Message::show_caption_above_media)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::show_caption_above_media),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::show_caption_above_media),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::show_caption_above_media),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::show_caption_above_media),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `small_file_id`.
     #[must_use]
     pub fn small_file_id(&self) -> Option<&str> {
-        self.photo().map(|inner| inner.small_file_id.as_ref())
+        match self {
+            Self::Private(val) => val.photo.as_ref().map(|inner| inner.small_file_id.as_ref()),
+            Self::Group(val) => val.photo.as_ref().map(|inner| inner.small_file_id.as_ref()),
+            Self::Supergroup(val) => val.photo.as_ref().map(|inner| inner.small_file_id.as_ref()),
+            Self::Channel(val) => val.photo.as_ref().map(|inner| inner.small_file_id.as_ref()),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `small_file_unique_id`.
     #[must_use]
     pub fn small_file_unique_id(&self) -> Option<&str> {
-        self.photo()
-            .map(|inner| inner.small_file_unique_id.as_ref())
+        match self {
+            Self::Private(val) => val
+                .photo
+                .as_ref()
+                .map(|inner| inner.small_file_unique_id.as_ref()),
+            Self::Group(val) => val
+                .photo
+                .as_ref()
+                .map(|inner| inner.small_file_unique_id.as_ref()),
+            Self::Supergroup(val) => val
+                .photo
+                .as_ref()
+                .map(|inner| inner.small_file_unique_id.as_ref()),
+            Self::Channel(val) => val
+                .photo
+                .as_ref()
+                .map(|inner| inner.small_file_unique_id.as_ref()),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `story`.
     #[must_use]
     pub fn story(&self) -> Option<&crate::types::Story> {
-        self.pinned_message().and_then(crate::types::Message::story)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::story),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::story),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::story),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::story),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `successful_payment`.
     #[must_use]
     pub fn successful_payment(&self) -> Option<&crate::types::SuccessfulPayment> {
-        self.pinned_message()
-            .and_then(crate::types::Message::successful_payment)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::successful_payment),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::successful_payment),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::successful_payment),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::successful_payment),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `suggested_post_approval_failed`.
@@ -1874,84 +3795,289 @@ impl ChatFullInfo {
     pub fn suggested_post_approval_failed(
         &self,
     ) -> Option<&crate::types::SuggestedPostApprovalFailed> {
-        self.pinned_message()
-            .and_then(crate::types::Message::suggested_post_approval_failed)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_approval_failed),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_approval_failed),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_approval_failed),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_approval_failed),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `suggested_post_approved`.
     #[must_use]
     pub fn suggested_post_approved(&self) -> Option<&crate::types::SuggestedPostApproved> {
-        self.pinned_message()
-            .and_then(crate::types::Message::suggested_post_approved)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_approved),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_approved),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_approved),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_approved),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `suggested_post_declined`.
     #[must_use]
     pub fn suggested_post_declined(&self) -> Option<&crate::types::SuggestedPostDeclined> {
-        self.pinned_message()
-            .and_then(crate::types::Message::suggested_post_declined)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_declined),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_declined),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_declined),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_declined),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `suggested_post_info`.
     #[must_use]
     pub fn suggested_post_info(&self) -> Option<&crate::types::SuggestedPostInfo> {
-        self.pinned_message()
-            .and_then(crate::types::Message::suggested_post_info)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_info),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_info),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_info),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_info),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `suggested_post_paid`.
     #[must_use]
     pub fn suggested_post_paid(&self) -> Option<&crate::types::SuggestedPostPaid> {
-        self.pinned_message()
-            .and_then(crate::types::Message::suggested_post_paid)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_paid),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_paid),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_paid),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_paid),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `suggested_post_refunded`.
     #[must_use]
     pub fn suggested_post_refunded(&self) -> Option<&crate::types::SuggestedPostRefunded> {
-        self.pinned_message()
-            .and_then(crate::types::Message::suggested_post_refunded)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_refunded),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_refunded),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_refunded),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::suggested_post_refunded),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `supergroup_chat_created`.
     #[must_use]
     pub fn supergroup_chat_created(&self) -> Option<bool> {
-        self.pinned_message()
-            .and_then(crate::types::Message::supergroup_chat_created)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::supergroup_chat_created),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::supergroup_chat_created),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::supergroup_chat_created),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::supergroup_chat_created),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `supports_guest_queries`.
     #[must_use]
     pub fn supports_guest_queries(&self) -> Option<bool> {
-        self.guard_bot()
-            .and_then(|inner| inner.supports_guest_queries)
+        match self {
+            Self::Private(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.supports_guest_queries),
+            Self::Group(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.supports_guest_queries),
+            Self::Supergroup(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.supports_guest_queries),
+            Self::Channel(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.supports_guest_queries),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `supports_inline_queries`.
     #[must_use]
     pub fn supports_inline_queries(&self) -> Option<bool> {
-        self.guard_bot()
-            .and_then(|inner| inner.supports_inline_queries)
+        match self {
+            Self::Private(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.supports_inline_queries),
+            Self::Group(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.supports_inline_queries),
+            Self::Supergroup(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.supports_inline_queries),
+            Self::Channel(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.supports_inline_queries),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `supports_join_request_queries`.
     #[must_use]
     pub fn supports_join_request_queries(&self) -> Option<bool> {
-        self.guard_bot()
-            .and_then(|inner| inner.supports_join_request_queries)
+        match self {
+            Self::Private(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.supports_join_request_queries),
+            Self::Group(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.supports_join_request_queries),
+            Self::Supergroup(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.supports_join_request_queries),
+            Self::Channel(val) => val
+                .guard_bot
+                .as_deref()
+                .and_then(|inner| inner.supports_join_request_queries),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `symbol_custom_emoji_id`.
     #[must_use]
     pub fn symbol_custom_emoji_id(&self) -> Option<&str> {
-        self.unique_gift_colors()
-            .map(|inner| inner.symbol_custom_emoji_id.as_ref())
+        match self {
+            Self::Private(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.symbol_custom_emoji_id.as_ref()),
+            Self::Group(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.symbol_custom_emoji_id.as_ref()),
+            Self::Supergroup(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.symbol_custom_emoji_id.as_ref()),
+            Self::Channel(val) => val
+                .unique_gift_colors
+                .as_ref()
+                .map(|inner| inner.symbol_custom_emoji_id.as_ref()),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `text`.
     #[must_use]
     pub fn text(&self) -> Option<&str> {
-        self.pinned_message().and_then(crate::types::Message::text)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::text),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::text),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::text),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::text),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `thumbnail`.
@@ -1981,8 +4107,25 @@ impl ChatFullInfo {
     /// Helper method for nested field `unique_gift`.
     #[must_use]
     pub fn unique_gift(&self) -> Option<&crate::types::UniqueGiftInfo> {
-        self.pinned_message()
-            .and_then(crate::types::Message::unique_gift)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::unique_gift),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::unique_gift),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::unique_gift),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::unique_gift),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `unique_gifts`.
@@ -2006,34 +4149,121 @@ impl ChatFullInfo {
     /// Helper method for nested field `users_shared`.
     #[must_use]
     pub fn users_shared(&self) -> Option<&crate::types::UsersShared> {
-        self.pinned_message()
-            .and_then(crate::types::Message::users_shared)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::users_shared),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::users_shared),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::users_shared),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::users_shared),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `venue`.
     #[must_use]
     pub fn venue(&self) -> Option<&crate::types::Venue> {
-        self.pinned_message().and_then(crate::types::Message::venue)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::venue),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::venue),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::venue),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::venue),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `via_bot`.
     #[must_use]
     pub fn via_bot(&self) -> Option<&crate::types::User> {
-        self.pinned_message()
-            .and_then(crate::types::Message::via_bot)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::via_bot),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::via_bot),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::via_bot),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::via_bot),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `video`.
     #[must_use]
     pub fn video(&self) -> Option<&crate::types::Video> {
-        self.pinned_message().and_then(crate::types::Message::video)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `video_chat_ended`.
     #[must_use]
     pub fn video_chat_ended(&self) -> Option<&crate::types::VideoChatEnded> {
-        self.pinned_message()
-            .and_then(crate::types::Message::video_chat_ended)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_chat_ended),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_chat_ended),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_chat_ended),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_chat_ended),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `video_chat_participants_invited`.
@@ -2041,49 +4271,169 @@ impl ChatFullInfo {
     pub fn video_chat_participants_invited(
         &self,
     ) -> Option<&crate::types::VideoChatParticipantsInvited> {
-        self.pinned_message()
-            .and_then(crate::types::Message::video_chat_participants_invited)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_chat_participants_invited),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_chat_participants_invited),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_chat_participants_invited),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_chat_participants_invited),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `video_chat_scheduled`.
     #[must_use]
     pub fn video_chat_scheduled(&self) -> Option<&crate::types::VideoChatScheduled> {
-        self.pinned_message()
-            .and_then(crate::types::Message::video_chat_scheduled)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_chat_scheduled),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_chat_scheduled),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_chat_scheduled),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_chat_scheduled),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `video_chat_started`.
     #[must_use]
     pub fn video_chat_started(&self) -> Option<&crate::types::VideoChatStarted> {
-        self.pinned_message()
-            .and_then(crate::types::Message::video_chat_started)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_chat_started),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_chat_started),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_chat_started),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_chat_started),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `video_note`.
     #[must_use]
     pub fn video_note(&self) -> Option<&crate::types::VideoNote> {
-        self.pinned_message()
-            .and_then(crate::types::Message::video_note)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_note),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_note),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_note),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::video_note),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `voice`.
     #[must_use]
     pub fn voice(&self) -> Option<&crate::types::Voice> {
-        self.pinned_message().and_then(crate::types::Message::voice)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::voice),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::voice),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::voice),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::voice),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `web_app_data`.
     #[must_use]
     pub fn web_app_data(&self) -> Option<&crate::types::WebAppData> {
-        self.pinned_message()
-            .and_then(crate::types::Message::web_app_data)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::web_app_data),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::web_app_data),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::web_app_data),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::web_app_data),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `write_access_allowed`.
     #[must_use]
     pub fn write_access_allowed(&self) -> Option<&crate::types::WriteAccessAllowed> {
-        self.pinned_message()
-            .and_then(crate::types::Message::write_access_allowed)
+        match self {
+            Self::Private(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::write_access_allowed),
+            Self::Group(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::write_access_allowed),
+            Self::Supergroup(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::write_access_allowed),
+            Self::Channel(val) => val
+                .pinned_message
+                .as_deref()
+                .and_then(crate::types::Message::write_access_allowed),
+            Self::Unknown(_) => None,
+        }
     }
 
     /// Helper method for nested field `year`.
@@ -2167,6 +4517,25 @@ impl TryFrom<ChatFullInfo> for crate::types::ChatFullInfoChannel {
             Err(Self::Error::new(
                 stringify!(ChatFullInfo),
                 stringify!(ChatFullInfoChannel),
+            ))
+        }
+    }
+}
+impl From<crate::types::ChatFullInfoUnknown> for ChatFullInfo {
+    fn from(val: crate::types::ChatFullInfoUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<ChatFullInfo> for crate::types::ChatFullInfoUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: ChatFullInfo) -> Result<Self, Self::Error> {
+        if let ChatFullInfo::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(ChatFullInfo),
+                stringify!(ChatFullInfoUnknown),
             ))
         }
     }

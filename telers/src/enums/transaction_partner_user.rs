@@ -35,16 +35,19 @@ pub enum TransactionPartnerUserType {
     PremiumPurchase,
     #[strum(serialize = "business_account_transfer")]
     BusinessAccountTransfer,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl TransactionPartnerUserType {
     #[must_use]
-    pub const fn all() -> [TransactionPartnerUserType; 5usize] {
+    pub const fn all() -> [TransactionPartnerUserType; 6usize] {
         [
             TransactionPartnerUserType::InvoicePayment,
             TransactionPartnerUserType::PaidMediaPayment,
             TransactionPartnerUserType::GiftPurchase,
             TransactionPartnerUserType::PremiumPurchase,
             TransactionPartnerUserType::BusinessAccountTransfer,
+            TransactionPartnerUserType::Unknown,
         ]
     }
 }
@@ -77,6 +80,7 @@ impl<'a> From<&'a TransactionPartnerUser> for TransactionPartnerUserType {
             TransactionPartnerUser::BusinessAccountTransfer(_) => {
                 TransactionPartnerUserType::BusinessAccountTransfer
             }
+            TransactionPartnerUser::Unknown(_) => TransactionPartnerUserType::Unknown,
         }
     }
 }

@@ -19,6 +19,9 @@ pub enum TransactionPartner {
     TelegramAds(crate::types::TransactionPartnerTelegramAds),
     TelegramApi(crate::types::TransactionPartnerTelegramApi),
     Other(crate::types::TransactionPartnerOther),
+    /// Content unknown to this version of the library
+    #[serde(untagged)]
+    Unknown(crate::types::TransactionPartnerUnknown),
 }
 impl TransactionPartner {
     /// Helper method for field `affiliate`.
@@ -807,6 +810,25 @@ impl TryFrom<TransactionPartner> for crate::types::TransactionPartnerOther {
             Err(Self::Error::new(
                 stringify!(TransactionPartner),
                 stringify!(TransactionPartnerOther),
+            ))
+        }
+    }
+}
+impl From<crate::types::TransactionPartnerUnknown> for TransactionPartner {
+    fn from(val: crate::types::TransactionPartnerUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<TransactionPartner> for crate::types::TransactionPartnerUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: TransactionPartner) -> Result<Self, Self::Error> {
+        if let TransactionPartner::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(TransactionPartner),
+                stringify!(TransactionPartnerUnknown),
             ))
         }
     }

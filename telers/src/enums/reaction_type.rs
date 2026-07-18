@@ -28,14 +28,17 @@ pub enum ReactionTypeType {
     CustomEmoji,
     #[strum(serialize = "paid")]
     Paid,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl ReactionTypeType {
     #[must_use]
-    pub const fn all() -> [ReactionTypeType; 3usize] {
+    pub const fn all() -> [ReactionTypeType; 4usize] {
         [
             ReactionTypeType::Emoji,
             ReactionTypeType::CustomEmoji,
             ReactionTypeType::Paid,
+            ReactionTypeType::Unknown,
         ]
     }
 }
@@ -60,6 +63,7 @@ impl<'a> From<&'a ReactionType> for ReactionTypeType {
             ReactionType::Emoji(_) => ReactionTypeType::Emoji,
             ReactionType::CustomEmoji(_) => ReactionTypeType::CustomEmoji,
             ReactionType::Paid(_) => ReactionTypeType::Paid,
+            ReactionType::Unknown(_) => ReactionTypeType::Unknown,
         }
     }
 }

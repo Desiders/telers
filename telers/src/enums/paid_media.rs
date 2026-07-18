@@ -31,15 +31,18 @@ pub enum PaidMediaType {
     Preview,
     #[strum(serialize = "video")]
     Video,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl PaidMediaType {
     #[must_use]
-    pub const fn all() -> [PaidMediaType; 4usize] {
+    pub const fn all() -> [PaidMediaType; 5usize] {
         [
             PaidMediaType::LivePhoto,
             PaidMediaType::Photo,
             PaidMediaType::Preview,
             PaidMediaType::Video,
+            PaidMediaType::Unknown,
         ]
     }
 }
@@ -65,6 +68,7 @@ impl<'a> From<&'a PaidMedia> for PaidMediaType {
             PaidMedia::Photo(_) => PaidMediaType::Photo,
             PaidMedia::Preview(_) => PaidMediaType::Preview,
             PaidMedia::Video(_) => PaidMediaType::Video,
+            PaidMedia::Unknown(_) => PaidMediaType::Unknown,
         }
     }
 }

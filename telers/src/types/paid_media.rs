@@ -13,6 +13,9 @@ pub enum PaidMedia {
     Photo(crate::types::PaidMediaPhoto),
     Preview(crate::types::PaidMediaPreview),
     Video(crate::types::PaidMediaVideo),
+    /// Content unknown to this version of the library
+    #[serde(untagged)]
+    Unknown(crate::types::PaidMediaUnknown),
 }
 impl PaidMedia {
     /// Helper method for field `duration`.
@@ -277,6 +280,25 @@ impl TryFrom<PaidMedia> for crate::types::PaidMediaVideo {
             Err(Self::Error::new(
                 stringify!(PaidMedia),
                 stringify!(PaidMediaVideo),
+            ))
+        }
+    }
+}
+impl From<crate::types::PaidMediaUnknown> for PaidMedia {
+    fn from(val: crate::types::PaidMediaUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<PaidMedia> for crate::types::PaidMediaUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: PaidMedia) -> Result<Self, Self::Error> {
+        if let PaidMedia::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(PaidMedia),
+                stringify!(PaidMediaUnknown),
             ))
         }
     }

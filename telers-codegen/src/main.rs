@@ -68,6 +68,7 @@ fn main() {
     schema.compose_reply_markup_type();
     schema.compose_input_rich_message_media_type();
     schema.reorder_untagged_subtypes();
+    schema.add_unknown_fallbacks();
     schema.modify_get_updates_returns_method();
 
     if args.generate_tests {

@@ -80,10 +80,12 @@ pub enum MessageEntityType {
     CustomEmoji,
     #[strum(serialize = "date_time")]
     DateTime,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl MessageEntityType {
     #[must_use]
-    pub const fn all() -> [MessageEntityType; 20usize] {
+    pub const fn all() -> [MessageEntityType; 21usize] {
         [
             MessageEntityType::Mention,
             MessageEntityType::Hashtag,
@@ -105,6 +107,7 @@ impl MessageEntityType {
             MessageEntityType::TextMention,
             MessageEntityType::CustomEmoji,
             MessageEntityType::DateTime,
+            MessageEntityType::Unknown,
         ]
     }
 }
@@ -146,6 +149,7 @@ impl<'a> From<&'a MessageEntity> for MessageEntityType {
             MessageEntity::TextMention(_) => MessageEntityType::TextMention,
             MessageEntity::CustomEmoji(_) => MessageEntityType::CustomEmoji,
             MessageEntity::DateTime(_) => MessageEntityType::DateTime,
+            MessageEntity::Unknown(_) => MessageEntityType::Unknown,
         }
     }
 }

@@ -59,10 +59,12 @@ pub enum EncryptedPassportElementType {
     PhoneNumber,
     #[strum(serialize = "email")]
     Email,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl EncryptedPassportElementType {
     #[must_use]
-    pub const fn all() -> [EncryptedPassportElementType; 13usize] {
+    pub const fn all() -> [EncryptedPassportElementType; 14usize] {
         [
             EncryptedPassportElementType::PersonalDetails,
             EncryptedPassportElementType::Passport,
@@ -77,6 +79,7 @@ impl EncryptedPassportElementType {
             EncryptedPassportElementType::TemporaryRegistration,
             EncryptedPassportElementType::PhoneNumber,
             EncryptedPassportElementType::Email,
+            EncryptedPassportElementType::Unknown,
         ]
     }
 }
@@ -125,6 +128,7 @@ impl<'a> From<&'a EncryptedPassportElement> for EncryptedPassportElementType {
             }
             EncryptedPassportElement::PhoneNumber(_) => EncryptedPassportElementType::PhoneNumber,
             EncryptedPassportElement::Email(_) => EncryptedPassportElementType::Email,
+            EncryptedPassportElement::Unknown(_) => EncryptedPassportElementType::Unknown,
         }
     }
 }

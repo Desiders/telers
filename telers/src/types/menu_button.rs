@@ -13,6 +13,9 @@ pub enum MenuButton {
     Commands(crate::types::MenuButtonCommands),
     WebApp(crate::types::MenuButtonWebApp),
     Default(crate::types::MenuButtonDefault),
+    /// Content unknown to this version of the library
+    #[serde(untagged)]
+    Unknown(crate::types::MenuButtonUnknown),
 }
 impl MenuButton {
     /// Helper method for field `text`.
@@ -102,6 +105,25 @@ impl TryFrom<MenuButton> for crate::types::MenuButtonDefault {
             Err(Self::Error::new(
                 stringify!(MenuButton),
                 stringify!(MenuButtonDefault),
+            ))
+        }
+    }
+}
+impl From<crate::types::MenuButtonUnknown> for MenuButton {
+    fn from(val: crate::types::MenuButtonUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<MenuButton> for crate::types::MenuButtonUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: MenuButton) -> Result<Self, Self::Error> {
+        if let MenuButton::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(MenuButton),
+                stringify!(MenuButtonUnknown),
             ))
         }
     }

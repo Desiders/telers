@@ -13,6 +13,9 @@ pub enum BackgroundType {
     Wallpaper(crate::types::BackgroundTypeWallpaper),
     Pattern(crate::types::BackgroundTypePattern),
     ChatTheme(crate::types::BackgroundTypeChatTheme),
+    /// Content unknown to this version of the library
+    #[serde(untagged)]
+    Unknown(crate::types::BackgroundTypeUnknown),
 }
 impl BackgroundType {
     /// Helper method for field `dark_theme_dimming`.
@@ -359,6 +362,25 @@ impl TryFrom<BackgroundType> for crate::types::BackgroundTypeChatTheme {
             Err(Self::Error::new(
                 stringify!(BackgroundType),
                 stringify!(BackgroundTypeChatTheme),
+            ))
+        }
+    }
+}
+impl From<crate::types::BackgroundTypeUnknown> for BackgroundType {
+    fn from(val: crate::types::BackgroundTypeUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<BackgroundType> for crate::types::BackgroundTypeUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: BackgroundType) -> Result<Self, Self::Error> {
+        if let BackgroundType::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(BackgroundType),
+                stringify!(BackgroundTypeUnknown),
             ))
         }
     }

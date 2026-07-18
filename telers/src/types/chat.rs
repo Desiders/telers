@@ -14,6 +14,9 @@ pub enum Chat {
     Group(crate::types::ChatGroup),
     Supergroup(crate::types::ChatSupergroup),
     Channel(crate::types::ChatChannel),
+    /// Content unknown to this version of the library
+    #[serde(untagged)]
+    Unknown(crate::types::ChatUnknown),
 }
 impl Chat {
     /// Helper method for field `first_name`.
@@ -37,6 +40,7 @@ impl Chat {
             Self::Group(val) => val.id,
             Self::Supergroup(val) => val.id,
             Self::Channel(val) => val.id,
+            Self::Unknown(val) => val.id,
         }
     }
 
@@ -50,6 +54,7 @@ impl Chat {
             Self::Group(val) => val.is_direct_messages,
             Self::Supergroup(val) => val.is_direct_messages,
             Self::Channel(val) => val.is_direct_messages,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -84,7 +89,7 @@ impl Chat {
             Self::Group(val) => val.title.as_deref(),
             Self::Supergroup(val) => val.title.as_deref(),
             Self::Channel(val) => val.title.as_deref(),
-            Self::Private(_) => None,
+            _ => None,
         }
     }
 
@@ -97,7 +102,7 @@ impl Chat {
             Self::Private(val) => val.username.as_deref(),
             Self::Supergroup(val) => val.username.as_deref(),
             Self::Channel(val) => val.username.as_deref(),
-            Self::Group(_) => None,
+            _ => None,
         }
     }
 }
@@ -165,6 +170,22 @@ impl TryFrom<Chat> for crate::types::ChatChannel {
             Ok(inner)
         } else {
             Err(Self::Error::new(stringify!(Chat), stringify!(ChatChannel)))
+        }
+    }
+}
+impl From<crate::types::ChatUnknown> for Chat {
+    fn from(val: crate::types::ChatUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<Chat> for crate::types::ChatUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Chat) -> Result<Self, Self::Error> {
+        if let Chat::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(stringify!(Chat), stringify!(ChatUnknown)))
         }
     }
 }

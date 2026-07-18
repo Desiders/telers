@@ -50,10 +50,12 @@ pub enum PollMediaType {
     Sticker,
     #[strum(serialize = "video")]
     Video,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl PollMediaType {
     #[must_use]
-    pub const fn all() -> [PollMediaType; 10usize] {
+    pub const fn all() -> [PollMediaType; 11usize] {
         [
             PollMediaType::Animation,
             PollMediaType::LivePhoto,
@@ -65,6 +67,7 @@ impl PollMediaType {
             PollMediaType::Photo,
             PollMediaType::Sticker,
             PollMediaType::Video,
+            PollMediaType::Unknown,
         ]
     }
 }
@@ -96,6 +99,7 @@ impl<'a> From<&'a PollMedia> for PollMediaType {
             PollMedia::Photo(_) => PollMediaType::Photo,
             PollMedia::Sticker(_) => PollMediaType::Sticker,
             PollMedia::Video(_) => PollMediaType::Video,
+            PollMedia::Unknown(_) => PollMediaType::Unknown,
         }
     }
 }

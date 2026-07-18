@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 pub enum MaybeInaccessibleMessage {
     InaccessibleMessage(crate::types::InaccessibleMessage),
     Message(crate::types::Message),
+    Unknown(crate::types::MaybeInaccessibleMessageUnknown),
 }
 impl MaybeInaccessibleMessage {
     /// Helper method for field `animation`.
@@ -18,7 +19,7 @@ impl MaybeInaccessibleMessage {
     pub fn animation(&self) -> Option<&crate::types::Animation> {
         match self {
             Self::Message(val) => crate::types::Message::animation(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -29,7 +30,7 @@ impl MaybeInaccessibleMessage {
     pub fn audio(&self) -> Option<&crate::types::Audio> {
         match self {
             Self::Message(val) => crate::types::Message::audio(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -40,7 +41,7 @@ impl MaybeInaccessibleMessage {
     pub fn author_signature(&self) -> Option<&str> {
         match self {
             Self::Message(val) => crate::types::Message::author_signature(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -51,7 +52,7 @@ impl MaybeInaccessibleMessage {
     pub fn boost_added(&self) -> Option<&crate::types::ChatBoostAdded> {
         match self {
             Self::Message(val) => crate::types::Message::boost_added(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -62,7 +63,7 @@ impl MaybeInaccessibleMessage {
     pub fn business_connection_id(&self) -> Option<&str> {
         match self {
             Self::Message(val) => crate::types::Message::business_connection_id(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -73,7 +74,7 @@ impl MaybeInaccessibleMessage {
     pub fn caption(&self) -> Option<&str> {
         match self {
             Self::Message(val) => crate::types::Message::caption(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -84,7 +85,7 @@ impl MaybeInaccessibleMessage {
     pub fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
         match self {
             Self::Message(val) => crate::types::Message::caption_entities(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -95,7 +96,7 @@ impl MaybeInaccessibleMessage {
     pub fn channel_chat_created(&self) -> Option<bool> {
         match self {
             Self::Message(val) => crate::types::Message::channel_chat_created(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -105,10 +106,11 @@ impl MaybeInaccessibleMessage {
     /// - `InaccessibleMessage`. Chat the message belonged to
     /// - `Message`. Chat the message belongs to
     #[must_use]
-    pub fn chat(&self) -> &crate::types::Chat {
+    pub fn chat(&self) -> Option<&crate::types::Chat> {
         match self {
-            Self::InaccessibleMessage(val) => val.chat.as_ref(),
-            Self::Message(val) => crate::types::Message::chat(val),
+            Self::InaccessibleMessage(val) => Some(val.chat.as_ref()),
+            Self::Message(val) => Some(crate::types::Message::chat(val)),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -119,7 +121,7 @@ impl MaybeInaccessibleMessage {
     pub fn chat_background_set(&self) -> Option<&crate::types::ChatBackground> {
         match self {
             Self::Message(val) => crate::types::Message::chat_background_set(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -130,7 +132,7 @@ impl MaybeInaccessibleMessage {
     pub fn chat_owner_changed(&self) -> Option<&crate::types::ChatOwnerChanged> {
         match self {
             Self::Message(val) => crate::types::Message::chat_owner_changed(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -141,7 +143,7 @@ impl MaybeInaccessibleMessage {
     pub fn chat_owner_left(&self) -> Option<&crate::types::ChatOwnerLeft> {
         match self {
             Self::Message(val) => crate::types::Message::chat_owner_left(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -152,7 +154,7 @@ impl MaybeInaccessibleMessage {
     pub fn chat_shared(&self) -> Option<&crate::types::ChatShared> {
         match self {
             Self::Message(val) => crate::types::Message::chat_shared(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -163,7 +165,7 @@ impl MaybeInaccessibleMessage {
     pub fn checklist(&self) -> Option<&crate::types::Checklist> {
         match self {
             Self::Message(val) => crate::types::Message::checklist(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -174,7 +176,7 @@ impl MaybeInaccessibleMessage {
     pub fn checklist_tasks_added(&self) -> Option<&crate::types::ChecklistTasksAdded> {
         match self {
             Self::Message(val) => crate::types::Message::checklist_tasks_added(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -185,7 +187,7 @@ impl MaybeInaccessibleMessage {
     pub fn checklist_tasks_done(&self) -> Option<&crate::types::ChecklistTasksDone> {
         match self {
             Self::Message(val) => crate::types::Message::checklist_tasks_done(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -196,7 +198,7 @@ impl MaybeInaccessibleMessage {
     pub fn community_chat_added(&self) -> Option<&crate::types::CommunityChatAdded> {
         match self {
             Self::Message(val) => crate::types::Message::community_chat_added(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -207,7 +209,7 @@ impl MaybeInaccessibleMessage {
     pub fn community_chat_removed(&self) -> Option<&crate::types::CommunityChatRemoved> {
         match self {
             Self::Message(val) => crate::types::Message::community_chat_removed(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -218,7 +220,7 @@ impl MaybeInaccessibleMessage {
     pub fn connected_website(&self) -> Option<&str> {
         match self {
             Self::Message(val) => crate::types::Message::connected_website(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -229,7 +231,7 @@ impl MaybeInaccessibleMessage {
     pub fn contact(&self) -> Option<&crate::types::Contact> {
         match self {
             Self::Message(val) => crate::types::Message::contact(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -239,10 +241,11 @@ impl MaybeInaccessibleMessage {
     /// - `InaccessibleMessage`. Always 0. The field can be used to differentiate regular and inaccessible messages.
     /// - `Message`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     #[must_use]
-    pub fn date(&self) -> i64 {
+    pub fn date(&self) -> Option<i64> {
         match self {
-            Self::InaccessibleMessage(val) => val.date,
-            Self::Message(val) => crate::types::Message::date(val),
+            Self::InaccessibleMessage(val) => Some(val.date),
+            Self::Message(val) => Some(crate::types::Message::date(val)),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -253,7 +256,7 @@ impl MaybeInaccessibleMessage {
     pub fn delete_chat_photo(&self) -> Option<bool> {
         match self {
             Self::Message(val) => crate::types::Message::delete_chat_photo(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -264,7 +267,7 @@ impl MaybeInaccessibleMessage {
     pub fn dice(&self) -> Option<&crate::types::Dice> {
         match self {
             Self::Message(val) => crate::types::Message::dice(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -275,7 +278,7 @@ impl MaybeInaccessibleMessage {
     pub fn direct_message_price_changed(&self) -> Option<&crate::types::DirectMessagePriceChanged> {
         match self {
             Self::Message(val) => crate::types::Message::direct_message_price_changed(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -286,7 +289,7 @@ impl MaybeInaccessibleMessage {
     pub fn direct_messages_topic(&self) -> Option<&crate::types::DirectMessagesTopic> {
         match self {
             Self::Message(val) => crate::types::Message::direct_messages_topic(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -297,7 +300,7 @@ impl MaybeInaccessibleMessage {
     pub fn document(&self) -> Option<&crate::types::Document> {
         match self {
             Self::Message(val) => crate::types::Message::document(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -308,7 +311,7 @@ impl MaybeInaccessibleMessage {
     pub fn edit_date(&self) -> Option<i64> {
         match self {
             Self::Message(val) => crate::types::Message::edit_date(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -319,7 +322,7 @@ impl MaybeInaccessibleMessage {
     pub fn effect_id(&self) -> Option<&str> {
         match self {
             Self::Message(val) => crate::types::Message::effect_id(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -330,7 +333,7 @@ impl MaybeInaccessibleMessage {
     pub fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
         match self {
             Self::Message(val) => crate::types::Message::entities(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -341,7 +344,7 @@ impl MaybeInaccessibleMessage {
     pub fn ephemeral_message_id(&self) -> Option<i64> {
         match self {
             Self::Message(val) => crate::types::Message::ephemeral_message_id(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -352,7 +355,7 @@ impl MaybeInaccessibleMessage {
     pub fn external_reply(&self) -> Option<&crate::types::ExternalReplyInfo> {
         match self {
             Self::Message(val) => crate::types::Message::external_reply(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -363,7 +366,7 @@ impl MaybeInaccessibleMessage {
     pub fn forum_topic_closed(&self) -> Option<&crate::types::ForumTopicClosed> {
         match self {
             Self::Message(val) => crate::types::Message::forum_topic_closed(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -374,7 +377,7 @@ impl MaybeInaccessibleMessage {
     pub fn forum_topic_created(&self) -> Option<&crate::types::ForumTopicCreated> {
         match self {
             Self::Message(val) => crate::types::Message::forum_topic_created(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -385,7 +388,7 @@ impl MaybeInaccessibleMessage {
     pub fn forum_topic_edited(&self) -> Option<&crate::types::ForumTopicEdited> {
         match self {
             Self::Message(val) => crate::types::Message::forum_topic_edited(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -396,7 +399,7 @@ impl MaybeInaccessibleMessage {
     pub fn forum_topic_reopened(&self) -> Option<&crate::types::ForumTopicReopened> {
         match self {
             Self::Message(val) => crate::types::Message::forum_topic_reopened(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -407,7 +410,7 @@ impl MaybeInaccessibleMessage {
     pub fn forward_origin(&self) -> Option<&crate::types::MessageOrigin> {
         match self {
             Self::Message(val) => crate::types::Message::forward_origin(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -418,7 +421,7 @@ impl MaybeInaccessibleMessage {
     pub fn from(&self) -> Option<&crate::types::User> {
         match self {
             Self::Message(val) => crate::types::Message::from(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -429,7 +432,7 @@ impl MaybeInaccessibleMessage {
     pub fn game(&self) -> Option<&crate::types::Game> {
         match self {
             Self::Message(val) => crate::types::Message::game(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -440,7 +443,7 @@ impl MaybeInaccessibleMessage {
     pub fn general_forum_topic_hidden(&self) -> Option<&crate::types::GeneralForumTopicHidden> {
         match self {
             Self::Message(val) => crate::types::Message::general_forum_topic_hidden(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -451,7 +454,7 @@ impl MaybeInaccessibleMessage {
     pub fn general_forum_topic_unhidden(&self) -> Option<&crate::types::GeneralForumTopicUnhidden> {
         match self {
             Self::Message(val) => crate::types::Message::general_forum_topic_unhidden(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -462,7 +465,7 @@ impl MaybeInaccessibleMessage {
     pub fn gift(&self) -> Option<&crate::types::GiftInfo> {
         match self {
             Self::Message(val) => crate::types::Message::gift(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -473,7 +476,7 @@ impl MaybeInaccessibleMessage {
     pub fn gift_upgrade_sent(&self) -> Option<&crate::types::GiftInfo> {
         match self {
             Self::Message(val) => crate::types::Message::gift_upgrade_sent(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -484,7 +487,7 @@ impl MaybeInaccessibleMessage {
     pub fn giveaway(&self) -> Option<&crate::types::Giveaway> {
         match self {
             Self::Message(val) => crate::types::Message::giveaway(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -495,7 +498,7 @@ impl MaybeInaccessibleMessage {
     pub fn giveaway_completed(&self) -> Option<&crate::types::GiveawayCompleted> {
         match self {
             Self::Message(val) => crate::types::Message::giveaway_completed(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -506,7 +509,7 @@ impl MaybeInaccessibleMessage {
     pub fn giveaway_created(&self) -> Option<&crate::types::GiveawayCreated> {
         match self {
             Self::Message(val) => crate::types::Message::giveaway_created(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -517,7 +520,7 @@ impl MaybeInaccessibleMessage {
     pub fn giveaway_winners(&self) -> Option<&crate::types::GiveawayWinners> {
         match self {
             Self::Message(val) => crate::types::Message::giveaway_winners(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -528,7 +531,7 @@ impl MaybeInaccessibleMessage {
     pub fn group_chat_created(&self) -> Option<bool> {
         match self {
             Self::Message(val) => crate::types::Message::group_chat_created(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -539,7 +542,7 @@ impl MaybeInaccessibleMessage {
     pub fn guest_bot_caller_chat(&self) -> Option<&crate::types::Chat> {
         match self {
             Self::Message(val) => crate::types::Message::guest_bot_caller_chat(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -550,7 +553,7 @@ impl MaybeInaccessibleMessage {
     pub fn guest_bot_caller_user(&self) -> Option<&crate::types::User> {
         match self {
             Self::Message(val) => crate::types::Message::guest_bot_caller_user(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -561,7 +564,7 @@ impl MaybeInaccessibleMessage {
     pub fn guest_query_id(&self) -> Option<&str> {
         match self {
             Self::Message(val) => crate::types::Message::guest_query_id(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -572,7 +575,7 @@ impl MaybeInaccessibleMessage {
     pub fn has_media_spoiler(&self) -> Option<bool> {
         match self {
             Self::Message(val) => crate::types::Message::has_media_spoiler(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -583,7 +586,7 @@ impl MaybeInaccessibleMessage {
     pub fn has_protected_content(&self) -> Option<bool> {
         match self {
             Self::Message(val) => crate::types::Message::has_protected_content(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -594,7 +597,7 @@ impl MaybeInaccessibleMessage {
     pub fn invoice(&self) -> Option<&crate::types::Invoice> {
         match self {
             Self::Message(val) => crate::types::Message::invoice(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -605,7 +608,7 @@ impl MaybeInaccessibleMessage {
     pub fn is_automatic_forward(&self) -> Option<bool> {
         match self {
             Self::Message(val) => crate::types::Message::is_automatic_forward(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -616,7 +619,7 @@ impl MaybeInaccessibleMessage {
     pub fn is_from_offline(&self) -> Option<bool> {
         match self {
             Self::Message(val) => crate::types::Message::is_from_offline(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -627,7 +630,7 @@ impl MaybeInaccessibleMessage {
     pub fn is_paid_post(&self) -> Option<bool> {
         match self {
             Self::Message(val) => crate::types::Message::is_paid_post(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -638,7 +641,7 @@ impl MaybeInaccessibleMessage {
     pub fn is_topic_message(&self) -> Option<bool> {
         match self {
             Self::Message(val) => crate::types::Message::is_topic_message(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -649,7 +652,7 @@ impl MaybeInaccessibleMessage {
     pub fn left_chat_member(&self) -> Option<&crate::types::User> {
         match self {
             Self::Message(val) => crate::types::Message::left_chat_member(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -660,7 +663,7 @@ impl MaybeInaccessibleMessage {
     pub fn link_preview_options(&self) -> Option<&crate::types::LinkPreviewOptions> {
         match self {
             Self::Message(val) => crate::types::Message::link_preview_options(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -671,7 +674,7 @@ impl MaybeInaccessibleMessage {
     pub fn live_photo(&self) -> Option<&crate::types::LivePhoto> {
         match self {
             Self::Message(val) => crate::types::Message::live_photo(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -682,7 +685,7 @@ impl MaybeInaccessibleMessage {
     pub fn location(&self) -> Option<&crate::types::Location> {
         match self {
             Self::Message(val) => crate::types::Message::location(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -693,7 +696,7 @@ impl MaybeInaccessibleMessage {
     pub fn managed_bot_created(&self) -> Option<&crate::types::ManagedBotCreated> {
         match self {
             Self::Message(val) => crate::types::Message::managed_bot_created(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -704,7 +707,7 @@ impl MaybeInaccessibleMessage {
     pub fn media_group_id(&self) -> Option<&str> {
         match self {
             Self::Message(val) => crate::types::Message::media_group_id(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -717,7 +720,7 @@ impl MaybeInaccessibleMessage {
     ) -> Option<&crate::types::MessageAutoDeleteTimerChanged> {
         match self {
             Self::Message(val) => crate::types::Message::message_auto_delete_timer_changed(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -727,10 +730,11 @@ impl MaybeInaccessibleMessage {
     /// - `InaccessibleMessage`. Unique message identifier inside the chat
     /// - `Message`. Unique message identifier inside this chat; 0 for ephemeral messages. In specific instances (e.g., a message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     #[must_use]
-    pub fn message_id(&self) -> i64 {
+    pub fn message_id(&self) -> Option<i64> {
         match self {
-            Self::InaccessibleMessage(val) => val.message_id,
-            Self::Message(val) => crate::types::Message::message_id(val),
+            Self::InaccessibleMessage(val) => Some(val.message_id),
+            Self::Message(val) => Some(crate::types::Message::message_id(val)),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -741,7 +745,7 @@ impl MaybeInaccessibleMessage {
     pub fn message_thread_id(&self) -> Option<i64> {
         match self {
             Self::Message(val) => crate::types::Message::message_thread_id(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -752,7 +756,7 @@ impl MaybeInaccessibleMessage {
     pub fn migrate_from_chat_id(&self) -> Option<i64> {
         match self {
             Self::Message(val) => crate::types::Message::migrate_from_chat_id(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -763,7 +767,7 @@ impl MaybeInaccessibleMessage {
     pub fn migrate_to_chat_id(&self) -> Option<i64> {
         match self {
             Self::Message(val) => crate::types::Message::migrate_to_chat_id(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -774,7 +778,7 @@ impl MaybeInaccessibleMessage {
     pub fn new_chat_members(&self) -> Option<&[crate::types::User]> {
         match self {
             Self::Message(val) => crate::types::Message::new_chat_members(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -785,7 +789,7 @@ impl MaybeInaccessibleMessage {
     pub fn new_chat_photo(&self) -> Option<&[crate::types::PhotoSize]> {
         match self {
             Self::Message(val) => crate::types::Message::new_chat_photo(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -796,7 +800,7 @@ impl MaybeInaccessibleMessage {
     pub fn new_chat_title(&self) -> Option<&str> {
         match self {
             Self::Message(val) => crate::types::Message::new_chat_title(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -807,7 +811,7 @@ impl MaybeInaccessibleMessage {
     pub fn paid_media(&self) -> Option<&crate::types::PaidMediaInfo> {
         match self {
             Self::Message(val) => crate::types::Message::paid_media(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -818,7 +822,7 @@ impl MaybeInaccessibleMessage {
     pub fn paid_message_price_changed(&self) -> Option<&crate::types::PaidMessagePriceChanged> {
         match self {
             Self::Message(val) => crate::types::Message::paid_message_price_changed(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -829,7 +833,7 @@ impl MaybeInaccessibleMessage {
     pub fn paid_star_count(&self) -> Option<i64> {
         match self {
             Self::Message(val) => crate::types::Message::paid_star_count(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -840,7 +844,7 @@ impl MaybeInaccessibleMessage {
     pub fn passport_data(&self) -> Option<&crate::types::PassportData> {
         match self {
             Self::Message(val) => crate::types::Message::passport_data(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -851,7 +855,7 @@ impl MaybeInaccessibleMessage {
     pub fn photo(&self) -> Option<&[crate::types::PhotoSize]> {
         match self {
             Self::Message(val) => crate::types::Message::photo(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -862,7 +866,7 @@ impl MaybeInaccessibleMessage {
     pub fn pinned_message(&self) -> Option<&crate::types::MaybeInaccessibleMessage> {
         match self {
             Self::Message(val) => crate::types::Message::pinned_message(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -873,7 +877,7 @@ impl MaybeInaccessibleMessage {
     pub fn poll(&self) -> Option<&crate::types::Poll> {
         match self {
             Self::Message(val) => crate::types::Message::poll(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -884,7 +888,7 @@ impl MaybeInaccessibleMessage {
     pub fn poll_option_added(&self) -> Option<&crate::types::PollOptionAdded> {
         match self {
             Self::Message(val) => crate::types::Message::poll_option_added(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -895,7 +899,7 @@ impl MaybeInaccessibleMessage {
     pub fn poll_option_deleted(&self) -> Option<&crate::types::PollOptionDeleted> {
         match self {
             Self::Message(val) => crate::types::Message::poll_option_deleted(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -906,7 +910,7 @@ impl MaybeInaccessibleMessage {
     pub fn proximity_alert_triggered(&self) -> Option<&crate::types::ProximityAlertTriggered> {
         match self {
             Self::Message(val) => crate::types::Message::proximity_alert_triggered(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -917,7 +921,7 @@ impl MaybeInaccessibleMessage {
     pub fn quote(&self) -> Option<&crate::types::TextQuote> {
         match self {
             Self::Message(val) => crate::types::Message::quote(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -928,7 +932,7 @@ impl MaybeInaccessibleMessage {
     pub fn receiver_user(&self) -> Option<&crate::types::User> {
         match self {
             Self::Message(val) => crate::types::Message::receiver_user(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -939,7 +943,7 @@ impl MaybeInaccessibleMessage {
     pub fn refunded_payment(&self) -> Option<&crate::types::RefundedPayment> {
         match self {
             Self::Message(val) => crate::types::Message::refunded_payment(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -950,7 +954,7 @@ impl MaybeInaccessibleMessage {
     pub fn reply_markup(&self) -> Option<&crate::types::InlineKeyboardMarkup> {
         match self {
             Self::Message(val) => crate::types::Message::reply_markup(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -961,7 +965,7 @@ impl MaybeInaccessibleMessage {
     pub fn reply_to_checklist_task_id(&self) -> Option<i64> {
         match self {
             Self::Message(val) => crate::types::Message::reply_to_checklist_task_id(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -972,7 +976,7 @@ impl MaybeInaccessibleMessage {
     pub fn reply_to_message(&self) -> Option<&crate::types::Message> {
         match self {
             Self::Message(val) => crate::types::Message::reply_to_message(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -983,7 +987,7 @@ impl MaybeInaccessibleMessage {
     pub fn reply_to_poll_option_id(&self) -> Option<&str> {
         match self {
             Self::Message(val) => crate::types::Message::reply_to_poll_option_id(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -994,7 +998,7 @@ impl MaybeInaccessibleMessage {
     pub fn reply_to_story(&self) -> Option<&crate::types::Story> {
         match self {
             Self::Message(val) => crate::types::Message::reply_to_story(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1005,7 +1009,7 @@ impl MaybeInaccessibleMessage {
     pub fn rich_message(&self) -> Option<&crate::types::RichMessage> {
         match self {
             Self::Message(val) => crate::types::Message::rich_message(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1016,7 +1020,7 @@ impl MaybeInaccessibleMessage {
     pub fn sender_boost_count(&self) -> Option<i64> {
         match self {
             Self::Message(val) => crate::types::Message::sender_boost_count(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1027,7 +1031,7 @@ impl MaybeInaccessibleMessage {
     pub fn sender_business_bot(&self) -> Option<&crate::types::User> {
         match self {
             Self::Message(val) => crate::types::Message::sender_business_bot(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1038,7 +1042,7 @@ impl MaybeInaccessibleMessage {
     pub fn sender_chat(&self) -> Option<&crate::types::Chat> {
         match self {
             Self::Message(val) => crate::types::Message::sender_chat(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1049,7 +1053,7 @@ impl MaybeInaccessibleMessage {
     pub fn sender_tag(&self) -> Option<&str> {
         match self {
             Self::Message(val) => crate::types::Message::sender_tag(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1060,7 +1064,7 @@ impl MaybeInaccessibleMessage {
     pub fn show_caption_above_media(&self) -> Option<bool> {
         match self {
             Self::Message(val) => crate::types::Message::show_caption_above_media(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1071,7 +1075,7 @@ impl MaybeInaccessibleMessage {
     pub fn sticker(&self) -> Option<&crate::types::Sticker> {
         match self {
             Self::Message(val) => crate::types::Message::sticker(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1082,7 +1086,7 @@ impl MaybeInaccessibleMessage {
     pub fn story(&self) -> Option<&crate::types::Story> {
         match self {
             Self::Message(val) => crate::types::Message::story(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1093,7 +1097,7 @@ impl MaybeInaccessibleMessage {
     pub fn successful_payment(&self) -> Option<&crate::types::SuccessfulPayment> {
         match self {
             Self::Message(val) => crate::types::Message::successful_payment(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1106,7 +1110,7 @@ impl MaybeInaccessibleMessage {
     ) -> Option<&crate::types::SuggestedPostApprovalFailed> {
         match self {
             Self::Message(val) => crate::types::Message::suggested_post_approval_failed(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1117,7 +1121,7 @@ impl MaybeInaccessibleMessage {
     pub fn suggested_post_approved(&self) -> Option<&crate::types::SuggestedPostApproved> {
         match self {
             Self::Message(val) => crate::types::Message::suggested_post_approved(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1128,7 +1132,7 @@ impl MaybeInaccessibleMessage {
     pub fn suggested_post_declined(&self) -> Option<&crate::types::SuggestedPostDeclined> {
         match self {
             Self::Message(val) => crate::types::Message::suggested_post_declined(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1139,7 +1143,7 @@ impl MaybeInaccessibleMessage {
     pub fn suggested_post_info(&self) -> Option<&crate::types::SuggestedPostInfo> {
         match self {
             Self::Message(val) => crate::types::Message::suggested_post_info(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1150,7 +1154,7 @@ impl MaybeInaccessibleMessage {
     pub fn suggested_post_paid(&self) -> Option<&crate::types::SuggestedPostPaid> {
         match self {
             Self::Message(val) => crate::types::Message::suggested_post_paid(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1161,7 +1165,7 @@ impl MaybeInaccessibleMessage {
     pub fn suggested_post_refunded(&self) -> Option<&crate::types::SuggestedPostRefunded> {
         match self {
             Self::Message(val) => crate::types::Message::suggested_post_refunded(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1172,7 +1176,7 @@ impl MaybeInaccessibleMessage {
     pub fn supergroup_chat_created(&self) -> Option<bool> {
         match self {
             Self::Message(val) => crate::types::Message::supergroup_chat_created(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1183,7 +1187,7 @@ impl MaybeInaccessibleMessage {
     pub fn text(&self) -> Option<&str> {
         match self {
             Self::Message(val) => crate::types::Message::text(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1194,7 +1198,7 @@ impl MaybeInaccessibleMessage {
     pub fn unique_gift(&self) -> Option<&crate::types::UniqueGiftInfo> {
         match self {
             Self::Message(val) => crate::types::Message::unique_gift(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1205,7 +1209,7 @@ impl MaybeInaccessibleMessage {
     pub fn users_shared(&self) -> Option<&crate::types::UsersShared> {
         match self {
             Self::Message(val) => crate::types::Message::users_shared(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1216,7 +1220,7 @@ impl MaybeInaccessibleMessage {
     pub fn venue(&self) -> Option<&crate::types::Venue> {
         match self {
             Self::Message(val) => crate::types::Message::venue(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1227,7 +1231,7 @@ impl MaybeInaccessibleMessage {
     pub fn via_bot(&self) -> Option<&crate::types::User> {
         match self {
             Self::Message(val) => crate::types::Message::via_bot(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1238,7 +1242,7 @@ impl MaybeInaccessibleMessage {
     pub fn video(&self) -> Option<&crate::types::Video> {
         match self {
             Self::Message(val) => crate::types::Message::video(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1249,7 +1253,7 @@ impl MaybeInaccessibleMessage {
     pub fn video_chat_ended(&self) -> Option<&crate::types::VideoChatEnded> {
         match self {
             Self::Message(val) => crate::types::Message::video_chat_ended(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1262,7 +1266,7 @@ impl MaybeInaccessibleMessage {
     ) -> Option<&crate::types::VideoChatParticipantsInvited> {
         match self {
             Self::Message(val) => crate::types::Message::video_chat_participants_invited(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1273,7 +1277,7 @@ impl MaybeInaccessibleMessage {
     pub fn video_chat_scheduled(&self) -> Option<&crate::types::VideoChatScheduled> {
         match self {
             Self::Message(val) => crate::types::Message::video_chat_scheduled(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1284,7 +1288,7 @@ impl MaybeInaccessibleMessage {
     pub fn video_chat_started(&self) -> Option<&crate::types::VideoChatStarted> {
         match self {
             Self::Message(val) => crate::types::Message::video_chat_started(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1295,7 +1299,7 @@ impl MaybeInaccessibleMessage {
     pub fn video_note(&self) -> Option<&crate::types::VideoNote> {
         match self {
             Self::Message(val) => crate::types::Message::video_note(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1306,7 +1310,7 @@ impl MaybeInaccessibleMessage {
     pub fn voice(&self) -> Option<&crate::types::Voice> {
         match self {
             Self::Message(val) => crate::types::Message::voice(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1317,7 +1321,7 @@ impl MaybeInaccessibleMessage {
     pub fn web_app_data(&self) -> Option<&crate::types::WebAppData> {
         match self {
             Self::Message(val) => crate::types::Message::web_app_data(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1328,7 +1332,7 @@ impl MaybeInaccessibleMessage {
     pub fn write_access_allowed(&self) -> Option<&crate::types::WriteAccessAllowed> {
         match self {
             Self::Message(val) => crate::types::Message::write_access_allowed(val),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1338,7 +1342,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::giveaway_winners(val)
                 .and_then(crate::types::GiveawayWinners::additional_chat_count),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1349,7 +1353,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::venue(val).map(|inner| inner.address.as_ref())
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1360,7 +1364,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::poll(val).map(crate::types::Poll::allows_multiple_answers)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1371,7 +1375,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::poll(val).map(crate::types::Poll::allows_revoting)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1382,7 +1386,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::suggested_post_paid(val).and_then(|inner| inner.amount)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1392,7 +1396,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::direct_message_price_changed(val)
                 .map(|inner| inner.are_direct_messages_enabled),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1403,7 +1407,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::rich_message(val).map(|inner| inner.blocks.as_ref())
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1414,7 +1418,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::boost_added(val).map(|inner| inner.boost_count)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1425,7 +1429,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::managed_bot_created(val).map(|inner| inner.bot.as_ref())
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1436,7 +1440,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::web_app_data(val).map(|inner| inner.button_text.as_ref())
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1447,7 +1451,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::chat_shared(val).map(|inner| inner.chat_id)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1458,7 +1462,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::giveaway(val).map(crate::types::Giveaway::chats)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1469,7 +1473,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::poll(val).and_then(crate::types::Poll::close_date)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1479,7 +1483,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::suggested_post_declined(val)
                 .and_then(|inner| inner.comment.as_deref()),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1490,7 +1494,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::community_chat_added(val).map(|inner| &inner.community)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1501,7 +1505,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::poll(val).and_then(crate::types::Poll::correct_option_ids)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1512,7 +1516,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::video(val).and_then(|inner| inner.cover.as_deref())
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1523,7 +1527,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::passport_data(val).map(|inner| &inner.credentials)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1534,7 +1538,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::sticker(val).and_then(crate::types::Sticker::custom_emoji_id)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1545,7 +1549,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::poll(val).and_then(crate::types::Poll::description_entities)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1555,7 +1559,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::direct_message_price_changed(val)
                 .and_then(|inner| inner.direct_message_star_count),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1566,7 +1570,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::proximity_alert_triggered(val).map(|inner| inner.distance)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1577,7 +1581,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::poll(val).and_then(crate::types::Poll::explanation)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1588,7 +1592,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::poll(val).and_then(crate::types::Poll::explanation_entities)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1599,7 +1603,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::poll(val).and_then(crate::types::Poll::explanation_media)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1610,7 +1614,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::venue(val).and_then(|inner| inner.foursquare_id.as_deref())
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1621,7 +1625,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::venue(val).and_then(|inner| inner.foursquare_type.as_deref())
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1631,7 +1635,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::write_access_allowed(val)
                 .and_then(|inner| inner.from_attachment_menu),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1641,7 +1645,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::write_access_allowed(val)
                 .and_then(|inner| inner.from_request),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1651,7 +1655,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::giveaway_completed(val)
                 .and_then(|inner| inner.giveaway_message.as_deref()),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1661,7 +1665,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::giveaway_winners(val)
                 .map(crate::types::GiveawayWinners::giveaway_message_id),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1672,7 +1676,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::venue(val).and_then(|inner| inner.google_place_id.as_deref())
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1682,7 +1686,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::venue(val)
                 .and_then(|inner| inner.google_place_type.as_deref()),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1692,7 +1696,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::giveaway(val)
                 .and_then(crate::types::Giveaway::has_public_winners),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1703,7 +1707,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::location(val).and_then(|inner| inner.heading)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1714,7 +1718,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::location(val).and_then(|inner| inner.horizontal_accuracy)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1725,7 +1729,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::forum_topic_created(val).map(|inner| inner.icon_color)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1736,7 +1740,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::reply_markup(val).map(|inner| inner.inline_keyboard.as_ref())
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1747,7 +1751,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::sticker(val).map(crate::types::Sticker::is_animated)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1758,7 +1762,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::poll(val).map(crate::types::Poll::is_anonymous)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1769,7 +1773,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::poll(val).map(crate::types::Poll::is_closed)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1780,7 +1784,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::link_preview_options(val).and_then(|inner| inner.is_disabled)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1790,7 +1794,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::successful_payment(val)
                 .and_then(|inner| inner.is_first_recurring),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1801,7 +1805,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::quote(val).and_then(|inner| inner.is_manual)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1811,7 +1815,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::forum_topic_created(val)
                 .and_then(|inner| inner.is_name_implicit),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1822,7 +1826,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::successful_payment(val).and_then(|inner| inner.is_recurring)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1833,7 +1837,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::rich_message(val).and_then(|inner| inner.is_rtl)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1843,7 +1847,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::giveaway_completed(val)
                 .and_then(|inner| inner.is_star_giveaway),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1854,7 +1858,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::sticker(val).map(crate::types::Sticker::is_video)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1865,7 +1869,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::unique_gift(val).and_then(|inner| inner.last_resale_amount)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1875,7 +1879,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::unique_gift(val)
                 .and_then(|inner| inner.last_resale_currency.as_deref()),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1884,7 +1888,7 @@ impl MaybeInaccessibleMessage {
     pub fn latitude(&self) -> Option<f64> {
         match self {
             Self::Message(val) => crate::types::Message::location(val).map(|inner| inner.latitude),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1893,7 +1897,7 @@ impl MaybeInaccessibleMessage {
     pub fn length(&self) -> Option<i64> {
         match self {
             Self::Message(val) => crate::types::Message::video_note(val).map(|inner| inner.length),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1904,7 +1908,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::location(val).and_then(|inner| inner.live_period)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1913,7 +1917,7 @@ impl MaybeInaccessibleMessage {
     pub fn longitude(&self) -> Option<f64> {
         match self {
             Self::Message(val) => crate::types::Message::location(val).map(|inner| inner.longitude),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1923,7 +1927,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::checklist_tasks_done(val)
                 .and_then(|inner| inner.marked_as_done_task_ids.as_deref()),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1933,7 +1937,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::checklist_tasks_done(val)
                 .and_then(|inner| inner.marked_as_not_done_task_ids.as_deref()),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1944,7 +1948,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::sticker(val).and_then(crate::types::Sticker::mask_position)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1955,7 +1959,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::poll(val).and_then(crate::types::Poll::media)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1966,7 +1970,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::poll(val).map(crate::types::Poll::members_only)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1976,7 +1980,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::message_auto_delete_timer_changed(val)
                 .map(|inner| inner.message_auto_delete_time),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1986,7 +1990,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::sticker(val)
                 .and_then(crate::types::Sticker::needs_repainting),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -1997,7 +2001,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::unique_gift(val).and_then(|inner| inner.next_transfer_date)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2008,7 +2012,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::poll(val).and_then(crate::types::Poll::open_period)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2017,7 +2021,7 @@ impl MaybeInaccessibleMessage {
     pub fn options(&self) -> Option<&[crate::types::PollOption]> {
         match self {
             Self::Message(val) => crate::types::Message::poll(val).map(crate::types::Poll::options),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2027,7 +2031,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::successful_payment(val)
                 .and_then(|inner| inner.order_info.as_ref()),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2038,7 +2042,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::checklist(val).and_then(|inner| inner.others_can_add_tasks)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2048,7 +2052,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::checklist(val)
                 .and_then(|inner| inner.others_can_mark_tasks_as_done),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2058,7 +2062,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::paid_message_price_changed(val)
                 .map(|inner| inner.paid_message_star_count),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2069,7 +2073,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::audio(val).and_then(|inner| inner.performer.as_deref())
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2080,7 +2084,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::contact(val).map(|inner| inner.phone_number.as_ref())
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2089,7 +2093,7 @@ impl MaybeInaccessibleMessage {
     pub fn position(&self) -> Option<i64> {
         match self {
             Self::Message(val) => crate::types::Message::quote(val).map(|inner| inner.position),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2099,7 +2103,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::link_preview_options(val)
                 .and_then(|inner| inner.prefer_large_media),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2109,7 +2113,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::link_preview_options(val)
                 .and_then(|inner| inner.prefer_small_media),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2119,7 +2123,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::sticker(val)
                 .and_then(crate::types::Sticker::premium_animation),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2130,7 +2134,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::location(val).and_then(|inner| inner.proximity_alert_radius)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2141,7 +2145,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::video(val).and_then(|inner| inner.qualities.as_deref())
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2152,7 +2156,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::poll(val).map(crate::types::Poll::question)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2163,7 +2167,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::poll(val).and_then(crate::types::Poll::question_entities)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2173,7 +2177,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::suggested_post_refunded(val)
                 .map(|inner| inner.reason.as_ref()),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2183,7 +2187,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::forward_origin(val)
                 .and_then(crate::types::MessageOrigin::sender_user),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2193,7 +2197,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::forward_origin(val)
                 .and_then(crate::types::MessageOrigin::sender_user_name),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2204,7 +2208,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::sticker(val).and_then(crate::types::Sticker::set_name)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2214,7 +2218,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::successful_payment(val)
                 .and_then(|inner| inner.shipping_option_id.as_deref()),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2224,7 +2228,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::link_preview_options(val)
                 .and_then(|inner| inner.show_above_text),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2234,7 +2238,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::suggested_post_paid(val)
                 .and_then(|inner| inner.star_amount.as_ref()),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2245,7 +2249,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::paid_media(val).map(|inner| inner.star_count)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2256,7 +2260,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::video_chat_scheduled(val).map(|inner| inner.start_date)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2267,7 +2271,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::invoice(val).map(|inner| inner.start_parameter.as_ref())
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2278,7 +2282,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::video(val).and_then(|inner| inner.start_timestamp)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2289,7 +2293,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::suggested_post_info(val).map(|inner| inner.state.as_ref())
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2299,7 +2303,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::successful_payment(val)
                 .and_then(|inner| inner.subscription_expiration_date),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2310,7 +2314,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::game(val).and_then(|inner| inner.text_entities.as_deref())
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2320,7 +2324,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::checklist(val)
                 .and_then(|inner| inner.title_entities.as_deref()),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2331,7 +2335,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::direct_messages_topic(val).map(|inner| inner.topic_id)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2342,7 +2346,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::poll(val).map(crate::types::Poll::total_voter_count)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2353,7 +2357,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::unique_gift(val).and_then(|inner| inner.transfer_star_count)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2363,7 +2367,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::proximity_alert_triggered(val)
                 .map(|inner| inner.traveler.as_ref()),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2374,7 +2378,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::chat_background_set(val).map(|inner| inner.r#type.as_ref())
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2384,7 +2388,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::link_preview_options(val)
                 .and_then(|inner| inner.url.as_deref()),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2394,7 +2398,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::direct_messages_topic(val)
                 .and_then(|inner| inner.user.as_deref()),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2405,7 +2409,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::contact(val).and_then(|inner| inner.user_id)
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2414,7 +2418,7 @@ impl MaybeInaccessibleMessage {
     pub fn value(&self) -> Option<u8> {
         match self {
             Self::Message(val) => crate::types::Message::dice(val).map(|inner| inner.value),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2425,7 +2429,7 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::contact(val).and_then(|inner| inner.vcard.as_deref())
             }
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2435,7 +2439,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::giveaway_winners(val)
                 .and_then(crate::types::GiveawayWinners::was_refunded),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2445,7 +2449,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::proximity_alert_triggered(val)
                 .map(|inner| inner.watcher.as_ref()),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2455,7 +2459,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::write_access_allowed(val)
                 .and_then(|inner| inner.web_app_name.as_deref()),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 
@@ -2465,7 +2469,7 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::giveaway_winners(val)
                 .map(crate::types::GiveawayWinners::winners),
-            Self::InaccessibleMessage(_) => None,
+            _ => None,
         }
     }
 }
@@ -2478,12 +2482,13 @@ impl TryFrom<MaybeInaccessibleMessage> for crate::types::InaccessibleMessage {
     type Error = crate::errors::ConvertToTypeError;
 
     fn try_from(val: MaybeInaccessibleMessage) -> Result<Self, Self::Error> {
-        match val {
-            MaybeInaccessibleMessage::InaccessibleMessage(inner) => Ok(inner),
-            MaybeInaccessibleMessage::Message(_) => Err(Self::Error::new(
+        if let MaybeInaccessibleMessage::InaccessibleMessage(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
                 stringify!(MaybeInaccessibleMessage),
                 stringify!(InaccessibleMessage),
-            )),
+            ))
         }
     }
 }
@@ -2496,12 +2501,32 @@ impl TryFrom<MaybeInaccessibleMessage> for crate::types::Message {
     type Error = crate::errors::ConvertToTypeError;
 
     fn try_from(val: MaybeInaccessibleMessage) -> Result<Self, Self::Error> {
-        match val {
-            MaybeInaccessibleMessage::Message(inner) => Ok(inner),
-            MaybeInaccessibleMessage::InaccessibleMessage(_) => Err(Self::Error::new(
+        if let MaybeInaccessibleMessage::Message(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
                 stringify!(MaybeInaccessibleMessage),
                 stringify!(Message),
-            )),
+            ))
+        }
+    }
+}
+impl From<crate::types::MaybeInaccessibleMessageUnknown> for MaybeInaccessibleMessage {
+    fn from(val: crate::types::MaybeInaccessibleMessageUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<MaybeInaccessibleMessage> for crate::types::MaybeInaccessibleMessageUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: MaybeInaccessibleMessage) -> Result<Self, Self::Error> {
+        if let MaybeInaccessibleMessage::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(MaybeInaccessibleMessage),
+                stringify!(MaybeInaccessibleMessageUnknown),
+            ))
         }
     }
 }

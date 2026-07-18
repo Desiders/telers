@@ -31,15 +31,18 @@ pub enum MessageOriginType {
     Chat,
     #[strum(serialize = "channel")]
     Channel,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl MessageOriginType {
     #[must_use]
-    pub const fn all() -> [MessageOriginType; 4usize] {
+    pub const fn all() -> [MessageOriginType; 5usize] {
         [
             MessageOriginType::User,
             MessageOriginType::HiddenUser,
             MessageOriginType::Chat,
             MessageOriginType::Channel,
+            MessageOriginType::Unknown,
         ]
     }
 }
@@ -65,6 +68,7 @@ impl<'a> From<&'a MessageOrigin> for MessageOriginType {
             MessageOrigin::HiddenUser(_) => MessageOriginType::HiddenUser,
             MessageOrigin::Chat(_) => MessageOriginType::Chat,
             MessageOrigin::Channel(_) => MessageOriginType::Channel,
+            MessageOrigin::Unknown(_) => MessageOriginType::Unknown,
         }
     }
 }

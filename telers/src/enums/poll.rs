@@ -26,11 +26,13 @@ pub enum PollType {
     Regular,
     #[strum(serialize = "quiz")]
     Quiz,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl PollType {
     #[must_use]
-    pub const fn all() -> [PollType; 2usize] {
-        [PollType::Regular, PollType::Quiz]
+    pub const fn all() -> [PollType; 3usize] {
+        [PollType::Regular, PollType::Quiz, PollType::Unknown]
     }
 }
 impl From<PollType> for Box<str> {
@@ -53,6 +55,7 @@ impl<'a> From<&'a Poll> for PollType {
         match val {
             Poll::Regular(_) => PollType::Regular,
             Poll::Quiz(_) => PollType::Quiz,
+            Poll::Unknown(_) => PollType::Unknown,
         }
     }
 }

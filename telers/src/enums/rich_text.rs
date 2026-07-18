@@ -94,10 +94,12 @@ pub enum RichTextType {
     Reference,
     #[strum(serialize = "reference_link")]
     ReferenceLink,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl RichTextType {
     #[must_use]
-    pub const fn all() -> [RichTextType; 25usize] {
+    pub const fn all() -> [RichTextType; 26usize] {
         [
             RichTextType::Bold,
             RichTextType::Italic,
@@ -124,6 +126,7 @@ impl RichTextType {
             RichTextType::AnchorLink,
             RichTextType::Reference,
             RichTextType::ReferenceLink,
+            RichTextType::Unknown,
         ]
     }
 }
@@ -172,6 +175,7 @@ impl<'a> TryFrom<&'a RichText> for RichTextType {
             RichText::AnchorLink(_) => Ok(RichTextType::AnchorLink),
             RichText::Reference(_) => Ok(RichTextType::Reference),
             RichText::ReferenceLink(_) => Ok(RichTextType::ReferenceLink),
+            RichText::Unknown(_) => Ok(RichTextType::Unknown),
             _ => Err(Self::Error::new(
                 stringify!(RichText),
                 stringify!(RichTextType),

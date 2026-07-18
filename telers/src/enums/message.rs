@@ -251,10 +251,12 @@ pub enum MessageType {
     WebAppData,
     #[strum(serialize = "write_access_allowed")]
     WriteAccessAllowed,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl MessageType {
     #[must_use]
-    pub const fn all() -> [MessageType; 77usize] {
+    pub const fn all() -> [MessageType; 78usize] {
         [
             MessageType::Animation,
             MessageType::LivePhoto,
@@ -333,6 +335,7 @@ impl MessageType {
             MessageType::Voice,
             MessageType::WebAppData,
             MessageType::WriteAccessAllowed,
+            MessageType::Unknown,
         ]
     }
 }
@@ -431,6 +434,7 @@ impl<'a> From<&'a Message> for MessageType {
             Message::Voice(_) => MessageType::Voice,
             Message::WebAppData(_) => MessageType::WebAppData,
             Message::WriteAccessAllowed(_) => MessageType::WriteAccessAllowed,
+            Message::Unknown(_) => MessageType::Unknown,
         }
     }
 }

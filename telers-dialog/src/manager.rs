@@ -179,6 +179,9 @@ impl<S: Storage> DialogManager<S> {
                             .and_then(|markup| serde_json::to_value(markup).ok()),
                         None,
                     ),
+                    MaybeInaccessibleMessage::Unknown(_) => unreachable!(
+                        "callback message payloads with `chat` are absorbed by `Message::Unknown`"
+                    ),
                 };
                 return Some(
                     OldMessage::new(

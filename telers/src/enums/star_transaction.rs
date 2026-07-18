@@ -26,11 +26,17 @@ pub enum StarTransactionType {
     Incoming,
     #[strum(serialize = "outgoing")]
     Outgoing,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl StarTransactionType {
     #[must_use]
-    pub const fn all() -> [StarTransactionType; 2usize] {
-        [StarTransactionType::Incoming, StarTransactionType::Outgoing]
+    pub const fn all() -> [StarTransactionType; 3usize] {
+        [
+            StarTransactionType::Incoming,
+            StarTransactionType::Outgoing,
+            StarTransactionType::Unknown,
+        ]
     }
 }
 impl From<StarTransactionType> for Box<str> {
@@ -53,6 +59,7 @@ impl<'a> From<&'a StarTransaction> for StarTransactionType {
         match val {
             StarTransaction::Incoming(_) => StarTransactionType::Incoming,
             StarTransaction::Outgoing(_) => StarTransactionType::Outgoing,
+            StarTransaction::Unknown(_) => StarTransactionType::Unknown,
         }
     }
 }

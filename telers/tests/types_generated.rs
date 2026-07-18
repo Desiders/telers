@@ -131,6 +131,21 @@ fn test_background_fill_freeform_gradient_serialize_deserialize() {
     must_roundtrip(stringify!(BackgroundFill), &parsed);
 }
 #[test]
+fn test_background_fill_unknown_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "unknown" });
+    let parsed: BackgroundFill = must_parse(stringify!(BackgroundFill), &value);
+    assert!(
+        matches!(&parsed, BackgroundFill::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(BackgroundFill),
+        stringify!(Unknown),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(BackgroundFill), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(BackgroundFill), &parsed);
+}
+#[test]
 fn test_background_type_fill_serialize_deserialize() {
     let value = serde_json::json!(
         { "type" : "fill", "fill" : { "type" : "solid", "color" : 1 },
@@ -193,6 +208,21 @@ fn test_background_type_chat_theme_serialize_deserialize() {
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
         stringify!(BackgroundType),
         stringify!(ChatTheme),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(BackgroundType), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(BackgroundType), &parsed);
+}
+#[test]
+fn test_background_type_unknown_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "unknown" });
+    let parsed: BackgroundType = must_parse(stringify!(BackgroundType), &value);
+    assert!(
+        matches!(&parsed, BackgroundType::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(BackgroundType),
+        stringify!(Unknown),
         parsed
     );
     let parsed_value = must_to_value(stringify!(BackgroundType), &parsed);
@@ -638,6 +668,21 @@ fn test_chat_boost_source_premium_serialize_deserialize() {
     must_roundtrip(stringify!(ChatBoostSource), &parsed);
 }
 #[test]
+fn test_chat_boost_source_unknown_serialize_deserialize() {
+    let value = serde_json::json!({ "source" : "unknown" });
+    let parsed: ChatBoostSource = must_parse(stringify!(ChatBoostSource), &value);
+    assert!(
+        matches!(&parsed, ChatBoostSource::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(ChatBoostSource),
+        stringify!(Unknown),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(ChatBoostSource), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(ChatBoostSource), &parsed);
+}
+#[test]
 fn test_chat_boost_updated_serialize_deserialize() {
     let value = serde_json::json!(
         { "chat" : { "type" : "private", "id" : 1 }, "boost" : { "boost_id" : "test",
@@ -723,6 +768,26 @@ fn test_chat_full_info_supergroup_serialize_deserialize() {
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
         stringify!(ChatFullInfo),
         stringify!(Supergroup),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(ChatFullInfo), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(ChatFullInfo), &parsed);
+}
+#[test]
+fn test_chat_full_info_unknown_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "unknown", "id" : 1, "accent_color_id" : 1, "max_reaction_count" : 1,
+        "accepted_gift_types" : { "unlimited_gifts" : true, "limited_gifts" : true,
+        "unique_gifts" : true, "premium_subscription" : true, "gifts_from_channels" :
+        true } }
+    );
+    let parsed: ChatFullInfo = must_parse(stringify!(ChatFullInfo), &value);
+    assert!(
+        matches!(&parsed, ChatFullInfo::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(ChatFullInfo),
+        stringify!(Unknown),
         parsed
     );
     let parsed_value = must_to_value(stringify!(ChatFullInfo), &parsed);
@@ -892,6 +957,24 @@ fn test_chat_member_restricted_serialize_deserialize() {
     must_roundtrip(stringify!(ChatMember), &parsed);
 }
 #[test]
+fn test_chat_member_unknown_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "status" : "unknown", "user" : { "id" : 1, "is_bot" : true, "first_name" :
+        "test" } }
+    );
+    let parsed: ChatMember = must_parse(stringify!(ChatMember), &value);
+    assert!(
+        matches!(&parsed, ChatMember::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(ChatMember),
+        stringify!(Unknown),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(ChatMember), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(ChatMember), &parsed);
+}
+#[test]
 fn test_chat_member_updated_serialize_deserialize() {
     let value = serde_json::json!(
         { "chat" : { "type" : "private", "id" : 1 }, "from" : { "id" : 1, "is_bot" :
@@ -949,6 +1032,21 @@ fn test_chat_shared_serialize_deserialize() {
     let parsed_value = must_to_value(stringify!(ChatShared), &parsed);
     assert_json_subset(&parsed_value, &value);
     must_roundtrip(stringify!(ChatShared), &parsed);
+}
+#[test]
+fn test_chat_unknown_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "unknown", "id" : 1 });
+    let parsed: Chat = must_parse(stringify!(Chat), &value);
+    assert!(
+        matches!(&parsed, Chat::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(Chat),
+        stringify!(Unknown),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(Chat), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(Chat), &parsed);
 }
 #[test]
 fn test_checklist_serialize_deserialize() {
@@ -1307,6 +1405,21 @@ fn test_encrypted_passport_element_utility_bill_serialize_deserialize() {
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
         stringify!(EncryptedPassportElement),
         stringify!(UtilityBill),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(EncryptedPassportElement), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(EncryptedPassportElement), &parsed);
+}
+#[test]
+fn test_encrypted_passport_element_unknown_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "unknown", "hash" : "test" });
+    let parsed: EncryptedPassportElement = must_parse(stringify!(EncryptedPassportElement), &value);
+    assert!(
+        matches!(&parsed, EncryptedPassportElement::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(EncryptedPassportElement),
+        stringify!(Unknown),
         parsed
     );
     let parsed_value = must_to_value(stringify!(EncryptedPassportElement), &parsed);
@@ -1941,6 +2054,24 @@ fn test_giveaway_created_serialize_deserialize() {
     must_roundtrip(stringify!(GiveawayCreated), &parsed);
 }
 #[test]
+fn test_giveaway_unknown_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "chats" : [{ "type" : "private", "id" : 1 }], "winners_selection_date" : 1,
+        "winner_count" : 1 }
+    );
+    let parsed: Giveaway = must_parse(stringify!(Giveaway), &value);
+    assert!(
+        matches!(&parsed, Giveaway::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(Giveaway),
+        stringify!(Unknown),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(Giveaway), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(Giveaway), &parsed);
+}
+#[test]
 fn test_giveaway_winners_premium_serialize_deserialize() {
     let value = serde_json::json!(
         { "chat" : { "type" : "private", "id" : 1 }, "giveaway_message_id" : 1,
@@ -1973,6 +2104,25 @@ fn test_giveaway_winners_star_serialize_deserialize() {
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
         stringify!(GiveawayWinners),
         stringify!(Star),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(GiveawayWinners), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(GiveawayWinners), &parsed);
+}
+#[test]
+fn test_giveaway_winners_unknown_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "chat" : { "type" : "private", "id" : 1 }, "giveaway_message_id" : 1,
+        "winners_selection_date" : 1, "winner_count" : 1, "winners" : [{ "id" : 1,
+        "is_bot" : true, "first_name" : "test" }] }
+    );
+    let parsed: GiveawayWinners = must_parse(stringify!(GiveawayWinners), &value);
+    assert!(
+        matches!(&parsed, GiveawayWinners::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(GiveawayWinners),
+        stringify!(Unknown),
         parsed
     );
     let parsed_value = must_to_value(stringify!(GiveawayWinners), &parsed);
@@ -3407,6 +3557,21 @@ fn test_maybe_inaccessible_message_serialize_deserialize() {
     must_roundtrip(stringify!(MaybeInaccessibleMessage), &parsed);
 }
 #[test]
+fn test_maybe_inaccessible_message_unknown_serialize_deserialize() {
+    let value = serde_json::json!({});
+    let parsed: MaybeInaccessibleMessage = must_parse(stringify!(MaybeInaccessibleMessage), &value);
+    assert!(
+        matches!(&parsed, MaybeInaccessibleMessage::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(MaybeInaccessibleMessage),
+        stringify!(Unknown),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(MaybeInaccessibleMessage), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(MaybeInaccessibleMessage), &parsed);
+}
+#[test]
 fn test_menu_button_serialize_deserialize() {
     let value = serde_json::json!({ "type" : "commands" });
     let parsed: MenuButton = must_parse(stringify!(MenuButton), &value);
@@ -3438,6 +3603,21 @@ fn test_menu_button_default_serialize_deserialize() {
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
         stringify!(MenuButton),
         stringify!(Default),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(MenuButton), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(MenuButton), &parsed);
+}
+#[test]
+fn test_menu_button_unknown_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "unknown" });
+    let parsed: MenuButton = must_parse(stringify!(MenuButton), &value);
+    assert!(
+        matches!(&parsed, MenuButton::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(MenuButton),
+        stringify!(Unknown),
         parsed
     );
     let parsed_value = must_to_value(stringify!(MenuButton), &parsed);
@@ -5223,6 +5403,21 @@ fn test_message_entity_url_serialize_deserialize() {
     must_roundtrip(stringify!(MessageEntity), &parsed);
 }
 #[test]
+fn test_message_entity_unknown_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "unknown", "offset" : 1, "length" : 1 });
+    let parsed: MessageEntity = must_parse(stringify!(MessageEntity), &value);
+    assert!(
+        matches!(&parsed, MessageEntity::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(MessageEntity),
+        stringify!(Unknown),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(MessageEntity), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(MessageEntity), &parsed);
+}
+#[test]
 fn test_message_id_serialize_deserialize() {
     let value = serde_json::json!({ "message_id" : 1 });
     let parsed: MessageId = must_parse(stringify!(MessageId), &value);
@@ -5294,6 +5489,21 @@ fn test_message_origin_hidden_user_serialize_deserialize() {
     must_roundtrip(stringify!(MessageOrigin), &parsed);
 }
 #[test]
+fn test_message_origin_unknown_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "unknown", "date" : 1 });
+    let parsed: MessageOrigin = must_parse(stringify!(MessageOrigin), &value);
+    assert!(
+        matches!(&parsed, MessageOrigin::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(MessageOrigin),
+        stringify!(Unknown),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(MessageOrigin), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(MessageOrigin), &parsed);
+}
+#[test]
 fn test_message_origin_user_serialize_deserialize() {
     let value = serde_json::json!(
         { "type" : "user", "date" : 1, "sender_user" : { "id" : 1, "is_bot" : true,
@@ -5335,6 +5545,23 @@ fn test_message_reaction_updated_serialize_deserialize() {
     let parsed_value = must_to_value(stringify!(MessageReactionUpdated), &parsed);
     assert_json_subset(&parsed_value, &value);
     must_roundtrip(stringify!(MessageReactionUpdated), &parsed);
+}
+#[test]
+fn test_message_unknown_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "message_id" : 1, "date" : 1, "chat" : { "type" : "private", "id" : 1 } }
+    );
+    let parsed: Message = must_parse(stringify!(Message), &value);
+    assert!(
+        matches!(&parsed, Message::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(Message),
+        stringify!(Unknown),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(Message), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(Message), &parsed);
 }
 #[test]
 fn test_order_info_serialize_deserialize() {
@@ -5382,6 +5609,25 @@ fn test_owned_gift_unique_serialize_deserialize() {
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
         stringify!(OwnedGift),
         stringify!(Unique),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(OwnedGift), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(OwnedGift), &parsed);
+}
+#[test]
+fn test_owned_gift_unknown_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "unknown", "gift" : { "id" : "test", "sticker" : { "type" : "regular",
+        "file_id" : "used", "file_unique_id" : "test", "width" : 1, "height" : 1,
+        "is_animated" : true, "is_video" : true }, "star_count" : 1 }, "send_date" : 1 }
+    );
+    let parsed: OwnedGift = must_parse(stringify!(OwnedGift), &value);
+    assert!(
+        matches!(&parsed, OwnedGift::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(OwnedGift),
+        stringify!(Unknown),
         parsed
     );
     let parsed_value = must_to_value(stringify!(OwnedGift), &parsed);
@@ -5492,6 +5738,21 @@ fn test_paid_media_purchased_serialize_deserialize() {
     let parsed_value = must_to_value(stringify!(PaidMediaPurchased), &parsed);
     assert_json_subset(&parsed_value, &value);
     must_roundtrip(stringify!(PaidMediaPurchased), &parsed);
+}
+#[test]
+fn test_paid_media_unknown_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "unknown" });
+    let parsed: PaidMedia = must_parse(stringify!(PaidMedia), &value);
+    assert!(
+        matches!(&parsed, PaidMedia::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(PaidMedia),
+        stringify!(Unknown),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(PaidMedia), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(PaidMedia), &parsed);
 }
 #[test]
 fn test_paid_message_price_changed_serialize_deserialize() {
@@ -5933,6 +6194,21 @@ fn test_poll_media_video_serialize_deserialize() {
     must_roundtrip(stringify!(PollMedia), &parsed);
 }
 #[test]
+fn test_poll_media_unknown_serialize_deserialize() {
+    let value = serde_json::json!({});
+    let parsed: PollMedia = must_parse(stringify!(PollMedia), &value);
+    assert!(
+        matches!(&parsed, PollMedia::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(PollMedia),
+        stringify!(Unknown),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(PollMedia), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(PollMedia), &parsed);
+}
+#[test]
 fn test_poll_option_serialize_deserialize() {
     let value = serde_json::json!(
         { "persistent_id" : "test", "text" : "test", "voter_count" : 1 }
@@ -5961,6 +6237,27 @@ fn test_poll_option_deleted_serialize_deserialize() {
     let parsed_value = must_to_value(stringify!(PollOptionDeleted), &parsed);
     assert_json_subset(&parsed_value, &value);
     must_roundtrip(stringify!(PollOptionDeleted), &parsed);
+}
+#[test]
+fn test_poll_unknown_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "unknown", "id" : "test", "question" : "test", "options" : [{
+        "persistent_id" : "test", "text" : "test", "voter_count" : 1 }],
+        "total_voter_count" : 1, "is_closed" : true, "is_anonymous" : true,
+        "allows_multiple_answers" : true, "allows_revoting" : true, "members_only" : true
+        }
+    );
+    let parsed: Poll = must_parse(stringify!(Poll), &value);
+    assert!(
+        matches!(&parsed, Poll::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(Poll),
+        stringify!(Unknown),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(Poll), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(Poll), &parsed);
 }
 #[test]
 fn test_pre_checkout_query_serialize_deserialize() {
@@ -6051,6 +6348,21 @@ fn test_reaction_type_paid_serialize_deserialize() {
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
         stringify!(ReactionType),
         stringify!(Paid),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(ReactionType), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(ReactionType), &parsed);
+}
+#[test]
+fn test_reaction_type_unknown_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "unknown" });
+    let parsed: ReactionType = must_parse(stringify!(ReactionType), &value);
+    assert!(
+        matches!(&parsed, ReactionType::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(ReactionType),
+        stringify!(Unknown),
         parsed
     );
     let parsed_value = must_to_value(stringify!(ReactionType), &parsed);
@@ -6153,6 +6465,21 @@ fn test_revenue_withdrawal_state_failed_serialize_deserialize() {
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
         stringify!(RevenueWithdrawalState),
         stringify!(Failed),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(RevenueWithdrawalState), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(RevenueWithdrawalState), &parsed);
+}
+#[test]
+fn test_revenue_withdrawal_state_unknown_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "unknown" });
+    let parsed: RevenueWithdrawalState = must_parse(stringify!(RevenueWithdrawalState), &value);
+    assert!(
+        matches!(&parsed, RevenueWithdrawalState::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(RevenueWithdrawalState),
+        stringify!(Unknown),
         parsed
     );
     let parsed_value = must_to_value(stringify!(RevenueWithdrawalState), &parsed);
@@ -6500,6 +6827,21 @@ fn test_rich_block_thinking_serialize_deserialize() {
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
         stringify!(RichBlock),
         stringify!(Thinking),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(RichBlock), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(RichBlock), &parsed);
+}
+#[test]
+fn test_rich_block_unknown_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "unknown" });
+    let parsed: RichBlock = must_parse(stringify!(RichBlock), &value);
+    assert!(
+        matches!(&parsed, RichBlock::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(RichBlock),
+        stringify!(Unknown),
         parsed
     );
     let parsed_value = must_to_value(stringify!(RichBlock), &parsed);
@@ -6952,6 +7294,21 @@ fn test_rich_text_underline_serialize_deserialize() {
     must_roundtrip(stringify!(RichText), &parsed);
 }
 #[test]
+fn test_rich_text_unknown_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "unknown" });
+    let parsed: RichText = must_parse(stringify!(RichText), &value);
+    assert!(
+        matches!(&parsed, RichText::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(RichText),
+        stringify!(Unknown),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(RichText), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(RichText), &parsed);
+}
+#[test]
 fn test_rich_text_url_serialize_deserialize() {
     let value = serde_json::json!({ "type" : "url", "text" : "test", "url" : "test" });
     let parsed: RichText = must_parse(stringify!(RichText), &value);
@@ -7072,6 +7429,21 @@ fn test_star_transaction_outgoing_serialize_deserialize() {
     must_roundtrip(stringify!(StarTransaction), &parsed);
 }
 #[test]
+fn test_star_transaction_unknown_serialize_deserialize() {
+    let value = serde_json::json!({ "id" : "test", "amount" : 1, "date" : 1 });
+    let parsed: StarTransaction = must_parse(stringify!(StarTransaction), &value);
+    assert!(
+        matches!(&parsed, StarTransaction::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(StarTransaction),
+        stringify!(Unknown),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(StarTransaction), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(StarTransaction), &parsed);
+}
+#[test]
 fn test_star_transactions_serialize_deserialize() {
     let value = serde_json::json!(
         { "transactions" : [{ "id" : "test", "amount" : 1, "date" : 1, "source" : {
@@ -7148,6 +7520,24 @@ fn test_sticker_set_serialize_deserialize() {
     let parsed_value = must_to_value(stringify!(StickerSet), &parsed);
     assert_json_subset(&parsed_value, &value);
     must_roundtrip(stringify!(StickerSet), &parsed);
+}
+#[test]
+fn test_sticker_unknown_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "unknown", "file_id" : "used", "file_unique_id" : "test", "width" : 1,
+        "height" : 1, "is_animated" : true, "is_video" : true }
+    );
+    let parsed: Sticker = must_parse(stringify!(Sticker), &value);
+    assert!(
+        matches!(&parsed, Sticker::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(Sticker),
+        stringify!(Unknown),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(Sticker), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(Sticker), &parsed);
 }
 #[test]
 fn test_story_serialize_deserialize() {
@@ -7473,6 +7863,21 @@ fn test_transaction_partner_other_serialize_deserialize() {
     must_roundtrip(stringify!(TransactionPartner), &parsed);
 }
 #[test]
+fn test_transaction_partner_unknown_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "unknown" });
+    let parsed: TransactionPartner = must_parse(stringify!(TransactionPartner), &value);
+    assert!(
+        matches!(&parsed, TransactionPartner::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(TransactionPartner),
+        stringify!(Unknown),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(TransactionPartner), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(TransactionPartner), &parsed);
+}
+#[test]
 fn test_transaction_partner_user_business_account_transfer_serialize_deserialize() {
     let value = serde_json::json!(
         { "transaction_type" : "business_account_transfer", "type" : "user", "user" : {
@@ -7560,6 +7965,24 @@ fn test_transaction_partner_user_premium_purchase_serialize_deserialize() {
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
         stringify!(TransactionPartnerUser),
         stringify!(PremiumPurchase),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(TransactionPartnerUser), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(TransactionPartnerUser), &parsed);
+}
+#[test]
+fn test_transaction_partner_user_unknown_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "transaction_type" : "unknown", "type" : "user", "user" : { "id" : 1, "is_bot"
+        : true, "first_name" : "test" } }
+    );
+    let parsed: TransactionPartnerUser = must_parse(stringify!(TransactionPartnerUser), &value);
+    assert!(
+        matches!(&parsed, TransactionPartnerUser::Unknown(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(TransactionPartnerUser),
+        stringify!(Unknown),
         parsed
     );
     let parsed_value = must_to_value(stringify!(TransactionPartnerUser), &parsed);

@@ -28,14 +28,17 @@ pub enum BackgroundFillType {
     Gradient,
     #[strum(serialize = "freeform_gradient")]
     FreeformGradient,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl BackgroundFillType {
     #[must_use]
-    pub const fn all() -> [BackgroundFillType; 3usize] {
+    pub const fn all() -> [BackgroundFillType; 4usize] {
         [
             BackgroundFillType::Solid,
             BackgroundFillType::Gradient,
             BackgroundFillType::FreeformGradient,
+            BackgroundFillType::Unknown,
         ]
     }
 }
@@ -60,6 +63,7 @@ impl<'a> From<&'a BackgroundFill> for BackgroundFillType {
             BackgroundFill::Solid(_) => BackgroundFillType::Solid,
             BackgroundFill::Gradient(_) => BackgroundFillType::Gradient,
             BackgroundFill::FreeformGradient(_) => BackgroundFillType::FreeformGradient,
+            BackgroundFill::Unknown(_) => BackgroundFillType::Unknown,
         }
     }
 }

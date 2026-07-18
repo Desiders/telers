@@ -26,11 +26,17 @@ pub enum GiveawayWinnersType {
     Premium,
     #[strum(serialize = "star")]
     Star,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl GiveawayWinnersType {
     #[must_use]
-    pub const fn all() -> [GiveawayWinnersType; 2usize] {
-        [GiveawayWinnersType::Premium, GiveawayWinnersType::Star]
+    pub const fn all() -> [GiveawayWinnersType; 3usize] {
+        [
+            GiveawayWinnersType::Premium,
+            GiveawayWinnersType::Star,
+            GiveawayWinnersType::Unknown,
+        ]
     }
 }
 impl From<GiveawayWinnersType> for Box<str> {
@@ -53,6 +59,7 @@ impl<'a> From<&'a GiveawayWinners> for GiveawayWinnersType {
         match val {
             GiveawayWinners::Premium(_) => GiveawayWinnersType::Premium,
             GiveawayWinners::Star(_) => GiveawayWinnersType::Star,
+            GiveawayWinners::Unknown(_) => GiveawayWinnersType::Unknown,
         }
     }
 }

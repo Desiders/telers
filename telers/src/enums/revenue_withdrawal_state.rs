@@ -28,14 +28,17 @@ pub enum RevenueWithdrawalStateType {
     Succeeded,
     #[strum(serialize = "failed")]
     Failed,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl RevenueWithdrawalStateType {
     #[must_use]
-    pub const fn all() -> [RevenueWithdrawalStateType; 3usize] {
+    pub const fn all() -> [RevenueWithdrawalStateType; 4usize] {
         [
             RevenueWithdrawalStateType::Pending,
             RevenueWithdrawalStateType::Succeeded,
             RevenueWithdrawalStateType::Failed,
+            RevenueWithdrawalStateType::Unknown,
         ]
     }
 }
@@ -60,6 +63,7 @@ impl<'a> From<&'a RevenueWithdrawalState> for RevenueWithdrawalStateType {
             RevenueWithdrawalState::Pending(_) => RevenueWithdrawalStateType::Pending,
             RevenueWithdrawalState::Succeeded(_) => RevenueWithdrawalStateType::Succeeded,
             RevenueWithdrawalState::Failed(_) => RevenueWithdrawalStateType::Failed,
+            RevenueWithdrawalState::Unknown(_) => RevenueWithdrawalStateType::Unknown,
         }
     }
 }

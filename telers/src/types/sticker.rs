@@ -12,6 +12,9 @@ pub enum Sticker {
     Regular(crate::types::StickerRegular),
     Mask(crate::types::StickerMask),
     CustomEmoji(crate::types::StickerCustomEmoji),
+    /// Content unknown to this version of the library
+    #[serde(untagged)]
+    Unknown(crate::types::StickerUnknown),
 }
 impl Sticker {
     /// Helper method for field `custom_emoji_id`.
@@ -34,6 +37,7 @@ impl Sticker {
             Self::Regular(val) => val.emoji.as_deref(),
             Self::Mask(val) => val.emoji.as_deref(),
             Self::CustomEmoji(val) => val.emoji.as_deref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -46,6 +50,7 @@ impl Sticker {
             Self::Regular(val) => val.file_id.as_ref(),
             Self::Mask(val) => val.file_id.as_ref(),
             Self::CustomEmoji(val) => val.file_id.as_ref(),
+            Self::Unknown(val) => val.file_id.as_ref(),
         }
     }
 
@@ -58,6 +63,7 @@ impl Sticker {
             Self::Regular(val) => val.file_size,
             Self::Mask(val) => val.file_size,
             Self::CustomEmoji(val) => val.file_size,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -70,6 +76,7 @@ impl Sticker {
             Self::Regular(val) => val.file_unique_id.as_ref(),
             Self::Mask(val) => val.file_unique_id.as_ref(),
             Self::CustomEmoji(val) => val.file_unique_id.as_ref(),
+            Self::Unknown(val) => val.file_unique_id.as_ref(),
         }
     }
 
@@ -82,6 +89,7 @@ impl Sticker {
             Self::Regular(val) => val.height,
             Self::Mask(val) => val.height,
             Self::CustomEmoji(val) => val.height,
+            Self::Unknown(val) => val.height,
         }
     }
 
@@ -94,6 +102,7 @@ impl Sticker {
             Self::Regular(val) => val.is_animated,
             Self::Mask(val) => val.is_animated,
             Self::CustomEmoji(val) => val.is_animated,
+            Self::Unknown(val) => val.is_animated,
         }
     }
 
@@ -106,6 +115,7 @@ impl Sticker {
             Self::Regular(val) => val.is_video,
             Self::Mask(val) => val.is_video,
             Self::CustomEmoji(val) => val.is_video,
+            Self::Unknown(val) => val.is_video,
         }
     }
 
@@ -129,6 +139,7 @@ impl Sticker {
             Self::Regular(val) => val.needs_repainting,
             Self::Mask(val) => val.needs_repainting,
             Self::CustomEmoji(val) => val.needs_repainting,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -152,6 +163,7 @@ impl Sticker {
             Self::Regular(val) => val.set_name.as_deref(),
             Self::Mask(val) => val.set_name.as_deref(),
             Self::CustomEmoji(val) => val.set_name.as_deref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -164,6 +176,7 @@ impl Sticker {
             Self::Regular(val) => val.thumbnail.as_ref(),
             Self::Mask(val) => val.thumbnail.as_ref(),
             Self::CustomEmoji(val) => val.thumbnail.as_ref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -176,6 +189,7 @@ impl Sticker {
             Self::Regular(val) => val.width,
             Self::Mask(val) => val.width,
             Self::CustomEmoji(val) => val.width,
+            Self::Unknown(val) => val.width,
         }
     }
 
@@ -280,6 +294,25 @@ impl TryFrom<Sticker> for crate::types::StickerCustomEmoji {
             Err(Self::Error::new(
                 stringify!(Sticker),
                 stringify!(StickerCustomEmoji),
+            ))
+        }
+    }
+}
+impl From<crate::types::StickerUnknown> for Sticker {
+    fn from(val: crate::types::StickerUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<Sticker> for crate::types::StickerUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Sticker) -> Result<Self, Self::Error> {
+        if let Sticker::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Sticker),
+                stringify!(StickerUnknown),
             ))
         }
     }

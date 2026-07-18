@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 pub enum GiveawayWinners {
     Premium(crate::types::GiveawayWinnersPremium),
     Star(crate::types::GiveawayWinnersStar),
+    Unknown(crate::types::GiveawayWinnersUnknown),
 }
 impl GiveawayWinners {
     /// Helper method for field `additional_chat_count`.
@@ -20,6 +21,7 @@ impl GiveawayWinners {
         match self {
             Self::Premium(val) => val.additional_chat_count,
             Self::Star(val) => val.additional_chat_count,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -31,6 +33,7 @@ impl GiveawayWinners {
         match self {
             Self::Premium(val) => val.chat.as_ref(),
             Self::Star(val) => val.chat.as_ref(),
+            Self::Unknown(val) => val.chat.as_ref(),
         }
     }
 
@@ -42,6 +45,7 @@ impl GiveawayWinners {
         match self {
             Self::Premium(val) => val.giveaway_message_id,
             Self::Star(val) => val.giveaway_message_id,
+            Self::Unknown(val) => val.giveaway_message_id,
         }
     }
 
@@ -53,6 +57,7 @@ impl GiveawayWinners {
         match self {
             Self::Premium(val) => val.only_new_members,
             Self::Star(val) => val.only_new_members,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -63,7 +68,7 @@ impl GiveawayWinners {
     pub fn premium_subscription_month_count(&self) -> Option<i64> {
         match self {
             Self::Premium(val) => Some(val.premium_subscription_month_count),
-            Self::Star(_) => None,
+            _ => None,
         }
     }
 
@@ -75,6 +80,7 @@ impl GiveawayWinners {
         match self {
             Self::Premium(val) => val.prize_description.as_deref(),
             Self::Star(val) => val.prize_description.as_deref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -85,7 +91,7 @@ impl GiveawayWinners {
     pub fn prize_star_count(&self) -> Option<i64> {
         match self {
             Self::Star(val) => Some(val.prize_star_count),
-            Self::Premium(_) => None,
+            _ => None,
         }
     }
 
@@ -97,6 +103,7 @@ impl GiveawayWinners {
         match self {
             Self::Premium(val) => val.unclaimed_prize_count,
             Self::Star(val) => val.unclaimed_prize_count,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -108,6 +115,7 @@ impl GiveawayWinners {
         match self {
             Self::Premium(val) => val.was_refunded,
             Self::Star(val) => val.was_refunded,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -119,6 +127,7 @@ impl GiveawayWinners {
         match self {
             Self::Premium(val) => val.winner_count,
             Self::Star(val) => val.winner_count,
+            Self::Unknown(val) => val.winner_count,
         }
     }
 
@@ -130,6 +139,7 @@ impl GiveawayWinners {
         match self {
             Self::Premium(val) => val.winners.as_ref(),
             Self::Star(val) => val.winners.as_ref(),
+            Self::Unknown(val) => val.winners.as_ref(),
         }
     }
 
@@ -141,6 +151,7 @@ impl GiveawayWinners {
         match self {
             Self::Premium(val) => val.winners_selection_date,
             Self::Star(val) => val.winners_selection_date,
+            Self::Unknown(val) => val.winners_selection_date,
         }
     }
 
@@ -195,12 +206,13 @@ impl TryFrom<GiveawayWinners> for crate::types::GiveawayWinnersPremium {
     type Error = crate::errors::ConvertToTypeError;
 
     fn try_from(val: GiveawayWinners) -> Result<Self, Self::Error> {
-        match val {
-            GiveawayWinners::Premium(inner) => Ok(inner),
-            GiveawayWinners::Star(_) => Err(Self::Error::new(
+        if let GiveawayWinners::Premium(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
                 stringify!(GiveawayWinners),
                 stringify!(GiveawayWinnersPremium),
-            )),
+            ))
         }
     }
 }
@@ -213,12 +225,32 @@ impl TryFrom<GiveawayWinners> for crate::types::GiveawayWinnersStar {
     type Error = crate::errors::ConvertToTypeError;
 
     fn try_from(val: GiveawayWinners) -> Result<Self, Self::Error> {
-        match val {
-            GiveawayWinners::Star(inner) => Ok(inner),
-            GiveawayWinners::Premium(_) => Err(Self::Error::new(
+        if let GiveawayWinners::Star(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
                 stringify!(GiveawayWinners),
                 stringify!(GiveawayWinnersStar),
-            )),
+            ))
+        }
+    }
+}
+impl From<crate::types::GiveawayWinnersUnknown> for GiveawayWinners {
+    fn from(val: crate::types::GiveawayWinnersUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<GiveawayWinners> for crate::types::GiveawayWinnersUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: GiveawayWinners) -> Result<Self, Self::Error> {
+        if let GiveawayWinners::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(GiveawayWinners),
+                stringify!(GiveawayWinnersUnknown),
+            ))
         }
     }
 }

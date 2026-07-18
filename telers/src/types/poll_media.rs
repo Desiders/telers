@@ -26,6 +26,7 @@ pub enum PollMedia {
     Photo(crate::types::PollMediaPhoto),
     Sticker(crate::types::PollMediaSticker),
     Video(crate::types::PollMediaVideo),
+    Unknown(crate::types::PollMediaUnknown),
 }
 impl PollMedia {
     /// Helper method for field `animation`.
@@ -876,6 +877,25 @@ impl TryFrom<PollMedia> for crate::types::PollMediaVideo {
             Err(Self::Error::new(
                 stringify!(PollMedia),
                 stringify!(PollMediaVideo),
+            ))
+        }
+    }
+}
+impl From<crate::types::PollMediaUnknown> for PollMedia {
+    fn from(val: crate::types::PollMediaUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<PollMedia> for crate::types::PollMediaUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: PollMedia) -> Result<Self, Self::Error> {
+        if let PollMedia::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(PollMedia),
+                stringify!(PollMediaUnknown),
             ))
         }
     }

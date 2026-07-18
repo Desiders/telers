@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 pub enum StarTransaction {
     Incoming(crate::types::StarTransactionIncoming),
     Outgoing(crate::types::StarTransactionOutgoing),
+    Unknown(crate::types::StarTransactionUnknown),
 }
 impl StarTransaction {
     /// Helper method for field `amount`.
@@ -20,6 +21,7 @@ impl StarTransaction {
         match self {
             Self::Incoming(val) => val.amount,
             Self::Outgoing(val) => val.amount,
+            Self::Unknown(val) => val.amount,
         }
     }
 
@@ -31,6 +33,7 @@ impl StarTransaction {
         match self {
             Self::Incoming(val) => val.date,
             Self::Outgoing(val) => val.date,
+            Self::Unknown(val) => val.date,
         }
     }
 
@@ -42,6 +45,7 @@ impl StarTransaction {
         match self {
             Self::Incoming(val) => val.id.as_ref(),
             Self::Outgoing(val) => val.id.as_ref(),
+            Self::Unknown(val) => val.id.as_ref(),
         }
     }
 
@@ -53,6 +57,7 @@ impl StarTransaction {
         match self {
             Self::Incoming(val) => val.nanostar_amount,
             Self::Outgoing(val) => val.nanostar_amount,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -63,7 +68,7 @@ impl StarTransaction {
     pub fn receiver(&self) -> Option<&crate::types::TransactionPartner> {
         match self {
             Self::Outgoing(val) => Some(&val.receiver),
-            Self::Incoming(_) => None,
+            _ => None,
         }
     }
 
@@ -74,7 +79,7 @@ impl StarTransaction {
     pub fn source(&self) -> Option<&crate::types::TransactionPartner> {
         match self {
             Self::Incoming(val) => Some(&val.source),
-            Self::Outgoing(_) => None,
+            _ => None,
         }
     }
 
@@ -90,6 +95,7 @@ impl StarTransaction {
                 let inner = &val.source;
                 crate::types::TransactionPartner::chat(inner)
             }
+            Self::Unknown(_) => None,
         }
     }
 
@@ -105,6 +111,7 @@ impl StarTransaction {
                 let inner = &val.source;
                 crate::types::TransactionPartner::commission_per_mille(inner)
             }
+            Self::Unknown(_) => None,
         }
     }
 
@@ -120,6 +127,7 @@ impl StarTransaction {
                 let inner = &val.source;
                 crate::types::TransactionPartner::gift(inner)
             }
+            Self::Unknown(_) => None,
         }
     }
 
@@ -135,6 +143,7 @@ impl StarTransaction {
                 let inner = &val.source;
                 crate::types::TransactionPartner::request_count(inner)
             }
+            Self::Unknown(_) => None,
         }
     }
 
@@ -150,6 +159,7 @@ impl StarTransaction {
                 let inner = &val.source;
                 crate::types::TransactionPartner::sponsor_user(inner)
             }
+            Self::Unknown(_) => None,
         }
     }
 
@@ -165,6 +175,7 @@ impl StarTransaction {
                 let inner = &val.source;
                 crate::types::TransactionPartner::withdrawal_state(inner)
             }
+            Self::Unknown(_) => None,
         }
     }
 }
@@ -177,12 +188,13 @@ impl TryFrom<StarTransaction> for crate::types::StarTransactionIncoming {
     type Error = crate::errors::ConvertToTypeError;
 
     fn try_from(val: StarTransaction) -> Result<Self, Self::Error> {
-        match val {
-            StarTransaction::Incoming(inner) => Ok(inner),
-            StarTransaction::Outgoing(_) => Err(Self::Error::new(
+        if let StarTransaction::Incoming(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
                 stringify!(StarTransaction),
                 stringify!(StarTransactionIncoming),
-            )),
+            ))
         }
     }
 }
@@ -195,12 +207,32 @@ impl TryFrom<StarTransaction> for crate::types::StarTransactionOutgoing {
     type Error = crate::errors::ConvertToTypeError;
 
     fn try_from(val: StarTransaction) -> Result<Self, Self::Error> {
-        match val {
-            StarTransaction::Outgoing(inner) => Ok(inner),
-            StarTransaction::Incoming(_) => Err(Self::Error::new(
+        if let StarTransaction::Outgoing(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
                 stringify!(StarTransaction),
                 stringify!(StarTransactionOutgoing),
-            )),
+            ))
+        }
+    }
+}
+impl From<crate::types::StarTransactionUnknown> for StarTransaction {
+    fn from(val: crate::types::StarTransactionUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<StarTransaction> for crate::types::StarTransactionUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: StarTransaction) -> Result<Self, Self::Error> {
+        if let StarTransaction::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(StarTransaction),
+                stringify!(StarTransactionUnknown),
+            ))
         }
     }
 }

@@ -16,6 +16,9 @@ pub enum TransactionPartnerUser {
     GiftPurchase(crate::types::TransactionPartnerUserGiftPurchase),
     PremiumPurchase(crate::types::TransactionPartnerUserPremiumPurchase),
     BusinessAccountTransfer(crate::types::TransactionPartnerUserBusinessAccountTransfer),
+    /// Content unknown to this version of the library
+    #[serde(untagged)]
+    Unknown(crate::types::TransactionPartnerUserUnknown),
 }
 impl TransactionPartnerUser {
     /// Helper method for field `affiliate`.
@@ -107,6 +110,7 @@ impl TransactionPartnerUser {
             Self::GiftPurchase(val) => val.user.as_ref(),
             Self::PremiumPurchase(val) => val.user.as_ref(),
             Self::BusinessAccountTransfer(val) => val.user.as_ref(),
+            Self::Unknown(val) => val.user.as_ref(),
         }
     }
 
@@ -553,6 +557,25 @@ impl TryFrom<TransactionPartnerUser>
             Err(Self::Error::new(
                 stringify!(TransactionPartnerUser),
                 stringify!(TransactionPartnerUserBusinessAccountTransfer),
+            ))
+        }
+    }
+}
+impl From<crate::types::TransactionPartnerUserUnknown> for TransactionPartnerUser {
+    fn from(val: crate::types::TransactionPartnerUserUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<TransactionPartnerUser> for crate::types::TransactionPartnerUserUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: TransactionPartnerUser) -> Result<Self, Self::Error> {
+        if let TransactionPartnerUser::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(TransactionPartnerUser),
+                stringify!(TransactionPartnerUserUnknown),
             ))
         }
     }

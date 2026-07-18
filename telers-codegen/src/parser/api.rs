@@ -324,6 +324,7 @@ impl Schema {
                         Some(NormalizedSubtypeVariant {
                             variant,
                             ty_name: subtype_name,
+                            is_untagged_fallback: false,
                         })
                     })
                     .collect();
@@ -499,6 +500,9 @@ fn classify_extra_subtype(subtype: &str, parent_name: &str) -> Option<ExtraSubty
 pub struct NormalizedSubtypeVariant {
     pub variant: TelegramTypeName,
     pub ty_name: TelegramTypeName,
+    /// Trailing `#[serde(untagged)]` fallback variant of a tagged enum, catching payloads
+    /// whose tag value is unknown (see [`Schema::add_unknown_fallbacks`]).
+    pub is_untagged_fallback: bool,
 }
 
 #[derive(Debug)]
@@ -602,6 +606,7 @@ impl NormalizedSchema {
             .map(|(variant, name)| NormalizedSubtypeVariant {
                 variant: variant.clone(),
                 ty_name: name.clone(),
+                is_untagged_fallback: false,
             })
             .collect();
     }
@@ -689,6 +694,137 @@ impl NormalizedSchema {
         }
     }
 
+    /// Adds a trailing `Unknown` fallback variant to every deserialization-reachable enum,
+    /// so content Telegram adds later degrades into a structured `{Name}Unknown` value
+    /// instead of failing the whole object (and, through untagged parents like `Message`,
+    /// the whole update).
+    ///
+    /// The fallback type carries the fields shared by all current variants (for a tagged
+    /// enum that includes the raw tag, e.g. `type`) and keeps everything else in `extra`,
+    /// so nothing is lost on reserialization. Excluded: `Update` (unparsable updates
+    /// already degrade via its dedicated fallback), enums that already have an `Unknown`
+    /// variant, and types that are only ever serialized (unreachable from `Update` and
+    /// method return types).
+    ///
+    /// Must run after the splits and [`Self::reorder_untagged_subtypes`]: the fallback has
+    /// to stay the last variant, since untagged deserialization tries variants in order.
+    pub fn add_unknown_fallbacks(&mut self) {
+        let mut queue: Vec<TelegramTypeName> = vec!["Update".to_owned()];
+        for method in self.methods.values() {
+            for kind in &method.returns {
+                collect_telegram_names(kind, &mut queue);
+            }
+        }
+        let mut reachable = HashSet::new();
+        while let Some(name) = queue.pop() {
+            if !reachable.insert(name.clone()) {
+                continue;
+            }
+            let Some(ty) = self.types.get(&name) else {
+                continue;
+            };
+            for field in &ty.fields {
+                collect_telegram_names(&field.r#type, &mut queue);
+            }
+            for subtype in &ty.subtypes {
+                queue.push(subtype.ty_name.clone());
+            }
+        }
+
+        let enum_names: Vec<TelegramTypeName> = self
+            .types
+            .iter()
+            .filter(|(name, ty)| {
+                !ty.subtypes.is_empty()
+                    && reachable.contains(*name)
+                    && *name != "Update"
+                    && !ty
+                        .subtypes
+                        .iter()
+                        .any(|subtype| subtype.ty_name.ends_with("Unknown"))
+            })
+            .map(|(name, _)| name.clone())
+            .collect();
+
+        for name in enum_names {
+            let ty = &self.types[&name];
+            let members: Vec<&NormalizedType> = ty
+                .subtypes
+                .iter()
+                .filter_map(|subtype| self.types.get(&subtype.ty_name))
+                .collect();
+            // Fields present and required in every variant, in the first variant's order.
+            let common_fields: Vec<NormalizedField> = members.first().map_or_else(Vec::new, {
+                let members = &members;
+                move |first| {
+                    first
+                        .fields
+                        .iter()
+                        .filter(|field| {
+                            field.required
+                                && members.iter().all(|member| {
+                                    member
+                                        .fields
+                                        .iter()
+                                        .any(|f| f.required && f.name == field.name)
+                                })
+                        })
+                        .cloned()
+                        .collect()
+                }
+            });
+
+            let type_name = format!("{name}Unknown");
+            let is_tagged_parent = matches!(
+                ty.subtype_kind,
+                Some(SubtypeKind::Tagged { .. } | SubtypeKind::UntaggedInTagged { .. })
+            );
+            // The tag field's description is cloned from the first variant and claims a
+            // concrete value (e.g. `always "solid"`); here it holds the unrecognized value.
+            let mut common_fields = common_fields;
+            if let Some(SubtypeKind::Tagged {
+                tag_field, ..
+            }) = &ty.subtype_kind
+            {
+                for field in &mut common_fields {
+                    if field.name == *tag_field {
+                        field.description = format!(
+                            "Raw `{tag_field}` value of the variant unknown to this version of \
+                             the library"
+                        );
+                    }
+                }
+            }
+            let synthetic = NormalizedType {
+                name: type_name.clone(),
+                href: ty.href.clone(),
+                description: vec![
+                    format!(
+                        "This object represents a {name} unknown to this version of the library."
+                    ),
+                    "# Notes".to_owned(),
+                    "Fields shared by all known variants are parsed as usual; everything else is \
+                     kept in `extra`, so the object can be inspected and reserialized without \
+                     data loss."
+                        .to_owned(),
+                ],
+                fields: common_fields,
+                subtype_kind: None,
+                subtypes: vec![],
+                extra_subtypes: vec![],
+                subtype_of: vec![name.clone()],
+                has_extra_fields: true,
+            };
+            let parent = self.types.get_mut(&name).expect("parent enum must exist");
+            parent.subtypes.push(NormalizedSubtypeVariant {
+                variant: "Unknown".to_owned(),
+                ty_name: type_name.clone(),
+                is_untagged_fallback: is_tagged_parent,
+            });
+            self.types.insert(type_name, synthetic);
+        }
+    }
+
     pub fn split_inline_query_result(&mut self) {
         let inline_query_result = self
             .types
@@ -766,10 +902,12 @@ impl NormalizedSchema {
                             NormalizedSubtypeVariant {
                                 variant: "Cached".to_owned(),
                                 ty_name: cached.clone(),
+                                is_untagged_fallback: false,
                             },
                             NormalizedSubtypeVariant {
                                 variant: "Uncached".to_owned(),
                                 ty_name: not_cached.clone(),
+                                is_untagged_fallback: false,
                             },
                         ],
                         extra_subtypes: vec![],
@@ -1211,6 +1349,7 @@ impl NormalizedSchema {
             .map(|(variant, ty_name)| NormalizedSubtypeVariant {
                 variant,
                 ty_name,
+                is_untagged_fallback: false,
             })
             .collect();
 
@@ -2213,6 +2352,18 @@ pub fn get_if_integer(raw_type: &RawType, description: &str) -> Option<IntegerKi
         }
         "Float" => Some(IntegerKind::Float64),
         _ => None,
+    }
+}
+
+fn collect_telegram_names(kind: &TypeKindInField, out: &mut Vec<TelegramTypeName>) {
+    match kind {
+        TypeKindInField::Telegram(name) => out.push(name.clone()),
+        TypeKindInField::Array(inner) => collect_telegram_names(inner, out),
+        TypeKindInField::Either(left, right) => {
+            collect_telegram_names(left, out);
+            collect_telegram_names(right, out);
+        }
+        _ => {}
     }
 }
 

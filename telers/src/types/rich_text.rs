@@ -55,6 +55,9 @@ pub enum RichText {
     AnchorLink(crate::types::RichTextAnchorLink),
     Reference(crate::types::RichTextReference),
     ReferenceLink(crate::types::RichTextReferenceLink),
+    /// Content unknown to this version of the library
+    #[serde(untagged)]
+    Unknown(crate::types::RichTextUnknown),
     /// Plain text
     #[serde(untagged)]
     Plain(Box<str>),
@@ -988,6 +991,25 @@ impl TryFrom<RichText> for crate::types::RichTextReferenceLink {
             Err(Self::Error::new(
                 stringify!(RichText),
                 stringify!(RichTextReferenceLink),
+            ))
+        }
+    }
+}
+impl From<crate::types::RichTextUnknown> for RichText {
+    fn from(val: crate::types::RichTextUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<RichText> for crate::types::RichTextUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: RichText) -> Result<Self, Self::Error> {
+        if let RichText::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(RichText),
+                stringify!(RichTextUnknown),
             ))
         }
     }

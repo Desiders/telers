@@ -37,10 +37,12 @@ pub enum ChatMemberType {
     Left,
     #[strum(serialize = "kicked")]
     Kicked,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl ChatMemberType {
     #[must_use]
-    pub const fn all() -> [ChatMemberType; 6usize] {
+    pub const fn all() -> [ChatMemberType; 7usize] {
         [
             ChatMemberType::Creator,
             ChatMemberType::Administrator,
@@ -48,6 +50,7 @@ impl ChatMemberType {
             ChatMemberType::Restricted,
             ChatMemberType::Left,
             ChatMemberType::Kicked,
+            ChatMemberType::Unknown,
         ]
     }
 }
@@ -75,6 +78,7 @@ impl<'a> From<&'a ChatMember> for ChatMemberType {
             ChatMember::Restricted(_) => ChatMemberType::Restricted,
             ChatMember::Left(_) => ChatMemberType::Left,
             ChatMember::Kicked(_) => ChatMemberType::Kicked,
+            ChatMember::Unknown(_) => ChatMemberType::Unknown,
         }
     }
 }

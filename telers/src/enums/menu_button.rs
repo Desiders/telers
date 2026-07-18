@@ -30,14 +30,17 @@ pub enum MenuButtonType {
     WebApp,
     #[strum(serialize = "default")]
     Default,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl MenuButtonType {
     #[must_use]
-    pub const fn all() -> [MenuButtonType; 3usize] {
+    pub const fn all() -> [MenuButtonType; 4usize] {
         [
             MenuButtonType::Commands,
             MenuButtonType::WebApp,
             MenuButtonType::Default,
+            MenuButtonType::Unknown,
         ]
     }
 }
@@ -62,6 +65,7 @@ impl<'a> From<&'a MenuButton> for MenuButtonType {
             MenuButton::Commands(_) => MenuButtonType::Commands,
             MenuButton::WebApp(_) => MenuButtonType::WebApp,
             MenuButton::Default(_) => MenuButtonType::Default,
+            MenuButton::Unknown(_) => MenuButtonType::Unknown,
         }
     }
 }

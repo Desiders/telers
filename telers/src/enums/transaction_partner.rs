@@ -40,10 +40,12 @@ pub enum TransactionPartnerType {
     TelegramApi,
     #[strum(serialize = "other")]
     Other,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl TransactionPartnerType {
     #[must_use]
-    pub const fn all() -> [TransactionPartnerType; 7usize] {
+    pub const fn all() -> [TransactionPartnerType; 8usize] {
         [
             TransactionPartnerType::User,
             TransactionPartnerType::Chat,
@@ -52,6 +54,7 @@ impl TransactionPartnerType {
             TransactionPartnerType::TelegramAds,
             TransactionPartnerType::TelegramApi,
             TransactionPartnerType::Other,
+            TransactionPartnerType::Unknown,
         ]
     }
 }
@@ -80,6 +83,7 @@ impl<'a> From<&'a TransactionPartner> for TransactionPartnerType {
             TransactionPartner::TelegramAds(_) => TransactionPartnerType::TelegramAds,
             TransactionPartner::TelegramApi(_) => TransactionPartnerType::TelegramApi,
             TransactionPartner::Other(_) => TransactionPartnerType::Other,
+            TransactionPartner::Unknown(_) => TransactionPartnerType::Unknown,
         }
     }
 }

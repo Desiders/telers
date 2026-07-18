@@ -32,15 +32,18 @@ pub enum ChatType {
     Supergroup,
     #[strum(serialize = "channel")]
     Channel,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl ChatType {
     #[must_use]
-    pub const fn all() -> [ChatType; 4usize] {
+    pub const fn all() -> [ChatType; 5usize] {
         [
             ChatType::Private,
             ChatType::Group,
             ChatType::Supergroup,
             ChatType::Channel,
+            ChatType::Unknown,
         ]
     }
 }
@@ -66,6 +69,7 @@ impl<'a> From<&'a Chat> for ChatType {
             Chat::Group(_) => ChatType::Group,
             Chat::Supergroup(_) => ChatType::Supergroup,
             Chat::Channel(_) => ChatType::Channel,
+            Chat::Unknown(_) => ChatType::Unknown,
         }
     }
 }

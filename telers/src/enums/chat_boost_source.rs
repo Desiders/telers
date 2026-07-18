@@ -28,14 +28,17 @@ pub enum ChatBoostSourceType {
     GiftCode,
     #[strum(serialize = "giveaway")]
     Giveaway,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl ChatBoostSourceType {
     #[must_use]
-    pub const fn all() -> [ChatBoostSourceType; 3usize] {
+    pub const fn all() -> [ChatBoostSourceType; 4usize] {
         [
             ChatBoostSourceType::Premium,
             ChatBoostSourceType::GiftCode,
             ChatBoostSourceType::Giveaway,
+            ChatBoostSourceType::Unknown,
         ]
     }
 }
@@ -60,6 +63,7 @@ impl<'a> From<&'a ChatBoostSource> for ChatBoostSourceType {
             ChatBoostSource::Premium(_) => ChatBoostSourceType::Premium,
             ChatBoostSource::GiftCode(_) => ChatBoostSourceType::GiftCode,
             ChatBoostSource::Giveaway(_) => ChatBoostSourceType::Giveaway,
+            ChatBoostSource::Unknown(_) => ChatBoostSourceType::Unknown,
         }
     }
 }

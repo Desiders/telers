@@ -25,11 +25,17 @@ pub enum OwnedGiftType {
     Regular,
     #[strum(serialize = "unique")]
     Unique,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl OwnedGiftType {
     #[must_use]
-    pub const fn all() -> [OwnedGiftType; 2usize] {
-        [OwnedGiftType::Regular, OwnedGiftType::Unique]
+    pub const fn all() -> [OwnedGiftType; 3usize] {
+        [
+            OwnedGiftType::Regular,
+            OwnedGiftType::Unique,
+            OwnedGiftType::Unknown,
+        ]
     }
 }
 impl From<OwnedGiftType> for Box<str> {
@@ -52,6 +58,7 @@ impl<'a> From<&'a OwnedGift> for OwnedGiftType {
         match val {
             OwnedGift::Regular(_) => OwnedGiftType::Regular,
             OwnedGift::Unique(_) => OwnedGiftType::Unique,
+            OwnedGift::Unknown(_) => OwnedGiftType::Unknown,
         }
     }
 }

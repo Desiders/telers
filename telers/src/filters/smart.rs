@@ -4223,32 +4223,6 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoStory> {
         self.map(|value| &value.story)
     }
 }
-impl SmartFilterPath<crate::types::ExternalReplyInfoUnknown> {
-    #[must_use]
-    pub fn origin(self) -> SmartFilterPath<crate::types::MessageOrigin> {
-        self.map(|value| &value.origin)
-    }
-
-    #[must_use]
-    pub fn chat(self) -> SmartFilterPath<crate::types::Chat> {
-        self.and_then(|value| value.chat.as_deref())
-    }
-
-    #[must_use]
-    pub fn message_id(self) -> SmartFilterPath<i64> {
-        self.and_then(|value| value.message_id.as_ref())
-    }
-
-    #[must_use]
-    pub fn link_preview_options(self) -> SmartFilterPath<crate::types::LinkPreviewOptions> {
-        self.and_then(|value| value.link_preview_options.as_ref())
-    }
-
-    #[must_use]
-    pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
-        self.and_then(|value| value.has_media_spoiler.as_ref())
-    }
-}
 impl SmartFilterPath<crate::types::ExternalReplyInfoVenue> {
     #[must_use]
     pub fn origin(self) -> SmartFilterPath<crate::types::MessageOrigin> {
@@ -8627,7 +8601,7 @@ impl SmartFilterPath<crate::types::MaybeInaccessibleMessage> {
 
     #[must_use]
     pub fn chat(self) -> SmartFilterPath<crate::types::Chat> {
-        self.map(|value| value.chat())
+        self.and_then(|value| value.chat())
     }
 
     #[must_use]

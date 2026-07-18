@@ -11,6 +11,9 @@ pub enum ReactionType {
     Emoji(crate::types::ReactionTypeEmoji),
     CustomEmoji(crate::types::ReactionTypeCustomEmoji),
     Paid(crate::types::ReactionTypePaid),
+    /// Content unknown to this version of the library
+    #[serde(untagged)]
+    Unknown(crate::types::ReactionTypeUnknown),
 }
 impl ReactionType {
     /// Helper method for field `custom_emoji_id`.
@@ -88,6 +91,25 @@ impl TryFrom<ReactionType> for crate::types::ReactionTypePaid {
             Err(Self::Error::new(
                 stringify!(ReactionType),
                 stringify!(ReactionTypePaid),
+            ))
+        }
+    }
+}
+impl From<crate::types::ReactionTypeUnknown> for ReactionType {
+    fn from(val: crate::types::ReactionTypeUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<ReactionType> for crate::types::ReactionTypeUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: ReactionType) -> Result<Self, Self::Error> {
+        if let ReactionType::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(ReactionType),
+                stringify!(ReactionTypeUnknown),
             ))
         }
     }

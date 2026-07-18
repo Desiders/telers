@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 pub enum Giveaway {
     Premium(crate::types::GiveawayPremium),
     Star(crate::types::GiveawayStar),
+    Unknown(crate::types::GiveawayUnknown),
 }
 impl Giveaway {
     /// Helper method for field `chats`.
@@ -20,6 +21,7 @@ impl Giveaway {
         match self {
             Self::Premium(val) => val.chats.as_ref(),
             Self::Star(val) => val.chats.as_ref(),
+            Self::Unknown(val) => val.chats.as_ref(),
         }
     }
 
@@ -31,6 +33,7 @@ impl Giveaway {
         match self {
             Self::Premium(val) => val.country_codes.as_deref(),
             Self::Star(val) => val.country_codes.as_deref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -42,6 +45,7 @@ impl Giveaway {
         match self {
             Self::Premium(val) => val.has_public_winners,
             Self::Star(val) => val.has_public_winners,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -53,6 +57,7 @@ impl Giveaway {
         match self {
             Self::Premium(val) => val.only_new_members,
             Self::Star(val) => val.only_new_members,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -63,7 +68,7 @@ impl Giveaway {
     pub fn premium_subscription_month_count(&self) -> Option<i64> {
         match self {
             Self::Premium(val) => Some(val.premium_subscription_month_count),
-            Self::Star(_) => None,
+            _ => None,
         }
     }
 
@@ -75,6 +80,7 @@ impl Giveaway {
         match self {
             Self::Premium(val) => val.prize_description.as_deref(),
             Self::Star(val) => val.prize_description.as_deref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -85,7 +91,7 @@ impl Giveaway {
     pub fn prize_star_count(&self) -> Option<i64> {
         match self {
             Self::Star(val) => Some(val.prize_star_count),
-            Self::Premium(_) => None,
+            _ => None,
         }
     }
 
@@ -97,6 +103,7 @@ impl Giveaway {
         match self {
             Self::Premium(val) => val.winner_count,
             Self::Star(val) => val.winner_count,
+            Self::Unknown(val) => val.winner_count,
         }
     }
 
@@ -108,6 +115,7 @@ impl Giveaway {
         match self {
             Self::Premium(val) => val.winners_selection_date,
             Self::Star(val) => val.winners_selection_date,
+            Self::Unknown(val) => val.winners_selection_date,
         }
     }
 }
@@ -120,12 +128,13 @@ impl TryFrom<Giveaway> for crate::types::GiveawayPremium {
     type Error = crate::errors::ConvertToTypeError;
 
     fn try_from(val: Giveaway) -> Result<Self, Self::Error> {
-        match val {
-            Giveaway::Premium(inner) => Ok(inner),
-            Giveaway::Star(_) => Err(Self::Error::new(
+        if let Giveaway::Premium(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
                 stringify!(Giveaway),
                 stringify!(GiveawayPremium),
-            )),
+            ))
         }
     }
 }
@@ -138,12 +147,32 @@ impl TryFrom<Giveaway> for crate::types::GiveawayStar {
     type Error = crate::errors::ConvertToTypeError;
 
     fn try_from(val: Giveaway) -> Result<Self, Self::Error> {
-        match val {
-            Giveaway::Star(inner) => Ok(inner),
-            Giveaway::Premium(_) => Err(Self::Error::new(
+        if let Giveaway::Star(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
                 stringify!(Giveaway),
                 stringify!(GiveawayStar),
-            )),
+            ))
+        }
+    }
+}
+impl From<crate::types::GiveawayUnknown> for Giveaway {
+    fn from(val: crate::types::GiveawayUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<Giveaway> for crate::types::GiveawayUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Giveaway) -> Result<Self, Self::Error> {
+        if let Giveaway::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Giveaway),
+                stringify!(GiveawayUnknown),
+            ))
         }
     }
 }

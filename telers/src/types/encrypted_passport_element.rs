@@ -32,6 +32,9 @@ pub enum EncryptedPassportElement {
     TemporaryRegistration(crate::types::EncryptedPassportElementTemporaryRegistration),
     PhoneNumber(crate::types::EncryptedPassportElementPhoneNumber),
     Email(crate::types::EncryptedPassportElementEmail),
+    /// Content unknown to this version of the library
+    #[serde(untagged)]
+    Unknown(crate::types::EncryptedPassportElementUnknown),
 }
 impl EncryptedPassportElement {
     /// Helper method for field `data`.
@@ -109,6 +112,7 @@ impl EncryptedPassportElement {
             Self::TemporaryRegistration(val) => val.hash.as_ref(),
             Self::PhoneNumber(val) => val.hash.as_ref(),
             Self::Email(val) => val.hash.as_ref(),
+            Self::Unknown(val) => val.hash.as_ref(),
         }
     }
 
@@ -417,6 +421,25 @@ impl TryFrom<EncryptedPassportElement> for crate::types::EncryptedPassportElemen
             Err(Self::Error::new(
                 stringify!(EncryptedPassportElement),
                 stringify!(EncryptedPassportElementEmail),
+            ))
+        }
+    }
+}
+impl From<crate::types::EncryptedPassportElementUnknown> for EncryptedPassportElement {
+    fn from(val: crate::types::EncryptedPassportElementUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<EncryptedPassportElement> for crate::types::EncryptedPassportElementUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: EncryptedPassportElement) -> Result<Self, Self::Error> {
+        if let EncryptedPassportElement::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(EncryptedPassportElement),
+                stringify!(EncryptedPassportElementUnknown),
             ))
         }
     }

@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inaccessiblemessage>
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct InaccessibleMessage {
     /// Chat the message belonged to
     pub chat: Box<crate::types::Chat>,

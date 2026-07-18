@@ -11,6 +11,9 @@ pub enum BackgroundFill {
     Solid(crate::types::BackgroundFillSolid),
     Gradient(crate::types::BackgroundFillGradient),
     FreeformGradient(crate::types::BackgroundFillFreeformGradient),
+    /// Content unknown to this version of the library
+    #[serde(untagged)]
+    Unknown(crate::types::BackgroundFillUnknown),
 }
 impl BackgroundFill {
     /// Helper method for field `bottom_color`.
@@ -121,6 +124,25 @@ impl TryFrom<BackgroundFill> for crate::types::BackgroundFillFreeformGradient {
             Err(Self::Error::new(
                 stringify!(BackgroundFill),
                 stringify!(BackgroundFillFreeformGradient),
+            ))
+        }
+    }
+}
+impl From<crate::types::BackgroundFillUnknown> for BackgroundFill {
+    fn from(val: crate::types::BackgroundFillUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<BackgroundFill> for crate::types::BackgroundFillUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: BackgroundFill) -> Result<Self, Self::Error> {
+        if let BackgroundFill::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(BackgroundFill),
+                stringify!(BackgroundFillUnknown),
             ))
         }
     }

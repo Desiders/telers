@@ -82,10 +82,12 @@ pub enum RichBlockType {
     VoiceNote,
     #[strum(serialize = "thinking")]
     Thinking,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl RichBlockType {
     #[must_use]
-    pub const fn all() -> [RichBlockType; 21usize] {
+    pub const fn all() -> [RichBlockType; 22usize] {
         [
             RichBlockType::Paragraph,
             RichBlockType::Heading,
@@ -108,6 +110,7 @@ impl RichBlockType {
             RichBlockType::Video,
             RichBlockType::VoiceNote,
             RichBlockType::Thinking,
+            RichBlockType::Unknown,
         ]
     }
 }
@@ -150,6 +153,7 @@ impl<'a> From<&'a RichBlock> for RichBlockType {
             RichBlock::Video(_) => RichBlockType::Video,
             RichBlock::VoiceNote(_) => RichBlockType::VoiceNote,
             RichBlock::Thinking(_) => RichBlockType::Thinking,
+            RichBlock::Unknown(_) => RichBlockType::Unknown,
         }
     }
 }

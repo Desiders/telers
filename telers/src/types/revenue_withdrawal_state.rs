@@ -11,6 +11,9 @@ pub enum RevenueWithdrawalState {
     Pending(crate::types::RevenueWithdrawalStatePending),
     Succeeded(crate::types::RevenueWithdrawalStateSucceeded),
     Failed(crate::types::RevenueWithdrawalStateFailed),
+    /// Content unknown to this version of the library
+    #[serde(untagged)]
+    Unknown(crate::types::RevenueWithdrawalStateUnknown),
 }
 impl RevenueWithdrawalState {
     /// Helper method for field `date`.
@@ -88,6 +91,25 @@ impl TryFrom<RevenueWithdrawalState> for crate::types::RevenueWithdrawalStateFai
             Err(Self::Error::new(
                 stringify!(RevenueWithdrawalState),
                 stringify!(RevenueWithdrawalStateFailed),
+            ))
+        }
+    }
+}
+impl From<crate::types::RevenueWithdrawalStateUnknown> for RevenueWithdrawalState {
+    fn from(val: crate::types::RevenueWithdrawalStateUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<RevenueWithdrawalState> for crate::types::RevenueWithdrawalStateUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: RevenueWithdrawalState) -> Result<Self, Self::Error> {
+        if let RevenueWithdrawalState::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(RevenueWithdrawalState),
+                stringify!(RevenueWithdrawalStateUnknown),
             ))
         }
     }

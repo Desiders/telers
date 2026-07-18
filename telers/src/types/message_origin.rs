@@ -13,6 +13,9 @@ pub enum MessageOrigin {
     HiddenUser(crate::types::MessageOriginHiddenUser),
     Chat(crate::types::MessageOriginChat),
     Channel(crate::types::MessageOriginChannel),
+    /// Content unknown to this version of the library
+    #[serde(untagged)]
+    Unknown(crate::types::MessageOriginUnknown),
 }
 impl MessageOrigin {
     /// Helper method for field `author_signature`.
@@ -50,6 +53,7 @@ impl MessageOrigin {
             Self::HiddenUser(val) => val.date,
             Self::Chat(val) => val.date,
             Self::Channel(val) => val.date,
+            Self::Unknown(val) => val.date,
         }
     }
 
@@ -185,7 +189,7 @@ impl MessageOrigin {
                 let inner = val.sender_user.as_ref();
                 Some(inner.first_name.as_ref())
             }
-            Self::HiddenUser(_) => None,
+            _ => None,
         }
     }
 
@@ -229,7 +233,7 @@ impl MessageOrigin {
                 let inner = val.sender_user.as_ref();
                 Some(inner.id)
             }
-            Self::HiddenUser(_) => None,
+            _ => None,
         }
     }
 
@@ -317,7 +321,7 @@ impl MessageOrigin {
                 let inner = val.sender_user.as_ref();
                 inner.last_name.as_deref()
             }
-            Self::HiddenUser(_) => None,
+            _ => None,
         }
     }
 
@@ -389,7 +393,7 @@ impl MessageOrigin {
                 let inner = val.sender_user.as_ref();
                 inner.username.as_deref()
             }
-            Self::HiddenUser(_) => None,
+            _ => None,
         }
     }
 }
@@ -465,6 +469,25 @@ impl TryFrom<MessageOrigin> for crate::types::MessageOriginChannel {
             Err(Self::Error::new(
                 stringify!(MessageOrigin),
                 stringify!(MessageOriginChannel),
+            ))
+        }
+    }
+}
+impl From<crate::types::MessageOriginUnknown> for MessageOrigin {
+    fn from(val: crate::types::MessageOriginUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<MessageOrigin> for crate::types::MessageOriginUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: MessageOrigin) -> Result<Self, Self::Error> {
+        if let MessageOrigin::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(MessageOrigin),
+                stringify!(MessageOriginUnknown),
             ))
         }
     }

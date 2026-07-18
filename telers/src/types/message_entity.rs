@@ -46,6 +46,9 @@ pub enum MessageEntity {
     TextMention(crate::types::MessageEntityTextMention),
     CustomEmoji(crate::types::MessageEntityCustomEmoji),
     DateTime(crate::types::MessageEntityDateTime),
+    /// Content unknown to this version of the library
+    #[serde(untagged)]
+    Unknown(crate::types::MessageEntityUnknown),
 }
 impl MessageEntity {
     /// Helper method for field `custom_emoji_id`.
@@ -107,6 +110,7 @@ impl MessageEntity {
             Self::TextMention(val) => val.length,
             Self::CustomEmoji(val) => val.length,
             Self::DateTime(val) => val.length,
+            Self::Unknown(val) => val.length,
         }
     }
 
@@ -136,6 +140,7 @@ impl MessageEntity {
             Self::TextMention(val) => val.offset,
             Self::CustomEmoji(val) => val.offset,
             Self::DateTime(val) => val.offset,
+            Self::Unknown(val) => val.offset,
         }
     }
 
@@ -764,6 +769,25 @@ impl TryFrom<MessageEntity> for crate::types::MessageEntityDateTime {
             Err(Self::Error::new(
                 stringify!(MessageEntity),
                 stringify!(MessageEntityDateTime),
+            ))
+        }
+    }
+}
+impl From<crate::types::MessageEntityUnknown> for MessageEntity {
+    fn from(val: crate::types::MessageEntityUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<MessageEntity> for crate::types::MessageEntityUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: MessageEntity) -> Result<Self, Self::Error> {
+        if let MessageEntity::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(MessageEntity),
+                stringify!(MessageEntityUnknown),
             ))
         }
     }

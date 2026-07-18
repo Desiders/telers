@@ -29,14 +29,17 @@ pub enum StickerType {
     Mask,
     #[strum(serialize = "custom_emoji")]
     CustomEmoji,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl StickerType {
     #[must_use]
-    pub const fn all() -> [StickerType; 3usize] {
+    pub const fn all() -> [StickerType; 4usize] {
         [
             StickerType::Regular,
             StickerType::Mask,
             StickerType::CustomEmoji,
+            StickerType::Unknown,
         ]
     }
 }
@@ -61,6 +64,7 @@ impl<'a> From<&'a Sticker> for StickerType {
             Sticker::Regular(_) => StickerType::Regular,
             Sticker::Mask(_) => StickerType::Mask,
             Sticker::CustomEmoji(_) => StickerType::CustomEmoji,
+            Sticker::Unknown(_) => StickerType::Unknown,
         }
     }
 }

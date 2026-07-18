@@ -7249,6 +7249,24 @@ impl<Client> crate::Extractor<Client> for crate::types::MessageWriteAccessAllowe
         async move { val }
     }
 }
+impl TryFrom<Update> for crate::types::MessageUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, Self::Error> {
+        let parent: crate::types::Message = val.try_into()?;
+        parent.try_into()
+    }
+}
+impl<Client> crate::Extractor<Client> for crate::types::MessageUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
 impl TryFrom<Update> for crate::types::MessageReactionCountUpdated {
     type Error = crate::errors::ConvertToTypeError;
 
@@ -7368,6 +7386,24 @@ impl TryFrom<Update> for crate::types::PollQuiz {
     }
 }
 impl<Client> crate::Extractor<Client> for crate::types::PollQuiz {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
+impl TryFrom<Update> for crate::types::PollUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, Self::Error> {
+        let parent: crate::types::Poll = val.try_into()?;
+        parent.try_into()
+    }
+}
+impl<Client> crate::Extractor<Client> for crate::types::PollUnknown {
     type Error = crate::errors::ConvertToTypeError;
 
     fn extract(

@@ -31,15 +31,18 @@ pub enum BackgroundTypeType {
     Pattern,
     #[strum(serialize = "chat_theme")]
     ChatTheme,
+    #[strum(serialize = "unknown")]
+    Unknown,
 }
 impl BackgroundTypeType {
     #[must_use]
-    pub const fn all() -> [BackgroundTypeType; 4usize] {
+    pub const fn all() -> [BackgroundTypeType; 5usize] {
         [
             BackgroundTypeType::Fill,
             BackgroundTypeType::Wallpaper,
             BackgroundTypeType::Pattern,
             BackgroundTypeType::ChatTheme,
+            BackgroundTypeType::Unknown,
         ]
     }
 }
@@ -65,6 +68,7 @@ impl<'a> From<&'a BackgroundType> for BackgroundTypeType {
             BackgroundType::Wallpaper(_) => BackgroundTypeType::Wallpaper,
             BackgroundType::Pattern(_) => BackgroundTypeType::Pattern,
             BackgroundType::ChatTheme(_) => BackgroundTypeType::ChatTheme,
+            BackgroundType::Unknown(_) => BackgroundTypeType::Unknown,
         }
     }
 }

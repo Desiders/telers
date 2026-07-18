@@ -10,6 +10,9 @@ use serde::{Deserialize, Serialize};
 pub enum Poll {
     Regular(crate::types::PollRegular),
     Quiz(crate::types::PollQuiz),
+    /// Content unknown to this version of the library
+    #[serde(untagged)]
+    Unknown(crate::types::PollUnknown),
 }
 impl Poll {
     /// Helper method for field `allows_multiple_answers`.
@@ -20,6 +23,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.allows_multiple_answers,
             Self::Quiz(val) => val.allows_multiple_answers,
+            Self::Unknown(val) => val.allows_multiple_answers,
         }
     }
 
@@ -31,6 +35,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.allows_revoting,
             Self::Quiz(val) => val.allows_revoting,
+            Self::Unknown(val) => val.allows_revoting,
         }
     }
 
@@ -42,6 +47,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.close_date,
             Self::Quiz(val) => val.close_date,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -52,7 +58,7 @@ impl Poll {
     pub fn correct_option_ids(&self) -> Option<&[i64]> {
         match self {
             Self::Quiz(val) => val.correct_option_ids.as_deref(),
-            Self::Regular(_) => None,
+            _ => None,
         }
     }
 
@@ -64,6 +70,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.country_codes.as_deref(),
             Self::Quiz(val) => val.country_codes.as_deref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -75,6 +82,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.description.as_deref(),
             Self::Quiz(val) => val.description.as_deref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -86,6 +94,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.description_entities.as_deref(),
             Self::Quiz(val) => val.description_entities.as_deref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -96,7 +105,7 @@ impl Poll {
     pub fn explanation(&self) -> Option<&str> {
         match self {
             Self::Quiz(val) => val.explanation.as_deref(),
-            Self::Regular(_) => None,
+            _ => None,
         }
     }
 
@@ -108,6 +117,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.explanation_entities.as_deref(),
             Self::Quiz(val) => val.explanation_entities.as_deref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -118,7 +128,7 @@ impl Poll {
     pub fn explanation_media(&self) -> Option<&crate::types::PollMedia> {
         match self {
             Self::Quiz(val) => val.explanation_media.as_ref(),
-            Self::Regular(_) => None,
+            _ => None,
         }
     }
 
@@ -130,6 +140,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.id.as_ref(),
             Self::Quiz(val) => val.id.as_ref(),
+            Self::Unknown(val) => val.id.as_ref(),
         }
     }
 
@@ -141,6 +152,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.is_anonymous,
             Self::Quiz(val) => val.is_anonymous,
+            Self::Unknown(val) => val.is_anonymous,
         }
     }
 
@@ -152,6 +164,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.is_closed,
             Self::Quiz(val) => val.is_closed,
+            Self::Unknown(val) => val.is_closed,
         }
     }
 
@@ -163,6 +176,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.media.as_ref(),
             Self::Quiz(val) => val.media.as_ref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -174,6 +188,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.members_only,
             Self::Quiz(val) => val.members_only,
+            Self::Unknown(val) => val.members_only,
         }
     }
 
@@ -185,6 +200,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.open_period,
             Self::Quiz(val) => val.open_period,
+            Self::Unknown(_) => None,
         }
     }
 
@@ -196,6 +212,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.options.as_ref(),
             Self::Quiz(val) => val.options.as_ref(),
+            Self::Unknown(val) => val.options.as_ref(),
         }
     }
 
@@ -207,6 +224,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.question.as_ref(),
             Self::Quiz(val) => val.question.as_ref(),
+            Self::Unknown(val) => val.question.as_ref(),
         }
     }
 
@@ -218,6 +236,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.question_entities.as_deref(),
             Self::Quiz(val) => val.question_entities.as_deref(),
+            Self::Unknown(_) => None,
         }
     }
 
@@ -229,6 +248,7 @@ impl Poll {
         match self {
             Self::Regular(val) => val.total_voter_count,
             Self::Quiz(val) => val.total_voter_count,
+            Self::Unknown(val) => val.total_voter_count,
         }
     }
 }
@@ -241,9 +261,10 @@ impl TryFrom<Poll> for crate::types::PollRegular {
     type Error = crate::errors::ConvertToTypeError;
 
     fn try_from(val: Poll) -> Result<Self, Self::Error> {
-        match val {
-            Poll::Regular(inner) => Ok(inner),
-            Poll::Quiz(_) => Err(Self::Error::new(stringify!(Poll), stringify!(PollRegular))),
+        if let Poll::Regular(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(stringify!(Poll), stringify!(PollRegular)))
         }
     }
 }
@@ -256,9 +277,26 @@ impl TryFrom<Poll> for crate::types::PollQuiz {
     type Error = crate::errors::ConvertToTypeError;
 
     fn try_from(val: Poll) -> Result<Self, Self::Error> {
-        match val {
-            Poll::Quiz(inner) => Ok(inner),
-            Poll::Regular(_) => Err(Self::Error::new(stringify!(Poll), stringify!(PollQuiz))),
+        if let Poll::Quiz(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(stringify!(Poll), stringify!(PollQuiz)))
+        }
+    }
+}
+impl From<crate::types::PollUnknown> for Poll {
+    fn from(val: crate::types::PollUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<Poll> for crate::types::PollUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Poll) -> Result<Self, Self::Error> {
+        if let Poll::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(stringify!(Poll), stringify!(PollUnknown)))
         }
     }
 }

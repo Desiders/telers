@@ -47,6 +47,9 @@ pub enum RichBlock {
     Video(crate::types::RichBlockVideo),
     VoiceNote(crate::types::RichBlockVoiceNote),
     Thinking(crate::types::RichBlockThinking),
+    /// Content unknown to this version of the library
+    #[serde(untagged)]
+    Unknown(crate::types::RichBlockUnknown),
 }
 impl RichBlock {
     /// Helper method for field `animation`.
@@ -1005,6 +1008,25 @@ impl TryFrom<RichBlock> for crate::types::RichBlockThinking {
             Err(Self::Error::new(
                 stringify!(RichBlock),
                 stringify!(RichBlockThinking),
+            ))
+        }
+    }
+}
+impl From<crate::types::RichBlockUnknown> for RichBlock {
+    fn from(val: crate::types::RichBlockUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<RichBlock> for crate::types::RichBlockUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: RichBlock) -> Result<Self, Self::Error> {
+        if let RichBlock::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(RichBlock),
+                stringify!(RichBlockUnknown),
             ))
         }
     }

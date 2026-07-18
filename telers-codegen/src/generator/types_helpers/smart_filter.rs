@@ -370,17 +370,28 @@ pub fn tokenize_smart_filter(schema: &NormalizedSchema) -> TokenStream {
             }
         });
 
+    // Fallback `Unknown` types are kept out of the smart filter surface entirely.
+    let fallback_type_names: HashSet<&str> = schema
+        .types
+        .values()
+        .flat_map(|ty| ty.subtypes.iter())
+        .filter(|subtype| subtype.variant == "Unknown")
+        .map(|subtype| subtype.ty_name.as_str())
+        .collect();
     let mut type_names: Vec<_> = schema.types.keys().collect();
     type_names.sort_unstable();
 
-    let type_impls = type_names.into_iter().map(|name| {
-        let ty = schema.types.get(name).unwrap();
-        if ty.subtypes.is_empty() {
-            tokenize_struct_type_methods(ty)
-        } else {
-            tokenize_enum_type_methods(ty, schema)
-        }
-    });
+    let type_impls = type_names
+        .into_iter()
+        .filter(|name| !fallback_type_names.contains(name.as_str()))
+        .map(|name| {
+            let ty = schema.types.get(name).unwrap();
+            if ty.subtypes.is_empty() {
+                tokenize_struct_type_methods(ty)
+            } else {
+                tokenize_enum_type_methods(ty, schema)
+            }
+        });
 
     quote! {
         #![allow(clippy::wrong_self_convention)]

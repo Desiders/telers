@@ -95,6 +95,10 @@ impl<Client> EventContext<Client> {
                             message.message_thread_id(),
                             message.business_connection_id().map(ToOwned::to_owned),
                         ),
+                        MaybeInaccessibleMessage::Unknown(_) => unreachable!(
+                            "callback message payloads with `chat` are absorbed by \
+                             `Message::Unknown`"
+                        ),
                     },
                     None => unreachable!("CallbackQuery must have a message"),
                 };

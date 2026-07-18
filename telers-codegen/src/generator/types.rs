@@ -169,9 +169,19 @@ fn tokenize_type_definition(type_quote: &NormalizedType, ctx: &TypeDocContext<'_
         } else {
             quote! {}
         };
+        // `InaccessibleMessage` is exactly its documented fields and is tried first in the
+        // untagged `MaybeInaccessibleMessage`; without `deny_unknown_fields` it swallows
+        // every accessible message (their extra fields are silently ignored).
+        const DENY_UNKNOWN_FIELDS_TYPES: &[&str] = &["InaccessibleMessage"];
+        let deny_unknown_fields = if DENY_UNKNOWN_FIELDS_TYPES.contains(&type_quote.name.as_str()) {
+            quote! { #[serde(deny_unknown_fields)] }
+        } else {
+            quote! {}
+        };
         quote! {
             #( #[doc = #doc_lines] )*
             #( #derive_quotes )*
+            #deny_unknown_fields
             pub struct #name {
                 #( #fields )*
                 #extra_field
@@ -194,13 +204,21 @@ fn tokenize_type_definition(type_quote: &NormalizedType, ctx: &TypeDocContext<'_
             }
             None => quote! {},
         };
-        let subtypes = type_quote.subtypes.iter();
         // Untagged variants must be declared after the tagged ones,
         // so serde falls back to them only when the tag is absent.
         let needs_untagged_attr = matches!(
             &type_quote.subtype_kind,
             Some(SubtypeKind::Tagged { .. } | SubtypeKind::UntaggedInTagged { .. })
         );
+        let subtypes = type_quote.subtypes.iter().map(|subtype| {
+            let untagged_attr = (subtype.is_untagged_fallback && needs_untagged_attr).then(|| {
+                quote! {
+                    #[doc = " Content unknown to this version of the library"]
+                    #[serde(untagged)]
+                }
+            });
+            quote! { #untagged_attr #subtype }
+        });
         let extra_variants = type_quote.extra_variants().into_iter().map(|extra| {
             let untagged_attr = if needs_untagged_attr {
                 quote! { #[serde(untagged)] }

@@ -17,6 +17,9 @@ pub enum ChatMember {
     Restricted(crate::types::ChatMemberRestricted),
     Left(crate::types::ChatMemberLeft),
     Kicked(crate::types::ChatMemberBanned),
+    /// Content unknown to this version of the library
+    #[serde(untagged)]
+    Unknown(crate::types::ChatMemberUnknown),
 }
 impl ChatMember {
     /// Helper method for field `can_add_web_page_previews`.
@@ -421,6 +424,7 @@ impl ChatMember {
             Self::Restricted(val) => val.user.as_ref(),
             Self::Left(val) => val.user.as_ref(),
             Self::Kicked(val) => val.user.as_ref(),
+            Self::Unknown(val) => val.user.as_ref(),
         }
     }
 
@@ -696,6 +700,25 @@ impl TryFrom<ChatMember> for crate::types::ChatMemberBanned {
             Err(Self::Error::new(
                 stringify!(ChatMember),
                 stringify!(ChatMemberBanned),
+            ))
+        }
+    }
+}
+impl From<crate::types::ChatMemberUnknown> for ChatMember {
+    fn from(val: crate::types::ChatMemberUnknown) -> Self {
+        Self::Unknown(val)
+    }
+}
+impl TryFrom<ChatMember> for crate::types::ChatMemberUnknown {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: ChatMember) -> Result<Self, Self::Error> {
+        if let ChatMember::Unknown(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(ChatMember),
+                stringify!(ChatMemberUnknown),
             ))
         }
     }
