@@ -3557,21 +3557,6 @@ fn test_maybe_inaccessible_message_serialize_deserialize() {
     must_roundtrip(stringify!(MaybeInaccessibleMessage), &parsed);
 }
 #[test]
-fn test_maybe_inaccessible_message_unknown_serialize_deserialize() {
-    let value = serde_json::json!({});
-    let parsed: MaybeInaccessibleMessage = must_parse(stringify!(MaybeInaccessibleMessage), &value);
-    assert!(
-        matches!(&parsed, MaybeInaccessibleMessage::Unknown(_)),
-        "failed to deserialize {} into expected subtype {}; parsed={:?}",
-        stringify!(MaybeInaccessibleMessage),
-        stringify!(Unknown),
-        parsed
-    );
-    let parsed_value = must_to_value(stringify!(MaybeInaccessibleMessage), &parsed);
-    assert_json_subset(&parsed_value, &value);
-    must_roundtrip(stringify!(MaybeInaccessibleMessage), &parsed);
-}
-#[test]
 fn test_menu_button_serialize_deserialize() {
     let value = serde_json::json!({ "type" : "commands" });
     let parsed: MenuButton = must_parse(stringify!(MenuButton), &value);

@@ -30,7 +30,7 @@ fn resolve_event_chat(update: &Update) -> Option<&Chat> {
             .callback_query
             .message
             .as_deref()
-            .and_then(MaybeInaccessibleMessage::chat);
+            .map(MaybeInaccessibleMessage::chat);
     }
     None
 }

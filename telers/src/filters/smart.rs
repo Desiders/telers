@@ -8601,7 +8601,7 @@ impl SmartFilterPath<crate::types::MaybeInaccessibleMessage> {
 
     #[must_use]
     pub fn chat(self) -> SmartFilterPath<crate::types::Chat> {
-        self.and_then(|value| value.chat())
+        self.map(|value| value.chat())
     }
 
     #[must_use]

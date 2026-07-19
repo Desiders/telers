@@ -154,9 +154,6 @@ impl<S: Storage> DialogManager<S> {
                 let (chat, message_id) = match *message {
                     MaybeInaccessibleMessage::InaccessibleMessage(m) => (*m.chat, m.message_id),
                     MaybeInaccessibleMessage::Message(m) => (m.chat().clone(), m.message_id()),
-                    MaybeInaccessibleMessage::Unknown(_) => unreachable!(
-                        "callback message payloads with `chat` are absorbed by `Message::Unknown`"
-                    ),
                 };
                 return Some(
                     OldMessage::new(

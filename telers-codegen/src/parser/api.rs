@@ -694,20 +694,47 @@ impl NormalizedSchema {
         }
     }
 
-    /// Adds a trailing `Unknown` fallback variant to every deserialization-reachable enum,
-    /// so content Telegram adds later degrades into a structured `{Name}Unknown` value
-    /// instead of failing the whole object (and, through untagged parents like `Message`,
-    /// the whole update).
-    ///
-    /// The fallback type carries the fields shared by all current variants (for a tagged
-    /// enum that includes the raw tag, e.g. `type`) and keeps everything else in `extra`,
-    /// so nothing is lost on reserialization. Excluded: `Update` (unparsable updates
-    /// already degrade via its dedicated fallback), enums that already have an `Unknown`
-    /// variant, and types that are only ever serialized (unreachable from `Update` and
-    /// method return types).
-    ///
-    /// Must run after the splits and [`Self::reorder_untagged_subtypes`]: the fallback has
-    /// to stay the last variant, since untagged deserialization tries variants in order.
+    /// Fields a value of `ty` always carries with a stable type, each paired with whether it
+    /// is required. For a leaf struct: its own fields. For a split enum: the fields common to
+    /// every subtype — so a fallback over `Message` still sees `message_id` and other fields
+    /// distributed onto the subtypes.
+    fn effective_common_fields(&self, ty: &NormalizedType) -> Vec<(NormalizedField, bool)> {
+        if ty.subtypes.is_empty() {
+            // The tag field is intentionally kept: a tagged enum's fallback carries it to
+            // preserve the raw unknown tag value (its description is rewritten by the caller).
+            return ty
+                .fields
+                .iter()
+                .map(|field| (field.clone(), field.required))
+                .collect();
+        }
+        let member_fields: Vec<Vec<(NormalizedField, bool)>> = ty
+            .subtypes
+            .iter()
+            .filter_map(|subtype| self.types.get(&subtype.ty_name))
+            .map(|member| self.effective_common_fields(member))
+            .collect();
+        member_fields.first().map_or_else(Vec::new, |first| {
+            first
+                .iter()
+                .filter_map(|(field, _)| {
+                    let present_in_all = member_fields.iter().all(|member| {
+                        member
+                            .iter()
+                            .any(|(f, _)| f.name == field.name && f.r#type == field.r#type)
+                    });
+                    if !present_in_all {
+                        return None;
+                    }
+                    let required = member_fields
+                        .iter()
+                        .all(|member| member.iter().any(|(f, req)| *req && f.name == field.name));
+                    Some((field.clone(), required))
+                })
+                .collect()
+        })
+    }
+
     pub fn add_unknown_fallbacks(&mut self) {
         let mut queue: Vec<TelegramTypeName> = vec!["Update".to_owned()];
         for method in self.methods.values() {
@@ -748,56 +775,92 @@ impl NormalizedSchema {
 
         for name in enum_names {
             let ty = &self.types[&name];
-            let members: Vec<&NormalizedType> = ty
-                .subtypes
-                .iter()
-                .filter_map(|subtype| self.types.get(&subtype.ty_name))
-                .collect();
             // Fields present with the same type in every variant, in the first variant's
             // order: required if required everywhere, optional otherwise. Copying the
             // optional 100%-present fields too keeps the enum helpers and smart-filter
             // commonness identical to the pre-fallback shape, and keeps that data typed
-            // on unknown payloads instead of burying it in `extra`.
-            let common_fields: Vec<NormalizedField> = members.first().map_or_else(Vec::new, {
-                let members = &members;
-                move |first| {
+            // on unknown payloads instead of burying it in `extra`. A variant may itself be
+            // a split enum (e.g. `Message` inside `MaybeInaccessibleMessage`) whose fields
+            // live on its subtypes; `effective_common_fields` projects those so shared
+            // fields like `message_id` still qualify.
+            let member_fields: Vec<Vec<(NormalizedField, bool)>> = ty
+                .subtypes
+                .iter()
+                .filter_map(|subtype| self.types.get(&subtype.ty_name))
+                .map(|member| self.effective_common_fields(member))
+                .collect();
+
+            let is_untagged_parent = !matches!(
+                ty.subtype_kind,
+                Some(SubtypeKind::Tagged { .. } | SubtypeKind::UntaggedInTagged { .. })
+            );
+            // Skip the fallback when a subtype is itself a fallback-bearing split enum whose
+            // required fields are a subset of every sibling's required fields. That nested
+            // catch-all already absorbs every value this enum can hold, so a parent-level
+            // fallback would be dead code — e.g. `MaybeInaccessibleMessage`, where `Message`'s
+            // own `Unknown` catches any message-shaped payload and `InaccessibleMessage` shares
+            // (and only adds to) `Message`'s required fields.
+            if is_untagged_parent && member_fields.len() == ty.subtypes.len() {
+                let required_sets: Vec<HashSet<&str>> = member_fields
+                    .iter()
+                    .map(|member| {
+                        member
+                            .iter()
+                            .filter(|(_, required)| *required)
+                            .map(|(field, _)| field.name.as_str())
+                            .collect()
+                    })
+                    .collect();
+                let has_catch_all_subtype =
+                    ty.subtypes.iter().enumerate().any(|(index, subtype)| {
+                        let is_split = self
+                            .types
+                            .get(&subtype.ty_name)
+                            .is_some_and(|member| !member.subtypes.is_empty());
+                        is_split
+                            && required_sets
+                                .iter()
+                                .all(|sibling| sibling.is_superset(&required_sets[index]))
+                    });
+                if has_catch_all_subtype {
+                    continue;
+                }
+            }
+
+            let common_fields: Vec<NormalizedField> =
+                member_fields.first().map_or_else(Vec::new, |first| {
                     first
-                        .fields
                         .iter()
-                        .filter(|field| {
-                            members.iter().all(|member| {
+                        .filter_map(|(field, _)| {
+                            let present_in_all = member_fields.iter().all(|member| {
                                 member
-                                    .fields
                                     .iter()
-                                    .any(|f| f.name == field.name && f.r#type == field.r#type)
-                            })
-                        })
-                        .map(|field| {
-                            let mut field = field.clone();
-                            field.required = members.iter().all(|member| {
-                                member
-                                    .fields
-                                    .iter()
-                                    .any(|f| f.required && f.name == field.name)
+                                    .any(|(f, _)| f.name == field.name && f.r#type == field.r#type)
                             });
-                            field
+                            if !present_in_all {
+                                return None;
+                            }
+                            let mut field = field.clone();
+                            field.required = member_fields.iter().all(|member| {
+                                member.iter().any(|(f, req)| *req && f.name == field.name)
+                            });
+                            Some(field)
                         })
                         .collect()
-                }
-            });
+                });
 
             let type_name = format!("{name}Unknown");
             let is_tagged_parent = matches!(
                 ty.subtype_kind,
                 Some(SubtypeKind::Tagged { .. } | SubtypeKind::UntaggedInTagged { .. })
             );
-            // The tag field's description is cloned from the first variant and claims a
-            // concrete value (e.g. `always "solid"`); here it holds the unrecognized value.
             let mut common_fields = common_fields;
             if let Some(SubtypeKind::Tagged {
                 tag_field, ..
             }) = &ty.subtype_kind
             {
+                // The tag field's description is cloned from the first variant and claims a
+                // concrete value (e.g. `always "solid"`); here it holds the unrecognized value.
                 for field in &mut common_fields {
                     if field.name == *tag_field {
                         field.description = format!(

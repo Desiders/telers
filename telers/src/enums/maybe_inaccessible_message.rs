@@ -25,16 +25,13 @@ pub enum MaybeInaccessibleMessageType {
     InaccessibleMessage,
     #[strum(serialize = "message")]
     Message,
-    #[strum(serialize = "unknown")]
-    Unknown,
 }
 impl MaybeInaccessibleMessageType {
     #[must_use]
-    pub const fn all() -> [MaybeInaccessibleMessageType; 3usize] {
+    pub const fn all() -> [MaybeInaccessibleMessageType; 2usize] {
         [
             MaybeInaccessibleMessageType::InaccessibleMessage,
             MaybeInaccessibleMessageType::Message,
-            MaybeInaccessibleMessageType::Unknown,
         ]
     }
 }
@@ -60,7 +57,6 @@ impl<'a> From<&'a MaybeInaccessibleMessage> for MaybeInaccessibleMessageType {
                 MaybeInaccessibleMessageType::InaccessibleMessage
             }
             MaybeInaccessibleMessage::Message(_) => MaybeInaccessibleMessageType::Message,
-            MaybeInaccessibleMessage::Unknown(_) => MaybeInaccessibleMessageType::Unknown,
         }
     }
 }

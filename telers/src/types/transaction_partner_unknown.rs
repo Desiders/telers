@@ -7,20 +7,28 @@ use std::collections::BTreeMap;
 /// <https://core.telegram.org/bots/api#transactionpartner>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TransactionPartnerUnknown {
+    /// Raw `type` value of the variant unknown to this version of the library
+    pub r#type: Box<str>,
     #[serde(flatten)]
     pub extra: BTreeMap<Box<str>, serde_json::Value>,
 }
 impl TransactionPartnerUnknown {
     /// Creates a new `TransactionPartnerUnknown`.
+    ///
+    /// # Arguments
+    /// * `type` - Raw `type` value of the variant unknown to this version of the library
     #[must_use]
-    pub const fn new() -> Self {
+    pub fn new<T0: Into<Box<str>>>(r#type: T0) -> Self {
         Self {
+            r#type: r#type.into(),
             extra: BTreeMap::new(),
         }
     }
-}
-impl Default for TransactionPartnerUnknown {
-    fn default() -> Self {
-        Self::new()
+
+    /// Raw `type` value of the variant unknown to this version of the library
+    #[must_use]
+    pub fn r#type<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.r#type = val.into();
+        self
     }
 }
