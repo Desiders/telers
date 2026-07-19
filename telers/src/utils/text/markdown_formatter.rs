@@ -6,8 +6,10 @@ use crate::types::{
 
 use std::fmt::Display;
 
-pub(crate) const ESCAPE_CHARS: [char; 18] = [
-    '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!',
+pub(crate) const ESCAPE_CHARS: [char; 19] = [
+    // `\` must be escaped first-class: a literal backslash in text would otherwise be read
+    // by MarkdownV2 as escaping the following character.
+    '\\', '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!',
 ];
 
 /// Characters that MarkdownV2 requires to be escaped **inside** `code` and `pre` entities
@@ -55,42 +57,42 @@ impl TextFormatter for Formatter {
     where
         T: Display,
     {
-        format!("*{text}*")
+        format!("*{}*", self.quote(text))
     }
 
     fn italic<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("_\r{text}_\r")
+        format!("_\r{}_\r", self.quote(text))
     }
 
     fn underline<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("__\r{text}__\r")
+        format!("__\r{}__\r", self.quote(text))
     }
 
     fn strikethrough<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("~{text}~")
+        format!("~{}~", self.quote(text))
     }
 
     fn spoiler<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("||{text}||")
+        format!("||{}||", self.quote(text))
     }
 
     fn blockquote<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        text.to_string()
+        self.quote(text)
             .lines()
             .map(|line| format!(">{line}"))
             .collect::<Vec<_>>()
@@ -112,7 +114,7 @@ impl TextFormatter for Formatter {
         T: Display,
         U: Display,
     {
-        format!("[{text}]({})", escape(url, &URL_ESCAPE_CHARS))
+        format!("[{}]({})", self.quote(text), escape(url, &URL_ESCAPE_CHARS))
     }
 
     fn text_mention<T>(&self, text: T, user_id: i64) -> String

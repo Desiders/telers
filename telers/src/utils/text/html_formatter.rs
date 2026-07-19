@@ -77,49 +77,49 @@ impl TextFormatter for Formatter {
     where
         T: Display,
     {
-        format!("<{tag}>{text}</{tag}>", tag = self.bold)
+        format!("<{tag}>{}</{tag}>", self.quote(text), tag = self.bold)
     }
 
     fn italic<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("<{tag}>{text}</{tag}>", tag = self.italic)
+        format!("<{tag}>{}</{tag}>", self.quote(text), tag = self.italic)
     }
 
     fn underline<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("<{tag}>{text}</{tag}>", tag = self.underline)
+        format!("<{tag}>{}</{tag}>", self.quote(text), tag = self.underline)
     }
 
     fn strikethrough<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("<{tag}>{text}</{tag}>", tag = self.strikethrough)
+        format!("<{tag}>{}</{tag}>", self.quote(text), tag = self.strikethrough)
     }
 
     fn spoiler<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("<{tag}>{text}</{tag}>", tag = self.spoiler)
+        format!("<{tag}>{}</{tag}>", self.quote(text), tag = self.spoiler)
     }
 
     fn blockquote<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("<blockquote>{text}</blockquote>")
+        format!("<blockquote>{}</blockquote>", self.quote(text))
     }
 
     fn expandable_blockquote<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("<blockquote expandable>{text}</blockquote>")
+        format!("<blockquote expandable>{}</blockquote>", self.quote(text))
     }
 
     fn text_link<T, U>(&self, text: T, url: U) -> String
@@ -127,14 +127,14 @@ impl TextFormatter for Formatter {
         T: Display,
         U: Display,
     {
-        format!("<a href=\"{url}\">{text}</a>")
+        format!("<a href=\"{url}\">{}</a>", self.quote(text))
     }
 
     fn text_mention<T>(&self, text: T, user_id: i64) -> String
     where
         T: Display,
     {
-        format!("<a href=\"tg://user?id={user_id}\">{text}</a>")
+        format!("<a href=\"tg://user?id={user_id}\">{}</a>", self.quote(text))
     }
 
     fn custom_emoji<T, E>(&self, text: T, emoji_id: E) -> String
@@ -143,7 +143,8 @@ impl TextFormatter for Formatter {
         E: Display,
     {
         format!(
-            "<{tag} emoji-id=\"{emoji_id}\">{text}</{tag}>",
+            "<{tag} emoji-id=\"{emoji_id}\">{}</{tag}>",
+            self.quote(text),
             tag = self.emoji,
         )
     }
@@ -152,14 +153,14 @@ impl TextFormatter for Formatter {
     where
         T: Display,
     {
-        format!("<code>{text}</code>")
+        format!("<code>{}</code>", self.quote(text))
     }
 
     fn pre<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("<pre>{text}</pre>")
+        format!("<pre>{}</pre>", self.quote(text))
     }
 
     fn pre_language<T, L>(&self, text: T, language: L) -> String
@@ -167,14 +168,14 @@ impl TextFormatter for Formatter {
         T: Display,
         L: Display,
     {
-        format!("<pre><code class=\"language-{language}\">{text}</code></pre>")
+        format!("<pre><code class=\"language-{language}\">{}</code></pre>", self.quote(text))
     }
 
     fn date_time<T>(&self, text: T, unix_time: i64) -> String
     where
         T: Display,
     {
-        format!("<tg-time unix=\"{unix_time}\">{text}</tg-time>")
+        format!("<tg-time unix=\"{unix_time}\">{}</tg-time>", self.quote(text))
     }
 
     fn date_time_with_format<T, F>(&self, text: T, unix_time: i64, date_time_format: F) -> String
@@ -182,7 +183,7 @@ impl TextFormatter for Formatter {
         T: Display,
         F: Display,
     {
-        format!("<tg-time unix=\"{unix_time}\" format=\"{date_time_format}\">{text}</tg-time>")
+        format!("<tg-time unix=\"{unix_time}\" format=\"{date_time_format}\">{}</tg-time>", self.quote(text))
     }
 
     fn quote<T>(&self, text: T) -> String
