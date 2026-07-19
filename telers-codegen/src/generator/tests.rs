@@ -232,12 +232,12 @@ fn generate_type_json_value(
         return quote!({});
     }
 
-    if let Some(subtype) = ty.subtypes.first() {
-        if let Some(subtype_ty) = schema.types.get(&subtype.ty_name) {
-            let value = generate_type_json_value(subtype_ty, schema, visiting, forced_tag);
-            visiting.remove(&ty.name);
-            return value;
-        }
+    if let Some(subtype) = ty.subtypes.first()
+        && let Some(subtype_ty) = schema.types.get(&subtype.ty_name)
+    {
+        let value = generate_type_json_value(subtype_ty, schema, visiting, forced_tag);
+        visiting.remove(&ty.name);
+        return value;
     }
 
     let mut fields = ty
@@ -245,12 +245,12 @@ fn generate_type_json_value(
         .iter()
         .filter(|field| field.required)
         .filter_map(|field| {
-            if let Some(tag) = forced_tag {
-                if field.name == tag.field_name {
-                    let name = LitStr::new(tag.field_name.as_str(), Span::call_site());
-                    let value = LitStr::new(tag.field_value.as_str(), Span::call_site());
-                    return Some(quote! { #name: #value });
-                }
+            if let Some(tag) = forced_tag
+                && field.name == tag.field_name
+            {
+                let name = LitStr::new(tag.field_name.as_str(), Span::call_site());
+                let value = LitStr::new(tag.field_value.as_str(), Span::call_site());
+                return Some(quote! { #name: #value });
             }
 
             let name = LitStr::new(field.name.as_str(), Span::call_site());
@@ -265,12 +265,12 @@ fn generate_type_json_value(
         })
         .collect::<Vec<_>>();
 
-    if let Some(tag) = forced_tag {
-        if !ty.fields.iter().any(|field| field.name == tag.field_name) {
-            let name = LitStr::new(tag.field_name.as_str(), Span::call_site());
-            let value = LitStr::new(tag.field_value.as_str(), Span::call_site());
-            fields.push(quote! { #name: #value });
-        }
+    if let Some(tag) = forced_tag
+        && !ty.fields.iter().any(|field| field.name == tag.field_name)
+    {
+        let name = LitStr::new(tag.field_name.as_str(), Span::call_site());
+        let value = LitStr::new(tag.field_value.as_str(), Span::call_site());
+        fields.push(quote! { #name: #value });
     }
 
     visiting.remove(&ty.name);
@@ -313,10 +313,7 @@ fn generate_field_json_value(
             let ty = schema.types.get(name)?;
             // Types like `RichText` can be a plain string; prefer it in field values
             // to break the otherwise endless recursion of nested rich texts.
-            if ty
-                .extra_variants()
-                .contains(&ExtraSubtypeVariant::PlainText)
-            {
+            if ty.extra_subtypes.contains(&ExtraSubtypeVariant::PlainText) {
                 return Some(quote! { "test" });
             }
             Some(generate_type_json_value(ty, schema, visiting, forced_tag))

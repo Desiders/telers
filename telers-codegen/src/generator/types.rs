@@ -4,13 +4,14 @@ use crate::{
     file::camel_to_filename,
     generator::{
         doc_utils::{
-            collect_telegram_type_names, link_known_type_mentions, normalize_doc_line_prefix,
+            collect_telegram_type_names, link_known_type_mentions, link_prefixed_type_mentions,
+            link_subtype_mentions, normalize_doc_line_prefix,
         },
         helpers::{
             format_attr_description, format_description, get_singular_and_plural_forms,
             sanitize_field_name,
         },
-        type_utils::{HelperFieldSource, collect_common_fields},
+        type_utils::{HelperFieldSource, build_fields_subtypes_map, collect_common_fields},
     },
     parser::api::{
         ExtraSubtypeVariant, IntegerKind, NormalizedField, NormalizedSchema,
@@ -133,20 +134,7 @@ fn tokenize_type_definition(type_quote: &NormalizedType, ctx: &TypeDocContext<'_
         .map(|line| link_schema_type_mentions(&line, ctx))
         .collect();
     doc_lines = link_prefixed_type_mentions(doc_lines, &type_quote.name);
-    for subtype in &type_quote.subtypes {
-        let type_name = &subtype.ty_name;
-        let code = format!("`{type_name}`");
-        let bare_link = format!("[`{type_name}`]");
-        let path_link = format!("[`crate::types::{type_name}`]");
-        for line in &mut doc_lines {
-            if line.contains(&code) {
-                *line = line.replace(&code, &path_link);
-            }
-            if line.contains(&bare_link) {
-                *line = line.replace(&bare_link, &path_link);
-            }
-        }
-    }
+    link_subtype_mentions(&mut doc_lines, &type_quote.subtypes);
 
     let (tag_field, parent_tag_field) = type_quote
         .subtype_kind
@@ -219,7 +207,7 @@ fn tokenize_type_definition(type_quote: &NormalizedType, ctx: &TypeDocContext<'_
             });
             quote! { #untagged_attr #subtype }
         });
-        let extra_variants = type_quote.extra_variants().into_iter().map(|extra| {
+        let extra_variants = type_quote.extra_subtypes.iter().map(|extra| {
             let untagged_attr = if needs_untagged_attr {
                 quote! { #[serde(untagged)] }
             } else {
@@ -250,54 +238,13 @@ fn tokenize_type_definition(type_quote: &NormalizedType, ctx: &TypeDocContext<'_
     }
 }
 
-fn link_prefixed_type_mentions(lines: Vec<String>, prefix: &str) -> Vec<String> {
-    lines
-        .into_iter()
-        .map(|line| {
-            let mut out = String::with_capacity(line.len() + 32);
-            let mut rest = line.as_str();
-
-            while let Some(start) = rest.find('`') {
-                out.push_str(&rest[..start]);
-                let after_start = &rest[start + 1..];
-                if let Some(end_rel) = after_start.find('`') {
-                    let token = &after_start[..end_rel];
-                    if token.starts_with(prefix)
-                        && token.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
-                    {
-                        out.push_str("[`crate::types::");
-                        out.push_str(token);
-                        out.push_str("`]");
-                    } else {
-                        out.push('`');
-                        out.push_str(token);
-                        out.push('`');
-                    }
-                    rest = &after_start[end_rel + 1..];
-                } else {
-                    out.push_str(&rest[start..]);
-                    break;
-                }
-            }
-
-            if out.is_empty() {
-                line
-            } else {
-                out.push_str(rest);
-                out
-            }
-        })
-        .collect()
-}
-
 #[must_use]
 pub fn get_from_impls_for_subtypes(type_quote: &NormalizedType) -> Vec<TokenStream> {
     let name = format_ident!("{}", type_quote.name);
-    let extra_variants = type_quote.extra_variants();
-    let variant_count = type_quote.subtypes.len() + extra_variants.len();
+    let variant_count = type_quote.subtypes.len() + type_quote.extra_subtypes.len();
 
     let mut impl_quotes = vec![];
-    for extra in extra_variants {
+    for extra in &type_quote.extra_subtypes {
         match extra {
             ExtraSubtypeVariant::PlainText => impl_quotes.push(quote! {
                 impl From<Box<str>> for #name {
@@ -912,96 +859,19 @@ fn nested_outer_accessor_expr(
     outer_field: &NormalizedField,
     inner_access: AccessExpr,
 ) -> TokenStream {
-    let enum_method_path = |method: &Ident| {
-        let TypeKindInField::Telegram(outer_ty_name) = &outer_field.r#type else {
-            unreachable!("enum method access requires telegram outer field");
-        };
-        let outer_ty_ident = format_ident!("{outer_ty_name}");
-        quote! { crate::types::#outer_ty_ident::#method }
-    };
-
     let is_outer_boxed = outer_field.is_recursive || outer_field.is_boxed;
-    if outer_field.required {
-        let get_inner = if is_outer_boxed {
-            quote! { val.#outer_ident.as_ref() }
-        } else {
-            quote! { &val.#outer_ident }
-        };
-        let body = match inner_access {
-            AccessExpr::Plain(tokens) | AccessExpr::Optional(tokens) => tokens,
-            AccessExpr::WrapInSome(tokens) => quote! { Some(#tokens) },
-            AccessExpr::EnumMethod {
-                method,
-                returns_option,
-                wrap_in_some,
-            } => {
-                let method_path = enum_method_path(&method);
-                if returns_option {
-                    quote! { #method_path(inner) }
-                } else if wrap_in_some {
-                    quote! { Some(#method_path(inner)) }
-                } else {
-                    quote! { #method_path(inner) }
-                }
-            }
-        };
-        quote! { { let inner = #get_inner; #body } }
-    } else {
-        let as_opt = if is_outer_boxed {
-            quote! { val.#outer_ident.as_deref() }
-        } else {
-            quote! { val.#outer_ident.as_ref() }
-        };
-        let use_match = match &inner_access {
-            AccessExpr::Plain(tokens)
-            | AccessExpr::Optional(tokens)
-            | AccessExpr::WrapInSome(tokens) => {
-                let code = tokens.to_string();
-                code.contains("if let") || code.contains("match ")
-            }
-            AccessExpr::EnumMethod {
-                ..
-            } => false,
-        };
-        match inner_access {
-            AccessExpr::Plain(tokens) | AccessExpr::WrapInSome(tokens) => {
-                if use_match {
-                    quote! {
-                        match #as_opt {
-                            Some(inner) => Some(#tokens),
-                            None => None,
-                        }
-                    }
-                } else {
-                    quote! { #as_opt.map(|inner| #tokens) }
-                }
-            }
-            AccessExpr::Optional(tokens) => {
-                if use_match {
-                    quote! {
-                        match #as_opt {
-                            Some(inner) => #tokens,
-                            None => None,
-                        }
-                    }
-                } else {
-                    quote! { #as_opt.and_then(|inner| #tokens) }
-                }
-            }
-            AccessExpr::EnumMethod {
-                method,
-                returns_option,
-                ..
-            } => {
-                let method_path = enum_method_path(&method);
-                if returns_option {
-                    quote! { #as_opt.and_then(#method_path) }
-                } else {
-                    quote! { #as_opt.map(#method_path) }
-                }
-            }
-        }
-    }
+    let outer_access = match (outer_field.required, is_outer_boxed) {
+        (true, true) => quote! { val.#outer_ident.as_ref() },
+        (true, false) => quote! { &val.#outer_ident },
+        (false, true) => quote! { val.#outer_ident.as_deref() },
+        (false, false) => quote! { val.#outer_ident.as_ref() },
+    };
+    nested_outer_accessor_expr_from_helper(
+        &outer_access,
+        outer_field.required,
+        &outer_field.r#type,
+        inner_access,
+    )
 }
 
 #[must_use]
@@ -1028,9 +898,7 @@ fn nested_outer_accessor_expr_from_helper(
                 wrap_in_some,
             } => {
                 let method_path = enum_method_path(&method);
-                if returns_option {
-                    quote! { #method_path(inner) }
-                } else if wrap_in_some {
+                if !returns_option && wrap_in_some {
                     quote! { Some(#method_path(inner)) }
                 } else {
                     quote! { #method_path(inner) }
@@ -1039,41 +907,12 @@ fn nested_outer_accessor_expr_from_helper(
         };
         quote! { { let inner = #outer_access; #body } }
     } else {
-        let use_match = match &inner_access {
-            AccessExpr::Plain(tokens)
-            | AccessExpr::Optional(tokens)
-            | AccessExpr::WrapInSome(tokens) => {
-                let code = tokens.to_string();
-                code.contains("if let") || code.contains("match ")
-            }
-            AccessExpr::EnumMethod {
-                ..
-            } => false,
-        };
         match inner_access {
             AccessExpr::Plain(tokens) | AccessExpr::WrapInSome(tokens) => {
-                if use_match {
-                    quote! {
-                        match #outer_access {
-                            Some(inner) => Some(#tokens),
-                            None => None,
-                        }
-                    }
-                } else {
-                    quote! { #outer_access.map(|inner| #tokens) }
-                }
+                quote! { #outer_access.map(|inner| #tokens) }
             }
             AccessExpr::Optional(tokens) => {
-                if use_match {
-                    quote! {
-                        match #outer_access {
-                            Some(inner) => #tokens,
-                            None => None,
-                        }
-                    }
-                } else {
-                    quote! { #outer_access.and_then(|inner| #tokens) }
-                }
+                quote! { #outer_access.and_then(|inner| #tokens) }
             }
             AccessExpr::EnumMethod {
                 method,
@@ -1104,43 +943,7 @@ fn get_helper_impls_for_type(
     let type_name = format_ident!("{}", type_quote.name);
     let mut methods = vec![];
 
-    let (tag_field, parent_tag_field) = type_quote
-        .subtype_kind
-        .as_ref()
-        .map(|kind| kind.get_tags())
-        .unwrap_or_default();
-    let mut fields_subtypes_map: BTreeMap<
-        &str,
-        Vec<(&NormalizedSubtypeVariant, HelperFieldSource<'_>)>,
-    > = BTreeMap::new();
-    for subtype in &type_quote.subtypes {
-        let ty = schema.types.get(&subtype.ty_name).unwrap();
-        if ty.subtypes.is_empty() {
-            for field in &ty.fields {
-                if field.is_tagged(tag_field, parent_tag_field) {
-                    continue;
-                }
-                fields_subtypes_map
-                    .entry(&field.name)
-                    .or_default()
-                    .push((subtype, HelperFieldSource::Direct(field)));
-            }
-        } else {
-            let common = collect_common_fields(ty, schema);
-            for (name, (field, fully_required, _)) in common {
-                if field.is_tagged(tag_field, parent_tag_field) {
-                    continue;
-                }
-                fields_subtypes_map.entry(name).or_default().push((
-                    subtype,
-                    HelperFieldSource::EnumHelper {
-                        field,
-                        fully_required,
-                    },
-                ));
-            }
-        }
-    }
+    let fields_subtypes_map = build_fields_subtypes_map(type_quote, schema);
 
     for (&field_name, subtypes) in &fields_subtypes_map {
         let method_name = sanitize_field_name(field_name);

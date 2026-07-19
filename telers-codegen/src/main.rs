@@ -1,8 +1,14 @@
 use clap::Parser;
-use std::{collections::HashSet, fs, path::PathBuf, process};
+use std::{
+    collections::HashSet,
+    fmt::Display,
+    fs,
+    path::{Path, PathBuf},
+    process,
+};
 use telers_codegen::{
     file::{camel_to_filename, write_tokens_to_file},
-    generator,
+    generator::{self, methods::struct_name_to_method_name},
     parser::api::Schema,
 };
 
@@ -23,15 +29,29 @@ struct Args {
     schema_json_path: PathBuf,
 
     /// Generate serde tests in a single integration test file
-    #[arg(long, visible_alias = "tests", default_value_t = false)]
+    #[arg(
+        long,
+        visible_alias = "tests",
+        default_value_t = false,
+        requires = "tests_types_path"
+    )]
     generate_tests: bool,
 
     /// Rust path used in generated tests import: `use <path>::types::*;`
     #[arg(long, visible_alias = "types-path")]
-    tests_types_path: String,
+    tests_types_path: Option<String>,
 }
 
-#[allow(clippy::too_many_lines)]
+fn write_or_exit(tokens: &impl Display, dir: &Path, filename: &str) {
+    write_tokens_to_file(tokens, dir, filename).unwrap_or_else(|err| {
+        eprintln!(
+            "Failed to write file '{filename}' in dir '{dir}': {err}\nContent: {tokens}",
+            dir = dir.display()
+        );
+        process::exit(1);
+    });
+}
+
 fn main() {
     let args = Args::parse();
 
@@ -72,13 +92,13 @@ fn main() {
     schema.modify_get_updates_returns_method();
 
     if args.generate_tests {
+        let types_path = args
+            .tests_types_path
+            .as_deref()
+            .expect("clap guarantees --types-path when --tests is set");
         let tests_dir = args.generated_dir_path.join("tests");
-        let tokens = generator::tests::tokenize_tests(&schema, &args.tests_types_path);
-        let filename = "types_generated.rs";
-        write_tokens_to_file(&tokens, &tests_dir, filename).unwrap_or_else(|err| {
-            eprintln!("Failed to write file '{filename}' in dir tests: {err}\nContent: {tokens}");
-            process::exit(1);
-        });
+        let tokens = generator::tests::tokenize_tests(&schema, types_path);
+        write_or_exit(&tokens, &tests_dir, "types_generated.rs");
         println!("Tests generated in one file");
     }
 
@@ -87,20 +107,13 @@ fn main() {
     let known_schema_type_names = schema.types.keys().cloned().collect::<HashSet<_>>();
     for (name, ty) in &schema.types {
         let tokens = generator::types::tokenize_type(ty, &schema, &known_schema_type_names);
-        let filename = camel_to_filename(name, Some("rs"));
-        write_tokens_to_file(&tokens, &types_dir, &filename).unwrap_or_else(|err| {
-            eprintln!("Failed to write file '{filename}' in dir types: {err}\nContent: {tokens}");
-            process::exit(1);
-        });
+        write_or_exit(&tokens, &types_dir, &camel_to_filename(name, Some("rs")));
     }
     println!("Types generated");
 
     let type_names = schema.types.keys().collect::<Vec<_>>();
     let tokens = generator::types::tokenize_types_mod(type_names.as_slice());
-    write_tokens_to_file(&tokens, &src_dir, "types.rs").unwrap_or_else(|err| {
-        eprintln!("Failed to write file 'types.rs': {err}\nContent: {tokens}");
-        process::exit(1);
-    });
+    write_or_exit(&tokens, &src_dir, "types.rs");
     println!("Types module generated");
 
     let enums_dir = src_dir.join("enums");
@@ -110,45 +123,29 @@ fn main() {
         .filter(|(_, ty)| !ty.subtypes.is_empty())
         .filter_map(|(name, ty)| {
             let tokens = generator::enums::tokenize_kind_enum_file(ty)?;
-            let filename = camel_to_filename(name, Some("rs"));
-            write_tokens_to_file(&tokens, &enums_dir, &filename).unwrap_or_else(|err| {
-                eprintln!(
-                    "Failed to write file '{filename}' in dir enums: {err}\nContent: {tokens}"
-                );
-                process::exit(1);
-            });
+            write_or_exit(&tokens, &enums_dir, &camel_to_filename(name, Some("rs")));
             Some(name.as_str())
         })
         .collect::<Vec<_>>();
-    let tokens_with_names = generator::enums::tokenize_own_enums(&schema);
     let mut own_enum_names = vec![];
-    for (name, tokens) in &tokens_with_names {
-        let filename = camel_to_filename(name, Some("rs"));
-        write_tokens_to_file(tokens, &enums_dir, &filename).unwrap_or_else(|err| {
-            eprintln!("Failed to write file '{filename}' in dir enums: {err}\nContent: {tokens}");
-            process::exit(1);
-        });
+    for (name, tokens) in &generator::enums::tokenize_own_enums(&schema) {
+        write_or_exit(tokens, &enums_dir, &camel_to_filename(name, Some("rs")));
         own_enum_names.push(*name);
     }
     let tokens =
         generator::enums::tokenize_kind_enums_mod(enum_names.as_slice(), own_enum_names.as_slice());
-    write_tokens_to_file(&tokens, &src_dir, "enums.rs").unwrap_or_else(|err| {
-        eprintln!("Failed to write file 'enums.rs': {err}\nContent: {tokens}");
-        process::exit(1);
-    });
+    write_or_exit(&tokens, &src_dir, "enums.rs");
     println!("Enums generated");
 
     let methods_dir = src_dir.join("methods");
     let known_api_method_names = schema
         .methods
         .values()
-        .map(|m| {
-            let mut chars = m.name.chars();
-            let api_name = match chars.next() {
-                Some(first) => first.to_lowercase().chain(chars).collect::<String>(),
-                None => String::new(),
-            };
-            (api_name, m.name.clone())
+        .map(|method| {
+            (
+                struct_name_to_method_name(&method.name),
+                method.name.clone(),
+            )
         })
         .collect::<std::collections::HashMap<_, _>>();
     for method in schema.methods.values() {
@@ -157,50 +154,37 @@ fn main() {
             &known_schema_type_names,
             &known_api_method_names,
         );
-        let filename = camel_to_filename(&method.name, Some("rs"));
-        write_tokens_to_file(&tokens, &methods_dir, &filename).unwrap_or_else(|err| {
-            eprintln!("Failed to write file '{filename}' in dir methods: {err}\nContent: {tokens}");
-            process::exit(1);
-        });
+        write_or_exit(
+            &tokens,
+            &methods_dir,
+            &camel_to_filename(&method.name, Some("rs")),
+        );
     }
     println!("Methods generated");
 
     let to_methods_dir = types_dir.join("to_methods");
-    let tokens_with_names =
-        generator::types_helpers::to_methods::tokenize_to_methods_files(&schema);
     let mut to_methods_type_names = vec![];
-    for (name, tokens) in &tokens_with_names {
-        let filename = camel_to_filename(name, Some("rs"));
-        write_tokens_to_file(tokens, &to_methods_dir, &filename).unwrap_or_else(|err| {
-            eprintln!(
-                "Failed to write file '{filename}' in dir types/to_methods: {err}\nContent: \
-                 {tokens}"
-            );
-            process::exit(1);
-        });
+    for (name, tokens) in &generator::types_helpers::to_methods::tokenize_to_methods_files(&schema)
+    {
+        write_or_exit(
+            tokens,
+            &to_methods_dir,
+            &camel_to_filename(name, Some("rs")),
+        );
         to_methods_type_names.push(*name);
     }
     let tokens =
         generator::types_helpers::to_methods::tokenize_to_methods_mod(&to_methods_type_names);
-    write_tokens_to_file(&tokens, &types_dir, "to_methods.rs").unwrap_or_else(|err| {
-        eprintln!("Failed to write file 'to_methods.rs' in dir types: {err}\nContent: {tokens}");
-        process::exit(1);
-    });
+    write_or_exit(&tokens, &types_dir, "to_methods.rs");
     println!("Type-to-methods helpers generated");
 
     let filters_dir = src_dir.join("filters");
     let tokens = generator::types_helpers::smart_filter::tokenize_smart_filter(&schema);
-    write_tokens_to_file(&tokens, &filters_dir, "smart.rs").unwrap_or_else(|err| {
-        eprintln!("Failed to write file 'smart.rs' in dir filters: {err}\nContent: {tokens}");
-        process::exit(1);
-    });
+    write_or_exit(&tokens, &filters_dir, "smart.rs");
     println!("Smart filters generated");
 
     let method_names = schema.methods.values().map(|m| &m.name).collect::<Vec<_>>();
     let tokens = generator::methods::tokenize_methods_mod(method_names.as_slice());
-    write_tokens_to_file(&tokens, &src_dir, "methods.rs").unwrap_or_else(|err| {
-        eprintln!("Failed to write file 'methods.rs': {err}\nContent: {tokens}");
-        process::exit(1);
-    });
+    write_or_exit(&tokens, &src_dir, "methods.rs");
     println!("Methods module generated");
 }

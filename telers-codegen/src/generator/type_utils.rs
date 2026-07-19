@@ -1,4 +1,6 @@
-use crate::parser::api::{NormalizedField, NormalizedSchema, NormalizedType};
+use crate::parser::api::{
+    NormalizedField, NormalizedSchema, NormalizedSubtypeVariant, NormalizedType,
+};
 use std::collections::BTreeMap;
 
 #[derive(Clone, Copy)]
@@ -30,6 +32,52 @@ impl<'a> HelperFieldSource<'a> {
             } => fully_required,
         }
     }
+}
+
+#[must_use]
+pub fn build_fields_subtypes_map<'a>(
+    type_quote: &'a NormalizedType,
+    schema: &'a NormalizedSchema,
+) -> BTreeMap<&'a str, Vec<(&'a NormalizedSubtypeVariant, HelperFieldSource<'a>)>> {
+    let (tag_field, parent_tag_field) = type_quote
+        .subtype_kind
+        .as_ref()
+        .map(|kind| kind.get_tags())
+        .unwrap_or_default();
+
+    let mut fields_subtypes_map: BTreeMap<
+        &str,
+        Vec<(&NormalizedSubtypeVariant, HelperFieldSource<'_>)>,
+    > = BTreeMap::new();
+    for subtype in &type_quote.subtypes {
+        let ty = schema.types.get(&subtype.ty_name).unwrap();
+        if ty.subtypes.is_empty() {
+            for field in &ty.fields {
+                if field.is_tagged(tag_field, parent_tag_field) {
+                    continue;
+                }
+                fields_subtypes_map
+                    .entry(&field.name)
+                    .or_default()
+                    .push((subtype, HelperFieldSource::Direct(field)));
+            }
+        } else {
+            let common = collect_common_fields(ty, schema);
+            for (name, (field, fully_required, _)) in common {
+                if field.is_tagged(tag_field, parent_tag_field) {
+                    continue;
+                }
+                fields_subtypes_map.entry(name).or_default().push((
+                    subtype,
+                    HelperFieldSource::EnumHelper {
+                        field,
+                        fully_required,
+                    },
+                ));
+            }
+        }
+    }
+    fields_subtypes_map
 }
 
 #[must_use]

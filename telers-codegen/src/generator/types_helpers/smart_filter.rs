@@ -1,7 +1,7 @@
 use crate::{
     generator::{
         helpers::sanitize_field_name,
-        type_utils::{HelperFieldSource, collect_common_fields},
+        type_utils::{HelperFieldSource, build_fields_subtypes_map, collect_common_fields},
     },
     parser::api::{
         NormalizedField, NormalizedSchema, NormalizedSubtypeVariant, NormalizedType,
@@ -78,48 +78,10 @@ fn enum_method_specs(
     schema: &NormalizedSchema,
     include_nested: bool,
 ) -> Vec<MethodSpec> {
-    let (tag_field, parent_tag_field) = type_quote
-        .subtype_kind
-        .as_ref()
-        .map(|kind| kind.get_tags())
-        .unwrap_or_default();
-
     let mut method_infos: BTreeMap<String, (&TypeKindInField, bool)> = BTreeMap::new();
 
     // First, collect direct fields from all subtypes
-    let mut fields_subtypes_map: BTreeMap<
-        &str,
-        Vec<(&NormalizedSubtypeVariant, HelperFieldSource<'_>)>,
-    > = BTreeMap::new();
-
-    for subtype in &type_quote.subtypes {
-        let ty = schema.types.get(&subtype.ty_name).unwrap();
-        if ty.subtypes.is_empty() {
-            for field in &ty.fields {
-                if field.is_tagged(tag_field, parent_tag_field) {
-                    continue;
-                }
-                fields_subtypes_map
-                    .entry(&field.name)
-                    .or_default()
-                    .push((subtype, HelperFieldSource::Direct(field)));
-            }
-        } else {
-            let common = collect_common_fields(ty, schema);
-            for (name, (field, fully_required, _)) in common {
-                if field.is_tagged(tag_field, parent_tag_field) {
-                    continue;
-                }
-                fields_subtypes_map.entry(name).or_default().push((
-                    subtype,
-                    HelperFieldSource::EnumHelper {
-                        field,
-                        fully_required,
-                    },
-                ));
-            }
-        }
-    }
+    let fields_subtypes_map = build_fields_subtypes_map(type_quote, schema);
 
     // Process direct fields
     for (&field_name, subtypes) in &fields_subtypes_map {

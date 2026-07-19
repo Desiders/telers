@@ -29,7 +29,7 @@ fn format_type_kind_rust(kind: &TypeKindInField) -> String {
 }
 
 #[must_use]
-fn struct_name_to_method_name(name: &str) -> String {
+pub fn struct_name_to_method_name(name: &str) -> String {
     let mut chars = name.chars();
     let Some(first) = chars.next() else {
         return String::new();
