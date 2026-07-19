@@ -503,6 +503,34 @@ mod tests {
     }
 
     #[test]
+    fn formatting_methods_escape_their_content() {
+        let formatter = Formatter::default();
+
+        // `<`, `>` and `&` inside a span are escaped so user content can't inject markup.
+        assert_eq!(formatter.bold("a<b>&c"), "<b>a&lt;b&gt;&amp;c</b>");
+        assert_eq!(formatter.code("a<b"), "<code>a&lt;b</code>");
+        assert_eq!(
+            formatter.text_link("a&b", "http://x"),
+            "<a href=\"http://x\">a&amp;b</a>"
+        );
+    }
+
+    #[test]
+    fn test_apply_entity_escapes_surrounding_text() {
+        use crate::types::MessageEntityBold;
+
+        let formatter = Formatter::default();
+
+        // The literal text around the entity span must be escaped too, otherwise `<`/`>`/`&`
+        // in it would break the HTML markup.
+        let entity = MessageEntity::Bold(MessageEntityBold::new(0, 1));
+        assert_eq!(
+            formatter.apply_entity("a<b>&c", &entity).unwrap(),
+            "<b>a</b>&lt;b&gt;&amp;c"
+        );
+    }
+
+    #[test]
     fn apply_entity_bold_over_cyrillic_covers_whole_word() {
         use crate::types::MessageEntityBold;
 

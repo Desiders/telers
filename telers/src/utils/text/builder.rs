@@ -37,14 +37,20 @@ where
         }
     }
 
-    /// Add text without formatting.
+    /// Add text verbatim, without formatting or escaping.
+    /// # Notes
+    /// The text is appended as is, so any characters special to the current parse mode are
+    /// **not** escaped. Use [`Self::quote`] instead to append text that must be escaped.
     #[must_use]
     pub fn text(mut self, text: impl Display) -> Self {
         self.text.push_str(text.to_string().as_ref());
         self
     }
 
-    /// Add texts without formatting.
+    /// Add texts verbatim, without formatting or escaping.
+    /// # Notes
+    /// The texts are appended as is, so any characters special to the current parse mode are
+    /// **not** escaped. Use [`Self::quotes`] instead to append texts that must be escaped.
     #[must_use]
     pub fn texts<T, I>(mut self, texts: I) -> Self
     where
@@ -56,14 +62,14 @@ where
         self
     }
 
-    /// Add quote text without formatting.
+    /// Add text with the parse mode's special characters escaped, but without any formatting.
     #[must_use]
     pub fn quote(mut self, text: impl Display) -> Self {
         self.text.push_str(self.formatter.quote(text).as_str());
         self
     }
 
-    /// Add quote texts without formatting.
+    /// Add texts with the parse mode's special characters escaped, but without any formatting.
     #[must_use]
     pub fn quotes<T, I>(mut self, texts: I) -> Self
     where
@@ -105,6 +111,24 @@ where
             })
     }
 
+    /// Format `text` alone with `entity` (whose offset is 0-based into `text`) and append the
+    /// result. Applying the entity to just this fresh segment — instead of re-running
+    /// [`Formatter::apply_entity`] over the whole accumulated text — leaves previously added
+    /// fragments untouched, so their formatting and escaping are never processed twice.
+    #[must_use]
+    fn push_formatted(mut self, text: &str, entity: &MessageEntity) -> Self {
+        if text.is_empty() {
+            return self;
+        }
+
+        let formatted = self
+            .formatter
+            .apply_entity(text, entity)
+            .expect("Failed to apply entity to the text. Report this issue to the developers");
+        self.text.push_str(&formatted);
+        self
+    }
+
     /// Add mention by username.
     /// # Arguments
     /// * `username` - Username which will be mentioned.
@@ -115,14 +139,9 @@ where
     #[must_use]
     pub fn mention(self, username: impl Into<Box<str>>) -> Self {
         let mention = format!("@{}", username.into());
-        let entity = MessageEntity::Mention(MessageEntityMention::new(
-            utf16_len(&self.text),
-            utf16_len(&mention),
-        ));
+        let entity = MessageEntity::Mention(MessageEntityMention::new(0, utf16_len(&mention)));
 
-        self.text(mention)
-            .entity(&entity)
-            .expect("Failed to add mention. Report this issue to the developers")
+        self.push_formatted(&mention, &entity)
     }
 
     /// # Warning
@@ -130,14 +149,9 @@ where
     #[must_use]
     pub fn hashtag(self, tag: impl Into<Box<str>>) -> Self {
         let hashtag = format!("#{}", tag.into());
-        let entity = MessageEntity::Hashtag(MessageEntityHashtag::new(
-            utf16_len(&self.text),
-            utf16_len(&hashtag),
-        ));
+        let entity = MessageEntity::Hashtag(MessageEntityHashtag::new(0, utf16_len(&hashtag)));
 
-        self.text(hashtag)
-            .entity(&entity)
-            .expect("Failed to add hashtag. Report this issue to the developers")
+        self.push_formatted(&hashtag, &entity)
     }
 
     /// # Warning
@@ -145,14 +159,9 @@ where
     #[must_use]
     pub fn cashtag(self, tag: impl Into<Box<str>>) -> Self {
         let cashtag = format!("${}", tag.into());
-        let entity = MessageEntity::Cashtag(MessageEntityCashtag::new(
-            utf16_len(&self.text),
-            utf16_len(&cashtag),
-        ));
+        let entity = MessageEntity::Cashtag(MessageEntityCashtag::new(0, utf16_len(&cashtag)));
 
-        self.text(cashtag)
-            .entity(&entity)
-            .expect("Failed to add cashtag. Report this issue to the developers")
+        self.push_formatted(&cashtag, &entity)
     }
 
     /// # Warning
@@ -160,14 +169,10 @@ where
     #[must_use]
     pub fn bot_command(self, command: impl Into<Box<str>>) -> Self {
         let bot_command = format!("/{}", command.into());
-        let entity = MessageEntity::BotCommand(MessageEntityBotCommand::new(
-            utf16_len(&self.text),
-            utf16_len(&bot_command),
-        ));
+        let entity =
+            MessageEntity::BotCommand(MessageEntityBotCommand::new(0, utf16_len(&bot_command)));
 
-        self.text(bot_command)
-            .entity(&entity)
-            .expect("Failed to add bot command. Report this issue to the developers")
+        self.push_formatted(&bot_command, &entity)
     }
 
     /// # Warning
@@ -175,14 +180,9 @@ where
     #[must_use]
     pub fn url(self, url: impl Into<Box<str>>) -> Self {
         let url = url.into();
-        let entity = MessageEntity::Url(MessageEntityUrl::new(
-            utf16_len(&self.text),
-            utf16_len(&url),
-        ));
+        let entity = MessageEntity::Url(MessageEntityUrl::new(0, utf16_len(&url)));
 
-        self.text(url)
-            .entity(&entity)
-            .expect("Failed to add URL. Report this issue to the developers")
+        self.push_formatted(&url, &entity)
     }
 
     /// # Warning
@@ -190,14 +190,9 @@ where
     #[must_use]
     pub fn email(self, email: impl Into<Box<str>>) -> Self {
         let email = email.into();
-        let entity = MessageEntity::Email(MessageEntityEmail::new(
-            utf16_len(&self.text),
-            utf16_len(&email),
-        ));
+        let entity = MessageEntity::Email(MessageEntityEmail::new(0, utf16_len(&email)));
 
-        self.text(email)
-            .entity(&entity)
-            .expect("Failed to add email. Report this issue to the developers")
+        self.push_formatted(&email, &entity)
     }
 
     /// # Warning
@@ -205,14 +200,10 @@ where
     #[must_use]
     pub fn phone_number(self, phone_number: impl Into<Box<str>>) -> Self {
         let phone_number = phone_number.into();
-        let entity = MessageEntity::PhoneNumber(MessageEntityPhoneNumber::new(
-            utf16_len(&self.text),
-            utf16_len(&phone_number),
-        ));
+        let entity =
+            MessageEntity::PhoneNumber(MessageEntityPhoneNumber::new(0, utf16_len(&phone_number)));
 
-        self.text(phone_number)
-            .entity(&entity)
-            .expect("Failed to add phone number. Report this issue to the developers")
+        self.push_formatted(&phone_number, &entity)
     }
 
     /// # Warning
@@ -220,14 +211,9 @@ where
     #[must_use]
     pub fn bold(self, text: impl Into<Box<str>>) -> Self {
         let text = text.into();
-        let entity = MessageEntity::Bold(MessageEntityBold::new(
-            utf16_len(&self.text),
-            utf16_len(&text),
-        ));
+        let entity = MessageEntity::Bold(MessageEntityBold::new(0, utf16_len(&text)));
 
-        self.text(text)
-            .entity(&entity)
-            .expect("Failed to add bold. Report this issue to the developers")
+        self.push_formatted(&text, &entity)
     }
 
     /// # Warning
@@ -235,14 +221,9 @@ where
     #[must_use]
     pub fn italic(self, text: impl Into<Box<str>>) -> Self {
         let text = text.into();
-        let entity = MessageEntity::Italic(MessageEntityItalic::new(
-            utf16_len(&self.text),
-            utf16_len(&text),
-        ));
+        let entity = MessageEntity::Italic(MessageEntityItalic::new(0, utf16_len(&text)));
 
-        self.text(text)
-            .entity(&entity)
-            .expect("Failed to add italic. Report this issue to the developers")
+        self.push_formatted(&text, &entity)
     }
 
     /// # Warning
@@ -250,14 +231,9 @@ where
     #[must_use]
     pub fn underline(self, text: impl Into<Box<str>>) -> Self {
         let text = text.into();
-        let entity = MessageEntity::Underline(MessageEntityUnderline::new(
-            utf16_len(&self.text),
-            utf16_len(&text),
-        ));
+        let entity = MessageEntity::Underline(MessageEntityUnderline::new(0, utf16_len(&text)));
 
-        self.text(text)
-            .entity(&entity)
-            .expect("Failed to add underline. Report this issue to the developers")
+        self.push_formatted(&text, &entity)
     }
 
     /// # Warning
@@ -265,14 +241,10 @@ where
     #[must_use]
     pub fn strikethrough(self, text: impl Into<Box<str>>) -> Self {
         let text = text.into();
-        let entity = MessageEntity::Strikethrough(MessageEntityStrikethrough::new(
-            utf16_len(&self.text),
-            utf16_len(&text),
-        ));
+        let entity =
+            MessageEntity::Strikethrough(MessageEntityStrikethrough::new(0, utf16_len(&text)));
 
-        self.text(text)
-            .entity(&entity)
-            .expect("Failed to add strikethrough. Report this issue to the developers")
+        self.push_formatted(&text, &entity)
     }
 
     /// # Warning
@@ -280,14 +252,9 @@ where
     #[must_use]
     pub fn spoiler(self, text: impl Into<Box<str>>) -> Self {
         let text = text.into();
-        let entity = MessageEntity::Spoiler(MessageEntitySpoiler::new(
-            utf16_len(&self.text),
-            utf16_len(&text),
-        ));
+        let entity = MessageEntity::Spoiler(MessageEntitySpoiler::new(0, utf16_len(&text)));
 
-        self.text(text)
-            .entity(&entity)
-            .expect("Failed to add spoiler. Report this issue to the developers")
+        self.push_formatted(&text, &entity)
     }
 
     /// # Warning
@@ -295,14 +262,9 @@ where
     #[must_use]
     pub fn blockquote(self, text: impl Into<Box<str>>) -> Self {
         let text = text.into();
-        let entity = MessageEntity::Blockquote(MessageEntityBlockquote::new(
-            utf16_len(&self.text),
-            utf16_len(&text),
-        ));
+        let entity = MessageEntity::Blockquote(MessageEntityBlockquote::new(0, utf16_len(&text)));
 
-        self.text(text)
-            .entity(&entity)
-            .expect("Failed to add blockquote. Report this issue to the developers")
+        self.push_formatted(&text, &entity)
     }
 
     /// # Warning
@@ -311,13 +273,11 @@ where
     pub fn expandable_blockquote(self, text: impl Into<Box<str>>) -> Self {
         let text = text.into();
         let entity = MessageEntity::ExpandableBlockquote(MessageEntityExpandableBlockquote::new(
-            utf16_len(&self.text),
+            0,
             utf16_len(&text),
         ));
 
-        self.text(text)
-            .entity(&entity)
-            .expect("Failed to add expandable blockquote. Report this issue to the developers")
+        self.push_formatted(&text, &entity)
     }
 
     /// Add code as monowidth string.
@@ -330,14 +290,9 @@ where
     #[must_use]
     pub fn code(self, code: impl Into<Box<str>>) -> Self {
         let code = code.into();
-        let entity = MessageEntity::Code(MessageEntityCode::new(
-            utf16_len(&self.text),
-            utf16_len(&code),
-        ));
+        let entity = MessageEntity::Code(MessageEntityCode::new(0, utf16_len(&code)));
 
-        self.text(code)
-            .entity(&entity)
-            .expect("Failed to add code. Report this issue to the developers")
+        self.push_formatted(&code, &entity)
     }
 
     /// Add text as monowidth string.
@@ -365,14 +320,9 @@ where
     #[must_use]
     pub fn pre(self, code: impl Into<Box<str>>) -> Self {
         let code = code.into();
-        let entity = MessageEntity::Pre(MessageEntityPre::new(
-            utf16_len(&self.text),
-            utf16_len(&code),
-        ));
+        let entity = MessageEntity::Pre(MessageEntityPre::new(0, utf16_len(&code)));
 
-        self.text(code)
-            .entity(&entity)
-            .expect("Failed to add pre. Report this issue to the developers")
+        self.push_formatted(&code, &entity)
     }
 
     /// Add code with programming language to the monowidth block and highlight it.
@@ -386,13 +336,10 @@ where
     #[must_use]
     pub fn pre_language(self, code: impl Into<Box<str>>, language: impl Into<Box<str>>) -> Self {
         let code = code.into();
-        let entity = MessageEntity::Pre(
-            MessageEntityPre::new(utf16_len(&self.text), utf16_len(&code)).language(language),
-        );
+        let entity =
+            MessageEntity::Pre(MessageEntityPre::new(0, utf16_len(&code)).language(language));
 
-        self.text(code).entity(&entity).expect(
-            "Failed to add pre with programming language. Report this issue to the developers",
-        )
+        self.push_formatted(&code, &entity)
     }
 
     /// Add clickable text link.
@@ -406,15 +353,9 @@ where
     #[must_use]
     pub fn text_link(self, text: impl Into<Box<str>>, url: impl Into<Box<str>>) -> Self {
         let text = text.into();
-        let entity = MessageEntity::TextLink(MessageEntityTextLink::new(
-            utf16_len(&self.text),
-            utf16_len(&text),
-            url,
-        ));
+        let entity = MessageEntity::TextLink(MessageEntityTextLink::new(0, utf16_len(&text), url));
 
-        self.text(text)
-            .entity(&entity)
-            .expect("Failed to add clickable text link. Report this issue to the developers")
+        self.push_formatted(&text, &entity)
     }
 
     /// Add mention for the user without username to the text.
@@ -426,16 +367,10 @@ where
     #[must_use]
     pub fn text_mention(self, text: impl Into<Box<str>>, user: User) -> Self {
         let text = text.into();
-        let entity = MessageEntity::TextMention(MessageEntityTextMention::new(
-            utf16_len(&self.text),
-            utf16_len(&text),
-            user,
-        ));
+        let entity =
+            MessageEntity::TextMention(MessageEntityTextMention::new(0, utf16_len(&text), user));
 
-        self.text(text).entity(&entity).expect(
-            "Failed to add mention for the user without username. Report this issue to the \
-             developers",
-        )
+        self.push_formatted(&text, &entity)
     }
 
     /// Add custom emoji to the text instead of unicode emoji.
@@ -454,14 +389,12 @@ where
     ) -> Self {
         let emoji = emoji.into();
         let entity = MessageEntity::CustomEmoji(MessageEntityCustomEmoji::new(
-            utf16_len(&self.text),
+            0,
             utf16_len(&emoji),
             custom_emoji_id,
         ));
 
-        self.text(emoji)
-            .entity(&entity)
-            .expect("Failed to add custom emoji. Report this issue to the developers")
+        self.push_formatted(&emoji, &entity)
     }
 
     /// Get formatted text.
@@ -549,5 +482,33 @@ mod tests {
             <blockquote expandable>expandable_blockquote</blockquote>\
             "
         );
+    }
+
+    #[test]
+    fn markdown_builder_escapes_each_segment_exactly_once() {
+        use crate::utils::text::MarkdownFormatter;
+
+        // Each convenience method formats and escapes only its own segment, so chaining them
+        // never re-escapes a previously produced `*...*` fragment, and content special chars
+        // are escaped exactly once.
+        let builder = Builder::new(MarkdownFormatter::default())
+            .bold("a")
+            .bold("b")
+            .text(" c_d ")
+            .strikethrough("e.f");
+
+        assert_eq!(builder.get_text(), r"*a**b* c_d ~e\.f~");
+    }
+
+    #[test]
+    fn markdown_builder_keeps_auto_detected_entities_literal() {
+        use crate::utils::text::MarkdownFormatter;
+
+        let builder = Builder::new(MarkdownFormatter::default())
+            .mention("user")
+            .text(" ")
+            .hashtag("tag");
+
+        assert_eq!(builder.get_text(), "@user #tag");
     }
 }

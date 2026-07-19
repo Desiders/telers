@@ -396,6 +396,21 @@ mod tests {
     }
 
     #[test]
+    fn formatting_methods_escape_their_content() {
+        let formatter = Formatter;
+
+        // MarkdownV2 special characters inside a formatted span are escaped, so user content
+        // can never break out of (or prematurely close) the surrounding markup.
+        assert_eq!(formatter.bold("a*b"), r"*a\*b*");
+        assert_eq!(formatter.italic("a_b"), "_\ra\\_b_\r");
+        assert_eq!(formatter.underline("a_b"), "__\ra\\_b__\r");
+        assert_eq!(formatter.strikethrough("a~b"), r"~a\~b~");
+        assert_eq!(formatter.spoiler("a|b"), r"||a\|b||");
+        assert_eq!(formatter.blockquote("a.b"), r">a\.b");
+        assert_eq!(formatter.text_mention("a-b", 1), r"[a\-b](tg://user?id=1)");
+    }
+
+    #[test]
     fn test_text_link() {
         let formatter = Formatter;
         assert_eq!(
@@ -489,17 +504,51 @@ mod tests {
         };
 
         let formatter = Formatter;
-        // Each entity span already includes its prefix char, so applying it must not add
-        // a second one (no `@@user`, `##tag`, ...).
-        let text = "@user #tag $CASH /cmd";
-        for entity in [
-            MessageEntity::Mention(MessageEntityMention::new(0, 5)),
-            MessageEntity::Hashtag(MessageEntityHashtag::new(6, 4)),
-            MessageEntity::Cashtag(MessageEntityCashtag::new(11, 5)),
-            MessageEntity::BotCommand(MessageEntityBotCommand::new(17, 4)),
-        ] {
+        // Each entity span already includes its prefix char, so applying it must not add a
+        // second one (no `@@user`, `##tag`, ...) or reformat the span. The surrounding text
+        // here has no MarkdownV2 special characters, so it is left exactly as is.
+        let cases: [(&str, MessageEntity); 4] = [
+            (
+                "@user here",
+                MessageEntity::Mention(MessageEntityMention::new(0, 5)),
+            ),
+            (
+                "here #tag",
+                MessageEntity::Hashtag(MessageEntityHashtag::new(5, 4)),
+            ),
+            (
+                "here $CASH",
+                MessageEntity::Cashtag(MessageEntityCashtag::new(5, 5)),
+            ),
+            (
+                "here /cmd",
+                MessageEntity::BotCommand(MessageEntityBotCommand::new(5, 4)),
+            ),
+        ];
+        for (text, entity) in cases {
             assert_eq!(formatter.apply_entity(text, &entity).unwrap(), text);
         }
+    }
+
+    #[test]
+    fn test_apply_entity_escapes_surrounding_text() {
+        use crate::types::MessageEntityBold;
+
+        let formatter = Formatter;
+
+        // The literal text around the entity span must be escaped too, otherwise its special
+        // characters (`_`, `.`) would break the MarkdownV2 markup.
+        let entity = MessageEntity::Bold(MessageEntityBold::new(0, 1));
+        assert_eq!(
+            formatter.apply_entity("a_b.c", &entity).unwrap(),
+            r"*a*\_b\.c"
+        );
+
+        let entity = MessageEntity::Bold(MessageEntityBold::new(4, 1));
+        assert_eq!(
+            formatter.apply_entity("a_b.c", &entity).unwrap(),
+            r"a\_b\.*c*"
+        );
     }
 
     #[test]
