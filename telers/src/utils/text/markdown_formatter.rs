@@ -250,7 +250,11 @@ impl TextFormatter for Formatter {
             },
         };
 
-        Ok(format!("{previous_text}{edited_text}{next_text}"))
+        Ok(format!(
+            "{}{edited_text}{}",
+            self.quote(previous_text),
+            self.quote(next_text)
+        ))
     }
 }
 
@@ -530,7 +534,7 @@ mod tests {
         );
         assert_eq!(
             formatter.text_link("a_b", "http://example.com"),
-            "[a_b](http://example.com)"
+            r"[a\_b](http://example.com)"
         );
     }
 

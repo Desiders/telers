@@ -98,7 +98,11 @@ impl TextFormatter for Formatter {
     where
         T: Display,
     {
-        format!("<{tag}>{}</{tag}>", self.quote(text), tag = self.strikethrough)
+        format!(
+            "<{tag}>{}</{tag}>",
+            self.quote(text),
+            tag = self.strikethrough
+        )
     }
 
     fn spoiler<T>(&self, text: T) -> String
@@ -134,7 +138,10 @@ impl TextFormatter for Formatter {
     where
         T: Display,
     {
-        format!("<a href=\"tg://user?id={user_id}\">{}</a>", self.quote(text))
+        format!(
+            "<a href=\"tg://user?id={user_id}\">{}</a>",
+            self.quote(text)
+        )
     }
 
     fn custom_emoji<T, E>(&self, text: T, emoji_id: E) -> String
@@ -168,14 +175,20 @@ impl TextFormatter for Formatter {
         T: Display,
         L: Display,
     {
-        format!("<pre><code class=\"language-{language}\">{}</code></pre>", self.quote(text))
+        format!(
+            "<pre><code class=\"language-{language}\">{}</code></pre>",
+            self.quote(text)
+        )
     }
 
     fn date_time<T>(&self, text: T, unix_time: i64) -> String
     where
         T: Display,
     {
-        format!("<tg-time unix=\"{unix_time}\">{}</tg-time>", self.quote(text))
+        format!(
+            "<tg-time unix=\"{unix_time}\">{}</tg-time>",
+            self.quote(text)
+        )
     }
 
     fn date_time_with_format<T, F>(&self, text: T, unix_time: i64, date_time_format: F) -> String
@@ -183,7 +196,10 @@ impl TextFormatter for Formatter {
         T: Display,
         F: Display,
     {
-        format!("<tg-time unix=\"{unix_time}\" format=\"{date_time_format}\">{}</tg-time>", self.quote(text))
+        format!(
+            "<tg-time unix=\"{unix_time}\" format=\"{date_time_format}\">{}</tg-time>",
+            self.quote(text)
+        )
     }
 
     fn quote<T>(&self, text: T) -> String
@@ -264,7 +280,11 @@ impl TextFormatter for Formatter {
             },
         };
 
-        Ok(format!("{previous_text}{edited_text}{next_text}"))
+        Ok(format!(
+            "{}{edited_text}{}",
+            self.quote(previous_text),
+            self.quote(next_text)
+        ))
     }
 }
 
