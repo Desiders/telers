@@ -31,7 +31,7 @@ pub struct SendContact {
     /// Contact's last name
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_name: Option<Box<str>>,
-    /// Additional data about the contact in the form of a vCard, 0-2048 bytes
+    /// Additional data about the contact in the form of a `vCard`, 0-2048 bytes
     #[serde(skip_serializing_if = "Option::is_none")]
     pub vcard: Option<Box<str>>,
     /// Sends the message silently. Users will receive a notification with no sound.
@@ -198,14 +198,14 @@ impl SendContact {
         self
     }
 
-    /// Additional data about the contact in the form of a vCard, 0-2048 bytes
+    /// Additional data about the contact in the form of a `vCard`, 0-2048 bytes
     #[must_use]
     pub fn vcard<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.vcard = Some(val.into());
         self
     }
 
-    /// Additional data about the contact in the form of a vCard, 0-2048 bytes
+    /// Additional data about the contact in the form of a `vCard`, 0-2048 bytes
     #[must_use]
     pub fn vcard_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.vcard = val.map(Into::into);

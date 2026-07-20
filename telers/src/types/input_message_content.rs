@@ -459,7 +459,7 @@ impl InputMessageContent {
 
     /// Helper method for field `vcard`.
     ///
-    /// Additional data about the contact in the form of a vCard, 0-2048 bytes
+    /// Additional data about the contact in the form of a `vCard`, 0-2048 bytes
     #[must_use]
     pub fn vcard(&self) -> Option<&str> {
         match self {

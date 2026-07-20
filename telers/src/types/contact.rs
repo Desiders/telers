@@ -14,7 +14,7 @@ pub struct Contact {
     /// Contact's user identifier in Telegram. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user_id: Option<i64>,
-    /// Additional data about the contact in the form of a vCard
+    /// Additional data about the contact in the form of a `vCard`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub vcard: Option<Box<str>>,
 }
@@ -80,14 +80,14 @@ impl Contact {
         self
     }
 
-    /// Additional data about the contact in the form of a vCard
+    /// Additional data about the contact in the form of a `vCard`
     #[must_use]
     pub fn vcard<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.vcard = Some(val.into());
         self
     }
 
-    /// Additional data about the contact in the form of a vCard
+    /// Additional data about the contact in the form of a `vCard`
     #[must_use]
     pub fn vcard_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.vcard = val.map(Into::into);

@@ -1,5 +1,5 @@
 use crate::parser::api::{NormalizedSubtypeVariant, TypeKindInField};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 pub fn collect_telegram_type_names(kind: &TypeKindInField, out: &mut HashSet<String>) {
     match kind {
@@ -77,6 +77,41 @@ pub fn link_known_type_mentions(doc: &str, names: &HashSet<String>) -> String {
 #[must_use]
 pub fn normalize_doc_line_prefix(doc: &str) -> String {
     format!(" {}", doc.trim_start())
+}
+
+#[must_use]
+pub fn link_known_method_mentions(doc: &str, api_method_names: &HashMap<String, String>) -> String {
+    doc.split_whitespace()
+        .map(|token| {
+            if token.contains("](") || token.starts_with("[`crate::methods::") {
+                return token.to_string();
+            }
+
+            let start = token
+                .find(|c: char| c.is_ascii_alphanumeric() || c == '`')
+                .unwrap_or(0);
+            let end = token
+                .rfind(|c: char| c.is_ascii_alphanumeric() || c == '`')
+                .map_or(token.len(), |idx| idx + 1);
+            let (prefix, rest) = token.split_at(start);
+            let (core, suffix) = rest.split_at(end.saturating_sub(start));
+
+            // A method mention must look like an identifier: explicitly code-formatted or
+            // camel-case. A bare lowercase word is prose, not a method reference, even when
+            // a method with that name exists ("Use this method to close ..." vs `close`).
+            let plain = core.trim_matches('`');
+            let is_code = core.len() > 1 && core.starts_with('`') && core.ends_with('`');
+            let is_camel_case = plain.chars().any(|c| c.is_ascii_uppercase());
+            if (is_code || is_camel_case)
+                && let Some(method_name) = api_method_names.get(plain)
+            {
+                return format!("{prefix}[`crate::methods::{method_name}`]{suffix}");
+            }
+
+            token.to_string()
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 pub fn link_subtype_mentions(doc_lines: &mut [String], subtypes: &[NormalizedSubtypeVariant]) {

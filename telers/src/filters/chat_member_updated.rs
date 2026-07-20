@@ -29,7 +29,7 @@ impl ChatMemberUpdated {
     #[inline]
     #[must_use]
     pub fn validate(&self, new: ChatMemberType, old: ChatMemberType) -> bool {
-        (self.new == new) & self.old.map_or(true, |o| o == old)
+        (self.new == new) & self.old.is_none_or(|o| o == old)
     }
 }
 

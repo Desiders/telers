@@ -1,5 +1,5 @@
 //! Render a message's text/caption together with its [`MessageEntity`] list back into a
-//! single HTML or MarkdownV2 string — the inverse of parsing formatted text into entities.
+//! single HTML or `MarkdownV2` string — the inverse of parsing formatted text into entities.
 //!
 //! This lets a formatted message be stored as one human-readable string and re-sent later
 //! with a `parse_mode`, instead of persisting the text and entities separately.
@@ -12,7 +12,7 @@ use tag::{Kind, Tag, TagWriter};
 
 use crate::types::MessageEntity;
 
-/// Renders text and its message entities into HTML or MarkdownV2.
+/// Renders text and its message entities into HTML or `MarkdownV2`.
 ///
 /// # Example
 /// ```
@@ -100,7 +100,7 @@ impl<'a> Renderer<'a> {
     /// Renders the text with the given [`TagWriter`], inserting tags at their UTF-16 offsets.
     ///
     /// Unlike teloxide, text with no renderable entities is still escaped (rather than
-    /// returned verbatim) so the result is always valid HTML / MarkdownV2.
+    /// returned verbatim) so the result is always valid HTML / `MarkdownV2`.
     fn format(&self, writer: &TagWriter) -> String {
         let mut buffer = String::with_capacity(self.text.len() + self.tags.len() * 8);
         let mut tags = self.tags.iter();

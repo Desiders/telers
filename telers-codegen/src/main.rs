@@ -42,6 +42,51 @@ struct Args {
     tests_types_path: Option<String>,
 }
 
+fn apply_schema_transforms(schema: &mut telers_codegen::parser::api::NormalizedSchema) {
+    schema.skip_types(&["InputFile"]);
+    schema.split_message_types();
+    schema.split_external_reply_info_types();
+    schema.split_update_types();
+    schema.split_chat_types();
+    schema.split_sticker_types();
+    schema.split_poll_types();
+    schema.split_poll_media_types();
+    schema.split_giveaway_types();
+    schema.split_giveaway_winners_types();
+    schema.split_star_transaction_types();
+    schema.split_encrypted_passport_element_types();
+    schema.split_message_entity_types();
+    schema.split_inline_query_result();
+    schema.split_transaction_partner_user_types();
+    schema.compose_reply_markup_type();
+    schema.compose_input_rich_message_media_type();
+    schema.reorder_untagged_subtypes();
+    schema.add_unknown_fallbacks();
+    schema.modify_get_updates_returns_method();
+}
+
+fn generate_enums(schema: &telers_codegen::parser::api::NormalizedSchema, src_dir: &Path) {
+    let enums_dir = src_dir.join("enums");
+    let enum_names = schema
+        .types
+        .iter()
+        .filter(|(_, ty)| !ty.subtypes.is_empty())
+        .filter_map(|(name, ty)| {
+            let tokens = generator::enums::tokenize_kind_enum_file(ty)?;
+            write_or_exit(&tokens, &enums_dir, &camel_to_filename(name, Some("rs")));
+            Some(name.as_str())
+        })
+        .collect::<Vec<_>>();
+    let mut own_enum_names = vec![];
+    for (name, tokens) in &generator::enums::tokenize_own_enums(schema) {
+        write_or_exit(tokens, &enums_dir, &camel_to_filename(name, Some("rs")));
+        own_enum_names.push(*name);
+    }
+    let tokens =
+        generator::enums::tokenize_kind_enums_mod(enum_names.as_slice(), own_enum_names.as_slice());
+    write_or_exit(&tokens, src_dir, "enums.rs");
+}
+
 fn write_or_exit(tokens: &impl Display, dir: &Path, filename: &str) {
     write_tokens_to_file(tokens, dir, filename).unwrap_or_else(|err| {
         eprintln!(
@@ -70,26 +115,7 @@ fn main() {
         })
         .normalize();
 
-    schema.skip_types(&["InputFile"]);
-    schema.split_message_types();
-    schema.split_external_reply_info_types();
-    schema.split_update_types();
-    schema.split_chat_types();
-    schema.split_sticker_types();
-    schema.split_poll_types();
-    schema.split_poll_media_types();
-    schema.split_giveaway_types();
-    schema.split_giveaway_winners_types();
-    schema.split_star_transaction_types();
-    schema.split_encrypted_passport_element_types();
-    schema.split_message_entity_types();
-    schema.split_inline_query_result();
-    schema.split_transaction_partner_user_types();
-    schema.compose_reply_markup_type();
-    schema.compose_input_rich_message_media_type();
-    schema.reorder_untagged_subtypes();
-    schema.add_unknown_fallbacks();
-    schema.modify_get_updates_returns_method();
+    apply_schema_transforms(&mut schema);
 
     if args.generate_tests {
         let types_path = args
@@ -105,39 +131,6 @@ fn main() {
     let src_dir = args.generated_dir_path.join("src");
     let types_dir = src_dir.join("types");
     let known_schema_type_names = schema.types.keys().cloned().collect::<HashSet<_>>();
-    for (name, ty) in &schema.types {
-        let tokens = generator::types::tokenize_type(ty, &schema, &known_schema_type_names);
-        write_or_exit(&tokens, &types_dir, &camel_to_filename(name, Some("rs")));
-    }
-    println!("Types generated");
-
-    let type_names = schema.types.keys().collect::<Vec<_>>();
-    let tokens = generator::types::tokenize_types_mod(type_names.as_slice());
-    write_or_exit(&tokens, &src_dir, "types.rs");
-    println!("Types module generated");
-
-    let enums_dir = src_dir.join("enums");
-    let enum_names = schema
-        .types
-        .iter()
-        .filter(|(_, ty)| !ty.subtypes.is_empty())
-        .filter_map(|(name, ty)| {
-            let tokens = generator::enums::tokenize_kind_enum_file(ty)?;
-            write_or_exit(&tokens, &enums_dir, &camel_to_filename(name, Some("rs")));
-            Some(name.as_str())
-        })
-        .collect::<Vec<_>>();
-    let mut own_enum_names = vec![];
-    for (name, tokens) in &generator::enums::tokenize_own_enums(&schema) {
-        write_or_exit(tokens, &enums_dir, &camel_to_filename(name, Some("rs")));
-        own_enum_names.push(*name);
-    }
-    let tokens =
-        generator::enums::tokenize_kind_enums_mod(enum_names.as_slice(), own_enum_names.as_slice());
-    write_or_exit(&tokens, &src_dir, "enums.rs");
-    println!("Enums generated");
-
-    let methods_dir = src_dir.join("methods");
     let known_api_method_names = schema
         .methods
         .values()
@@ -148,6 +141,26 @@ fn main() {
             )
         })
         .collect::<std::collections::HashMap<_, _>>();
+    for (name, ty) in &schema.types {
+        let tokens = generator::types::tokenize_type(
+            ty,
+            &schema,
+            &known_schema_type_names,
+            &known_api_method_names,
+        );
+        write_or_exit(&tokens, &types_dir, &camel_to_filename(name, Some("rs")));
+    }
+    println!("Types generated");
+
+    let type_names = schema.types.keys().collect::<Vec<_>>();
+    let tokens = generator::types::tokenize_types_mod(type_names.as_slice());
+    write_or_exit(&tokens, &src_dir, "types.rs");
+    println!("Types module generated");
+
+    generate_enums(&schema, &src_dir);
+    println!("Enums generated");
+
+    let methods_dir = src_dir.join("methods");
     for method in schema.methods.values() {
         let tokens = generator::methods::tokenize_method(
             method,

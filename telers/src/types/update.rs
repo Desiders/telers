@@ -195,7 +195,7 @@ impl Update {
 
     /// Helper method for field `guest_message`.
     ///
-    /// New guest message. The bot can use the field Message.guest_query_id and the method answerGuestQuery to send a message in response.
+    /// New guest message. The bot can use the field `Message.guest_query_id` and the method [`crate::methods::AnswerGuestQuery`] to send a message in response.
     #[must_use]
     pub fn guest_message(&self) -> Option<&crate::types::Message> {
         match self {

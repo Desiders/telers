@@ -10,6 +10,28 @@ use crate::{
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
+fn string_conversion_impls(kind_name: &proc_macro2::Ident) -> TokenStream {
+    quote! {
+        impl From<#kind_name> for Box<str> {
+            fn from(val: #kind_name) -> Self {
+                Into::<&'static str>::into(val).into()
+            }
+        }
+
+        impl From<#kind_name> for String {
+            fn from(val: #kind_name) -> Self {
+                val.as_ref().to_owned()
+            }
+        }
+
+        impl<'a> PartialEq<&'a str> for #kind_name {
+            fn eq(&self, other: &&'a str) -> bool {
+                self.as_ref() == *other
+            }
+        }
+    }
+}
+
 #[must_use]
 pub fn tokenize_kind_enum(type_quote: &NormalizedType) -> Option<TokenStream> {
     if type_quote.subtypes.is_empty() {
@@ -103,28 +125,8 @@ pub fn tokenize_kind_enum(type_quote: &NormalizedType) -> Option<TokenStream> {
         }
     };
 
-    let (strum_derives, string_impls) = (
-        quote! { #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr, Deserialize, Serialize)] },
-        quote! {
-            impl From<#kind_name> for Box<str> {
-                fn from(val: #kind_name) -> Self {
-                    Into::<&'static str>::into(val).into()
-                }
-            }
-
-            impl From<#kind_name> for String {
-                fn from(val: #kind_name) -> Self {
-                    val.as_ref().to_owned()
-                }
-            }
-
-            impl<'a> PartialEq<&'a str> for #kind_name {
-                fn eq(&self, other: &&'a str) -> bool {
-                    self.as_ref() == *other
-                }
-            }
-        },
-    );
+    let strum_derives = quote! { #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr, Deserialize, Serialize)] };
+    let string_impls = string_conversion_impls(&kind_name);
 
     Some(quote! {
         use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
@@ -296,6 +298,7 @@ pub fn tokenize_enum_telegram_observer_type(schema: &NormalizedSchema) -> TokenS
             quote! { UpdateType::#variant => TelegramObserverType::#variant }
         })
         .collect();
+    let string_impls = string_conversion_impls(&format_ident!("TelegramObserverType"));
 
     quote! {
         use crate::{enums::UpdateType, types::Update};
@@ -326,23 +329,7 @@ pub fn tokenize_enum_telegram_observer_type(schema: &NormalizedSchema) -> TokenS
             }
         }
 
-        impl From<TelegramObserverType> for Box<str> {
-            fn from(val: TelegramObserverType) -> Self {
-                Into::<&'static str>::into(val).into()
-            }
-        }
-
-        impl From<TelegramObserverType> for String {
-            fn from(val: TelegramObserverType) -> Self {
-                val.as_ref().to_owned()
-            }
-        }
-
-        impl<'a> PartialEq<&'a str> for TelegramObserverType {
-            fn eq(&self, other: &&'a str) -> bool {
-                self.as_ref() == *other
-            }
-        }
+        #string_impls
 
         impl From<UpdateType> for TelegramObserverType {
             fn from(val: UpdateType) -> Self {

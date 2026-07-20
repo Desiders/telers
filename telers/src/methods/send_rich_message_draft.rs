@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to stream a partial rich message to a user while the message is being generated. Note that the streamed draft is ephemeral and acts as a temporary 30-second preview - once the output is finalized, you must call sendRichMessage with the complete message to persist it in the user's chat. Returns `true` on success.
+/// Use this method to stream a partial rich message to a user while the message is being generated. Note that the streamed draft is ephemeral and acts as a temporary 30-second preview - once the output is finalized, you must call [`crate::methods::SendRichMessage`] with the complete message to persist it in the user's chat. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sendrichmessagedraft>
 /// # Returns

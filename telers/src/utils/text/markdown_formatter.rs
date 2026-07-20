@@ -12,10 +12,10 @@ pub(crate) const ESCAPE_CHARS: [char; 19] = [
     '\\', '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!',
 ];
 
-/// Characters that MarkdownV2 requires to be escaped **inside** `code` and `pre` entities
+/// Characters that `MarkdownV2` requires to be escaped **inside** `code` and `pre` entities
 pub(crate) const CODE_ESCAPE_CHARS: [char; 2] = ['`', '\\'];
 
-/// Characters that MarkdownV2 requires to be escaped **inside** the `(...)` of an inline link or custom emoji definition
+/// Characters that `MarkdownV2` requires to be escaped **inside** the `(...)` of an inline link or custom emoji definition
 pub(crate) const URL_ESCAPE_CHARS: [char; 2] = [')', '\\'];
 
 fn escape(text: impl Display, chars: &[char]) -> String {
@@ -214,7 +214,7 @@ impl TextFormatter for Formatter {
             // Entity types unknown to the library can't be re-formatted either, so their
             // span is also kept as is.
             | MessageEntity::PhoneNumber(_)
-            | MessageEntity::Unknown(_) => editable_text.to_owned(),
+            | MessageEntity::Unknown(_) => editable_text.clone(),
             MessageEntity::Bold(_) => self.bold(editable_text),
             MessageEntity::Italic(_) => self.italic(editable_text),
             MessageEntity::Underline(_) => self.underline(editable_text),

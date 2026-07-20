@@ -52,7 +52,6 @@ bytes = { version = "1.5", default-features = false }
 deadpool-redis = { version = "0.23", default-features = false, features = ["rt_tokio_1"], optional = true }
 futures-util = { version = "0.3", default-features = false }
 native-tls = { version = "0.2", optional = true }
-once_cell = { version = "1.19", default-features = false }
 paste = { version = "1.0", default-features = false }
 pathdiff = { version = "0.2", default-features = false }
 redis = { version = "1.0", default-features = false, features = ["tokio-comp"], optional = true }

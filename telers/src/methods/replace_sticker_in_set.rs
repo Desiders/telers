@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to replace an existing sticker in a sticker set with a new one. The method is equivalent to calling deleteStickerFromSet, then addStickerToSet, then setStickerPositionInSet. Returns `true` on success.
+/// Use this method to replace an existing sticker in a sticker set with a new one. The method is equivalent to calling [`crate::methods::DeleteStickerFromSet`], then [`crate::methods::AddStickerToSet`], then [`crate::methods::SetStickerPositionInSet`]. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#replacestickerinset>
 /// # Returns

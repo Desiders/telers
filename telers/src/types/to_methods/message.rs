@@ -52,7 +52,7 @@ impl Message {
             .map(|text| Renderer::new(text, self.entities().unwrap_or(&[])).as_html())
     }
 
-    /// Renders the message text and its entities as a MarkdownV2 string, if the message has text.
+    /// Renders the message text and its entities as a `MarkdownV2` string, if the message has text.
     #[must_use]
     pub fn markdown_text(&self) -> Option<String> {
         self.text()
@@ -66,7 +66,7 @@ impl Message {
             .map(|caption| Renderer::new(caption, self.caption_entities().unwrap_or(&[])).as_html())
     }
 
-    /// Renders the message caption and its entities as a MarkdownV2 string, if the message has a caption.
+    /// Renders the message caption and its entities as a `MarkdownV2` string, if the message has a caption.
     #[must_use]
     pub fn markdown_caption(&self) -> Option<String> {
         self.caption().map(|caption| {

@@ -15,7 +15,7 @@ async fn handler(bot: Bot, message: Message) -> HandlerResult<()> {
         .await?;
 
         return Ok(());
-    };
+    }
 
     if let Some(markdown) = message.html_text() {
         bot.send(SendMessage::new(

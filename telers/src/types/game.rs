@@ -10,7 +10,7 @@ pub struct Game {
     pub description: Box<str>,
     /// Photo that will be displayed in the game message in chats
     pub photo: Box<[crate::types::PhotoSize]>,
-    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls setGameScore, or manually edited using editMessageText. 0-4096 characters.
+    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls [`crate::methods::SetGameScore`], or manually edited using [`crate::methods::EditMessageText`]. 0-4096 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<Box<str>>,
     /// Special entities that appear in text, such as usernames, URLs, bot commands, etc.
@@ -95,14 +95,14 @@ impl Game {
         self
     }
 
-    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls setGameScore, or manually edited using editMessageText. 0-4096 characters.
+    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls [`crate::methods::SetGameScore`], or manually edited using [`crate::methods::EditMessageText`]. 0-4096 characters.
     #[must_use]
     pub fn text<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.text = Some(val.into());
         self
     }
 
-    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls setGameScore, or manually edited using editMessageText. 0-4096 characters.
+    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls [`crate::methods::SetGameScore`], or manually edited using [`crate::methods::EditMessageText`]. 0-4096 characters.
     #[must_use]
     pub fn text_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.text = val.map(Into::into);

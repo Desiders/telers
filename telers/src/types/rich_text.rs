@@ -123,7 +123,7 @@ impl RichText {
 
     /// Helper method for field `custom_emoji_id`.
     ///
-    /// Unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker.
+    /// Unique identifier of the custom emoji. Use [`crate::methods::GetCustomEmojiStickers`] to get full information about the sticker.
     #[must_use]
     pub fn custom_emoji_id(&self) -> Option<&str> {
         match self {

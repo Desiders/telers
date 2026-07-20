@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to remove webhook integration if you decide to switch back to getUpdates. Returns `true` on success.
+/// Use this method to remove webhook integration if you decide to switch back to [`crate::methods::GetUpdates`]. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#deletewebhook>
 /// # Returns

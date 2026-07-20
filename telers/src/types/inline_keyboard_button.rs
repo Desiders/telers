@@ -12,13 +12,13 @@ pub struct InlineKeyboardButton {
     /// Style of the button. Must be one of `danger` (red), `success` (green) or `primary` (blue). If omitted, then an app-specific style is used.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub style: Option<Box<str>>,
-    /// HTTP or tg:// URL to be opened when the button is pressed. Links ``tg://user?id=<user_id>`` can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings.
+    /// HTTP or `tg`:// URL to be opened when the button is pressed. Links ``tg://user?id=<user_id>`` can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<Box<str>>,
     /// Data to be sent in a callback query to the bot when the button is pressed, 1-64 bytes
     #[serde(skip_serializing_if = "Option::is_none")]
     pub callback_data: Option<Box<str>>,
-    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account.
+    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method [`crate::methods::AnswerWebAppQuery`]. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub web_app: Option<crate::types::WebAppInfo>,
     /// An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget.
@@ -105,14 +105,14 @@ impl InlineKeyboardButton {
         self
     }
 
-    /// HTTP or tg:// URL to be opened when the button is pressed. Links ``tg://user?id=<user_id>`` can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings.
+    /// HTTP or `tg`:// URL to be opened when the button is pressed. Links ``tg://user?id=<user_id>`` can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings.
     #[must_use]
     pub fn url<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.url = Some(val.into());
         self
     }
 
-    /// HTTP or tg:// URL to be opened when the button is pressed. Links ``tg://user?id=<user_id>`` can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings.
+    /// HTTP or `tg`:// URL to be opened when the button is pressed. Links ``tg://user?id=<user_id>`` can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings.
     #[must_use]
     pub fn url_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.url = val.map(Into::into);
@@ -133,14 +133,14 @@ impl InlineKeyboardButton {
         self
     }
 
-    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account.
+    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method [`crate::methods::AnswerWebAppQuery`]. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account.
     #[must_use]
     pub fn web_app<T: Into<crate::types::WebAppInfo>>(mut self, val: T) -> Self {
         self.web_app = Some(val.into());
         self
     }
 
-    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account.
+    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method [`crate::methods::AnswerWebAppQuery`]. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account.
     #[must_use]
     pub fn web_app_option<T: Into<crate::types::WebAppInfo>>(mut self, val: Option<T>) -> Self {
         self.web_app = val.map(Into::into);

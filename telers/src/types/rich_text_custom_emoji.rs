@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#richtextcustomemoji>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RichTextCustomEmoji {
-    /// Unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker.
+    /// Unique identifier of the custom emoji. Use [`crate::methods::GetCustomEmojiStickers`] to get full information about the sticker.
     pub custom_emoji_id: Box<str>,
     /// Alternative emoji for the custom emoji
     pub alternative_text: Box<str>,
@@ -13,7 +13,7 @@ impl RichTextCustomEmoji {
     /// Creates a new `RichTextCustomEmoji`.
     ///
     /// # Arguments
-    /// * `custom_emoji_id` - Unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker.
+    /// * `custom_emoji_id` - Unique identifier of the custom emoji. Use [`crate::methods::GetCustomEmojiStickers`] to get full information about the sticker.
     /// * `alternative_text` - Alternative emoji for the custom emoji
     #[must_use]
     pub fn new<T0: Into<Box<str>>, T1: Into<Box<str>>>(
@@ -26,7 +26,7 @@ impl RichTextCustomEmoji {
         }
     }
 
-    /// Unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker.
+    /// Unique identifier of the custom emoji. Use [`crate::methods::GetCustomEmojiStickers`] to get full information about the sticker.
     #[must_use]
     pub fn custom_emoji_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.custom_emoji_id = val.into();

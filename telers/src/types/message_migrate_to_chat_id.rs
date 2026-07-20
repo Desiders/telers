@@ -37,7 +37,7 @@ pub struct MessageMigrateToChatId {
     pub ephemeral_message_id: Option<i64>,
     /// Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     pub date: i64,
-    /// The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
+    /// The unique identifier for the guest query. Use this identifier with the method [`crate::methods::AnswerGuestQuery`] to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub guest_query_id: Option<Box<str>>,
     /// Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
@@ -346,14 +346,14 @@ impl MessageMigrateToChatId {
         self
     }
 
-    /// The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
+    /// The unique identifier for the guest query. Use this identifier with the method [`crate::methods::AnswerGuestQuery`] to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
     #[must_use]
     pub fn guest_query_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.guest_query_id = Some(val.into());
         self
     }
 
-    /// The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
+    /// The unique identifier for the guest query. Use this identifier with the method [`crate::methods::AnswerGuestQuery`] to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
     #[must_use]
     pub fn guest_query_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.guest_query_id = val.map(Into::into);

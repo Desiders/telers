@@ -25,34 +25,34 @@ pub struct User {
     /// `true`, if this user added the bot to the attachment menu
     #[serde(skip_serializing_if = "Option::is_none")]
     pub added_to_attachment_menu: Option<bool>,
-    /// `true`, if the bot can be invited to groups. Returned only in getMe.
+    /// `true`, if the bot can be invited to groups. Returned only in [`crate::methods::GetMe`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_join_groups: Option<bool>,
-    /// `true`, if privacy mode is disabled for the bot. Returned only in getMe.
+    /// `true`, if privacy mode is disabled for the bot. Returned only in [`crate::methods::GetMe`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_read_all_group_messages: Option<bool>,
-    /// `true`, if the bot supports guest queries from chats it is not a member of. Returned only in getMe.
+    /// `true`, if the bot supports guest queries from chats it is not a member of. Returned only in [`crate::methods::GetMe`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub supports_guest_queries: Option<bool>,
-    /// `true`, if the bot supports inline queries. Returned only in getMe.
+    /// `true`, if the bot supports inline queries. Returned only in [`crate::methods::GetMe`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub supports_inline_queries: Option<bool>,
-    /// `true`, if the bot can be connected to a user account to manage it. Returned only in getMe.
+    /// `true`, if the bot can be connected to a user account to manage it. Returned only in [`crate::methods::GetMe`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_connect_to_business: Option<bool>,
-    /// `true`, if the bot has a main Web App. Returned only in getMe.
+    /// `true`, if the bot has a main Web App. Returned only in [`crate::methods::GetMe`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub has_main_web_app: Option<bool>,
-    /// `true`, if the bot has forum topic mode enabled in private chats. Returned only in getMe.
+    /// `true`, if the bot has forum topic mode enabled in private chats. Returned only in [`crate::methods::GetMe`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub has_topics_enabled: Option<bool>,
-    /// `true`, if the bot allows users to create and delete topics in private chats. Returned only in getMe.
+    /// `true`, if the bot allows users to create and delete topics in private chats. Returned only in [`crate::methods::GetMe`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allows_users_to_create_topics: Option<bool>,
-    /// `true`, if other bots can be created to be controlled by the bot. Returned only in getMe.
+    /// `true`, if other bots can be created to be controlled by the bot. Returned only in [`crate::methods::GetMe`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_bots: Option<bool>,
-    /// `true`, if the bot supports join request queries and can be assigned to process them. Returned only in getMe.
+    /// `true`, if the bot supports join request queries and can be assigned to process them. Returned only in [`crate::methods::GetMe`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub supports_join_request_queries: Option<bool>,
 }
@@ -185,140 +185,140 @@ impl User {
         self
     }
 
-    /// `true`, if the bot can be invited to groups. Returned only in getMe.
+    /// `true`, if the bot can be invited to groups. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn can_join_groups<T: Into<bool>>(mut self, val: T) -> Self {
         self.can_join_groups = Some(val.into());
         self
     }
 
-    /// `true`, if the bot can be invited to groups. Returned only in getMe.
+    /// `true`, if the bot can be invited to groups. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn can_join_groups_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.can_join_groups = val.map(Into::into);
         self
     }
 
-    /// `true`, if privacy mode is disabled for the bot. Returned only in getMe.
+    /// `true`, if privacy mode is disabled for the bot. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn can_read_all_group_messages<T: Into<bool>>(mut self, val: T) -> Self {
         self.can_read_all_group_messages = Some(val.into());
         self
     }
 
-    /// `true`, if privacy mode is disabled for the bot. Returned only in getMe.
+    /// `true`, if privacy mode is disabled for the bot. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn can_read_all_group_messages_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.can_read_all_group_messages = val.map(Into::into);
         self
     }
 
-    /// `true`, if the bot supports guest queries from chats it is not a member of. Returned only in getMe.
+    /// `true`, if the bot supports guest queries from chats it is not a member of. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn supports_guest_queries<T: Into<bool>>(mut self, val: T) -> Self {
         self.supports_guest_queries = Some(val.into());
         self
     }
 
-    /// `true`, if the bot supports guest queries from chats it is not a member of. Returned only in getMe.
+    /// `true`, if the bot supports guest queries from chats it is not a member of. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn supports_guest_queries_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.supports_guest_queries = val.map(Into::into);
         self
     }
 
-    /// `true`, if the bot supports inline queries. Returned only in getMe.
+    /// `true`, if the bot supports inline queries. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn supports_inline_queries<T: Into<bool>>(mut self, val: T) -> Self {
         self.supports_inline_queries = Some(val.into());
         self
     }
 
-    /// `true`, if the bot supports inline queries. Returned only in getMe.
+    /// `true`, if the bot supports inline queries. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn supports_inline_queries_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.supports_inline_queries = val.map(Into::into);
         self
     }
 
-    /// `true`, if the bot can be connected to a user account to manage it. Returned only in getMe.
+    /// `true`, if the bot can be connected to a user account to manage it. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn can_connect_to_business<T: Into<bool>>(mut self, val: T) -> Self {
         self.can_connect_to_business = Some(val.into());
         self
     }
 
-    /// `true`, if the bot can be connected to a user account to manage it. Returned only in getMe.
+    /// `true`, if the bot can be connected to a user account to manage it. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn can_connect_to_business_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.can_connect_to_business = val.map(Into::into);
         self
     }
 
-    /// `true`, if the bot has a main Web App. Returned only in getMe.
+    /// `true`, if the bot has a main Web App. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn has_main_web_app<T: Into<bool>>(mut self, val: T) -> Self {
         self.has_main_web_app = Some(val.into());
         self
     }
 
-    /// `true`, if the bot has a main Web App. Returned only in getMe.
+    /// `true`, if the bot has a main Web App. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn has_main_web_app_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.has_main_web_app = val.map(Into::into);
         self
     }
 
-    /// `true`, if the bot has forum topic mode enabled in private chats. Returned only in getMe.
+    /// `true`, if the bot has forum topic mode enabled in private chats. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn has_topics_enabled<T: Into<bool>>(mut self, val: T) -> Self {
         self.has_topics_enabled = Some(val.into());
         self
     }
 
-    /// `true`, if the bot has forum topic mode enabled in private chats. Returned only in getMe.
+    /// `true`, if the bot has forum topic mode enabled in private chats. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn has_topics_enabled_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.has_topics_enabled = val.map(Into::into);
         self
     }
 
-    /// `true`, if the bot allows users to create and delete topics in private chats. Returned only in getMe.
+    /// `true`, if the bot allows users to create and delete topics in private chats. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn allows_users_to_create_topics<T: Into<bool>>(mut self, val: T) -> Self {
         self.allows_users_to_create_topics = Some(val.into());
         self
     }
 
-    /// `true`, if the bot allows users to create and delete topics in private chats. Returned only in getMe.
+    /// `true`, if the bot allows users to create and delete topics in private chats. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn allows_users_to_create_topics_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.allows_users_to_create_topics = val.map(Into::into);
         self
     }
 
-    /// `true`, if other bots can be created to be controlled by the bot. Returned only in getMe.
+    /// `true`, if other bots can be created to be controlled by the bot. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn can_manage_bots<T: Into<bool>>(mut self, val: T) -> Self {
         self.can_manage_bots = Some(val.into());
         self
     }
 
-    /// `true`, if other bots can be created to be controlled by the bot. Returned only in getMe.
+    /// `true`, if other bots can be created to be controlled by the bot. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn can_manage_bots_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.can_manage_bots = val.map(Into::into);
         self
     }
 
-    /// `true`, if the bot supports join request queries and can be assigned to process them. Returned only in getMe.
+    /// `true`, if the bot supports join request queries and can be assigned to process them. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn supports_join_request_queries<T: Into<bool>>(mut self, val: T) -> Self {
         self.supports_join_request_queries = Some(val.into());
         self
     }
 
-    /// `true`, if the bot supports join request queries and can be assigned to process them. Returned only in getMe.
+    /// `true`, if the bot supports join request queries and can be assigned to process them. Returned only in [`crate::methods::GetMe`].
     #[must_use]
     pub fn supports_join_request_queries_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.supports_join_request_queries = val.map(Into::into);

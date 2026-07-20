@@ -4,8 +4,8 @@ use crate::{
     file::camel_to_filename,
     generator::{
         doc_utils::{
-            collect_telegram_type_names, link_known_type_mentions, link_prefixed_type_mentions,
-            link_subtype_mentions, normalize_doc_line_prefix,
+            collect_telegram_type_names, link_known_method_mentions, link_known_type_mentions,
+            link_prefixed_type_mentions, link_subtype_mentions, normalize_doc_line_prefix,
         },
         helpers::{
             format_attr_description, format_description, get_singular_and_plural_forms,
@@ -21,10 +21,11 @@ use crate::{
 
 use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, format_ident, quote};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 struct TypeDocContext<'a> {
     schema_type_names: &'a HashSet<String>,
+    api_method_names: &'a HashMap<String, String>,
 }
 
 enum AccessExpr {
@@ -44,6 +45,7 @@ fn format_field_doc(description: &str, kind: &TypeKindInField, ctx: &TypeDocCont
     collect_telegram_type_names(kind, &mut names);
     let doc = format_attr_description(description);
     let doc = link_known_type_mentions(&doc, &names);
+    let doc = link_known_method_mentions(&doc, ctx.api_method_names);
     normalize_doc_line_prefix(&link_schema_type_mentions(&doc, ctx))
 }
 
@@ -53,6 +55,7 @@ fn format_field_arg_doc(field: &NormalizedField, ctx: &TypeDocContext<'_>) -> St
     let mut names = HashSet::new();
     collect_telegram_type_names(&field.r#type, &mut names);
     let doc = link_known_type_mentions(&doc, &names);
+    let doc = link_known_method_mentions(&doc, ctx.api_method_names);
     normalize_doc_line_prefix(&link_schema_type_mentions(&doc, ctx))
 }
 
@@ -127,11 +130,22 @@ fn tokenize_field(field: &NormalizedField, ctx: &TypeDocContext<'_>) -> TokenStr
 }
 
 fn tokenize_type_definition(type_quote: &NormalizedType, ctx: &TypeDocContext<'_>) -> TokenStream {
+    // `InaccessibleMessage` is exactly its documented fields and is tried first in the
+    // untagged `MaybeInaccessibleMessage`; without `deny_unknown_fields` it swallows
+    // every accessible message (their extra fields are silently ignored).
+    const DENY_UNKNOWN_FIELDS_TYPES: &[&str] = &["InaccessibleMessage"];
+
     let name = format_ident!("{}", type_quote.name.as_str());
     let mut doc_lines = format_description(&type_quote.description, &type_quote.href);
     doc_lines = doc_lines
         .into_iter()
-        .map(|line| link_schema_type_mentions(&line, ctx))
+        .map(|line| {
+            if line.trim().is_empty() {
+                return line;
+            }
+            let line = link_known_method_mentions(&line, ctx.api_method_names);
+            normalize_doc_line_prefix(&link_schema_type_mentions(&line, ctx))
+        })
         .collect();
     doc_lines = link_prefixed_type_mentions(doc_lines, &type_quote.name);
     link_subtype_mentions(&mut doc_lines, &type_quote.subtypes);
@@ -157,10 +171,6 @@ fn tokenize_type_definition(type_quote: &NormalizedType, ctx: &TypeDocContext<'_
         } else {
             quote! {}
         };
-        // `InaccessibleMessage` is exactly its documented fields and is tried first in the
-        // untagged `MaybeInaccessibleMessage`; without `deny_unknown_fields` it swallows
-        // every accessible message (their extra fields are silently ignored).
-        const DENY_UNKNOWN_FIELDS_TYPES: &[&str] = &["InaccessibleMessage"];
         let deny_unknown_fields = if DENY_UNKNOWN_FIELDS_TYPES.contains(&type_quote.name.as_str()) {
             quote! { #[serde(deny_unknown_fields)] }
         } else {
@@ -860,11 +870,16 @@ fn nested_outer_accessor_expr(
     inner_access: AccessExpr,
 ) -> TokenStream {
     let is_outer_boxed = outer_field.is_recursive || outer_field.is_boxed;
-    let outer_access = match (outer_field.required, is_outer_boxed) {
-        (true, true) => quote! { val.#outer_ident.as_ref() },
-        (true, false) => quote! { &val.#outer_ident },
-        (false, true) => quote! { val.#outer_ident.as_deref() },
-        (false, false) => quote! { val.#outer_ident.as_ref() },
+    let outer_access = if outer_field.required {
+        if is_outer_boxed {
+            quote! { val.#outer_ident.as_ref() }
+        } else {
+            quote! { &val.#outer_ident }
+        }
+    } else if is_outer_boxed {
+        quote! { val.#outer_ident.as_deref() }
+    } else {
+        quote! { val.#outer_ident.as_ref() }
     };
     nested_outer_accessor_expr_from_helper(
         &outer_access,
@@ -1314,9 +1329,11 @@ pub fn tokenize_type(
     type_quote: &NormalizedType,
     schema: &NormalizedSchema,
     known_schema_type_names: &HashSet<String>,
+    known_api_method_names: &HashMap<String, String>,
 ) -> TokenStream {
     let ctx = TypeDocContext {
         schema_type_names: known_schema_type_names,
+        api_method_names: known_api_method_names,
     };
     let mut import_quotes = vec![];
     if type_quote.has_extra_fields && type_quote.subtypes.is_empty() {

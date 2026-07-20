@@ -4,7 +4,8 @@ use crate::{
     file::camel_to_filename,
     generator::{
         doc_utils::{
-            collect_telegram_type_names, link_known_type_mentions, normalize_doc_line_prefix,
+            collect_telegram_type_names, link_known_method_mentions, link_known_type_mentions,
+            normalize_doc_line_prefix,
         },
         helpers::{
             format_attr_description, format_description, get_singular_and_plural_forms,
@@ -197,7 +198,7 @@ fn format_field_doc(
     collect_telegram_type_names(kind, &mut names);
     let doc = format_attr_description(description);
     let doc = link_known_type_mentions(&doc, &names);
-    let doc = link_known_method_mentions(&doc, ctx);
+    let doc = link_known_method_mentions(&doc, ctx.api_method_names);
     normalize_doc_line_prefix(&link_schema_type_mentions(&doc, ctx))
 }
 
@@ -212,36 +213,8 @@ fn format_field_arg_doc(
     let mut names = HashSet::new();
     collect_telegram_type_names(kind, &mut names);
     let doc = link_known_type_mentions(&doc, &names);
-    let doc = link_known_method_mentions(&doc, ctx);
+    let doc = link_known_method_mentions(&doc, ctx.api_method_names);
     normalize_doc_line_prefix(&link_schema_type_mentions(&doc, ctx))
-}
-
-#[must_use]
-fn link_known_method_mentions(doc: &str, ctx: &MethodDocContext<'_>) -> String {
-    doc.split_whitespace()
-        .map(|token| {
-            if token.contains("](") || token.starts_with("[`crate::methods::") {
-                return token.to_string();
-            }
-
-            let start = token
-                .find(|c: char| c.is_ascii_alphanumeric() || c == '`')
-                .unwrap_or(0);
-            let end = token
-                .rfind(|c: char| c.is_ascii_alphanumeric() || c == '`')
-                .map_or(token.len(), |idx| idx + 1);
-            let (prefix, rest) = token.split_at(start);
-            let (core, suffix) = rest.split_at(end.saturating_sub(start));
-
-            let plain = core.trim_matches('`');
-            if let Some(method_name) = ctx.api_method_names.get(plain) {
-                return format!("{prefix}[`crate::methods::{method_name}`]{suffix}");
-            }
-
-            token.to_string()
-        })
-        .collect::<Vec<_>>()
-        .join(" ")
 }
 
 #[must_use]
@@ -566,8 +539,12 @@ pub fn tokenize_method(
     doc_lines = doc_lines
         .into_iter()
         .map(|line| {
+            if line.trim().is_empty() {
+                return line;
+            }
             let line = link_known_type_mentions(&line, &known_type_names);
-            link_schema_type_mentions(&line, &ctx)
+            let line = link_known_method_mentions(&line, ctx.api_method_names);
+            normalize_doc_line_prefix(&link_schema_type_mentions(&line, &ctx))
         })
         .collect();
     let returns_doc: Vec<_> = if method_quote.returns.is_empty() {

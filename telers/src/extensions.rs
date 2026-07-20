@@ -111,7 +111,7 @@ impl Extensions {
 
     #[must_use]
     pub fn is_empty(&self) -> bool {
-        self.map.as_ref().map_or(true, |map| map.is_empty())
+        self.map.as_ref().is_none_or(|map| map.is_empty())
     }
 
     #[must_use]

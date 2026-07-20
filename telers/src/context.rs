@@ -75,6 +75,8 @@ impl Context {
             .and_then(|boxed| (**boxed).as_any_mut().downcast_mut())
     }
 
+    // The final `expect` can't fire: the matched entry is guaranteed to hold a `T` right above.
+    #[allow(clippy::missing_panics_doc)]
     pub fn get_or_insert_with<T: Clone + Send + Sync + 'static, F: FnOnce() -> T>(
         &mut self,
         key: &'static str,
@@ -132,7 +134,7 @@ impl Context {
 
     #[must_use]
     pub fn is_empty(&self) -> bool {
-        self.map.as_ref().map_or(true, |map| map.is_empty())
+        self.map.as_ref().is_none_or(|map| map.is_empty())
     }
 
     #[must_use]

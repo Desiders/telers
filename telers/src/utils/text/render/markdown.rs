@@ -1,4 +1,4 @@
-//! MarkdownV2 tag table and writers for the [`Renderer`](super::Renderer).
+//! `MarkdownV2` tag table and writers for the [`Renderer`](super::Renderer).
 
 use std::fmt::Write;
 

@@ -984,7 +984,7 @@ impl NormalizedSchema {
     }
 
     /// Composes the enum for the non-array `media` union of [`InputRichMessageMedia`],
-    /// which is a distinct set from [`InputMedia`] (it drops `Document`/`LivePhoto` and adds InputMediaVoiceNote`),
+    /// which is a distinct set from [`InputMedia`] (it drops `Document`/`LivePhoto` and adds `InputMediaVoiceNote`),
     /// so it can't reuse that type.
     /// Like [`InputMedia`] the variants share a `type` discriminator, so the enum is tagged by it.
     pub fn compose_input_rich_message_media_type(&mut self) {

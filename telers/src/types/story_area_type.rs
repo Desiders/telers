@@ -129,7 +129,7 @@ impl StoryAreaType {
 
     /// Helper method for field `url`.
     ///
-    /// HTTP or tg:// URL to be opened when the area is clicked
+    /// HTTP or `tg`:// URL to be opened when the area is clicked
     #[must_use]
     pub fn url(&self) -> Option<&str> {
         match self {

@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-/// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess
+/// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`
 /// # Notes
 /// This object represents a service message from original message field `write_access_allowed`.
 /// # Documentation
@@ -37,7 +37,7 @@ pub struct MessageWriteAccessAllowed {
     pub ephemeral_message_id: Option<i64>,
     /// Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     pub date: i64,
-    /// The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
+    /// The unique identifier for the guest query. Use this identifier with the method [`crate::methods::AnswerGuestQuery`] to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub guest_query_id: Option<Box<str>>,
     /// Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
@@ -129,7 +129,7 @@ pub struct MessageWriteAccessAllowed {
     /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
-    /// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess
+    /// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`
     pub write_access_allowed: crate::types::WriteAccessAllowed,
 }
 impl MessageWriteAccessAllowed {
@@ -139,7 +139,7 @@ impl MessageWriteAccessAllowed {
     /// * `message_id` - Unique message identifier inside this chat; 0 for ephemeral messages. In specific instances (e.g., a message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     /// * `date` - Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     /// * `chat` - Chat the message belongs to
-    /// * `write_access_allowed` - Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess
+    /// * `write_access_allowed` - Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -351,14 +351,14 @@ impl MessageWriteAccessAllowed {
         self
     }
 
-    /// The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
+    /// The unique identifier for the guest query. Use this identifier with the method [`crate::methods::AnswerGuestQuery`] to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
     #[must_use]
     pub fn guest_query_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.guest_query_id = Some(val.into());
         self
     }
 
-    /// The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
+    /// The unique identifier for the guest query. Use this identifier with the method [`crate::methods::AnswerGuestQuery`] to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
     #[must_use]
     pub fn guest_query_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.guest_query_id = val.map(Into::into);
@@ -871,7 +871,7 @@ impl MessageWriteAccessAllowed {
         self
     }
 
-    /// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess
+    /// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`
     #[must_use]
     pub fn write_access_allowed<T: Into<crate::types::WriteAccessAllowed>>(
         mut self,

@@ -9,12 +9,11 @@
 //! You can use [`FilesDiffPathWrapper`] for resolving paths with different server and local paths.
 //! This can be useful for local Telegram Bot API server.
 
-use once_cell::sync::Lazy;
 use pathdiff::diff_paths;
 use std::{
     fmt::Debug,
     path::{Path, PathBuf},
-    sync::Arc,
+    sync::{Arc, LazyLock},
 };
 
 pub trait FilesPathWrapper: Debug + Send + Sync {
@@ -191,8 +190,8 @@ impl Default for APIServer {
     }
 }
 
-pub static PRODUCTION: Lazy<APIServer> = Lazy::new(APIServer::default);
-pub static TEST: Lazy<APIServer> = Lazy::new(|| {
+pub static PRODUCTION: LazyLock<APIServer> = LazyLock::new(APIServer::default);
+pub static TEST: LazyLock<APIServer> = LazyLock::new(|| {
     APIServer::new(
         "https://api.telegram.org/bot{token}/test/{method_name}",
         "https://api.telegram.org/file/bot{token}/test/{path}",

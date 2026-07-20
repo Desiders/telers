@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to process a received chat join request query by showing a Mini App to the user before deciding the outcome. Call answerChatJoinRequestQuery to resolve the join request query based on the user interaction with the Mini App. Returns `true` on success.
+/// Use this method to process a received chat join request query by showing a Mini App to the user before deciding the outcome. Call [`crate::methods::AnswerChatJoinRequestQuery`] to resolve the join request query based on the user interaction with the Mini App. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sendchatjoinrequestwebapp>
 /// # Returns

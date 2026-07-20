@@ -4,14 +4,14 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#managedbotcreated>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ManagedBotCreated {
-    /// Information about the bot. The bot's token can be fetched using the method getManagedBotToken.
+    /// Information about the bot. The bot's token can be fetched using the method [`crate::methods::GetManagedBotToken`].
     pub bot: Box<crate::types::User>,
 }
 impl ManagedBotCreated {
     /// Creates a new `ManagedBotCreated`.
     ///
     /// # Arguments
-    /// * `bot` - Information about the bot. The bot's token can be fetched using the method getManagedBotToken.
+    /// * `bot` - Information about the bot. The bot's token can be fetched using the method [`crate::methods::GetManagedBotToken`].
     #[must_use]
     pub fn new<T0: Into<crate::types::User>>(bot: T0) -> Self {
         Self {
@@ -19,7 +19,7 @@ impl ManagedBotCreated {
         }
     }
 
-    /// Information about the bot. The bot's token can be fetched using the method getManagedBotToken.
+    /// Information about the bot. The bot's token can be fetched using the method [`crate::methods::GetManagedBotToken`].
     #[must_use]
     pub fn bot<T: Into<crate::types::User>>(mut self, val: T) -> Self {
         self.bot = Box::new(val.into());

@@ -199,6 +199,16 @@ fn sanitize_description(description: &str) -> String {
                 return token.to_string();
             }
 
+            // `tg://...` link templates (e.g. `tg://photo?id=`) are placeholders, not real
+            // links, so they are rendered as code including the trailing `=`.
+            if token.starts_with("tg://") {
+                let end = token
+                    .rfind(|c: char| c.is_ascii_alphanumeric() || matches!(c, '=' | '?' | '_'))
+                    .map_or(token.len(), |idx| idx + 1);
+                let (core, suffix) = token.split_at(end);
+                return format!("`{core}`{suffix}");
+            }
+
             let start = token
                 .find(|c: char| c.is_alphanumeric() || c == '_' || c == '[' || c == 'h')
                 .unwrap_or(0);
@@ -208,13 +218,24 @@ fn sanitize_description(description: &str) -> String {
             let (prefix, rest) = token.split_at(start);
             let (core, suffix) = rest.split_at(end.saturating_sub(start));
 
+            // Length guard: two-letter tokens like the `kB` unit aren't identifiers.
+            let is_lower_camel_case = core.len() > 2
+                && core.chars().next().is_some_and(|c| c.is_ascii_lowercase())
+                && core.chars().any(|c| c.is_ascii_uppercase())
+                && core.chars().all(|c| c.is_ascii_alphanumeric());
             let replaced = if core.starts_with("https://") || core.starts_with("http://") {
                 format!("<{core}>")
             } else if core.contains('_')
                 && core
                     .chars()
-                    .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
+                    .all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.'))
             {
+                // Snake-case identifiers, including dotted field paths
+                // (e.g. `Message.guest_query_id`).
+                format!("`{core}`")
+            } else if is_lower_camel_case {
+                // Lower-camel-case identifiers are Bot API method names
+                // (e.g. `answerGuestQuery`).
                 format!("`{core}`")
             } else {
                 core.to_string()

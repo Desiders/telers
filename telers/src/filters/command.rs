@@ -82,6 +82,9 @@ impl Command {
     /// * `prefix` - Command prefix
     /// * `ignore_case` - Ignore other command case
     /// * `ignore_mention` - Ignore bot mention
+    /// # Panics
+    /// If `ignore_case` is set and a [`Regex`] pattern can't be recompiled with the
+    /// case-insensitive `(?i)` flag
     #[must_use]
     #[instrument(skip(commands))]
     pub fn new<CommandType, Commands>(

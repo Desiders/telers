@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Changes the emoji status for a given user that previously allowed the bot to manage their emoji status via the Mini App method requestEmojiStatusAccess. Returns `true` on success.
+/// Changes the emoji status for a given user that previously allowed the bot to manage their emoji status via the Mini App method `requestEmojiStatusAccess`. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setuseremojistatus>
 /// # Returns

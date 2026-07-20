@@ -53,7 +53,7 @@ pub enum MessageEntity {
 impl MessageEntity {
     /// Helper method for field `custom_emoji_id`.
     ///
-    /// For `custom_emoji` only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker.
+    /// For `custom_emoji` only, unique identifier of the custom emoji. Use [`crate::methods::GetCustomEmojiStickers`] to get full information about the sticker.
     #[must_use]
     pub fn custom_emoji_id(&self) -> Option<&str> {
         match self {

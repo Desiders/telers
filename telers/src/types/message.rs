@@ -1920,7 +1920,7 @@ impl Message {
 
     /// Helper method for field `guest_query_id`.
     ///
-    /// The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
+    /// The unique identifier for the guest query. Use this identifier with the method [`crate::methods::AnswerGuestQuery`] to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
     #[must_use]
     pub fn guest_query_id(&self) -> Option<&str> {
         match self {
@@ -4663,7 +4663,7 @@ impl Message {
 
     /// Helper method for field `write_access_allowed`.
     ///
-    /// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess
+    /// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`
     #[must_use]
     pub fn write_access_allowed(&self) -> Option<&crate::types::WriteAccessAllowed> {
         match self {

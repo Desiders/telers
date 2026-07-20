@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct ManagedBotUpdated {
     /// User that created the bot
     pub user: Box<crate::types::User>,
-    /// Information about the bot. Token of the bot can be fetched using the method getManagedBotToken.
+    /// Information about the bot. Token of the bot can be fetched using the method [`crate::methods::GetManagedBotToken`].
     pub bot: Box<crate::types::User>,
 }
 impl ManagedBotUpdated {
@@ -14,7 +14,7 @@ impl ManagedBotUpdated {
     ///
     /// # Arguments
     /// * `user` - User that created the bot
-    /// * `bot` - Information about the bot. Token of the bot can be fetched using the method getManagedBotToken.
+    /// * `bot` - Information about the bot. Token of the bot can be fetched using the method [`crate::methods::GetManagedBotToken`].
     #[must_use]
     pub fn new<T0: Into<crate::types::User>, T1: Into<crate::types::User>>(
         user: T0,
@@ -33,7 +33,7 @@ impl ManagedBotUpdated {
         self
     }
 
-    /// Information about the bot. Token of the bot can be fetched using the method getManagedBotToken.
+    /// Information about the bot. Token of the bot can be fetched using the method [`crate::methods::GetManagedBotToken`].
     #[must_use]
     pub fn bot<T: Into<crate::types::User>>(mut self, val: T) -> Self {
         self.bot = Box::new(val.into());

@@ -244,7 +244,7 @@ impl TextFormatter for Formatter {
             // Entity types unknown to the library can't be re-formatted either, so their
             // span is also kept as is.
             | MessageEntity::PhoneNumber(_)
-            | MessageEntity::Unknown(_) => editable_text.to_owned(),
+            | MessageEntity::Unknown(_) => editable_text.clone(),
             MessageEntity::Bold(_) => self.bold(editable_text),
             MessageEntity::Italic(_) => self.italic(editable_text),
             MessageEntity::Underline(_) => self.underline(editable_text),
