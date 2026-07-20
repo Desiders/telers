@@ -1,13 +1,16 @@
-//! This module contains errors that can be returned by the library.
+//! Errors that can be returned by the library.
 //!
-//! This module contains errors:
-//! - [`HandlerError`]
-//! - [`ExtractionError`]
-//! - [`SessionErrorKind`]
-//! - [`TelegramErrorKind`]
-//! - [`ConvertToTypeError`]
-//!
-//! Check the documentation for each error to see what it means.
+//! The errors you will meet most often:
+//! - [`SessionErrorKind`] is returned by [`Bot::send`](crate::Bot::send): a network/client
+//!   failure or an error response from the Telegram API ([`TelegramErrorKind`], e.g. flood
+//!   control or a malformed request)
+//! - [`HandlerError`] is the error type your handlers return, wrapping any [`anyhow::Error`]
+//! - [`ExtractionError`] means a handler argument couldn't be extracted from the request
+//!   (see the [`extractor` module](crate::extractor))
+//! - [`ConvertToTypeError`] means a conversion between an enum and one of its variants failed,
+//!   e.g. extracting a [`Message`](crate::types::Message) from an update of another kind
+//! - [`EventErrorKind`] groups the errors that can interrupt event propagation
+//!   (filter, middleware and handler errors)
 
 #![allow(clippy::module_name_repetitions)]
 

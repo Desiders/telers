@@ -35,6 +35,22 @@ use std::{collections::HashMap, fmt};
 
 type AnyMap = HashMap<&'static str, Box<dyn AnyClone + Send + Sync>>;
 
+/// Key-value storage passed through the routing chain (see the [module docs](self)).
+///
+/// Values are stored by a string key together with their type:
+/// reading a key with a different type behaves as if the key is absent.
+///
+/// # Examples
+/// ```rust
+/// use telers::Context;
+///
+/// let mut context = Context::new();
+/// context.insert("counter", 1_i32);
+///
+/// assert_eq!(context.get::<i32>("counter"), Some(&1));
+/// // A type mismatch reads as absent instead of panicking
+/// assert!(context.get::<String>("counter").is_none());
+/// ```
 #[derive(Clone, Default)]
 pub struct Context {
     map: Option<Box<AnyMap>>,

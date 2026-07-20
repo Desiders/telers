@@ -252,14 +252,24 @@ fn tokenize_struct_type_methods(type_quote: &NormalizedType) -> TokenStream {
             let access = struct_field_access_expr(field);
 
             if field.required {
+                let doc = format!(
+                    " Path to the `{}` field of [`crate::types::{}`]",
+                    field.name, type_quote.name,
+                );
                 quote! {
+                    #[doc = #doc]
                     #[must_use]
                     pub fn #method_name(self) -> SmartFilterPath<#target_ty> {
                         self.map(|value| #access)
                     }
                 }
             } else {
+                let doc = format!(
+                    " Path to the optional `{}` field of [`crate::types::{}`]",
+                    field.name, type_quote.name,
+                );
                 quote! {
+                    #[doc = #doc]
                     #[must_use]
                     pub fn #method_name(self) -> SmartFilterPath<#target_ty> {
                         self.and_then(|value| #access)
@@ -289,14 +299,24 @@ fn tokenize_enum_type_methods(
             let target_ty = method.target_ty;
 
             if method.fully_required {
+                let doc = format!(
+                    " Path to the `{}` field of [`crate::types::{}`]",
+                    method.name, type_quote.name,
+                );
                 quote! {
+                    #[doc = #doc]
                     #[must_use]
                     pub fn #method_ident(self) -> SmartFilterPath<#target_ty> {
                         self.map(|value| value.#method_ident())
                     }
                 }
             } else {
+                let doc = format!(
+                    " Path to the optional `{}` field of [`crate::types::{}`]",
+                    method.name, type_quote.name,
+                );
                 quote! {
+                    #[doc = #doc]
                     #[must_use]
                     pub fn #method_ident(self) -> SmartFilterPath<#target_ty> {
                         self.and_then(|value| value.#method_ident())
@@ -324,7 +344,12 @@ pub fn tokenize_smart_filter(schema: &NormalizedSchema) -> TokenStream {
         .map(|method| {
             let method_ident = sanitize_field_name(&method.name);
             let target_ty = method.target_ty;
+            let doc = format!(
+                " Path starting at the `{}` field of the incoming [`Update`]",
+                method.name,
+            );
             quote! {
+                #[doc = #doc]
                 #[must_use]
                 pub fn #method_ident() -> SmartFilterPath<#target_ty> {
                     Self::update().#method_ident()
@@ -356,6 +381,10 @@ pub fn tokenize_smart_filter(schema: &NormalizedSchema) -> TokenStream {
         });
 
     quote! {
+        //! Generated smart filters: typed paths into an [`Update`] with attached checks.
+        //!
+        //! See [`core`] for how paths and checks work and usage examples.
+
         #![allow(clippy::wrong_self_convention)]
         #![allow(clippy::redundant_closure_for_method_calls)]
 
@@ -366,9 +395,13 @@ pub fn tokenize_smart_filter(schema: &NormalizedSchema) -> TokenStream {
         use core::SmartFilterPath;
         use std::sync::Arc;
 
+        /// Entry point of the smart filters: builds typed paths into an incoming [`Update`].
+        ///
+        /// See the [`core`] module for how paths and checks work and usage examples.
         pub struct SmartFilter;
 
         impl SmartFilter {
+            /// Path starting at the incoming [`Update`] itself
             #[must_use]
             pub fn update() -> SmartFilterPath<Update> {
                 SmartFilterPath {

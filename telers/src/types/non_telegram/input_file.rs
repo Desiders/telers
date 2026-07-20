@@ -24,6 +24,29 @@ pub const DEFAULT_CAPACITY: usize = 64 * 1024; // 64 KiB
 /// - [`FSFile`] (for example `FSFile::new(path)`)
 /// - [`BufferedFile`] (for example `BufferedFile::new(bytes)`)
 /// - [`StreamFile`] (for example `StreamFile::new(stream)`)
+///
+/// # Examples
+/// ```no_run
+/// use telers::{methods::SendDocument, types::InputFile, Bot};
+///
+/// async fn send_documents(bot: Bot, chat_id: i64) {
+///     // Upload a file from the file system
+///     let document = InputFile::fs("path/to/file.pdf");
+///     let _ = bot.send(SendDocument::new(chat_id, document)).await;
+///
+///     // Re-send a file that is already on the Telegram servers by its `file_id`
+///     let document = InputFile::id("file_id");
+///     let _ = bot.send(SendDocument::new(chat_id, document)).await;
+///
+///     // Let Telegram download the file from a URL
+///     let document = InputFile::url("https://example.com/file.pdf");
+///     let _ = bot.send(SendDocument::new(chat_id, document)).await;
+///
+///     // Upload in-memory bytes as a file with a name
+///     let document = InputFile::buffered_with_name(&b"file content"[..], "file.txt");
+///     let _ = bot.send(SendDocument::new(chat_id, document)).await;
+/// }
+/// ```
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputfile>
 #[derive(Debug, Clone, Hash, PartialEq)]

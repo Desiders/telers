@@ -2,6 +2,11 @@ use crate::{client::Reqwest, types::Update, Bot, Context, Extensions};
 
 use std::{fmt, sync::Arc};
 
+/// Everything a processing-unit (middleware, filter or handler) receives for an incoming event.
+///
+/// The request is created by the [`Dispatcher`](crate::Dispatcher) for every incoming [`Update`]
+/// and passed through the routing chain; middlewares can modify its [`context`](Self::context)
+/// and [`extensions`](Self::extensions) to pass data to the units that run after them.
 #[derive(Clone)]
 pub struct Request<Client = Reqwest> {
     pub bot: Bot<Client>,

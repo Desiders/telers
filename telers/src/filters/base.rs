@@ -17,10 +17,44 @@ pub type FilterResult<E: Into<anyhow::Error> = FilterError> = Result<bool, E>;
 /// Filters are used to filter updates before processing handlers and inner middlewares.
 /// You can use filters to check if the update meets the necessary conditions,
 /// and if it does, the update will be processed by the handler(s) and/or inner middleware(s).
+///
+/// # Examples
+///
+/// A custom filter that passes only messages with a photo:
+/// ```rust
+/// use std::{convert::Infallible, future::Future};
+/// use telers::{
+///     filters::{Filter, FilterResult},
+///     Request,
+/// };
+///
+/// #[derive(Clone)]
+/// struct HasPhoto;
+///
+/// impl<Client> Filter<Client> for HasPhoto
+/// where
+///     Client: Send,
+/// {
+///     type Error = Infallible;
+///
+///     fn check(
+///         &mut self,
+///         request: &mut Request<Client>,
+///     ) -> impl Future<Output = FilterResult<Self::Error>> {
+///         let res = request
+///             .update
+///             .message()
+///             .is_some_and(|message| message.photo().is_some());
+///         async move { Ok(res) }
+///     }
+/// }
+/// ```
 /// # Notes
 /// Check out the examples to see how to create your own filters and check ready-made implementations of filters
 /// to avoid writing your own filters which are already implemented.
 pub trait Filter<Client = Reqwest>: Clone + Send + Sync + 'static {
+    /// Error type returned by [`Filter::check`]; use [`Infallible`](std::convert::Infallible)
+    /// if the filter can't fail
     type Error: Into<anyhow::Error>;
 
     /// Check if the filter passes

@@ -56,6 +56,26 @@ pub(crate) fn split_by_entity(
 /// Links `tg://user?id=<user_id>` can be used to mention a user by their ID without using a username. Please note:
 /// - These links will work **only** if they are used inside an inline link or in an inline keyboard button. For example, they will not work, when used in a message text.
 /// - Unless the user is a member in the chat where they were mentioned, these mentions are only guaranteed to work if the user has contacted the bot in private in the past or has sent a callback query to the bot via an inline button and doesn't have Forwarded Messages privacy enabled for the bot.
+///
+/// # Escaping
+///
+/// The formatting methods escape the given text for the target parse mode, so any user-provided
+/// content can be passed to them safely: special characters can't break out of the markup.
+/// `code`/`pre` and link URLs use the smaller escape sets those positions require.
+///
+/// # Examples
+/// ```rust
+/// use telers::utils::text::{Formatter as _, MarkdownFormatter};
+///
+/// let formatter = MarkdownFormatter::default();
+///
+/// // `_` is special in MarkdownV2, so it is escaped inside the formatted span
+/// assert_eq!(formatter.bold("hello_world"), "*hello\\_world*");
+/// assert_eq!(
+///     formatter.text_link("docs", "https://core.telegram.org/bots/api"),
+///     "[docs](https://core.telegram.org/bots/api)"
+/// );
+/// ```
 pub trait Formatter {
     #[must_use]
     fn bold<T>(&self, text: T) -> String

@@ -1,3 +1,12 @@
+//! Helper utilities around the core routing flow.
+//!
+//! - [`text`] contains utilities for building, formatting and rendering message text
+//!   with entities (HTML / `MarkdownV2`)
+//! - [`chat_action`] keeps a chat action like "typing" alive during long-running
+//!   operations via [`ChatActionSender`]
+//! - [`token`] validates a bot token and extracts the bot id from it
+//! - [`signal`] (feature `signal`) provides a [`shutdown_signal`] future for graceful shutdown
+
 mod error;
 
 pub(crate) use error::format_error_report;

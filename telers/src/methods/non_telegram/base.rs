@@ -57,6 +57,10 @@ pub struct Response<T> {
     pub parameters: Option<ResponseParameters>,
 }
 
+/// A Telegram Bot API method: its parameters and how to build a request and parse the response.
+///
+/// Every generated method in [`crate::methods`] implements this trait,
+/// so any of them can be passed to [`Bot::send`](crate::Bot::send).
 pub trait TelegramMethod {
     /// This type represents a method to Telegram API with data (params)
     type Method: Serialize;

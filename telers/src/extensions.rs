@@ -37,8 +37,51 @@ type AnyMap = HashMap<TypeId, Box<dyn AnyClone + Send + Sync>, BuildHasherDefaul
 
 #[derive(Debug, Clone, Copy, Default)]
 #[must_use]
+/// Extractor that takes a value of type `T` from the request [`Extensions`].
+///
+/// # Examples
+/// ```rust
+/// use telers::{event::telegram::HandlerResult, Extension};
+///
+/// #[derive(Clone)]
+/// struct Config {
+///     welcome_text: &'static str,
+/// }
+///
+/// // The `Config` value is inserted into `request.extensions` by a middleware
+/// // (see the module docs for a full example)
+/// async fn handler(Extension(config): Extension<Config>) -> HandlerResult {
+///     todo!()
+/// }
+/// ```
 pub struct Extension<T>(pub T);
 
+/// Type-keyed storage passed through the routing chain (see the [module docs](self)).
+///
+/// Unlike [`Context`](crate::Context), values are stored by their type instead of a string key,
+/// so extracting them in handlers via [`Extension`] is type-safe and can't misspell a key.
+///
+/// # Examples
+/// ```rust
+/// use telers::Extensions;
+///
+/// #[derive(Clone, Debug, PartialEq)]
+/// struct Config {
+///     retries: u8,
+/// }
+///
+/// let mut extensions = Extensions::new();
+/// extensions.insert(Config {
+///     retries: 3,
+/// });
+///
+/// assert_eq!(
+///     extensions.get::<Config>(),
+///     Some(&Config {
+///         retries: 3
+///     })
+/// );
+/// ```
 #[derive(Clone, Default)]
 pub struct Extensions {
     map: Option<Box<AnyMap>>,
