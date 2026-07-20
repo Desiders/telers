@@ -7,6 +7,7 @@ repository = "https://github.com/Desiders/telers"
 license = "MIT OR Apache-2.0"
 keywords = ["bot", "telegram", "telegram-bot", "telegram-bot-api", "telers"]
 categories = ["web-programming", "api-bindings", "asynchronous"]
+rust-version = "1.88.0"
 
 [package.metadata.docs.rs]
 all-features = true
