@@ -1,5 +1,5 @@
 //! [`Context`] is a type that is used to transmit data between processing-units when propagating an event.
-//! Context creates at the start of the event propagation by [`Dispatcher`] and pass to every processing-unit.
+//! The context is created at the start of the event propagation by the [`Dispatcher`] and passed to every processing-unit.
 //! Processing-units can add their own data to context and use data from context that was added by others.
 //!
 //! Modify context in outer middlewares if you need to pass some data to next outer/inner middlewares or to filters.
@@ -12,7 +12,7 @@
 //! Usually you don't need to change the context in filters, and it's better to use middleware for that, but you can do it.
 //! Check [`filter module`] documentation for more information.
 //!
-//! In [`Handler`] context is can be passed as parameter of handler function.
+//! In a [`Handler`] the context can be passed as a parameter of the handler function.
 //! You can use context in handlers to get data that was added by middlewares and filters.
 //! For convenience, you can implement [`Extractor`] for your own types and use them as handler arguments,
 //! so you don't need to pass context as parameter of handler and extract data from context manually.

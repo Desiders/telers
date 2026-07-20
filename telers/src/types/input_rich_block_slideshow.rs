@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-/// A slideshow, corresponding to the custom HTML tag <tg-slideshow>.
+/// A slideshow, corresponding to the custom HTML tag `<tg-slideshow>`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputrichblockslideshow>
 #[derive(Clone, Debug, Serialize, Deserialize)]

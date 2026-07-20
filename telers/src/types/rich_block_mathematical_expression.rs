@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-/// A block with a mathematical expression in `LaTeX` format, corresponding to the custom HTML tag <tg-math-block>.
+/// A block with a mathematical expression in `LaTeX` format, corresponding to the custom HTML tag `<tg-math-block>`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richblockmathematicalexpression>
 #[derive(Clone, Debug, Serialize, Deserialize)]

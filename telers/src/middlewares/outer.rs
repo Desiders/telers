@@ -1,14 +1,14 @@
 //! This module contains outer middlewares.
 //!
-//! Middlewares are called `outer` if they called before filters, inner middlewares and handlers.
+//! Middlewares are called `outer` if they are called before filters, inner middlewares and handlers.
 //! These middlewares have access to the [`request`] (with [`context`] in it),
 //! but don't have access to the middlewares/handler-chain and the [`response`] (for these purposes, use [`inner middlewares`]).
 //!
 //! Prefer to use outer middlewares over inner middlewares in some cases:
 //! - If you need to call middlewares before filters, inner middlewares and handlers
-//! - If you need to manipulate with [`request`] and [`context`] in it
+//! - If you need to manipulate the [`request`] and the [`context`] in it
 //!
-//! You can check example of using outer middlewares in `examples/stats_incoming_updates_middleware`.
+//! You can check an example of using outer middlewares in `examples/stats_incoming_updates_middleware`.
 //!
 //! [`request`]: telers::Request
 //! [`response`]: telers::event::telegram::HandlerResponse

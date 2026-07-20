@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-/// A block with a map, corresponding to the custom HTML tag <tg-map>.
+/// A block with a map, corresponding to the custom HTML tag `<tg-map>`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richblockmap>
 #[derive(Clone, Debug, Serialize, Deserialize)]

@@ -1,4 +1,4 @@
-//! Filters are main part of the library used to filter incoming updates and allow call handlers by their data
+//! Filters are the main part of the library used to filter incoming updates and allow calling handlers by their data
 //! (text, chat, user, command, state, db, etc.) and other conditions.
 //!
 //! [`Filter`] is a trait that accepts [`Request`] and returns `true` if the filter passes, otherwise `false`.
@@ -59,12 +59,12 @@
 //!   This filter checks user data step by step using the logical operator `or`,
 //!   so if at least one check is successful, the filter will return the value `true`.
 //!
+//! [`ChatMemberType`]: telers::enums::ChatMemberType
 //! [`Cow`]: std::borrow::Cow
 //! [`Regex`]: regex::Regex
 //! [`ChatTypeEnum`]: telers::enums::ChatType
 //! [`enums::MessageType`]: telers::enums::MessageType
 //! [`BotCommand`]: telers::types::BotCommand
-//! [`Regex`]: regex::Regex
 //! [`Request`]: telers::Request
 //! [`context`]: telers::context::Context
 //! [`command pattern type`]: command::PatternType

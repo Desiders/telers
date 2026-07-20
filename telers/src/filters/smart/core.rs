@@ -45,9 +45,10 @@
 //!
 //! let _filter = SmartFilter::update()
 //!     .message()
+//!     .text()
 //!     .all()
-//!     .branch(|m| m.text().contains("hello"))
-//!     .branch(|m| m.chat().is_some());
+//!     .branch(|text| text.starts_with("hello"))
+//!     .branch(|text| text.contains("world"));
 //! ```
 //!
 //! If you only need a single predicate, call `matches` or `matches_async` directly.

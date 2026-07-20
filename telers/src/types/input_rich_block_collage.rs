@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-/// A collage, corresponding to the custom HTML tag <tg-collage>.
+/// A collage, corresponding to the custom HTML tag `<tg-collage>`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputrichblockcollage>
 #[derive(Clone, Debug, Serialize, Deserialize)]

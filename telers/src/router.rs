@@ -1,18 +1,23 @@
 //! Router combines all event observers.
 //!
 //! Each event observer is a special unit that handles a specific event type.
-//! There are two types of event observers:
+//! There are two types of event observers.
 //!
-//! * Simple observer:
-//!   [`Simple observer`] is used to handle simple events like startup and shutdown.
-//!   When you register a handler in this observer,
-//!   you specify the arguments that pass to handler when the event is trigger.
-//!   Return type of handler is [`Result<(), HandlerError>`].
-//!   When observer is trigger, it calls all handlers in order of registration and stops if one of them returns an error.
+//! # Simple observer
+//!
+//! [`Simple observer`] handles simple events like startup and shutdown.
+//! When you register a handler in this observer,
+//! you specify the arguments that are passed to the handler when the event is triggered.
+//! The return type of a handler is [`Result<(), HandlerError>`].
+//! When the observer is triggered, it calls all handlers in order of registration
+//! and stops if one of them returns an error.
 //!
 //! Registration of handlers looks like this:
 //! ```rust
-//! use telers::{Router, event::simple::{HandlerResult, Handler}}
+//! use telers::{
+//!     event::simple::{Handler, HandlerResult},
+//!     Router,
+//! };
 //!
 //! async fn on_startup(message: &str) -> HandlerResult {
 //!     todo!()
@@ -24,77 +29,96 @@
 //!
 //! #[tokio::main(flavor = "current_thread")]
 //! async fn main() {
-//!     let router = Router::new("example")
+//!     let router: Router = Router::new("example")
 //!         .on_startup(|observer| observer.register(Handler::new(on_startup, ("Hello, world!",))))
-//!         .on_shutdown(|observer| observer.register(Handler::new(on_shutdown, ("Goodbye, world!",))));
+//!         .on_shutdown(|observer| {
+//!             observer.register(Handler::new(on_shutdown, ("Goodbye, world!",)))
+//!         });
 //! }
 //! ```
 //!
-//! * Telegram observer:
-//!   [`Telegram observer`] is used to handle telegram events like messages, callback queries, polls and all other event types.
-//!   You can register a handler with any arguments that implement [`Extractor`] trait, see [`extractors module`] for more details.
-//!   Return type of handler is [`Result<EventReturn, HandlerError>`],
-//!   where [`EventReturn`] is a special enum that can be used to control the propagation of the event,
-//!   see [`EventReturn`] for more details.
-//!   When observer is trigger, it calls outer middlewares and checks all handlers in order of registration.
-//!   It calls all filters for each handler and skips handler if one of them returns `false`.
-//!   If handler is pass the filters, observer calls inner middlewares and handler itself (in the middleware).
-//!   By default, the first handler that pass the filters stop the propagation of the event, so other handlers aren't calls,
-//!   but you can change this behaviour by specify another variant of [`EventReturn`]).
+//! # Telegram observer
+//!
+//! [`Telegram observer`] handles Telegram events like messages, callback queries, polls and all other event types.
+//! You can register a handler with any arguments that implement the [`Extractor`] trait,
+//! see the [`extractors module`] for more details.
+//! The return type of a handler is [`Result<EventReturn, HandlerError>`],
+//! where [`EventReturn`] is a special enum that controls propagation of the event (see below).
+//! When the observer is triggered, it calls outer middlewares and checks all handlers in order of registration.
+//! It calls the filters of each handler and skips the handler if any of them returns `false`.
+//! If the handler passes the filters, the observer calls inner middlewares with the handler at the end of the chain.
+//! By default, the first handler that passes the filters stops the propagation of the event,
+//! so other handlers aren't called, but you can change this behaviour by returning another variant of [`EventReturn`].
 //!
 //! Registration of handlers looks like this:
 //! ```rust
-//! use telers::{Router, event::telegram::{HandlerResult, Handler}}
+//! use telers::{
+//!     event::telegram::{Handler, HandlerResult},
+//!     types::{CallbackQuery, Message},
+//!     Router,
+//! };
 //!
 //! async fn on_message(message: Message) -> HandlerResult {
-//!    todo!()
+//!     todo!()
 //! }
 //!
 //! async fn on_callback_query(callback_query: CallbackQuery) -> HandlerResult {
-//!   todo!()
+//!     todo!()
 //! }
 //!
 //! #[tokio::main(flavor = "current_thread")]
 //! async fn main() {
-//!     let router = Router::new("example")
+//!     let router: Router = Router::new("example")
 //!         .on_message(|observer| observer.register(Handler::new(on_message)))
 //!         .on_callback_query(|observer| observer.register(Handler::new(on_callback_query)));
 //! }
 //! ```
 //!
-//! Routers can be nested, so you can create a tree of routers using [`Router::include_router`] method.
-//! You can use [`Router::include_router`] method to include a router to the current router as sub router.
-//! Inner middlewares of the parent router will be registered to the sub router and its sub routers in the order of registration.
-//! Parent middlewares registers on the top of the stack, so parent middlewares calls before.
+//! # Nested routers
 //!
-//! [`OuterMiddlewaresConfig`] and [`InnerMiddlewaresConfig`] are used to configure outer and inner middlewares, respectively,
-//! or just use [`OuterMiddlewaresConfigBuilder`] and [`InnerMiddlewaresConfigBuilder`] to create a config step by step.
-//! You can use [`OuterMiddlewaresConfig::default`] and [`InnerMiddlewaresConfig::default`] to create a default config
-//! with [`LoggingMiddleware`] to log all incoming updates and [`UserContextMiddleware`] to set up user context.
+//! Routers can be nested, so you can create a tree of routers using the [`Router::include_router`] method.
+//! Inner middlewares of the parent router are registered to the sub router and its sub routers
+//! in the order of registration.
+//! Parent middlewares are registered at the top of the stack, so they are called first.
+//!
+//! [`OuterMiddlewaresConfig`] and [`InnerMiddlewaresConfig`] configure outer and inner middlewares, respectively,
+//! or use [`OuterMiddlewaresConfigBuilder`] and [`InnerMiddlewaresConfigBuilder`] to create a config step by step.
+//! [`OuterMiddlewaresConfig::default`] and [`InnerMiddlewaresConfig::default`] create a default config
+//! with [`LoggingMiddleware`] to log all incoming updates and [`UserContextMiddleware`] to set up the user context.
 //! All config middlewares are registered in the order of registration and before other middlewares.
 //!
-//! You can propagate event with calls [`PropagateEvent::propagate_event`] or [`PropagateEvent::propagate_update_event`],
-//! [`PropagateEvent::emit_startup`], [`PropagateEvent::emit_shutdown`] methods in [`Router`],
-//! but it's better to use [`Dispatcher`] that does it for you.
+//! # How routing works
 //!
-//! How does routing work? At the moment, there is such a sequence of actions:
-//! > We have a sequence of routers that we call in the order they are registered.
-//! > For each router, we first call the router's outer middleware,
-//! > after which we check the handlers of the current router depending on the type of event (`Message`, `CallbackQuery`, etc.), and its filters.
-//! > We call all filters of each handler until all filters of any handler return `true`.
-//! > When a handler is selected, we call a sequence of the router's inner middlewares, with the handler at the end of the chain.
-//! > At the moment when the handler is completed, we finish processing the event.
-//! > If there are no handlers to execute (both due to their absence and due to a filter failure), we repeat the sequence of actions with the next router in the chain.
-//! > In addition, we can influence the processing of events during code execution by [`EventReturn`].
-//! > In outer middlewares, we can stop event propagation by returns [`EventReturn::Cancel`],
-//! > save current [`Request`] changes made in the middleware by [`EventReturn::Finish`] or skip them by [`EventReturn::Skip`].
-//! > In inner middlewares and handlers, we can stop event propagation for the current router and go to next router by returns [`EventReturn::Cancel`],
-//! > finish event propagation by [`EventReturn::Finish`] or skip current handler and go to next handler (and its filters) by [`EventReturn::Skip`].
-//! * The above also applies to the special update observer with some differences:
-//! 1. Middlewares and handlers are called before other middlewares and handlers for the current event observer,
-//!    so processing units in update observer have priority in processing.
-//! 2. [`EventReturn::Cancel`] for update observer's innter middlrewares and handler don't stop event propagation for the current router,
-//!    it doesn't affect the processing of the event in any way.
+//! You can propagate an event with the [`PropagateEvent::propagate_event`], [`PropagateEvent::propagate_update_event`],
+//! [`PropagateEvent::emit_startup`] and [`PropagateEvent::emit_shutdown`] methods of [`Router`],
+//! but it's better to use a [`Dispatcher`] that does it for you.
+//!
+//! Routers are called in the order they are registered. For each router:
+//! 1. The router's outer middlewares are called.
+//! 2. The handlers of the observer matching the event type (`Message`, `CallbackQuery`, etc.)
+//!    are checked in order of registration: the filters of each handler are called,
+//!    and a handler is selected when all of its filters return `true`.
+//! 3. When a handler is selected, the router's inner middlewares are called as a chain,
+//!    with the handler at the end of it.
+//! 4. When the handler completes, processing of the event is finished.
+//! 5. If no handler was executed (none registered, or all rejected by filters),
+//!    the same sequence is repeated with the next router in the chain.
+//!
+//! The processing can be influenced by returning a variant of [`EventReturn`]:
+//! * In outer middlewares:
+//!   * [`EventReturn::Finish`] — save the [`Request`] changes made in the middleware and continue;
+//!   * [`EventReturn::Skip`] — skip the changes made in the middleware and continue;
+//!   * [`EventReturn::Cancel`] — stop event propagation.
+//! * In inner middlewares and handlers:
+//!   * [`EventReturn::Finish`] — finish event propagation;
+//!   * [`EventReturn::Skip`] — skip the current handler and go to the next one (and its filters);
+//!   * [`EventReturn::Cancel`] — stop event propagation for the current router and go to the next router.
+//!
+//! The special `update` observer follows the same rules with two differences:
+//! 1. Its middlewares and handlers are called before those of the event-specific observer,
+//!    so its processing units have priority in processing.
+//! 2. [`EventReturn::Cancel`] returned from its inner middlewares and handlers doesn't stop
+//!    event propagation for the current router — it doesn't affect the processing of the event in any way.
 //!
 //! [`Simple observer`]: SimpleObserver
 //! [`Telegram observer`]: TelegramObserver
@@ -214,62 +238,30 @@ macro_rules! define_router_struct {
         /// Router combines all event observers.
         ///
         /// Each event observer is a special unit that handles a specific event type.
-        /// There are two types of event observers:
-        ///
-        /// * Simple observer:
-        ///   [`Simple observer`] is used to handle simple events like startup and shutdown.
-        ///   When you register a handler in this observer,
-        ///   you specify the arguments that pass to handler when the event is trigger.
-        ///   Return type of handler is [`Result<(), HandlerError>`].
-        ///   When observer is trigger, it calls all handlers in order of registration and stops if one of them returns an error.
+        /// There are two types of event observers: the [`simple observer`](SimpleObserver)
+        /// for events like startup and shutdown, and the [`Telegram observer`](TelegramObserver)
+        /// for Telegram events like messages, callback queries and polls.
+        /// See the [module docs](self) for details on observers and how routing works.
         ///
         /// Registration of handlers looks like this:
         /// ```rust
-        /// use telers::{Router, event::simple::{HandlerResult, Handler}}
-        ///
-        /// async fn on_startup(message: &str) -> HandlerResult {
-        ///     todo!()
-        /// }
-        ///
-        /// async fn on_shutdown(message: &str) -> HandlerResult {
-        ///     todo!()
-        /// }
-        ///
-        /// #[tokio::main(flavor = "current_thread")]
-        /// async fn main() {
-        ///     let router = Router::new("example")
-        ///         .on_startup(|observer| observer.register(Handler::new(on_startup, ("Hello, world!",))))
-        ///         .on_shutdown(|observer| observer.register(Handler::new(on_shutdown, ("Goodbye, world!",))));
-        /// }
-        /// ```
-        ///
-        /// * Telegram observer:
-        ///   [`Telegram observer`] is used to handle telegram events like messages, callback queries, polls and all other event types.
-        ///   You can register a handler with any arguments that implement `Extractor` trait, see [`extractors module`] for more details.
-        ///   Return type of handler is [`Result<EventReturn, HandlerError>`],
-        ///   where [`EventReturn`] is a special enum that can be used to control the propagation of the event,
-        ///   see [`EventReturn`] for more details.
-        ///   When observer is trigger, it calls outer middlewares and checks all handlers in order of registration.
-        ///   It calls all filters for each handler and skips handler if one of them returns `false`.
-        ///   If handler is pass the filters, observer calls inner middlewares and handler itself (in the middleware).
-        ///   By default, the first handler that pass the filters stop the propagation of the event, so other handlers aren't calls,
-        ///   but you can change this behaviour by specify another variant of [`EventReturn`]).
-        ///
-        /// Registration of handlers looks like this:
-        /// ```rust
-        /// use telers::{Router, event::telegram::{HandlerResult, Handler}}
+        /// use telers::{
+        ///     types::{CallbackQuery, Message},
+        ///     event::telegram::{HandlerResult, Handler},
+        ///     Router,
+        /// };
         ///
         /// async fn on_message(message: Message) -> HandlerResult {
-        ///    todo!()
+        ///     todo!()
         /// }
         ///
         /// async fn on_callback_query(callback_query: CallbackQuery) -> HandlerResult {
-        ///   todo!()
+        ///     todo!()
         /// }
         ///
         /// #[tokio::main(flavor = "current_thread")]
         /// async fn main() {
-        ///     let router = Router::new("example")
+        ///     let router: Router = Router::new("example")
         ///         .on_message(|observer| observer.register(Handler::new(on_message)))
         ///         .on_callback_query(|observer| observer.register(Handler::new(on_callback_query)));
         /// }

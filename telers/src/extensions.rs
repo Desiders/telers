@@ -1,16 +1,16 @@
 //! [`Extension`] is a type that is used to transmit data between processing-units when propagating an event.
-//! Extensions creates at the start of the event propagation by [`Dispatcher`] and pass to every processing-unit.
-//! Processing-units can add their own data to extension and use data from extension that was added by others.
+//! Extensions are created at the start of the event propagation by the [`Dispatcher`] and passed to every processing-unit.
+//! Processing-units can add their own data to extensions and use data that was added by others.
 //!
 //! Modify extensions in outer middlewares if you need to pass some data to next outer/inner middlewares or to filters.
 //! Usually data for handlers is passed by inner middlewares, but you can use outer middlewares for this too.
 //! Check [`outer middleware module`] documentation for more information (**recommended**).
 //!
-//! Modify context in inner middlewares if you need to pass some data to next inner middlewares or to handler.
+//! Modify extensions in inner middlewares if you need to pass some data to next inner middlewares or to the handler.
 //! Check [`inner middleware module`] documentation for more information (**recommended**).
 //!
-//! In [`Handler`] extension can be passed as parameter of handler function.
-//! You can use extension in handlers to get data that was added by middlewares.
+//! In a [`Handler`] an extension can be passed as a parameter of the handler function.
+//! You can use extensions in handlers to get data that was added by middlewares.
 //! You don't need to implement [`Extractor`] for your own types, because it's already done in case of extension.
 //! Check [`extractors module`] documentation for more information (**recommended**).
 //!

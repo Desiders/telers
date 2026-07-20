@@ -4,20 +4,20 @@
 //! Components of the dispatcher:
 //! * [`Bot`]:
 //!   Bot is used for sending requests to the Telegram API and receiving updates from the Telegram API.
-//!   Usually you need only one bot and one dispatcher, but you can pass multiple bots to the dispatcher and it will work with all of them
-//!   with own polling processes.
+//!   Usually you need only one bot and one dispatcher, but you can pass multiple bots to the dispatcher
+//!   and it will work with all of them, each with its own polling process.
 //! * `Propagator`:
-//!   Propagator is abstract component, which is used for propagating events, usually it's [`Router`].
-//!   Router combines services and observers and propagates events to them and allows creating complex event handling logic.
+//!   Propagator is an abstract component, which is used for propagating events, usually it's a [`Router`].
+//!   The router combines services and observers, propagates events to them and allows creating complex event handling logic.
 //!   See [`router module`] for more information (**recommended**).
 //! * `Polling timeout`:
 //!   Timeout in seconds for long polling.
 //!   By default, it's 30 seconds, but you can change it with [`Builder::polling_timeout`] method.
 //!   Polling sends [`GetUpdates`] request to the Telegram API and will wait for `polling_timeout` seconds.
-//!   If there are no updates, it will send the same request again, so often as you set it in [`Builder::backoff`] method.
+//!   If there are no updates, it will send the same request again, as often as you set it in the [`Builder::backoff`] method.
 //! * [`ExponentialBackoff`]:
-//!   Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
-//!   and set timeout between requests to telegram server.
+//!   Backoff is used for handling server-side errors and network errors (like a connection reset or the Telegram server being down)
+//!   and sets the timeout between requests to the Telegram server.
 //! * `Allowed updates`:
 //!   List the types of updates you want your bot to receive.
 //!   For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types.
@@ -26,16 +26,16 @@
 //!
 //! Dispatcher supports startup and shutdown events.
 //! You can register handlers for these observers (startup and shutdown) in the main router and handle them (see [`router module`]).
-//! When you call long polling with [`Dispatcher::run_polling`] method, it will emit main router startup event
+//! When you start long polling with the [`Dispatcher::run_polling`] method, it emits the main router startup event
 //! and shutdown event when polling is stopped by signal (**SIGINT** and **SIGTERM** in Unix; **CTRL-C** and **CTRL-BREAK** in Windows).
 //! Also, you can emit these events manually with [`Dispatcher::emit_startup`] and [`Dispatcher::emit_shutdown`] methods.
 //! See [`Dispatcher::run_polling_without_startup_and_shutdown`] method if you don't need emitting these events.
 //!
 //! Use [`Dispatcher::feed_update`] and [`Dispatcher::feed_update_with_context`] methods for feeding updates to the dispatcher manually.
 //! These methods are useful for testing or if you want to use your own update source.
-//! Second method allows you to pass [`Context`] with own data, which will be used in the handlers, middlewares, etc. (see [`context module`] for more information).
+//! The second method allows you to pass a [`Context`] with your own data, which will be used in the handlers, middlewares, etc. (see the [`context module`] for more information).
 //!
-//! Check out the examples directory for usage examples.
+//! Check out the `examples` directory for usage examples.
 //!
 //! [`Router`]: telers::router::Router
 //! [`UpdateType`]: telers::enums::UpdateType

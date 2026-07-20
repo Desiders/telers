@@ -3,14 +3,14 @@
 //!
 //! You can use [`Bot::send`] method, which accepts any type that implements [`TelegramMethod`].
 //! Methods from [`methods`] module are implemented with builders, so you don't need to pass all parameters to it,
-//! only required and optional by using builder methods. Builders yet can have some useful shortcuts.
+//! only the required ones, and set optional ones using builder methods. Builders can also have some useful shortcuts.
 //!
 //! # Notes
 //!
 //! This structure is cheap to clone: the token is shared behind an [`Arc`] and the id is an
-//! [`i64`]. Default client is [`Reqwest`], which also is cheap to clone.
+//! [`i64`]. The default client is [`Reqwest`], which is also cheap to clone.
 //!
-//! You can use custom client by using [`Bot::with_client`] method.
+//! You can use a custom client by using the [`Bot::with_client`] method.
 //!
 //! # Examples
 //! ```rust
@@ -24,7 +24,7 @@
 //! }
 //! ```
 //!
-//! You also can use [`Bot::send_with_timeout`] method to send requests with timeout:
+//! You can also use the [`Bot::send_with_timeout`] method to send requests with a timeout:
 //!
 //! ```rust
 //! use telers::{methods::SendMessage, Bot};
@@ -40,7 +40,7 @@
 //! }
 //! ```
 //!
-//! More production examples can be found in [`examples`] directory.
+//! More production examples can be found in the [`examples`] directory.
 //!
 //! [`examples`]: https://github.com/Desiders/telers/tree/dev-1.x/examples
 //! [`methods`]: telers::methods
@@ -63,7 +63,7 @@ use std::{
 ///
 /// Default client is [`Reqwest`], which also is cheap to clone.
 ///
-/// You can use custom client by using [`Bot::with_client`] method.
+/// You can use a custom client by using the [`Bot::with_client`] method.
 ///
 /// Check [module docs](crate::client::bot) for examples.
 #[derive(Clone)]

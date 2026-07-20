@@ -2,8 +2,8 @@
 //!
 //! # Notes
 //!
-//! [`Reqwest`] is default implementation of [`Session`] trait in this library,
-//! so it's used by default in [`Bot`] struct and trait methods that has bot as a parameter.
+//! [`Reqwest`] is the default implementation of the [`Session`] trait in this library,
+//! so it's used by default in the [`Bot`] struct and in trait methods that have a bot as a parameter.
 //!
 //! This structure is cheap to clone,
 //! because it contains only [`reqwest::Client`] field which is wrapped in [`Arc`] and [`APIServer`] wrapped in [`Cow`].

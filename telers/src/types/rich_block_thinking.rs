@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-/// A block with a `Thinking...` placeholder, corresponding to the custom HTML tag <tg-thinking>. The block may be used only in [`crate::methods::SendRichMessageDraft`], therefore it can't be received in messages. See <https://t.me/addemoji/AIActions> for examples of custom emoji that are recommended for usage in the block.
+/// A block with a `Thinking...` placeholder, corresponding to the custom HTML tag `<tg-thinking>`. The block may be used only in [`crate::methods::SendRichMessageDraft`], therefore it can't be received in messages. See <https://t.me/addemoji/AIActions> for examples of custom emoji that are recommended for usage in the block.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richblockthinking>
 #[derive(Clone, Debug, Serialize, Deserialize)]

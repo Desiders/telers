@@ -69,6 +69,21 @@ fn sanitize_description(description: &str) -> String {
                 }
 
                 if found_end {
+                    // Custom HTML tags like `<tg-collage>` are rendered fully as code,
+                    // otherwise rustdoc treats them as unclosed HTML tags.
+                    let is_custom_tag = !in_backticks
+                        && inner.contains('-')
+                        && inner
+                            .chars()
+                            .all(|c| c.is_ascii_lowercase() || c == '-' || c.is_ascii_digit());
+                    if is_custom_tag {
+                        out.push('`');
+                        out.push('<');
+                        out.push_str(&inner);
+                        out.push('>');
+                        out.push('`');
+                        continue;
+                    }
                     let is_placeholder = !in_backticks
                         && !inner.contains("://")
                         && !inner.contains('/')

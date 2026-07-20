@@ -3,8 +3,8 @@
 //! [`Extractor`] is the main trait which need to be implemented for extracting data.
 //! If you want to use your own types as handler arguments, you need to implement this trait for them.
 //! By default, this trait is implemented for the most common middlewares, types and filters, so you can use them without any additional actions.
-//! The trait also is implemented for `Option<T>`, `Result<T, E>` where `T: Extractor`,
-//! so you can don't implement it for your types if you want to use them as optional or result arguments.
+//! The trait is also implemented for `Option<T>` and `Result<T, E>` where `T: Extractor`,
+//! so you don't need extra implementations to use your types as optional or result arguments.
 //!
 //! # Using extensions
 //!
@@ -42,7 +42,7 @@
 //! }
 //! ```
 //!
-//! You can check examples of usage extensions in the [`examples`] directory.
+//! You can check examples of using extensions in the [`examples`] directory.
 //!
 //! # Implementing trait
 //!
