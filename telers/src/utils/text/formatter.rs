@@ -59,9 +59,13 @@ pub(crate) fn split_by_entity(
 ///
 /// # Escaping
 ///
-/// The formatting methods escape the given text for the target parse mode, so any user-provided
-/// content can be passed to them safely: special characters can't break out of the markup.
-/// `code`/`pre` and link URLs use the smaller escape sets those positions require.
+/// The formatting methods wrap the given text **as is**, without escaping, so their results
+/// can be nested and composed freely (e.g. `italic(bold(text))`, or passing an HTML entity
+/// like `&#8203;` as a link text).
+/// Escape untrusted plain text explicitly with [`Formatter::quote`] before formatting it.
+///
+/// [`Formatter::apply_entity`] (and the [`Renderer`](crate::utils::text::Renderer)) receive
+/// plain text by definition, so they escape it automatically.
 ///
 /// # Examples
 /// ```rust
@@ -69,11 +73,12 @@ pub(crate) fn split_by_entity(
 ///
 /// let formatter = MarkdownFormatter::default();
 ///
-/// // `_` is special in MarkdownV2, so it is escaped inside the formatted span
-/// assert_eq!(formatter.bold("hello_world"), "*hello\\_world*");
+/// // Formatting methods compose without corrupting each other's markup
+/// assert_eq!(formatter.strikethrough(formatter.bold("text")), "~*text*~");
+/// // Escape plain text explicitly when it can contain special characters
 /// assert_eq!(
-///     formatter.text_link("docs", "https://core.telegram.org/bots/api"),
-///     "[docs](https://core.telegram.org/bots/api)"
+///     formatter.bold(formatter.quote("hello_world")),
+///     "*hello\\_world*"
 /// );
 /// ```
 pub trait Formatter {

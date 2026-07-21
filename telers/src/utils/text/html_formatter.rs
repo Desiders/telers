@@ -77,53 +77,49 @@ impl TextFormatter for Formatter {
     where
         T: Display,
     {
-        format!("<{tag}>{}</{tag}>", self.quote(text), tag = self.bold)
+        format!("<{tag}>{text}</{tag}>", tag = self.bold)
     }
 
     fn italic<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("<{tag}>{}</{tag}>", self.quote(text), tag = self.italic)
+        format!("<{tag}>{text}</{tag}>", tag = self.italic)
     }
 
     fn underline<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("<{tag}>{}</{tag}>", self.quote(text), tag = self.underline)
+        format!("<{tag}>{text}</{tag}>", tag = self.underline)
     }
 
     fn strikethrough<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!(
-            "<{tag}>{}</{tag}>",
-            self.quote(text),
-            tag = self.strikethrough
-        )
+        format!("<{tag}>{text}</{tag}>", tag = self.strikethrough)
     }
 
     fn spoiler<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("<{tag}>{}</{tag}>", self.quote(text), tag = self.spoiler)
+        format!("<{tag}>{text}</{tag}>", tag = self.spoiler)
     }
 
     fn blockquote<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("<blockquote>{}</blockquote>", self.quote(text))
+        format!("<blockquote>{text}</blockquote>")
     }
 
     fn expandable_blockquote<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("<blockquote expandable>{}</blockquote>", self.quote(text))
+        format!("<blockquote expandable>{text}</blockquote>")
     }
 
     fn text_link<T, U>(&self, text: T, url: U) -> String
@@ -131,17 +127,14 @@ impl TextFormatter for Formatter {
         T: Display,
         U: Display,
     {
-        format!("<a href=\"{url}\">{}</a>", self.quote(text))
+        format!("<a href=\"{url}\">{text}</a>")
     }
 
     fn text_mention<T>(&self, text: T, user_id: i64) -> String
     where
         T: Display,
     {
-        format!(
-            "<a href=\"tg://user?id={user_id}\">{}</a>",
-            self.quote(text)
-        )
+        format!("<a href=\"tg://user?id={user_id}\">{text}</a>")
     }
 
     fn custom_emoji<T, E>(&self, text: T, emoji_id: E) -> String
@@ -150,9 +143,8 @@ impl TextFormatter for Formatter {
         E: Display,
     {
         format!(
-            "<{tag} emoji-id=\"{emoji_id}\">{}</{tag}>",
-            self.quote(text),
-            tag = self.emoji,
+            "<{tag} emoji-id=\"{emoji_id}\">{text}</{tag}>",
+            tag = self.emoji
         )
     }
 
@@ -160,14 +152,14 @@ impl TextFormatter for Formatter {
     where
         T: Display,
     {
-        format!("<code>{}</code>", self.quote(text))
+        format!("<code>{text}</code>")
     }
 
     fn pre<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("<pre>{}</pre>", self.quote(text))
+        format!("<pre>{text}</pre>")
     }
 
     fn pre_language<T, L>(&self, text: T, language: L) -> String
@@ -175,20 +167,14 @@ impl TextFormatter for Formatter {
         T: Display,
         L: Display,
     {
-        format!(
-            "<pre><code class=\"language-{language}\">{}</code></pre>",
-            self.quote(text)
-        )
+        format!("<pre><code class=\"language-{language}\">{text}</code></pre>")
     }
 
     fn date_time<T>(&self, text: T, unix_time: i64) -> String
     where
         T: Display,
     {
-        format!(
-            "<tg-time unix=\"{unix_time}\">{}</tg-time>",
-            self.quote(text)
-        )
+        format!("<tg-time unix=\"{unix_time}\">{text}</tg-time>")
     }
 
     fn date_time_with_format<T, F>(&self, text: T, unix_time: i64, date_time_format: F) -> String
@@ -196,10 +182,7 @@ impl TextFormatter for Formatter {
         T: Display,
         F: Display,
     {
-        format!(
-            "<tg-time unix=\"{unix_time}\" format=\"{date_time_format}\">{}</tg-time>",
-            self.quote(text)
-        )
+        format!("<tg-time unix=\"{unix_time}\" format=\"{date_time_format}\">{text}</tg-time>")
     }
 
     fn quote<T>(&self, text: T) -> String
@@ -245,38 +228,42 @@ impl TextFormatter for Formatter {
             // span is also kept as is.
             | MessageEntity::PhoneNumber(_)
             | MessageEntity::Unknown(_) => editable_text.clone(),
-            MessageEntity::Bold(_) => self.bold(editable_text),
-            MessageEntity::Italic(_) => self.italic(editable_text),
-            MessageEntity::Underline(_) => self.underline(editable_text),
-            MessageEntity::Strikethrough(_) => self.strikethrough(editable_text),
-            MessageEntity::Spoiler(_) => self.spoiler(editable_text),
-            MessageEntity::Blockquote(_) => self.blockquote(editable_text),
-            MessageEntity::ExpandableBlockquote(_) => self.expandable_blockquote(editable_text),
-            MessageEntity::Code(_) => self.code(editable_text),
+            MessageEntity::Bold(_) => self.bold(self.quote(editable_text)),
+            MessageEntity::Italic(_) => self.italic(self.quote(editable_text)),
+            MessageEntity::Underline(_) => self.underline(self.quote(editable_text)),
+            MessageEntity::Strikethrough(_) => self.strikethrough(self.quote(editable_text)),
+            MessageEntity::Spoiler(_) => self.spoiler(self.quote(editable_text)),
+            MessageEntity::Blockquote(_) => self.blockquote(self.quote(editable_text)),
+            MessageEntity::ExpandableBlockquote(_) => {
+                self.expandable_blockquote(self.quote(editable_text))
+            }
+            MessageEntity::Code(_) => self.code(self.quote(editable_text)),
             MessageEntity::Pre(MessageEntityPre {
                 language, ..
             }) => match language {
-                Some(language) => self.pre_language(editable_text, language),
-                None => self.pre(editable_text),
+                Some(language) => self.pre_language(self.quote(editable_text), language),
+                None => self.pre(self.quote(editable_text)),
             },
             MessageEntity::TextLink(MessageEntityTextLink {
                 url, ..
-            }) => self.text_link(editable_text, url),
+            }) => self.text_link(self.quote(editable_text), url),
             MessageEntity::TextMention(MessageEntityTextMention {
                 user, ..
-            }) => self.text_mention(editable_text, user.id),
+            }) => self.text_mention(self.quote(editable_text), user.id),
             MessageEntity::CustomEmoji(MessageEntityCustomEmoji {
                 custom_emoji_id, ..
-            }) => self.custom_emoji(editable_text, custom_emoji_id),
+            }) => self.custom_emoji(self.quote(editable_text), custom_emoji_id),
             MessageEntity::DateTime(MessageEntityDateTime {
                 unix_time,
                 date_time_format,
                 ..
             }) => match date_time_format {
-                Some(date_time_format) => {
-                    self.date_time_with_format(editable_text, *unix_time, date_time_format)
-                }
-                None => self.date_time(editable_text, *unix_time),
+                Some(date_time_format) => self.date_time_with_format(
+                    self.quote(editable_text),
+                    *unix_time,
+                    date_time_format,
+                ),
+                None => self.date_time(self.quote(editable_text), *unix_time),
             },
         };
 
@@ -503,15 +490,35 @@ mod tests {
     }
 
     #[test]
-    fn formatting_methods_escape_their_content() {
+    fn formatting_methods_compose_without_escaping() {
         let formatter = Formatter::default();
 
-        // `<`, `>` and `&` inside a span are escaped so user content can't inject markup.
-        assert_eq!(formatter.bold("a<b>&c"), "<b>a&lt;b&gt;&amp;c</b>");
-        assert_eq!(formatter.code("a<b"), "<code>a&lt;b</code>");
+        // Formatting methods wrap the text as is, so their results can be nested ("tag in
+        // tag") and HTML entities pass through. Plain text is escaped explicitly with
+        // `quote` instead.
+        assert_eq!(formatter.italic(formatter.bold("0_0")), "<i><b>0_0</b></i>");
         assert_eq!(
-            formatter.text_link("a&b", "http://x"),
-            "<a href=\"http://x\">a&amp;b</a>"
+            formatter.text_link("&#8203;&#8203;", "http://x"),
+            "<a href=\"http://x\">&#8203;&#8203;</a>"
+        );
+        assert_eq!(
+            formatter.bold(formatter.quote("a<b>&c")),
+            "<b>a&lt;b&gt;&amp;c</b>"
+        );
+    }
+
+    #[test]
+    fn test_apply_entity_escapes_entity_span() {
+        use crate::types::MessageEntityBold;
+
+        let formatter = Formatter::default();
+
+        // `apply_entity` receives plain text, so the entity span itself is escaped before
+        // the formatting is applied.
+        let entity = MessageEntity::Bold(MessageEntityBold::new(0, 3));
+        assert_eq!(
+            formatter.apply_entity("a<b", &entity).unwrap(),
+            "<b>a&lt;b</b>"
         );
     }
 

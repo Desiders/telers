@@ -57,42 +57,42 @@ impl TextFormatter for Formatter {
     where
         T: Display,
     {
-        format!("*{}*", self.quote(text))
+        format!("*{text}*")
     }
 
     fn italic<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("_\r{}_\r", self.quote(text))
+        format!("_\r{text}_\r")
     }
 
     fn underline<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("__\r{}__\r", self.quote(text))
+        format!("__\r{text}__\r")
     }
 
     fn strikethrough<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("~{}~", self.quote(text))
+        format!("~{text}~")
     }
 
     fn spoiler<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("||{}||", self.quote(text))
+        format!("||{text}||")
     }
 
     fn blockquote<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        self.quote(text)
+        text.to_string()
             .lines()
             .map(|line| format!(">{line}"))
             .collect::<Vec<_>>()
@@ -114,7 +114,7 @@ impl TextFormatter for Formatter {
         T: Display,
         U: Display,
     {
-        format!("[{}]({})", self.quote(text), escape(url, &URL_ESCAPE_CHARS))
+        format!("[{text}]({url})")
     }
 
     fn text_mention<T>(&self, text: T, user_id: i64) -> String
@@ -139,14 +139,14 @@ impl TextFormatter for Formatter {
     where
         T: Display,
     {
-        format!("`{}`", escape(text, &CODE_ESCAPE_CHARS))
+        format!("`{text}`")
     }
 
     fn pre<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("```\n{}\n```", escape(text, &CODE_ESCAPE_CHARS))
+        format!("```\n{text}\n```")
     }
 
     fn pre_language<T, L>(&self, text: T, language: L) -> String
@@ -154,7 +154,7 @@ impl TextFormatter for Formatter {
         T: Display,
         L: Display,
     {
-        format!("```{language}\n{}\n```", escape(text, &CODE_ESCAPE_CHARS))
+        format!("```{language}\n{text}\n```")
     }
 
     fn date_time<T>(&self, text: T, unix_time: i64) -> String
@@ -202,6 +202,9 @@ impl TextFormatter for Formatter {
         // `super::formatter::split_by_entity`) instead of slicing it by raw byte indices.
         let (previous_text, editable_text, next_text) = split_by_entity(&text, entity)?;
 
+        // The input is plain text, so the entity span is escaped here before the raw
+        // formatting method wraps it (`code`/`pre` and link URLs use the smaller escape
+        // sets those positions require).
         let edited_text = match entity {
             // Auto-detected entities (their prefix `@`/`#`/`$`/`/` is already part of the
             // entity span, and Telegram re-detects them) must be returned untouched.
@@ -215,38 +218,45 @@ impl TextFormatter for Formatter {
             // span is also kept as is.
             | MessageEntity::PhoneNumber(_)
             | MessageEntity::Unknown(_) => editable_text.clone(),
-            MessageEntity::Bold(_) => self.bold(editable_text),
-            MessageEntity::Italic(_) => self.italic(editable_text),
-            MessageEntity::Underline(_) => self.underline(editable_text),
-            MessageEntity::Strikethrough(_) => self.strikethrough(editable_text),
-            MessageEntity::Spoiler(_) => self.spoiler(editable_text),
-            MessageEntity::Blockquote(_) => self.blockquote(editable_text),
-            MessageEntity::ExpandableBlockquote(_) => self.expandable_blockquote(editable_text),
-            MessageEntity::Code(_) => self.code(editable_text),
+            MessageEntity::Bold(_) => self.bold(self.quote(editable_text)),
+            MessageEntity::Italic(_) => self.italic(self.quote(editable_text)),
+            MessageEntity::Underline(_) => self.underline(self.quote(editable_text)),
+            MessageEntity::Strikethrough(_) => self.strikethrough(self.quote(editable_text)),
+            MessageEntity::Spoiler(_) => self.spoiler(self.quote(editable_text)),
+            MessageEntity::Blockquote(_) => self.blockquote(self.quote(editable_text)),
+            MessageEntity::ExpandableBlockquote(_) => {
+                self.expandable_blockquote(self.quote(editable_text))
+            }
+            MessageEntity::Code(_) => self.code(escape(editable_text, &CODE_ESCAPE_CHARS)),
             MessageEntity::Pre(MessageEntityPre {
                 language, ..
-            }) => match language {
-                Some(language) => self.pre_language(editable_text, language),
-                None => self.pre(editable_text),
-            },
+            }) => {
+                let code = escape(editable_text, &CODE_ESCAPE_CHARS);
+                match language {
+                    Some(language) => self.pre_language(code, language),
+                    None => self.pre(code),
+                }
+            }
             MessageEntity::TextLink(MessageEntityTextLink {
                 url, ..
-            }) => self.text_link(editable_text, url),
+            }) => self.text_link(self.quote(editable_text), escape(url, &URL_ESCAPE_CHARS)),
             MessageEntity::TextMention(MessageEntityTextMention {
                 user, ..
-            }) => self.text_mention(editable_text, user.id),
+            }) => self.text_mention(self.quote(editable_text), user.id),
             MessageEntity::CustomEmoji(MessageEntityCustomEmoji {
                 custom_emoji_id, ..
-            }) => self.custom_emoji(editable_text, custom_emoji_id),
+            }) => self.custom_emoji(self.quote(editable_text), custom_emoji_id),
             MessageEntity::DateTime(MessageEntityDateTime {
                 unix_time,
                 date_time_format,
                 ..
             }) => match date_time_format {
-                Some(date_time_format) => {
-                    self.date_time_with_format(editable_text, *unix_time, date_time_format)
-                }
-                None => self.date_time(editable_text, *unix_time),
+                Some(date_time_format) => self.date_time_with_format(
+                    self.quote(editable_text),
+                    *unix_time,
+                    date_time_format,
+                ),
+                None => self.date_time(self.quote(editable_text), *unix_time),
             },
         };
 
@@ -396,18 +406,17 @@ mod tests {
     }
 
     #[test]
-    fn formatting_methods_escape_their_content() {
+    fn formatting_methods_compose_without_escaping() {
         let formatter = Formatter;
 
-        // MarkdownV2 special characters inside a formatted span are escaped, so user content
-        // can never break out of (or prematurely close) the surrounding markup.
-        assert_eq!(formatter.bold("a*b"), r"*a\*b*");
-        assert_eq!(formatter.italic("a_b"), "_\ra\\_b_\r");
-        assert_eq!(formatter.underline("a_b"), "__\ra\\_b__\r");
-        assert_eq!(formatter.strikethrough("a~b"), r"~a\~b~");
-        assert_eq!(formatter.spoiler("a|b"), r"||a\|b||");
-        assert_eq!(formatter.blockquote("a.b"), r">a\.b");
-        assert_eq!(formatter.text_mention("a-b", 1), r"[a\-b](tg://user?id=1)");
+        // Formatting methods wrap the text as is, so their results can be nested without
+        // one method escaping the markup produced by another. Plain text is escaped
+        // explicitly with `quote` instead.
+        assert_eq!(formatter.strikethrough(formatter.bold("0_0")), "~*0_0*~");
+        assert_eq!(
+            formatter.bold(formatter.quote("hello_world")),
+            r"*hello\_world*"
+        );
     }
 
     #[test]
@@ -552,52 +561,28 @@ mod tests {
     }
 
     #[test]
-    fn test_code_escapes_backtick_and_backslash() {
+    fn test_apply_entity_escapes_entity_span() {
+        use crate::types::{MessageEntityBold, MessageEntityCode, MessageEntityTextLink};
+
         let formatter = Formatter;
 
-        assert_eq!(formatter.code("a`b"), r"`a\`b`");
-        assert_eq!(formatter.code(r"a\b"), r"`a\\b`");
-        assert_eq!(formatter.code("a_b*c"), "`a_b*c`");
-    }
+        // `apply_entity` receives plain text, so the entity span itself is escaped before
+        // the formatting is applied.
+        let entity = MessageEntity::Bold(MessageEntityBold::new(0, 3));
+        assert_eq!(formatter.apply_entity("a_b", &entity).unwrap(), r"*a\_b*");
 
-    #[test]
-    fn test_pre_escapes_backtick_and_backslash() {
-        let formatter = Formatter;
-
-        assert_eq!(formatter.pre("a`b"), "```\na\\`b\n```");
-        assert_eq!(formatter.pre_language("a`b", "rust"), "```rust\na\\`b\n```");
-        assert_eq!(formatter.pre("a_b"), "```\na_b\n```");
-    }
-
-    #[test]
-    fn test_text_link_escapes_closing_paren_and_backslash_in_url() {
-        let formatter = Formatter;
-
+        // Inside `code`, MarkdownV2 requires escaping only `` ` `` and `\`.
+        let entity = MessageEntity::Code(MessageEntityCode::new(0, 5));
         assert_eq!(
-            formatter.text_link("text", "http://x/a)b"),
+            formatter.apply_entity("a`b_c", &entity).unwrap(),
+            "`a\\`b_c`"
+        );
+
+        // The URL of a text link entity escapes `)` and `\` so it can't close the `(...)`.
+        let entity = MessageEntity::TextLink(MessageEntityTextLink::new(0, 4, "http://x/a)b"));
+        assert_eq!(
+            formatter.apply_entity("text", &entity).unwrap(),
             r"[text](http://x/a\)b)"
-        );
-        assert_eq!(
-            formatter.text_link("text", r"http://x/a\b"),
-            r"[text](http://x/a\\b)"
-        );
-        assert_eq!(
-            formatter.text_link("a_b", "http://example.com"),
-            r"[a\_b](http://example.com)"
-        );
-    }
-
-    #[test]
-    fn test_custom_emoji_and_date_time_escape_their_url() {
-        let formatter = Formatter;
-
-        assert_eq!(
-            formatter.custom_emoji("x", "1)2"),
-            r"![x](tg://emoji?id=1\)2)"
-        );
-        assert_eq!(
-            formatter.date_time_with_format("x", 1, "a)b"),
-            r"![x](tg://time?unix=1&format=a\)b)"
         );
     }
 
