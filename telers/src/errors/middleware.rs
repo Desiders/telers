@@ -31,9 +31,7 @@ impl Error {
     /// # Notes
     /// If you want to pass just a message, you can use [`Error::from_display`] or [`Error::from_debug`] methods.
     pub fn new(err: impl Into<anyhow::Error>) -> Self {
-        Self {
-            source: err.into(),
-        }
+        Self { source: err.into() }
     }
 
     /// # Arguments

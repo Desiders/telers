@@ -39,70 +39,42 @@ fn selected_date_text(data: &DataMap) -> String {
 fn custom_calendar_label(kind: CalendarButtonKind) -> String {
     match kind {
         CalendarButtonKind::Empty => " ".to_owned(),
-        CalendarButtonKind::Weekday {
-            weekday,
-        } => weekday
+        CalendarButtonKind::Weekday { weekday } => weekday
             .to_string()
             .chars()
             .take(2)
             .collect::<String>()
             .to_uppercase(),
-        CalendarButtonKind::DaysHeader {
-            month,
-        } => {
+        CalendarButtonKind::DaysHeader { month } => {
             format!("✦ {} {} ✦", month.month(), month.year())
         }
-        CalendarButtonKind::Day {
-            date,
-            is_today,
-        } => {
+        CalendarButtonKind::Day { date, is_today } => {
             if is_today {
                 format!("·{:02}·", date.day())
             } else {
                 format!("{:02}", date.day())
             }
         }
-        CalendarButtonKind::DaysPrevMonth {
-            ..
-        } => "◀ Prev".to_owned(),
-        CalendarButtonKind::DaysNextMonth {
-            ..
-        } => "Next ▶".to_owned(),
-        CalendarButtonKind::DaysZoom {
-            ..
+        CalendarButtonKind::DaysPrevMonth { .. } => "◀ Prev".to_owned(),
+        CalendarButtonKind::DaysNextMonth { .. } => "Next ▶".to_owned(),
+        CalendarButtonKind::DaysZoom { .. } | CalendarButtonKind::MonthsZoom { .. } => {
+            "🔍".to_owned()
         }
-        | CalendarButtonKind::MonthsZoom {
-            ..
-        } => "🔍".to_owned(),
-        CalendarButtonKind::MonthsHeader {
-            year,
-        } => format!("✦ {year} ✦"),
-        CalendarButtonKind::Month {
-            month,
-            is_current,
-        } => {
+        CalendarButtonKind::MonthsHeader { year } => format!("✦ {year} ✦"),
+        CalendarButtonKind::Month { month, is_current } => {
             if is_current {
                 format!("·{}·", month.month())
             } else {
                 month.month().to_string()
             }
         }
-        CalendarButtonKind::MonthsPrevYear {
-            ..
+        CalendarButtonKind::MonthsPrevYear { .. } | CalendarButtonKind::YearsPrevPage { .. } => {
+            "◀".to_owned()
         }
-        | CalendarButtonKind::YearsPrevPage {
-            ..
-        } => "◀".to_owned(),
-        CalendarButtonKind::MonthsNextYear {
-            ..
+        CalendarButtonKind::MonthsNextYear { .. } | CalendarButtonKind::YearsNextPage { .. } => {
+            "▶".to_owned()
         }
-        | CalendarButtonKind::YearsNextPage {
-            ..
-        } => "▶".to_owned(),
-        CalendarButtonKind::Year {
-            year,
-            is_current,
-        } => {
+        CalendarButtonKind::Year { year, is_current } => {
             if is_current {
                 format!("·{year}·")
             } else {

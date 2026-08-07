@@ -14,9 +14,7 @@ impl WebAppInfo {
     /// * `url` - An HTTPS URL of a Web App to be opened with additional data as specified in Initializing Web Apps
     #[must_use]
     pub fn new<T0: Into<Box<str>>>(url: T0) -> Self {
-        Self {
-            url: url.into(),
-        }
+        Self { url: url.into() }
     }
 
     /// An HTTPS URL of a Web App to be opened with additional data as specified in Initializing Web Apps

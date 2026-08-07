@@ -14,9 +14,7 @@ impl PreparedKeyboardButton {
     /// * `id` - Unique identifier of the keyboard button
     #[must_use]
     pub fn new<T0: Into<Box<str>>>(id: T0) -> Self {
-        Self {
-            id: id.into(),
-        }
+        Self { id: id.into() }
     }
 
     /// Unique identifier of the keyboard button

@@ -14,9 +14,7 @@ impl Link {
     /// * `url` - URL of the link
     #[must_use]
     pub fn new<T0: Into<Box<str>>>(url: T0) -> Self {
-        Self {
-            url: url.into(),
-        }
+        Self { url: url.into() }
     }
 
     /// URL of the link

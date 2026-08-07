@@ -187,17 +187,10 @@ fn tokenize_type_definition(type_quote: &NormalizedType, ctx: &TypeDocContext<'_
         }
     } else {
         let serde_attr = match &type_quote.subtype_kind {
-            Some(SubtypeKind::Tagged {
-                tag_field, ..
-            }) => {
+            Some(SubtypeKind::Tagged { tag_field, .. }) => {
                 quote! { #[serde(tag = #tag_field, rename_all = "snake_case")] }
             }
-            Some(
-                SubtypeKind::Untagged
-                | SubtypeKind::UntaggedInTagged {
-                    ..
-                },
-            ) => {
+            Some(SubtypeKind::Untagged | SubtypeKind::UntaggedInTagged { .. }) => {
                 quote! { #[serde(untagged)] }
             }
             None => quote! {},
@@ -1217,9 +1210,7 @@ fn get_helper_impls_for_type(
                         AccessExpr::WrapInSome(tokens) => {
                             quote! { { let inner = self.#outer_ident(); Some(#tokens) } }
                         }
-                        AccessExpr::EnumMethod {
-                            ..
-                        } => {
+                        AccessExpr::EnumMethod { .. } => {
                             unreachable!("enum method access handled in the enum delegation branch",)
                         }
                     }
@@ -1231,9 +1222,7 @@ fn get_helper_impls_for_type(
                         AccessExpr::Optional(tokens) => {
                             quote! { self.#outer_ident().and_then(|inner| #tokens) }
                         }
-                        AccessExpr::EnumMethod {
-                            ..
-                        } => {
+                        AccessExpr::EnumMethod { .. } => {
                             unreachable!("enum method access handled in the enum delegation branch",)
                         }
                     }

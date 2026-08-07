@@ -425,9 +425,7 @@ impl SubtypeKind {
     pub fn get_tags(&self) -> (Option<&str>, Option<&str>) {
         match self {
             SubtypeKind::Untagged => (None, None),
-            SubtypeKind::UntaggedInTagged {
-                tag_field,
-            } => (Some(tag_field.as_str()), None),
+            SubtypeKind::UntaggedInTagged { tag_field } => (Some(tag_field.as_str()), None),
             SubtypeKind::Tagged {
                 tag_field,
                 parent_tag_field,
@@ -798,10 +796,7 @@ impl NormalizedSchema {
                     .collect();
 
             let type_name = format!("{name}Unknown");
-            if let Some(SubtypeKind::Tagged {
-                tag_field, ..
-            }) = &ty.subtype_kind
-            {
+            if let Some(SubtypeKind::Tagged { tag_field, .. }) = &ty.subtype_kind {
                 // The tag field's description is cloned from the first variant and claims a
                 // concrete value (e.g. `always "solid"`); here it holds the unrecognized value.
                 for field in &mut common_fields {
@@ -1814,9 +1809,7 @@ impl NormalizedSchema {
             .as_ref()
             .unwrap()
         {
-            SubtypeKind::Tagged {
-                tag_field, ..
-            } => tag_field.to_owned(),
+            SubtypeKind::Tagged { tag_field, .. } => tag_field.to_owned(),
             _ => unreachable!(),
         };
 

@@ -61,9 +61,7 @@ impl<Renderer> FnText<Renderer> {
     #[inline]
     #[must_use]
     pub const fn new(renderer: Renderer) -> Self {
-        Self {
-            renderer,
-        }
+        Self { renderer }
     }
 }
 

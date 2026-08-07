@@ -91,10 +91,7 @@ impl<'a> Renderer<'a> {
 
         tags.sort_unstable();
 
-        Self {
-            text,
-            tags,
-        }
+        Self { text, tags }
     }
 
     /// Renders the text with the given [`TagWriter`], inserting tags at their UTF-16 offsets.

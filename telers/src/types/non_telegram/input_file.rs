@@ -230,9 +230,7 @@ pub struct FileId {
 impl FileId {
     #[must_use]
     pub fn new(id: impl Into<String>) -> Self {
-        Self {
-            id: id.into(),
-        }
+        Self { id: id.into() }
     }
 
     #[must_use]
@@ -269,9 +267,7 @@ pub struct UrlFile {
 impl UrlFile {
     #[must_use]
     pub fn new(url: impl Into<String>) -> Self {
-        Self {
-            url: url.into(),
-        }
+        Self { url: url.into() }
     }
 
     #[must_use]

@@ -561,9 +561,7 @@ impl<Client, Propagator, BackoffType> ServePolling<Client, Propagator, BackoffTy
     #[inline]
     #[must_use]
     pub const fn new(dispatcher: Dispatcher<Client, Propagator, BackoffType>) -> Self {
-        Self {
-            dispatcher,
-        }
+        Self { dispatcher }
     }
 
     #[inline]
@@ -627,10 +625,7 @@ impl<Client, Propagator, BackoffType, Signal>
         dispatcher: Dispatcher<Client, Propagator, BackoffType>,
         signal: Signal,
     ) -> Self {
-        Self {
-            dispatcher,
-            signal,
-        }
+        Self { dispatcher, signal }
     }
 }
 
@@ -671,9 +666,7 @@ impl<Client, Propagator, BackoffType> Serve<Client, Propagator, BackoffType> {
     #[inline]
     #[must_use]
     pub const fn new(dispatcher: Dispatcher<Client, Propagator, BackoffType>) -> Self {
-        Self {
-            dispatcher,
-        }
+        Self { dispatcher }
     }
 
     #[inline]
@@ -735,10 +728,7 @@ impl<Client, Propagator, BackoffType, Signal>
         dispatcher: Dispatcher<Client, Propagator, BackoffType>,
         signal: Signal,
     ) -> Self {
-        Self {
-            dispatcher,
-            signal,
-        }
+        Self { dispatcher, signal }
     }
 }
 

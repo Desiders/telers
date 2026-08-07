@@ -15,9 +15,7 @@ impl KeyboardButtonPollType {
     /// Use builder methods to set optional fields.
     #[must_use]
     pub fn new() -> Self {
-        Self {
-            r#type: None,
-        }
+        Self { r#type: None }
     }
 
     /// If quiz is passed, the user will be allowed to create only polls in the quiz mode. If regular is passed, only regular polls will be allowed. Otherwise, the user will be allowed to create a poll of any type.

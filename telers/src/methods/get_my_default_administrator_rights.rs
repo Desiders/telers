@@ -18,9 +18,7 @@ impl GetMyDefaultAdministratorRights {
     /// Use builder methods to set optional fields.
     #[must_use]
     pub fn new() -> Self {
-        Self {
-            for_channels: None,
-        }
+        Self { for_channels: None }
     }
 
     /// Pass `true` to get default administrator rights of the bot in channels. Otherwise, default administrator rights of the bot for groups and supergroups will be returned.

@@ -17,9 +17,7 @@ impl GetStickerSet {
     /// * `name` - Name of the sticker set
     #[must_use]
     pub fn new<T0: Into<Box<str>>>(name: T0) -> Self {
-        Self {
-            name: name.into(),
-        }
+        Self { name: name.into() }
     }
 
     /// Name of the sticker set

@@ -21,9 +21,7 @@ pub struct Error {
 
 impl Error {
     pub fn new(msg: impl Into<Cow<'static, str>>) -> Self {
-        Self {
-            msg: msg.into(),
-        }
+        Self { msg: msg.into() }
     }
 }
 

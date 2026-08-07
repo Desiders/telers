@@ -340,11 +340,7 @@ impl<S: Storage> DialogManager<S> {
                     needs_show = true;
                     outcome.handled = true;
                 }
-                ButtonAction::Start {
-                    state,
-                    data,
-                    mode,
-                } => {
+                ButtonAction::Start { state, data, mode } => {
                     let _ = self.start(bot, state, data, mode).await?;
                     outcome.handled = true;
                     outcome.already_shown = true;
@@ -364,10 +360,7 @@ impl<S: Storage> DialogManager<S> {
                     needs_show = true;
                     outcome.handled = true;
                 }
-                ButtonAction::SetDialogValue {
-                    key,
-                    value,
-                } => {
+                ButtonAction::SetDialogValue { key, value } => {
                     self.set_dialog_value(key, value).await?;
                     needs_show = true;
                     outcome.handled = true;
@@ -382,10 +375,7 @@ impl<S: Storage> DialogManager<S> {
                     needs_show = true;
                     outcome.handled = true;
                 }
-                ButtonAction::SetWidgetValue {
-                    key,
-                    value,
-                } => {
+                ButtonAction::SetWidgetValue { key, value } => {
                     self.set_widget_value(key, value).await?;
                     needs_show = true;
                     outcome.handled = true;

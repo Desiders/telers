@@ -110,9 +110,7 @@ impl TemplateEnvBuilder {
     /// Create a new environment builder seeded with the default settings.
     #[must_use]
     pub fn new() -> Self {
-        Self {
-            env: default_env(),
-        }
+        Self { env: default_env() }
     }
 
     /// Add a custom filter function.

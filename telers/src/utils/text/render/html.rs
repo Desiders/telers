@@ -90,10 +90,7 @@ fn write_tag(tag: &Tag, buf: &mut String) {
             Place::MidNewLine => unreachable!(),
             Place::End => buf.push_str(HTML.custom_emoji.end),
         },
-        Kind::DateTime {
-            unix_time,
-            format,
-        } => match tag.place {
+        Kind::DateTime { unix_time, format } => match tag.place {
             Place::Start => match format {
                 Some(format) => write!(
                     buf,

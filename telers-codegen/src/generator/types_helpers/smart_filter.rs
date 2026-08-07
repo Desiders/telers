@@ -114,9 +114,7 @@ fn enum_method_specs(
                 .iter()
                 .filter_map(|(subtype, field)| match field {
                     HelperFieldSource::Direct(field) => Some((*subtype, *field)),
-                    HelperFieldSource::EnumHelper {
-                        ..
-                    } => None,
+                    HelperFieldSource::EnumHelper { .. } => None,
                 })
                 .collect();
 

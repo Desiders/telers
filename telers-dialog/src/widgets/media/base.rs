@@ -219,9 +219,7 @@ impl MultiMedia {
     #[builder]
     #[must_use]
     pub fn new(#[builder(field = Vec::new())] widgets: Vec<Box<dyn Media>>) -> Self {
-        Self {
-            widgets,
-        }
+        Self { widgets }
     }
 }
 

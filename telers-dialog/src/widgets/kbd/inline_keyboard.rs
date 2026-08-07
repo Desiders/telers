@@ -40,10 +40,7 @@ impl InlineKeyboard {
         #[builder(field = Vec::new())] rows: Vec<Vec<Button>>,
         when: Option<WhenCondition>,
     ) -> Self {
-        Self {
-            rows,
-            when,
-        }
+        Self { rows, when }
     }
 }
 

@@ -36,10 +36,7 @@ impl MultiText {
         #[builder(field)] items: Vec<Box<dyn Text>>,
         #[builder(default = "\n", into)] separator: Cow<'static, str>,
     ) -> Self {
-        Self {
-            items,
-            separator,
-        }
+        Self { items, separator }
     }
 }
 

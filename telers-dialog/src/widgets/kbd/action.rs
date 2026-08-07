@@ -204,11 +204,7 @@ mod tests {
     #[test]
     fn start_holds_state_data_and_mode() {
         match ButtonAction::start("s", json!(1), StartMode::NewStack) {
-            ButtonAction::Start {
-                state,
-                data,
-                mode,
-            } => {
+            ButtonAction::Start { state, data, mode } => {
                 assert_eq!(state, "s");
                 assert_eq!(data, json!(1));
                 assert_eq!(mode, StartMode::NewStack);
@@ -228,10 +224,7 @@ mod tests {
     #[test]
     fn set_dialog_value_holds_key_and_value() {
         match ButtonAction::set_dialog_value("k", "v") {
-            ButtonAction::SetDialogValue {
-                key,
-                value,
-            } => {
+            ButtonAction::SetDialogValue { key, value } => {
                 assert_eq!(key, "k");
                 assert_eq!(value, json!("v"));
             }
@@ -242,10 +235,7 @@ mod tests {
     #[test]
     fn set_widget_value_holds_key_and_value() {
         match ButtonAction::set_widget_value("k", 3) {
-            ButtonAction::SetWidgetValue {
-                key,
-                value,
-            } => {
+            ButtonAction::SetWidgetValue { key, value } => {
                 assert_eq!(key, "k");
                 assert_eq!(value, json!(3));
             }

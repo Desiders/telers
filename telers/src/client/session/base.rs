@@ -184,34 +184,20 @@ pub trait Session: Send + Sync {
         }
 
         let err = match status_code.as_u16() {
-            400 => TelegramErrorKind::BadRequest {
-                message,
-            },
-            401 => TelegramErrorKind::Unauthorized {
-                message,
-            },
-            403 => TelegramErrorKind::Forbidden {
-                message,
-            },
-            404 => TelegramErrorKind::NotFound {
-                message,
-            },
-            409 => TelegramErrorKind::ConflictError {
-                message,
-            },
+            400 => TelegramErrorKind::BadRequest { message },
+            401 => TelegramErrorKind::Unauthorized { message },
+            403 => TelegramErrorKind::Forbidden { message },
+            404 => TelegramErrorKind::NotFound { message },
+            409 => TelegramErrorKind::ConflictError { message },
             413 => TelegramErrorKind::EntityTooLarge {
                 url: "https://core.telegram.org/bots/api#sending-files",
                 message,
             },
             500 => {
                 if message.contains("restart") {
-                    TelegramErrorKind::RestartingTelegram {
-                        message,
-                    }
+                    TelegramErrorKind::RestartingTelegram { message }
                 } else {
-                    TelegramErrorKind::ServerError {
-                        message,
-                    }
+                    TelegramErrorKind::ServerError { message }
                 }
             }
             _ => {
