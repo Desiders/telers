@@ -10,6 +10,7 @@
 pub(crate) mod attrs_parsing;
 pub(crate) mod stream;
 
+mod command;
 mod from_context;
 mod from_event;
 
@@ -242,6 +243,65 @@ pub fn derive_from_context(item: TokenStream) -> TokenStream {
 #[proc_macro_derive(FromEvent, attributes(event))]
 pub fn derive_from_event(item: TokenStream) -> TokenStream {
     expand_with(item, from_event::expand)
+}
+
+/// Derive an implementation of `Extractor` for the given enum.
+///
+/// The macro generates an `Extractor` implementation that parses the command name and arguments
+/// from the [`CommandObject`] that the [`Command`] filter puts into the context, so the derived
+/// enum can be used as a handler argument right after the filter.
+///
+/// Command names are derived from the variant names and are matched case-insensitively.
+/// Tuple and named variant fields are parsed from the command arguments in declaration order
+/// via the [`FromStr`] trait; a missing argument or a parse failure is reported as an
+/// [`ExtractionError`].
+///
+/// This macro supports the following attributes:
+/// * `#[command(rename_rule = "...")]` - the rule used to convert variant names into command names. \
+///   Supported rules: `lowercase` (default), `snake_case`, `kebab_case`, `camel_case`, `pascal_case`, `screaming_snake_case`.
+/// * `#[command(description = "...")]` - the description of the command (variant-level, optional). \
+///   Used by the generated `descriptions()` and `bot_commands()` methods.
+///
+/// Besides the `Extractor` implementation, the macro generates:
+/// * `descriptions()` - descriptions in the format `/command - description`, separated by newlines.
+/// * `bot_commands()` - commands in the format required by the `setMyCommands` Telegram API method.
+///
+/// # Notes
+/// * The [`Command`] filter must be used together with the derived enum,
+///   because the macro reads the [`CommandObject`] from the context.
+/// * Extra arguments are ignored.
+///
+/// # Example
+/// ```rust
+/// use telers_macros::Command;
+///
+/// #[derive(Command)]
+/// #[command(rename_rule = "snake_case")]
+/// enum Commands {
+///     #[command(description = "display this text")]
+///     Help,
+///     #[command(description = "handle a username")]
+///     Username(String),
+///     #[command(description = "handle a username and an age")]
+///     UsernameAndAge { username: String, age: u8 },
+/// }
+///
+/// async fn handler(commands: Commands) {
+///     match commands {
+///         Commands::Help => {}
+///         Commands::Username(username) => {}
+///         Commands::UsernameAndAge { username, age } => {}
+///     }
+/// }
+/// ```
+///
+/// [`CommandObject`]: telers::filters::CommandObject
+/// [`Command`]: telers::filters::Command
+/// [`FromStr`]: std::str::FromStr
+/// [`ExtractionError`]: telers::errors::ExtractionError
+#[proc_macro_derive(Command, attributes(command))]
+pub fn derive_command(item: TokenStream) -> TokenStream {
+    expand_with(item, command::expand)
 }
 
 fn expand_with<F, I, K>(input: TokenStream, f: F) -> TokenStream
