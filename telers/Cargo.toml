@@ -49,6 +49,7 @@ webhooks-axum = ["webhooks", "axum"]
 anyhow = { version = "1.0", default-features = false }
 axum = { version = "0.8", default-features = false, optional = true }
 backoff = { version = "0.4", default-features = false, features = ["tokio"] }
+base64 = { version = "0.22", default-features = false, features = ["alloc"] }
 bytes = { version = "1.5", default-features = false }
 deadpool-redis = { version = "0.23", default-features = false, features = ["rt_tokio_1"], optional = true }
 futures-util = { version = "0.3", default-features = false }
