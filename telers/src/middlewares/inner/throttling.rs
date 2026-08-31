@@ -109,7 +109,10 @@ mod tests {
         client::Reqwest,
         event::telegram::handler::boxed_handler_factory,
         middlewares::inner::wrap_to_next,
-        types::{ChatPrivate, MessageText, Poll, PollOption, PollRegular, Update, UpdateMessage, UpdatePoll, User},
+        types::{
+            ChatPrivate, MessageText, Poll, PollOption, PollRegular, Update, UpdateMessage,
+            UpdatePoll, User,
+        },
         Bot, Extensions,
     };
 
@@ -156,7 +159,9 @@ mod tests {
         }
     }
 
-    fn counting_service(calls: Arc<AtomicUsize>) -> crate::event::telegram::handler::BoxedCloneHandlerService<Reqwest> {
+    fn counting_service(
+        calls: Arc<AtomicUsize>,
+    ) -> crate::event::telegram::handler::BoxedCloneHandlerService<Reqwest> {
         boxed_handler_factory(move || {
             let calls = Arc::clone(&calls);
             async move {
@@ -187,7 +192,10 @@ mod tests {
         let mut middleware = Throttling::new(Key::Chat, Duration::from_secs(10));
 
         middleware
-            .call(request(1, 1), wrap_to_next(handler_service.clone(), [].into()))
+            .call(
+                request(1, 1),
+                wrap_to_next(handler_service.clone(), [].into()),
+            )
             .await
             .unwrap();
         let response = middleware
@@ -206,7 +214,10 @@ mod tests {
         let mut middleware = Throttling::new(Key::ChatUser, Duration::from_secs(10));
 
         middleware
-            .call(request(1, 1), wrap_to_next(handler_service.clone(), [].into()))
+            .call(
+                request(1, 1),
+                wrap_to_next(handler_service.clone(), [].into()),
+            )
             .await
             .unwrap();
         let response = middleware
@@ -225,7 +236,10 @@ mod tests {
         let mut middleware = Throttling::new(Key::Chat, Duration::from_secs(10));
 
         let response = middleware
-            .call(no_message_request(), wrap_to_next(handler_service, [].into()))
+            .call(
+                no_message_request(),
+                wrap_to_next(handler_service, [].into()),
+            )
             .await;
 
         assert!(response.is_ok());
