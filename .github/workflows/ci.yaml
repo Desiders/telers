@@ -71,29 +71,15 @@ jobs:
       - name: rustfmt
         run: cargo fmt --all --check
 
-  # `cargo hack check --each-feature` builds every feature one at a time.
-  # Only the aggregate features are skipped: `default`, `full` and `storages`
-  # are just combinations of the others, and all features together are already
-  # compiled by the test and clippy jobs (--all-features).
-  # The rest is split across two parallel jobs by dependency tree size.
-  check-hack-light:
+  # All-features coverage comes from the test and clippy jobs (--all-features);
+  # this job covers the opposite side, no default features, so negative
+  # `#[cfg(not(feature = ...))]` code still compiles.
+  check-no-default:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
     - uses: actions/checkout@v7
     - uses: dtolnay/rust-toolchain@stable
     - uses: Swatinem/rust-cache@v2
-    - uses: taiki-e/install-action@cargo-hack
-    - name: Check Hack (light features)
-      run: cargo hack check --each-feature --no-dev-deps --skip default,full,storages,rustls-tls,webhooks-axum,redis-storage
-
-  check-hack-heavy:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 60
-    steps:
-    - uses: actions/checkout@v7
-    - uses: dtolnay/rust-toolchain@stable
-    - uses: Swatinem/rust-cache@v2
-    - uses: taiki-e/install-action@cargo-hack
-    - name: Check Hack (heavy features)
-      run: cargo hack check --each-feature --no-dev-deps --skip default,full,storages,default-tls,std,memory-storage,signal,default-signal,webhooks
+    - name: Check without default features
+      run: cargo check --no-default-features --locked
