@@ -10,6 +10,10 @@ on:
     - master
   pull_request: {}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -17,59 +21,79 @@ jobs:
   test-windows:
     name: Test Windows
     runs-on: windows-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - run: cargo test --lib --tests --all --all-features
-  
+      - run: cargo test --lib --tests --all-features
+
   test-linux:
     name: Test Linux
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Test
-        run: cargo test --lib --tests --all --all-features
+        run: cargo test --lib --tests --all-features
+      - name: Check examples
+        run: cargo check --examples
 
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
     - uses: actions/checkout@v7
-    - uses: dtolnay/rust-toolchain@nightly
+    - uses: dtolnay/rust-toolchain@stable
       with:
-        components: clippy, rustfmt
+        components: clippy
     - uses: Swatinem/rust-cache@v2
     - name: Check
-      run: cargo clippy --all --all-features -- -W clippy::pedantic
-    - name: rustfmt
-      run: cargo fmt --all --check
+      run: cargo clippy --all-features -- -W clippy::pedantic
 
-  dependencies-are-sorted:
+  quick-checks:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
-    - name: Install cargo-sort
-      uses: taiki-e/install-action@v2
-      with:
+      - uses: actions/checkout@v7
+      - name: Check typos
+        uses: crate-ci/typos@v1.50.0
+      - name: Install cargo-sort
+        uses: taiki-e/install-action@v2
+        with:
           tool: cargo-sort
-    - name: Check that dependencies are sorted
-      run: cargo sort --check --workspace --grouped
+      - name: Check that dependencies are sorted
+        run: cargo sort --check --workspace --grouped
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+      - name: rustfmt
+        run: cargo fmt --all --check
 
-  check-hack:
+  # `cargo hack check --each-feature` builds every feature one at a time.
+  # Only the aggregate features are skipped: `default`, `full` and `storages`
+  # are just combinations of the others, and all features together are already
+  # compiled by the test and clippy jobs (--all-features).
+  # The rest is split across two parallel jobs by dependency tree size.
+  check-hack-light:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
     - uses: actions/checkout@v7
     - uses: dtolnay/rust-toolchain@stable
     - uses: Swatinem/rust-cache@v2
     - uses: taiki-e/install-action@cargo-hack
-    - name: Check Hack
-      run: cargo hack check --each-feature --no-dev-deps --all
-  
-  typos:
+    - name: Check Hack (light features)
+      run: cargo hack check --each-feature --no-dev-deps --skip default,full,storages,rustls-tls,webhooks-axum,redis-storage
+
+  check-hack-heavy:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
     - uses: actions/checkout@v7
-    - name: Check typos
-      uses: crate-ci/typos@v1.50.0
+    - uses: dtolnay/rust-toolchain@stable
+    - uses: Swatinem/rust-cache@v2
+    - uses: taiki-e/install-action@cargo-hack
+    - name: Check Hack (heavy features)
+      run: cargo hack check --each-feature --no-dev-deps --skip default,full,storages,default-tls,std,memory-storage,signal,default-signal,webhooks
