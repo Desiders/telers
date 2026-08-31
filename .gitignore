@@ -1,3 +1,2 @@
-# Ignore /target and Cargo.lock. We use ** to ignore them in all directories.
+# Ignore /target. We use ** to ignore it in all directories.
 **/target
-**/Cargo.lock
