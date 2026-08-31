@@ -2,9 +2,8 @@ use std::time::Duration;
 use telers::{
     enums::UpdateType,
     event::telegram::{Handler, HandlerResult},
-    fsm::Strategy,
     methods::SendMessage,
-    middlewares::inner::Throttling,
+    middlewares::inner::{Key, Throttling},
     types::Message,
     Bot, Dispatcher, Router,
 };
@@ -23,29 +22,25 @@ async fn main() {
 
     let router = Router::new("main").on_message(|observer| {
         observer
-            // Process at most one message per chat-user pair in 5 seconds.
-            // Peer IDs are resolved from the context by UserContextMiddleware.
             .register_inner_middleware(
                 Throttling::new(Duration::from_secs(5))
-                    .strategy(Strategy::UserInChat)
+                    .key(Key::UserInChat)
                     .on_throttled(|request, info| {
-                        tracing::warn!(
-                            exceeded_count = info.exceeded_count,
-                            time_left = ?info.time_left,
-                            "Request is throttled"
-                        );
-                        // Notify the user only for the first throttled requests,
-                        // like the aiogram v2 antiflood example.
-                        if info.exceeded_count > 2 {
-                            return;
-                        }
                         let bot = request.bot.clone();
                         let chat_id = request.update.message().unwrap().chat().id();
-                        tokio::spawn(async move {
+                        async move {
+                            tracing::warn!(
+                                exceeded_count = info.exceeded_count,
+                                time_left = ?info.time_left,
+                                "Request is throttled"
+                            );
+                            if info.exceeded_count > 2 {
+                                return;
+                            }
                             let _ = bot
                                 .send(SendMessage::new(chat_id, "Too many requests!"))
                                 .await;
-                        });
+                        }
                     }),
             )
             .register(Handler::new(echo_handler))
