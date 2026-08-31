@@ -404,16 +404,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "commands"
-version = "0.1.0"
-dependencies = [
- "telers",
- "tokio",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "context"
 version = "0.1.0"
 dependencies = [
@@ -2391,7 +2381,6 @@ dependencies = [
 name = "telers-macros"
 version = "1.0.0-beta.1"
 dependencies = [
- "heck",
  "proc-macro2",
  "quote",
  "syn 2.0.119",
