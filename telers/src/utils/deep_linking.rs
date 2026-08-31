@@ -1,14 +1,13 @@
 //! Helpers for working with Telegram deep links (`t.me/<bot>?start=<payload>`).
 //!
-//! The payload is encoded with base64 using the URL-safe alphabet without padding,
-//! which matches the format used by [aiogram](https://docs.aiogram.dev/en/dev-3.x/utils/deep_linking.html).
+//! The payload is encoded with base64 using the URL-safe alphabet without padding.
 
 use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
 
 /// Encodes a payload for use in a deep link start parameter.
 ///
 /// # Examples
-/// ```
+/// ```rust
 /// use telers::utils::encode_payload;
 ///
 /// assert_eq!(encode_payload("hello world"), "aGVsbG8gd29ybGQ");
@@ -24,7 +23,7 @@ pub fn encode_payload(payload: &str) -> String {
 /// Returns an error if the payload is not valid base64 or UTF-8.
 ///
 /// # Examples
-/// ```
+/// ```rust
 /// use telers::utils::{decode_payload, encode_payload};
 ///
 /// assert_eq!(
