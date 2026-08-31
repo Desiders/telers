@@ -123,7 +123,9 @@ impl Parse for VariantAttrs {
             ));
         }
 
-        Ok(Self { description })
+        Ok(Self {
+            description,
+        })
     }
 }
 

@@ -344,7 +344,10 @@ pub fn derive_callback_data(item: TokenStream) -> TokenStream {
 ///     match commands {
 ///         Commands::Help => {}
 ///         Commands::Username(username) => {}
-///         Commands::UsernameAndAge { username, age } => {}
+///         Commands::UsernameAndAge {
+///             username,
+///             age,
+///         } => {}
 ///     }
 /// }
 /// ```
