@@ -1,4 +1,4 @@
-name: CI
+﻿name: CI
 
 env:
   CARGO_TERM_COLOR: always
@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - run: cargo test --lib --tests --all-features --locked
+      - run: cargo test --lib --tests --all-features
 
   test-linux:
     name: Test Linux
@@ -37,9 +37,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Test
-        run: cargo test --lib --tests --all-features --locked
+        run: cargo test --lib --tests --all-features
       - name: Check examples
-        run: cargo check --examples --locked
+        run: cargo check --examples
 
   check:
     runs-on: ubuntu-latest
@@ -51,7 +51,7 @@ jobs:
         components: clippy
     - uses: Swatinem/rust-cache@v2
     - name: Check
-      run: cargo clippy --all-features --locked -- -W clippy::pedantic
+      run: cargo clippy --all-features -- -W clippy::pedantic
 
   dependencies-are-sorted:
     runs-on: ubuntu-latest
@@ -78,7 +78,7 @@ jobs:
     - uses: Swatinem/rust-cache@v2
     - uses: taiki-e/install-action@cargo-hack
     - name: Check Hack
-      run: cargo hack check --each-feature --no-dev-deps --locked
+      run: cargo hack check --each-feature --no-dev-deps
 
   typos:
     runs-on: ubuntu-latest
