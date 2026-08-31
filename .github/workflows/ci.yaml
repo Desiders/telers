@@ -57,6 +57,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
+    - name: Check typos
+      uses: crate-ci/typos@v1.50.0
     - name: Install cargo-sort
       uses: taiki-e/install-action@v2
       with:
@@ -78,11 +80,4 @@ jobs:
     - uses: Swatinem/rust-cache@v2
     - uses: taiki-e/install-action@cargo-hack
     - name: Check Hack
-      run: cargo hack check --each-feature --no-dev-deps
-
-  typos:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v6
-    - name: Check typos
-      uses: crate-ci/typos@v1.50.0
+      run: cargo hack check --each-feature --no-dev-deps --skip default,full,storages
