@@ -32,10 +32,9 @@ use tracing::{event, Level};
 /// * [`Key::GlobalUserAndConnection`] - `user_id` + `user_id` + `business_connection_id`
 /// * [`Key::UserInThreadAndConnection`] - `user_id` + `chat_id` + `message_thread_id` + `business_connection_id`
 /// * [`Key::ChatThreadAndConnection`] - `chat_id` + `chat_id` + `message_thread_id` + `business_connection_id`
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Key {
     /// `user_id` + `chat_id`
-    #[default]
     UserInChat,
     /// `chat_id` + `chat_id`
     Chat,

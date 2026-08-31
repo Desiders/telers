@@ -4,7 +4,7 @@ use telers::{
     event::telegram::{Handler, HandlerResult},
     methods::SendMessage,
     middlewares::inner::{Key, Throttling},
-    types::Message,
+    types::{Chat, Message},
     Bot, Dispatcher, Router,
 };
 
@@ -27,7 +27,7 @@ async fn main() {
                     .key(Key::UserInChat)
                     .on_throttled(|request, info| {
                         let bot = request.bot.clone();
-                        let chat_id = request.update.message().unwrap().chat().id();
+                        let chat_id = request.context.get::<Chat>("event_chat").map(Chat::id);
                         async move {
                             tracing::warn!(
                                 exceeded_count = info.exceeded_count,
@@ -37,9 +37,11 @@ async fn main() {
                             if info.exceeded_count > 2 {
                                 return;
                             }
-                            let _ = bot
-                                .send(SendMessage::new(chat_id, "Too many requests!"))
-                                .await;
+                            if let Some(chat_id) = chat_id {
+                                let _ = bot
+                                    .send(SendMessage::new(chat_id, "Too many requests!"))
+                                    .await;
+                            }
                         }
                     }),
             )
