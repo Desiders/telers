@@ -84,6 +84,7 @@ impl Strategy {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct IdPair {
     pub chat_id: i64,
     pub user_id: i64,
