@@ -18,7 +18,7 @@ jobs:
     name: Test Windows
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: cargo test --lib --tests --all --all-features
@@ -27,7 +27,7 @@ jobs:
     name: Test Linux
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Test
@@ -36,7 +36,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - uses: dtolnay/rust-toolchain@nightly
       with:
         components: clippy, rustfmt
@@ -49,7 +49,7 @@ jobs:
   dependencies-are-sorted:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Install cargo-sort
       uses: taiki-e/install-action@v2
       with:
@@ -60,7 +60,7 @@ jobs:
   check-hack:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - uses: dtolnay/rust-toolchain@stable
     - uses: Swatinem/rust-cache@v2
     - uses: taiki-e/install-action@cargo-hack
@@ -70,6 +70,6 @@ jobs:
   typos:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Check typos
       uses: crate-ci/typos@v1.50.0
