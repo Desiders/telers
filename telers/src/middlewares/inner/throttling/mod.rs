@@ -7,6 +7,9 @@ use crate::{
     Request,
 };
 
+use self::strategy::IdPair;
+pub use self::strategy::Strategy;
+
 use futures_util::future::BoxFuture;
 use std::{
     collections::HashMap,
@@ -17,126 +20,7 @@ use std::{
 };
 use tracing::{event, Level};
 
-/// Which peer IDs form the throttling key.
-///
-/// # Variants
-/// * [`Key::UserInChat`] - `user_id` + `chat_id`
-/// * [`Key::Chat`] - `chat_id` + `chat_id`
-/// * [`Key::GlobalUser`] - `user_id` + `user_id`
-/// * [`Key::UserInThread`] - `user_id` + `chat_id` + `message_thread_id`
-/// * [`Key::ChatThread`] - `chat_id` + `chat_id` + `message_thread_id`
-///
-/// Strategies with `business_connection_id` field:
-/// * [`Key::UserInChatAndConnection`] - `user_id` + `chat_id` + `business_connection_id`
-/// * [`Key::ChatAndConnection`] - `chat_id` + `chat_id` + `business_connection_id`
-/// * [`Key::GlobalUserAndConnection`] - `user_id` + `user_id` + `business_connection_id`
-/// * [`Key::UserInThreadAndConnection`] - `user_id` + `chat_id` + `message_thread_id` + `business_connection_id`
-/// * [`Key::ChatThreadAndConnection`] - `chat_id` + `chat_id` + `message_thread_id` + `business_connection_id`
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum Key {
-    /// `user_id` + `chat_id`
-    UserInChat,
-    /// `chat_id` + `chat_id`
-    Chat,
-    /// `user_id` + `user_id`
-    GlobalUser,
-    /// `user_id` + `chat_id` + `message_thread_id`
-    UserInThread,
-    /// `chat_id` + `chat_id` + `message_thread_id`
-    ChatThread,
-    /// `user_id` + `chat_id` + `business_connection_id`
-    UserInChatAndConnection,
-    /// `chat_id` + `chat_id` + `business_connection_id`
-    ChatAndConnection,
-    /// `user_id` + `user_id` + `business_connection_id`
-    GlobalUserAndConnection,
-    /// `user_id` + `chat_id` + `message_thread_id` + `business_connection_id`
-    UserInThreadAndConnection,
-    /// `chat_id` + `chat_id` + `message_thread_id` + `business_connection_id`
-    ChatThreadAndConnection,
-}
-
-#[allow(clippy::struct_field_names)]
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-struct IdPair {
-    chat_id: i64,
-    user_id: i64,
-    message_thread_id: Option<i64>,
-    business_connection_id: Option<String>,
-}
-
-impl Key {
-    fn apply(
-        self,
-        chat_id: i64,
-        user_id: i64,
-        message_thread_id: Option<i64>,
-        business_connection_id: Option<String>,
-    ) -> IdPair {
-        match self {
-            Key::UserInChat => IdPair {
-                chat_id,
-                user_id,
-                message_thread_id: None,
-                business_connection_id: None,
-            },
-            Key::UserInChatAndConnection => IdPair {
-                chat_id,
-                user_id,
-                message_thread_id: None,
-                business_connection_id,
-            },
-            Key::Chat => IdPair {
-                chat_id,
-                user_id: chat_id,
-                message_thread_id: None,
-                business_connection_id: None,
-            },
-            Key::ChatAndConnection => IdPair {
-                chat_id,
-                user_id: chat_id,
-                message_thread_id: None,
-                business_connection_id,
-            },
-            Key::GlobalUser => IdPair {
-                chat_id: user_id,
-                user_id,
-                message_thread_id: None,
-                business_connection_id: None,
-            },
-            Key::GlobalUserAndConnection => IdPair {
-                chat_id: user_id,
-                user_id,
-                message_thread_id: None,
-                business_connection_id,
-            },
-            Key::UserInThread => IdPair {
-                chat_id,
-                user_id,
-                message_thread_id,
-                business_connection_id: None,
-            },
-            Key::UserInThreadAndConnection => IdPair {
-                chat_id,
-                user_id,
-                message_thread_id,
-                business_connection_id,
-            },
-            Key::ChatThread => IdPair {
-                chat_id,
-                user_id: chat_id,
-                message_thread_id,
-                business_connection_id: None,
-            },
-            Key::ChatThreadAndConnection => IdPair {
-                chat_id,
-                user_id: chat_id,
-                message_thread_id,
-                business_connection_id,
-            },
-        }
-    }
-}
+pub mod strategy;
 
 /// Information about a throttled request.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -157,8 +41,8 @@ type OnThrottledCallback<Client> =
 /// `event_message_thread_id`, `event_business_connection_id`) populated by
 /// [`UserContextMiddleware`], which is included in the default middleware config.
 /// Updates without a user and a chat are passed through without throttling.
-/// The key controls which peer IDs form the throttling key, e.g. [`Key::Chat`]
-/// throttles per chat, [`Key::UserInThread`] per user and thread pair.
+/// The strategy controls which peer IDs form the throttling key, e.g. [`Strategy::Chat`]
+/// throttles per chat, [`Strategy::UserInThread`] per user and thread pair.
 ///
 /// Requests that exceed the rate are skipped (the handler is not called) and a warning is logged.
 /// Timestamps of expired keys are pruned when a new key is inserted, so the memory usage is
@@ -166,7 +50,7 @@ type OnThrottledCallback<Client> =
 ///
 /// [`UserContextMiddleware`]: crate::middlewares::outer::UserContextMiddleware
 pub struct Throttling<Client = Reqwest> {
-    key: Key,
+    strategy: Strategy,
     rate: Duration,
     timestamps: Timestamps,
     on_throttled: Option<Arc<OnThrottledCallback<Client>>>,
@@ -176,7 +60,7 @@ impl<Client: Send + Sync + 'static> Throttling<Client> {
     #[must_use]
     pub fn new(rate: Duration) -> Self {
         Self {
-            key: Key::UserInChat,
+            strategy: Strategy::UserInChat,
             rate,
             timestamps: Arc::new(Mutex::new(HashMap::new())),
             on_throttled: None,
@@ -184,8 +68,8 @@ impl<Client: Send + Sync + 'static> Throttling<Client> {
     }
 
     #[must_use]
-    pub fn key(mut self, key: Key) -> Self {
-        self.key = key;
+    pub fn strategy(mut self, strategy: Strategy) -> Self {
+        self.strategy = strategy;
         self
     }
 
@@ -212,7 +96,7 @@ impl<Client: Send + Sync + 'static> Throttling<Client> {
 impl<Client> Clone for Throttling<Client> {
     fn clone(&self) -> Self {
         Self {
-            key: self.key,
+            strategy: self.strategy,
             rate: self.rate,
             timestamps: Arc::clone(&self.timestamps),
             on_throttled: self.on_throttled.clone(),
@@ -223,7 +107,7 @@ impl<Client> Clone for Throttling<Client> {
 impl<Client> fmt::Debug for Throttling<Client> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Throttling")
-            .field("key", &self.key)
+            .field("strategy", &self.strategy)
             .field("rate", &self.rate)
             .field("timestamps", &self.timestamps)
             .field("on_throttled", &self.on_throttled.is_some())
@@ -260,7 +144,7 @@ where
             (None, None) => return next(request).await,
         };
         let key = self
-            .key
+            .strategy
             .apply(chat_id, user_id, message_thread_id, business_connection_id);
 
         let now = Instant::now();
@@ -541,7 +425,8 @@ mod tests {
     async fn test_threads_are_throttled_separately() {
         let calls = Arc::new(AtomicUsize::new(0));
         let handler_service = counting_service(Arc::clone(&calls));
-        let mut middleware = Throttling::new(Duration::from_secs(10)).key(Key::UserInThread);
+        let mut middleware =
+            Throttling::new(Duration::from_secs(10)).strategy(Strategy::UserInThread);
 
         middleware
             .call(

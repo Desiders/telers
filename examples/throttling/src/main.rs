@@ -3,7 +3,7 @@ use telers::{
     enums::UpdateType,
     event::telegram::{Handler, HandlerResult},
     methods::SendMessage,
-    middlewares::inner::{Key, Throttling},
+    middlewares::inner::{Strategy, Throttling},
     types::{Chat, Message},
     Bot, Dispatcher, Router,
 };
@@ -24,7 +24,7 @@ async fn main() {
         observer
             .register_inner_middleware(
                 Throttling::new(Duration::from_secs(5))
-                    .key(Key::UserInChat)
+                    .strategy(Strategy::UserInChat)
                     .on_throttled(|request, info| {
                         let bot = request.bot.clone();
                         let chat_id = request.context.get::<Chat>("event_chat").map(Chat::id);
