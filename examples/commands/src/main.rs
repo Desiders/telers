@@ -61,12 +61,23 @@ async fn main() {
 
     let router = Router::new("main")
         .on_message(|observer| {
-            observer.register(Handler::new(help_handler).filter(CommandFilter::one("help")))
+            observer.register(
+                Handler::new(help_handler).filter(
+                    CommandFilter::builder()
+                        .command("help")
+                        .ignore_case(true)
+                        .build(),
+                ),
+            )
         })
         .on_message(|observer| {
             observer.register(
-                Handler::new(username_handler)
-                    .filter(CommandFilter::many(["username", "username_and_age"])),
+                Handler::new(username_handler).filter(
+                    CommandFilter::builder()
+                        .commands(["username", "username_and_age"])
+                        .ignore_case(true)
+                        .build(),
+                ),
             )
         });
 

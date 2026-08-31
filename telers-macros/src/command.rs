@@ -1,8 +1,9 @@
 use crate::attrs_parsing::parse_attr;
 
-use heck::{ToKebabCase, ToLowerCamelCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
+use heck::ToSnakeCase;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote_spanned, ToTokens};
+use std::collections::HashSet;
 use syn::{
     parse::{Parse, ParseStream},
     spanned::Spanned,
@@ -17,49 +18,56 @@ mod keywords {
 /// Rename rule for command names
 #[derive(Clone, Copy)]
 enum RenameRule {
+    /// `UserName` -> `username`
     Lower,
+    /// `UserName` -> `user_name`
     SnakeCase,
-    KebabCase,
-    CamelCase,
-    PascalCase,
-    ScreamingSnakeCase,
 }
 
 impl RenameRule {
     fn parse(value: &LitStr) -> Result<Self, syn::Error> {
-        let rule = value.value();
-
-        let result = match rule.as_str() {
-            "lowercase" => Self::Lower,
-            "snake_case" => Self::SnakeCase,
-            "kebab_case" => Self::KebabCase,
-            "camel_case" => Self::CamelCase,
-            "pascal_case" => Self::PascalCase,
-            "screaming_snake_case" => Self::ScreamingSnakeCase,
-            _ => {
-                return Err(syn::Error::new_spanned(
-                    value,
-                    "expected one of: `lowercase`, `snake_case`, `kebab_case`, `camel_case`, \
-                     `pascal_case`, `screaming_snake_case`",
-                ))
-            }
-        };
-
-        Ok(result)
+        match value.value().as_str() {
+            "lowercase" => Ok(Self::Lower),
+            "snake_case" => Ok(Self::SnakeCase),
+            _ => Err(syn::Error::new_spanned(
+                value,
+                "expected one of: `lowercase`, `snake_case`",
+            )),
+        }
     }
 
     fn apply(self, ident: &Ident) -> String {
-        let name = ident.to_string();
-
         match self {
-            Self::Lower => name.to_lowercase(),
-            Self::SnakeCase => name.to_snake_case(),
-            Self::KebabCase => name.to_kebab_case(),
-            Self::CamelCase => name.to_lower_camel_case(),
-            Self::PascalCase => name.to_upper_camel_case(),
-            Self::ScreamingSnakeCase => name.to_shouty_snake_case(),
+            Self::Lower => ident.to_string().to_lowercase(),
+            Self::SnakeCase => ident.to_string().to_snake_case(),
         }
     }
+}
+
+/// Parse `#[command(keyword = "value")]` and return the `value` of `keyword`
+macro_rules! parse_attr_value {
+    ($input:ident, $kw:path, $attr_name:literal) => {{
+        let value = if $input.peek($kw) {
+            $input.parse::<$kw>()?;
+            $input.parse::<Token![=]>()?;
+            Some($input.parse::<LitStr>()?)
+        } else {
+            None
+        };
+
+        if $input.peek(Token![,]) {
+            $input.parse::<Token![,]>()?;
+        }
+
+        if !$input.is_empty() {
+            return Err(syn::Error::new(
+                $input.span(),
+                concat!("expected `", $attr_name, " = \"...\"` attribute"),
+            ));
+        }
+
+        value
+    }};
 }
 
 /// Enum-level `#[command(...)]` attributes
@@ -69,28 +77,13 @@ struct CommandAttrs {
 
 impl Parse for CommandAttrs {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
-        let rename_rule = if input.peek(keywords::rename_rule) {
-            input.parse::<keywords::rename_rule>()?;
-            input.parse::<Token![=]>()?;
-            let value: LitStr = input.parse()?;
-            Some(RenameRule::parse(&value)?)
-        } else {
-            None
+        let rename_rule = match parse_attr_value!(input, keywords::rename_rule, "rename_rule") {
+            Some(value) => RenameRule::parse(&value)?,
+            None => RenameRule::Lower,
         };
 
-        if input.peek(Token![,]) {
-            input.parse::<Token![,]>()?;
-        }
-
-        if !input.is_empty() {
-            return Err(syn::Error::new(
-                input.span(),
-                "expected `rename_rule = \"...\"` attribute",
-            ));
-        }
-
         Ok(Self {
-            rename_rule: rename_rule.unwrap_or(RenameRule::Lower),
+            rename_rule,
         })
     }
 }
@@ -103,25 +96,8 @@ struct VariantAttrs {
 
 impl Parse for VariantAttrs {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
-        let description = if input.peek(keywords::description) {
-            input.parse::<keywords::description>()?;
-            input.parse::<Token![=]>()?;
-            let value: LitStr = input.parse()?;
-            Some(value.value())
-        } else {
-            None
-        };
-
-        if input.peek(Token![,]) {
-            input.parse::<Token![,]>()?;
-        }
-
-        if !input.is_empty() {
-            return Err(syn::Error::new(
-                input.span(),
-                "expected `description = \"...\"` attribute",
-            ));
-        }
+        let description = parse_attr_value!(input, keywords::description, "description")
+            .map(|value| value.value());
 
         Ok(Self {
             description,
@@ -183,13 +159,20 @@ fn expand_variant(rule: RenameRule, variant: &syn::Variant) -> Result<VariantCod
 
     let name = rule.apply(&variant.ident);
     let name_lower = name.to_lowercase();
-    let description = variant_attrs.description.unwrap_or_default();
+    let description = variant_attrs.description;
+    let bot_description = description.clone().unwrap_or_default();
 
-    let descriptions_entry = quote_spanned! { variant.span() =>
-        concat!("/", #name, " - ", #description),
+    let descriptions_entry = if let Some(description) = &description {
+        quote_spanned! { variant.span() =>
+            concat!("/", #name, " - ", #description),
+        }
+    } else {
+        quote_spanned! { variant.span() =>
+            concat!("/", #name),
+        }
     };
     let bot_commands_entry = quote_spanned! { variant.span() =>
-        ::telers::types::BotCommand::new(#name, #description),
+        ::telers::types::BotCommand::new(#name, #bot_description),
     };
 
     let fields = fields_of(&variant.fields);
@@ -294,7 +277,16 @@ fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
     let mut bot_commands_entries = Vec::new();
     let mut all_field_tys = Vec::new();
 
+    let mut seen_names = HashSet::new();
     for variant in &data.variants {
+        let name = command_attrs.rename_rule.apply(&variant.ident);
+        if !seen_names.insert(name.to_lowercase()) {
+            return Err(syn::Error::new_spanned(
+                &variant.ident,
+                format!("duplicate command name `{name}` after applying the rename rule"),
+            ));
+        }
+
         let codegen = expand_variant(command_attrs.rename_rule, variant)?;
 
         extractor_arms.push(codegen.extractor_arm);
@@ -307,7 +299,7 @@ fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
         #[automatically_derived]
         impl<__C> ::telers::Extractor<__C> for #ident
         where
-            #ident: ::std::clone::Clone + Send + 'static,
+            #ident: Send + 'static,
             #(#all_field_tys: ::std::str::FromStr,)*
             #(<#all_field_tys as ::std::str::FromStr>::Err: ::std::fmt::Display,)*
         {
