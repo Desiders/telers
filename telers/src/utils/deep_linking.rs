@@ -27,7 +27,10 @@ pub fn encode_payload(payload: &str) -> String {
 /// ```
 /// use telers::utils::{decode_payload, encode_payload};
 ///
-/// assert_eq!(decode_payload(&encode_payload("hello world")).unwrap(), "hello world");
+/// assert_eq!(
+///     decode_payload(&encode_payload("hello world")).unwrap(),
+///     "hello world"
+/// );
 /// ```
 pub fn decode_payload(payload: &str) -> Result<String, DecodeError> {
     Ok(String::from_utf8(URL_SAFE_NO_PAD.decode(payload)?)?)
@@ -50,7 +53,12 @@ mod tests {
 
     #[test]
     fn test_roundtrip() {
-        for payload in ["hello world", "", "telegram", "https://example.com/?a=1&b=2"] {
+        for payload in [
+            "hello world",
+            "",
+            "telegram",
+            "https://example.com/?a=1&b=2",
+        ] {
             assert_eq!(decode_payload(&encode_payload(payload)).unwrap(), payload);
         }
     }
@@ -70,7 +78,7 @@ mod tests {
         ));
     }
 
-#[test]
+    #[test]
     fn test_decode_invalid_utf8() {
         assert!(matches!(
             decode_payload("_w").unwrap_err(),
