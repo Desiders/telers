@@ -53,24 +53,29 @@ jobs:
     - name: Check
       run: cargo clippy --all-features -- -W clippy::pedantic
 
-  dependencies-are-sorted:
+  quick-checks:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
-    - name: Check typos
-      uses: crate-ci/typos@v1.50.0
-    - name: Install cargo-sort
-      uses: taiki-e/install-action@v2
-      with:
+      - uses: actions/checkout@v7
+      - name: Check typos
+        uses: crate-ci/typos@v1.50.0
+      - name: Install cargo-sort
+        uses: taiki-e/install-action@v2
+        with:
           tool: cargo-sort
-    - name: Check that dependencies are sorted
-      run: cargo sort --check --workspace --grouped
-    - uses: dtolnay/rust-toolchain@nightly
-      with:
-        components: rustfmt
-    - name: rustfmt
-      run: cargo fmt --all --check
+      - name: Check that dependencies are sorted
+        run: cargo sort --check --workspace --grouped
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+      - name: rustfmt
+        run: cargo fmt --all --check
 
+  # `cargo hack check --each-feature` builds every feature one at a time.
+  # Only the aggregate features are skipped: `default`, `full` and `storages`
+  # are just combinations of the others, and all features together are already
+  # compiled by the test and clippy jobs (--all-features).
+  # The rest is split across two parallel jobs by dependency tree size.
   check-hack-light:
     runs-on: ubuntu-latest
     timeout-minutes: 60
