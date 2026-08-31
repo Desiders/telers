@@ -85,7 +85,7 @@ jobs:
     - uses: Swatinem/rust-cache@v2
     - uses: taiki-e/install-action@cargo-hack
     - name: Check Hack (light features)
-      run: cargo hack check --each-feature --no-dev-deps --locked --skip default,full,storages,rustls-tls,webhooks-axum,redis-storage
+      run: cargo hack check --each-feature --no-dev-deps --skip default,full,storages,rustls-tls,webhooks-axum,redis-storage
 
   check-hack-heavy:
     runs-on: ubuntu-24.04
@@ -96,4 +96,4 @@ jobs:
     - uses: Swatinem/rust-cache@v2
     - uses: taiki-e/install-action@cargo-hack
     - name: Check Hack (heavy features)
-      run: cargo hack check --each-feature --no-dev-deps --locked --skip default,full,storages,default-tls,std,memory-storage,signal,default-signal,webhooks
+      run: cargo hack check --each-feature --no-dev-deps --skip default,full,storages,default-tls,std,memory-storage,signal,default-signal,webhooks
