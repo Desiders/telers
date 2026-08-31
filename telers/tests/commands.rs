@@ -73,7 +73,11 @@ fn test_extract_tuple_variant() {
 fn test_extract_named_variant() {
     let request = request_with_command(Some("/username_and_age 42 25"));
 
-    let Commands::UsernameAndAge { username, age } = extract(&request).unwrap() else {
+    let Commands::UsernameAndAge {
+        username,
+        age,
+    } = extract(&request).unwrap()
+    else {
         panic!("expected `UsernameAndAge` variant")
     };
     assert_eq!(username, "42");
@@ -128,5 +132,8 @@ fn test_bot_commands() {
     assert_eq!(commands[0].command.as_ref(), "help");
     assert_eq!(commands[0].description.as_ref(), "display this text");
     assert_eq!(commands[2].command.as_ref(), "username_and_age");
-    assert_eq!(commands[2].description.as_ref(), "handle a username and an age");
+    assert_eq!(
+        commands[2].description.as_ref(),
+        "handle a username and an age"
+    );
 }

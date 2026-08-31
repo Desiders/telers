@@ -19,8 +19,11 @@ enum Commands {
 }
 
 async fn help_handler(bot: Bot, message: Message) -> HandlerResult<()> {
-    bot.send(SendMessage::new(message.chat().id(), Commands::descriptions()))
-        .await?;
+    bot.send(SendMessage::new(
+        message.chat().id(),
+        Commands::descriptions(),
+    ))
+    .await?;
     Ok(())
 }
 
@@ -32,13 +35,17 @@ async fn username_handler(
 ) -> HandlerResult<()> {
     let text = match command {
         Commands::Username(username) => format!("Your username is {username}"),
-        Commands::UsernameAndAge { username, age } => {
+        Commands::UsernameAndAge {
+            username,
+            age,
+        } => {
             format!("Your username is {username}, age is {age}")
         }
         Commands::Help => return Ok(()),
     };
 
-    bot.send(SendMessage::new(message.chat().id(), text)).await?;
+    bot.send(SendMessage::new(message.chat().id(), text))
+        .await?;
     Ok(())
 }
 
@@ -54,13 +61,12 @@ async fn main() {
 
     let router = Router::new("main")
         .on_message(|observer| {
-            observer.register(
-                Handler::new(help_handler).filter(CommandFilter::one("help")),
-            )
+            observer.register(Handler::new(help_handler).filter(CommandFilter::one("help")))
         })
         .on_message(|observer| {
             observer.register(
-                Handler::new(username_handler).filter(CommandFilter::many(["username", "username_and_age"])),
+                Handler::new(username_handler)
+                    .filter(CommandFilter::many(["username", "username_and_age"])),
             )
         });
 

@@ -290,7 +290,10 @@ pub fn derive_from_event(item: TokenStream) -> TokenStream {
 ///     match commands {
 ///         Commands::Help => {}
 ///         Commands::Username(username) => {}
-///         Commands::UsernameAndAge { username, age } => {}
+///         Commands::UsernameAndAge {
+///             username,
+///             age,
+///         } => {}
 ///     }
 /// }
 /// ```
