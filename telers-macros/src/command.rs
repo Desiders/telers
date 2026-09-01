@@ -7,7 +7,7 @@ use std::collections::HashSet;
 use syn::{
     parse::{Parse, ParseStream},
     spanned::Spanned,
-    Data, DeriveInput, Fields, Ident, Item, LitStr, Token, Type,
+    Data, DeriveInput, Fields, Ident, Item, LitChar, LitStr, Token, Type,
 };
 
 mod keywords {
@@ -57,90 +57,10 @@ impl RenameRule {
     }
 }
 
-/// Parse `#[command(keyword = "value")]` and return the `value` of `keyword`
-macro_rules! parse_attr_value {
-    ($input:ident, $kw:path, $ty:ty, $attr_name:literal) => {{
-        let value = if $input.peek($kw) {
-            $input.parse::<$kw>()?;
-            $input.parse::<Token![=]>()?;
-            Some($input.parse::<$ty>()?)
-        } else {
-            None
-        };
-
-        if $input.peek(Token![,]) {
-            $input.parse::<Token![,]>()?;
-        }
-
-        value
-    }};
-}
-
-/// Parse `#[command(keyword = ["a", "b"])]` and return the list of values
-macro_rules! parse_attr_list {
-    ($input:ident, $kw:path, $attr_name:literal) => {{
-        let value = if $input.peek($kw) {
-            $input.parse::<$kw>()?;
-            $input.parse::<Token![=]>()?;
-
-            let content;
-            syn::bracketed!(content in $input);
-
-            let mut values = Vec::new();
-            while !content.is_empty() {
-                values.push(content.parse::<LitStr>()?);
-                if content.is_empty() {
-                    break;
-                }
-                content.parse::<Token![,]>()?;
-            }
-
-            Some(values)
-        } else {
-            None
-        };
-
-        if $input.peek(Token![,]) {
-            $input.parse::<Token![,]>()?;
-        }
-
-        value
-    }};
-}
-
-/// Parse a bare flag `#[command(keyword)]` and return whether it is present
-macro_rules! parse_attr_flag {
-    ($input:ident, $kw:path) => {{
-        let value = if $input.peek($kw) {
-            $input.parse::<$kw>()?;
-            true
-        } else {
-            false
-        };
-        if $input.peek(Token![,]) {
-            $input.parse::<Token![,]>()?;
-        }
-        value
-    }};
-}
-
-/// Parse a `prefix` literal, which must be a single character
-fn parse_prefix(value: &LitStr) -> Result<char, syn::Error> {
-    let string = value.value();
-    let mut chars = string.chars();
-    match (chars.next(), chars.next()) {
-        (Some(prefix), None) => Ok(prefix),
-        _ => Err(syn::Error::new_spanned(
-            value,
-            "`prefix` must be a single character",
-        )),
-    }
-}
-
 /// Enum-level `#[command(...)]` attributes
 struct CommandAttrs {
     rename_rule: RenameRule,
-    parse_with: Option<String>,
+    parse_with: Option<syn::Path>,
     prefix: Option<char>,
 }
 
@@ -151,23 +71,74 @@ impl Parse for CommandAttrs {
         let mut prefix = None;
 
         while !input.is_empty() {
-            if input.peek(keywords::rename_rule) {
-                let value = parse_attr_value!(input, keywords::rename_rule, LitStr, "rename_rule")
-                    .expect("peeked `rename_rule`");
-                rename_rule = Some(RenameRule::parse(&value)?);
-            } else if input.peek(keywords::parse_with) {
-                let value = parse_attr_value!(input, keywords::parse_with, LitStr, "parse_with")
-                    .expect("peeked `parse_with`");
-                parse_with = Some(value.value());
-            } else if input.peek(keywords::prefix) {
-                let value = parse_attr_value!(input, keywords::prefix, LitStr, "prefix")
-                    .expect("peeked `prefix`");
-                prefix = Some(parse_prefix(&value)?);
-            } else {
-                return Err(
-                    input.error("expected `rename_rule`, `parse_with` or `prefix` attribute")
-                );
+            let lookahead = input.lookahead1();
+
+            if lookahead.peek(Token![,]) {
+                input.parse::<Token![,]>()?;
+
+                continue;
             }
+
+            if lookahead.peek(keywords::rename_rule) {
+                let input_rename_rule: keywords::rename_rule = input.parse()?;
+                input.parse::<Token![=]>()?;
+
+                let value: LitStr = input.parse()?;
+                let rule = RenameRule::parse(&value)?;
+
+                if rename_rule.is_some() {
+                    return Err(syn::Error::new_spanned(
+                        input_rename_rule,
+                        "duplicate `rename_rule` attribute",
+                    ));
+                }
+
+                rename_rule = Some(rule);
+
+                continue;
+            }
+
+            if lookahead.peek(keywords::parse_with) {
+                let input_parse_with: keywords::parse_with = input.parse()?;
+                input.parse::<Token![=]>()?;
+
+                let value: syn::Path = input.parse()?;
+
+                if parse_with.is_some() {
+                    return Err(syn::Error::new_spanned(
+                        input_parse_with,
+                        "duplicate `parse_with` attribute",
+                    ));
+                }
+
+                parse_with = Some(value);
+
+                continue;
+            }
+
+            if lookahead.peek(keywords::prefix) {
+                let input_prefix: keywords::prefix = input.parse()?;
+                input.parse::<Token![=]>()?;
+
+                let value: LitChar = input.parse()?;
+
+                if prefix.is_some() {
+                    return Err(syn::Error::new_spanned(
+                        input_prefix,
+                        "duplicate `prefix` attribute",
+                    ));
+                }
+
+                prefix = Some(value.value());
+
+                continue;
+            }
+
+            // If we found unknown attribute, then we need to return error
+            return Err(syn::Error::new(
+                input.span(),
+                "expected `rename_rule`, `parse_with` or `prefix` attribute",
+            ));
         }
 
         Ok(Self {
@@ -185,47 +156,163 @@ struct VariantAttrs {
     hidden: bool,
     aliases: Vec<String>,
     rename: Option<String>,
-    parse_with: Option<String>,
+    parse_with: Option<syn::Path>,
     prefix: Option<char>,
 }
 
+#[allow(clippy::too_many_lines)]
 impl Parse for VariantAttrs {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
-        let mut attrs = VariantAttrs::default();
+        let mut description = None;
+        let mut hidden = None;
+        let mut aliases = None;
+        let mut rename = None;
+        let mut parse_with = None;
+        let mut prefix = None;
 
         while !input.is_empty() {
-            if input.peek(keywords::description) {
-                let value = parse_attr_value!(input, keywords::description, LitStr, "description")
-                    .expect("peeked `description`");
-                attrs.description = Some(value.value());
-            } else if input.peek(keywords::hidden) {
-                parse_attr_flag!(input, keywords::hidden);
-                attrs.hidden = true;
-            } else if input.peek(keywords::aliases) {
-                let values = parse_attr_list!(input, keywords::aliases, "aliases")
-                    .expect("peeked `aliases`");
-                attrs.aliases = values.into_iter().map(|value| value.value()).collect();
-            } else if input.peek(keywords::rename) {
-                let value = parse_attr_value!(input, keywords::rename, LitStr, "rename")
-                    .expect("peeked `rename`");
-                attrs.rename = Some(value.value());
-            } else if input.peek(keywords::parse_with) {
-                let value = parse_attr_value!(input, keywords::parse_with, LitStr, "parse_with")
-                    .expect("peeked `parse_with`");
-                attrs.parse_with = Some(value.value());
-            } else if input.peek(keywords::prefix) {
-                let value = parse_attr_value!(input, keywords::prefix, LitStr, "prefix")
-                    .expect("peeked `prefix`");
-                attrs.prefix = Some(parse_prefix(&value)?);
-            } else {
-                return Err(input.error(
-                    "expected `description`, `hidden`, `aliases`, `rename`, `parse_with` or \
-                     `prefix` attribute",
-                ));
+            let lookahead = input.lookahead1();
+
+            if lookahead.peek(Token![,]) {
+                input.parse::<Token![,]>()?;
+
+                continue;
             }
+
+            if lookahead.peek(keywords::description) {
+                let input_description: keywords::description = input.parse()?;
+                input.parse::<Token![=]>()?;
+
+                let value: LitStr = input.parse()?;
+
+                if description.is_some() {
+                    return Err(syn::Error::new_spanned(
+                        input_description,
+                        "duplicate `description` attribute",
+                    ));
+                }
+
+                description = Some(value.value());
+
+                continue;
+            }
+
+            if lookahead.peek(keywords::hidden) {
+                let input_hidden: keywords::hidden = input.parse()?;
+
+                if hidden.is_some() {
+                    return Err(syn::Error::new_spanned(
+                        input_hidden,
+                        "duplicate `hidden` attribute",
+                    ));
+                }
+
+                hidden = Some(());
+
+                continue;
+            }
+
+            if lookahead.peek(keywords::aliases) {
+                let input_aliases: keywords::aliases = input.parse()?;
+
+                if aliases.is_some() {
+                    return Err(syn::Error::new_spanned(
+                        input_aliases,
+                        "duplicate `aliases` attribute",
+                    ));
+                }
+
+                input.parse::<Token![=]>()?;
+
+                let content;
+                syn::bracketed!(content in input);
+
+                let mut values = Vec::new();
+                while !content.is_empty() {
+                    values.push(content.parse::<LitStr>()?.value());
+
+                    if content.is_empty() {
+                        break;
+                    }
+
+                    content.parse::<Token![,]>()?;
+                }
+
+                aliases = Some(values);
+
+                continue;
+            }
+
+            if lookahead.peek(keywords::rename) {
+                let input_rename: keywords::rename = input.parse()?;
+                input.parse::<Token![=]>()?;
+
+                let value: LitStr = input.parse()?;
+
+                if rename.is_some() {
+                    return Err(syn::Error::new_spanned(
+                        input_rename,
+                        "duplicate `rename` attribute",
+                    ));
+                }
+
+                rename = Some(value.value());
+
+                continue;
+            }
+
+            if lookahead.peek(keywords::parse_with) {
+                let input_parse_with: keywords::parse_with = input.parse()?;
+                input.parse::<Token![=]>()?;
+
+                let value: syn::Path = input.parse()?;
+
+                if parse_with.is_some() {
+                    return Err(syn::Error::new_spanned(
+                        input_parse_with,
+                        "duplicate `parse_with` attribute",
+                    ));
+                }
+
+                parse_with = Some(value);
+
+                continue;
+            }
+
+            if lookahead.peek(keywords::prefix) {
+                let input_prefix: keywords::prefix = input.parse()?;
+                input.parse::<Token![=]>()?;
+
+                let value: LitChar = input.parse()?;
+
+                if prefix.is_some() {
+                    return Err(syn::Error::new_spanned(
+                        input_prefix,
+                        "duplicate `prefix` attribute",
+                    ));
+                }
+
+                prefix = Some(value.value());
+
+                continue;
+            }
+
+            // If we found unknown attribute, then we need to return error
+            return Err(syn::Error::new(
+                input.span(),
+                "expected `description`, `hidden`, `aliases`, `rename`, `parse_with` or `prefix` \
+                 attribute",
+            ));
         }
 
-        Ok(attrs)
+        Ok(Self {
+            description,
+            hidden: hidden.is_some(),
+            aliases: aliases.unwrap_or_default(),
+            rename,
+            parse_with,
+            prefix,
+        })
     }
 }
 
@@ -324,24 +411,18 @@ fn expand_variant(
         }
     };
 
-    let parse_with = variant_attrs
+    let parse_with_path = variant_attrs
         .parse_with
         .as_ref()
         .or(attrs.parse_with.as_ref());
-    let parse_with_path = match parse_with {
-        Some(path) => Some(syn::parse_str::<syn::Path>(path).map_err(|err| {
-            syn::Error::new_spanned(&variant.ident, format!("invalid `parse_with` path: {err}"))
-        })?),
-        None => None,
-    };
 
     let prefix = variant_attrs.prefix.or(attrs.prefix);
     let prefix_check = if let Some(prefix) = prefix {
         quote_spanned! { variant.span() =>
-            if command.prefix != #prefix {
+            if __command.prefix != #prefix {
                 return Err(Error::new(format!(
                     "Unknown command `{}{}`",
-                    command.prefix, command.command
+                    __command.prefix, __command.command
                 )));
             }
         }
@@ -349,10 +430,10 @@ fn expand_variant(
         TokenStream::new()
     };
 
-    let body = if let Some(path) = &parse_with_path {
+    let body = if let Some(path) = parse_with_path {
         quote_spanned! { variant.span() =>
-            let args_str = command.args.join(" ");
-            #path(&args_str).map_err(|err| Error::new(format!(
+            let __args_str = __command.args.join(" ");
+            #path(&__args_str).map_err(|err| Error::new(format!(
                 concat!("Failed to parse arguments for `", #name, "` command: {}"),
                 err,
             )))
@@ -367,23 +448,23 @@ fn expand_variant(
             Vec::new()
         } else {
             vec![quote_spanned! { variant.span() =>
-                let mut args = command.args.iter();
+                let mut __args = __command.args.iter();
             }]
         };
 
-        let parsed_fields = fields.iter().map(|field| {
-            let field_ident = &field.ident;
+        let parsed_fields = fields.iter().enumerate().map(|(index, field)| {
+            let local_ident = format_ident!("__field{index}");
             let field_ty = &field.ty;
             let ty_name = field_ty.to_token_stream().to_string();
 
             quote_spanned! { field.ty.span() =>
-                let #field_ident: #field_ty = args.next()
+                let #local_ident: #field_ty = __args.next()
                     .ok_or_else(|| Error::new(format!(
                         concat!(
                             "Not enough arguments for `", #name, "` command: expected ",
                             #field_count, ", got {}",
                         ),
-                        command.args.len(),
+                        __command.args.len(),
                     )))?
                     .parse()
                     .map_err(|err| Error::new(format!(
@@ -396,12 +477,19 @@ fn expand_variant(
         let construct = match &variant.fields {
             Fields::Unit => quote_spanned! { variant.span() => Ok(Self::#variant_ident) },
             Fields::Unnamed(_) => {
-                let field_idents = fields.iter().map(|field| &field.ident);
-                quote_spanned! { variant.span() => Ok(Self::#variant_ident(#(#field_idents),*)) }
+                let local_idents = fields
+                    .iter()
+                    .enumerate()
+                    .map(|(index, _)| format_ident!("__field{index}"));
+                quote_spanned! { variant.span() => Ok(Self::#variant_ident(#(#local_idents),*)) }
             }
             Fields::Named(_) => {
-                let field_idents = fields.iter().map(|field| &field.ident);
-                quote_spanned! { variant.span() => Ok(Self::#variant_ident { #(#field_idents),* }) }
+                let field_bindings = fields.iter().enumerate().map(|(index, field)| {
+                    let field_ident = &field.ident;
+                    let local_ident = format_ident!("__field{index}");
+                    quote_spanned! { field.ident.span() => #field_ident: #local_ident }
+                });
+                quote_spanned! { variant.span() => Ok(Self::#variant_ident { #(#field_bindings),* }) }
             }
         };
 
@@ -525,17 +613,17 @@ fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
                 use ::telers::errors::ExtractionError as Error;
 
                 let res = (|| -> Result<Self, Error> {
-                    let command = request.context
+                    let __command = request.context
                         .get::<::telers::filters::CommandObject>("command")
                         .ok_or_else(|| Error::new(
                             "No `command` in context: the `Command` filter must be used to parse the command. \
                              You didn't forget to add it to the handler?",
                         ))?;
-                    let command_name = command.command.to_lowercase();
+                    let __command_name = __command.command.to_lowercase();
 
-                    match command_name.as_str() {
+                    match __command_name.as_str() {
                         #(#extractor_arms)*
-                        _ => Err(Error::new(format!("Unknown command `{}`", command.command))),
+                        _ => Err(Error::new(format!("Unknown command `{}`", __command.command))),
                     }
                 })();
 
@@ -549,18 +637,21 @@ fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
             /// Returns the descriptions of the commands in the format `/command - description`, separated by newlines
             #[must_use]
             pub fn descriptions() -> String {
-                [
+                let descriptions: ::std::vec::Vec<&'static str> = ::std::vec![
                     #(#descriptions_entries)*
-                ]
-                .join("\n")
+                ];
+
+                descriptions.join("\n")
             }
 
             /// Returns the commands in the format required by the Telegram Bot API (`setMyCommands`)
             #[must_use]
             pub fn bot_commands() -> ::std::vec::Vec<::telers::types::BotCommand> {
-                ::std::vec![
+                let commands: ::std::vec::Vec<::telers::types::BotCommand> = ::std::vec![
                     #(#bot_commands_entries)*
-                ]
+                ];
+
+                commands
             }
         }
     };
