@@ -13,14 +13,16 @@ use crate::{
 /// Telegram requires 2-10 items per album; [`MediaGroupBuilder`] does not
 /// enforce this on its own.
 pub struct MediaGroupBuilder {
+    chat_id: ChatIdKind,
     media: Vec<InputMedia>,
 }
 
 impl MediaGroupBuilder {
-    /// Creates an empty builder.
+    /// Creates a builder for the given chat.
     #[must_use]
-    pub fn new() -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>) -> Self {
         Self {
+            chat_id: chat_id.into(),
             media: Vec::new(),
         }
     }
@@ -57,16 +59,10 @@ impl MediaGroupBuilder {
         self
     }
 
-    /// Builds a [`SendMediaGroup`] for the given chat.
+    /// Builds a [`SendMediaGroup`].
     #[must_use]
-    pub fn build(self, chat_id: impl Into<ChatIdKind>) -> SendMediaGroup {
-        SendMediaGroup::new(chat_id, self.media)
-    }
-}
-
-impl Default for MediaGroupBuilder {
-    fn default() -> Self {
-        Self::new()
+    pub fn build(self) -> SendMediaGroup {
+        SendMediaGroup::new(self.chat_id, self.media)
     }
 }
 
@@ -76,19 +72,19 @@ mod tests {
 
     #[test]
     fn build_contains_added_media() {
-        let method = MediaGroupBuilder::new()
+        let method = MediaGroupBuilder::new(42)
             .add_photo(InputFile::id("photo1"))
             .add_video(InputFile::id("video1"))
-            .build(42);
+            .build();
 
         assert_eq!(method.media.len(), 2);
     }
 
     #[test]
     fn build_sets_chat_id() {
-        let method = MediaGroupBuilder::new()
+        let method = MediaGroupBuilder::new("@channel")
             .add_photo(InputFile::id("photo1"))
-            .build("@channel");
+            .build();
 
         assert!(matches!(method.chat_id, ChatIdKind::Username(_)));
     }
