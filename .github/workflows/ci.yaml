@@ -53,33 +53,49 @@ jobs:
     - name: Check
       run: cargo clippy --all-features --locked -- -W clippy::pedantic
 
-  quick-checks:
+  typos:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
       - name: Check typos
         uses: crate-ci/typos@v1.50.0
+
+  dependencies-are-sorted:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
       - name: Install cargo-sort
         uses: taiki-e/install-action@v2
         with:
           tool: cargo-sort
       - name: Check that dependencies are sorted
         run: cargo sort --check --workspace --grouped
+
+  fmt:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@nightly
         with:
           components: rustfmt
       - name: rustfmt
         run: cargo fmt --all --check
 
-  # All-features coverage comes from the test and clippy jobs (--all-features);
-  # this job covers the opposite side, no default features, so negative
-  # `#[cfg(not(feature = ...))]` code still compiles.
-  check-no-default:
+  # `--each-feature` builds the crate with every feature one at a time, plus
+  # the implicit no-default-features run, so negative `#[cfg(not(feature = ...))]`
+  # code is covered too. Aggregate features (`default`, `full`, `storages`) and
+  # the heavy ones (rustls-tls, webhooks-axum, redis-storage) are skipped,
+  # because their combinations are already compiled together by the
+  # `--all-features` test and check jobs.
+  check-hack:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
     - uses: actions/checkout@v7
     - uses: dtolnay/rust-toolchain@stable
     - uses: Swatinem/rust-cache@v2
-    - name: Check without default features
-      run: cargo check --no-default-features --locked
+    - name: Install cargo-hack
+      uses: taiki-e/install-action@v2
+      with:
+        tool: cargo-hack
+    - run: cargo hack check --each-feature --no-dev-deps --skip default,full,storages,rustls-tls,webhooks-axum,redis-storage
