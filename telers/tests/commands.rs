@@ -1,4 +1,4 @@
-use telers::{
+﻿use telers::{
     client::Reqwest,
     context::Context,
     filters::CommandObject,
@@ -142,7 +142,7 @@ fn test_bot_commands() {
 }
 
 #[derive(Clone, Debug, Command)]
-#[command(rename_rule = "camel_case", prefix = "!")]
+#[command(rename_rule = "camel_case", prefix = '!')]
 enum VariedCommands {
     #[command(description = "hidden help", hidden)]
     HelpMe,
@@ -150,7 +150,7 @@ enum VariedCommands {
     Start,
     #[command(rename = "do-it", description = "custom name")]
     DoIt,
-    #[command(description = "parsed", parse_with = "parse_username")]
+    #[command(description = "parsed", parse_with = parse_username)]
     Parsed(String),
     #[command(description = "name and age")]
     NameAndAge { name: String, age: u8 },
@@ -239,11 +239,11 @@ fn test_v2_parse_with_error() {
 }
 
 #[derive(Clone, Debug, Command)]
-#[command(parse_with = "parse_all")]
+#[command(parse_with = parse_all)]
 enum FallbackCommands {
     #[command(description = "a")]
     A,
-    #[command(description = "b", parse_with = "parse_b")]
+    #[command(description = "b", parse_with = parse_b)]
     B,
 }
 

@@ -257,10 +257,23 @@ pub fn derive_from_event(item: TokenStream) -> TokenStream {
 /// [`ExtractionError`].
 ///
 /// This macro supports the following attributes:
-/// * `#[command(rename_rule = "...")]` - the rule used to convert variant names into command names. \
-///   Supported rules: `lowercase` (default), `snake_case`, `kebab_case`, `camel_case`, `pascal_case`, `screaming_snake_case`.
-/// * `#[command(description = "...")]` - the description of the command (variant-level, optional). \
+/// * `#[command(rename_rule = "...")]` (enum-level) - the rule used to convert variant names into command names. \
+///   Supported rules: `lowercase` (default), `snake_case`, `pascal_case`, `camel_case`.
+/// * `#[command(parse_with = "path::to::fn")]` (enum-level) - a function used to parse the whole command \
+///   into a variant instead of per-field [`FromStr`] parsing. \
+///   The function must have the signature `fn(&str) -> Result<Self, impl Display>` and receives all \
+///   command arguments joined with spaces.
+/// * `#[command(prefix = '!')]` (enum-level) - the command prefix required by the generated extractor. \
+///   When set, the extractor reports an unknown command if the prefix differs.
+/// * `#[command(description = "...")]` (variant-level, optional) - the description of the command. \
 ///   Used by the generated `descriptions()` and `bot_commands()` methods.
+/// * `#[command(hidden)]` (variant-level, optional) - excludes the variant from `descriptions()` \
+///   and `bot_commands()`, but the command stays matchable.
+/// * `#[command(aliases = ["a", "b"])]` (variant-level, optional) - extra names the variant matches.
+/// * `#[command(rename = "custom_name")]` (variant-level, optional) - an explicit command name \
+///   overriding the `rename_rule` for that variant.
+/// * `#[command(parse_with = "...")]` and `#[command(prefix = '!')]` (variant-level) - \
+///   per-variant overrides of the enum-level values.
 ///
 /// Besides the `Extractor` implementation, the macro generates:
 /// * `descriptions()` - descriptions in the format `/command - description`, separated by newlines.
