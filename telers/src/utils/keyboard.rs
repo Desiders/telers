@@ -1,20 +1,23 @@
 //! Builders for inline and reply keyboards.
 //!
-//! [`KeyboardBuilder`] accumulates buttons in a flat list and chunks them into
-//! rows of at most `adjust` columns when exported, mirroring aiogram's
-//! `KeyboardBuilder`.
+//! [`KeyboardBuilder`] mirrors aiogram's `KeyboardBuilder`: [`Self::add`]
+//! flows buttons into rows of at most `adjust` columns, and [`Self::row`]
+//! appends explicit rows.
 
 use crate::types::{
     InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup,
 };
 
 /// A button type that a [`KeyboardBuilder`] can build a markup from.
-pub trait KeyboardButtonKind: Clone {
+pub trait KeyboardButtonKind: Sized {
     /// The markup produced by [`KeyboardBuilder::as_markup`].
     type Markup;
 
     /// Default maximum columns per row.
     const DEFAULT_ADJUST: usize;
+
+    /// Maximum number of buttons in a markup.
+    const MAX_BUTTONS: usize;
 
     /// Wrap a list of rows into the concrete markup type.
     fn from_rows(rows: Box<[Box<[Self]>]>) -> Self::Markup;
@@ -24,6 +27,7 @@ impl KeyboardButtonKind for InlineKeyboardButton {
     type Markup = InlineKeyboardMarkup;
 
     const DEFAULT_ADJUST: usize = 8;
+    const MAX_BUTTONS: usize = 100;
 
     fn from_rows(rows: Box<[Box<[Self]>]>) -> Self::Markup {
         InlineKeyboardMarkup::new(rows)
@@ -34,6 +38,7 @@ impl KeyboardButtonKind for KeyboardButton {
     type Markup = ReplyKeyboardMarkup;
 
     const DEFAULT_ADJUST: usize = 10;
+    const MAX_BUTTONS: usize = 300;
 
     fn from_rows(rows: Box<[Box<[Self]>]>) -> Self::Markup {
         ReplyKeyboardMarkup::new(rows)
@@ -42,11 +47,12 @@ impl KeyboardButtonKind for KeyboardButton {
 
 /// Accumulates buttons and exports them as a keyboard markup.
 ///
-/// Buttons are stored in a flat list and split into rows of at most
-/// [`Self::adjust`] columns when exported.
+/// [`Self::add`] appends buttons flowing into rows of at most `adjust`
+/// columns, [`Self::row`] appends explicit rows.
 pub struct KeyboardBuilder<B> {
-    buttons: Vec<B>,
+    rows: Vec<Vec<B>>,
     adjust: usize,
+    buttons: usize,
 }
 
 impl<B> KeyboardBuilder<B> {
@@ -60,35 +66,82 @@ impl<B> KeyboardBuilder<B> {
         B: KeyboardButtonKind,
     {
         Self {
-            buttons: Vec::new(),
+            rows: Vec::new(),
             adjust: B::DEFAULT_ADJUST,
+            buttons: 0,
         }
     }
 
-    /// Appends one button.
+    /// Appends one button, starting a new row when the last one is full.
+    ///
+    /// Buttons beyond [`KeyboardButtonKind::MAX_BUTTONS`] are ignored.
     #[must_use]
-    pub fn button(mut self, button: B) -> Self {
-        self.buttons.push(button);
+    #[allow(clippy::should_implement_trait)]
+    pub fn add(mut self, button: B) -> Self
+    where
+        B: KeyboardButtonKind,
+    {
+        if self.buttons == B::MAX_BUTTONS {
+            return self;
+        }
+        match self.rows.last_mut() {
+            Some(row) if row.len() < self.adjust => row.push(button),
+            _ => self.rows.push(vec![button]),
+        }
+        self.buttons += 1;
         self
     }
 
-    /// Sets the maximum number of columns per row used by [`Self::export`].
+    /// Appends one or more explicit rows.
+    ///
+    /// When too many buttons are passed, they are split into rows of at most
+    /// `adjust` columns. Buttons beyond [`KeyboardButtonKind::MAX_BUTTONS`]
+    /// are ignored.
+    #[must_use]
+    pub fn row(mut self, buttons: impl IntoIterator<Item = B>) -> Self
+    where
+        B: KeyboardButtonKind,
+    {
+        let mut row: Vec<B> = Vec::new();
+        for button in buttons {
+            if self.buttons == B::MAX_BUTTONS {
+                break;
+            }
+            if row.len() == self.adjust {
+                self.rows.push(std::mem::take(&mut row));
+            }
+            row.push(button);
+            self.buttons += 1;
+        }
+        if !row.is_empty() {
+            self.rows.push(row);
+        }
+        self
+    }
+
+    /// Re-flows all buttons into rows of at most `max_columns` columns.
     #[must_use]
     pub fn adjust(mut self, max_columns: usize) -> Self {
-        self.adjust = max_columns;
+        let adjust = max_columns.max(1);
+        let buttons: Vec<B> = self.rows.into_iter().flatten().collect();
+        let mut rows = Vec::with_capacity(buttons.len().div_ceil(adjust));
+        let mut iter = buttons.into_iter();
+        loop {
+            let row: Vec<B> = iter.by_ref().take(adjust).collect();
+            if row.is_empty() {
+                break;
+            }
+            rows.push(row);
+        }
+        self.rows = rows;
+        self.adjust = adjust;
         self
     }
 
-    /// Splits the accumulated buttons into rows of at most `adjust` columns.
+    /// Exports the buttons as rows.
     #[must_use]
-    pub fn export(self) -> Box<[Box<[B]>]>
-    where
-        B: Clone,
-    {
-        self.buttons
-            .chunks(self.adjust.max(1))
-            .map(Into::into)
-            .collect()
+    pub fn export(self) -> Box<[Box<[B]>]> {
+        self.rows.into_iter().map(Into::into).collect()
     }
 
     /// Exports the buttons as a keyboard markup.
@@ -122,24 +175,64 @@ mod tests {
     }
 
     #[test]
-    fn export_chunks_by_adjust() {
-        let builder = InlineKeyboardBuilder::new()
-            .button(inline_button("a"))
-            .button(inline_button("b"))
-            .button(inline_button("c"))
-            .adjust(2);
+    fn add_flows_into_rows() {
+        let rows = InlineKeyboardBuilder::new()
+            .adjust(2)
+            .add(inline_button("a"))
+            .add(inline_button("b"))
+            .add(inline_button("c"))
+            .export();
 
-        let rows = builder.export();
         assert_eq!(rows.len(), 2);
         assert_eq!(rows[0].len(), 2);
         assert_eq!(rows[1].len(), 1);
     }
 
     #[test]
+    fn row_appends_explicit_rows() {
+        let rows = InlineKeyboardBuilder::new()
+            .add(inline_button("a"))
+            .row([inline_button("b"), inline_button("c")])
+            .row([inline_button("d")])
+            .export();
+
+        assert_eq!(rows.len(), 3);
+        assert_eq!(rows[0].len(), 1);
+        assert_eq!(rows[1].len(), 2);
+        assert_eq!(rows[2].len(), 1);
+    }
+
+    #[test]
+    fn row_splits_too_long_rows() {
+        let rows = InlineKeyboardBuilder::new()
+            .adjust(2)
+            .row([
+                inline_button("a"),
+                inline_button("b"),
+                inline_button("c"),
+            ])
+            .export();
+
+        assert_eq!(rows.len(), 2);
+        assert_eq!(rows[0].len(), 2);
+        assert_eq!(rows[1].len(), 1);
+    }
+
+    #[test]
+    fn add_ignores_buttons_beyond_max() {
+        let mut builder = InlineKeyboardBuilder::new();
+        for i in 0..InlineKeyboardButton::MAX_BUTTONS + 1 {
+            builder = builder.add(inline_button(&i.to_string()));
+        }
+        let total: usize = builder.export().iter().map(|row| row.len()).sum();
+        assert_eq!(total, InlineKeyboardButton::MAX_BUTTONS);
+    }
+
+    #[test]
     fn as_markup_returns_inline_markup() {
         let markup = InlineKeyboardBuilder::new()
-            .button(inline_button("a"))
-            .button(inline_button("b"))
+            .add(inline_button("a"))
+            .add(inline_button("b"))
             .as_markup();
 
         assert_eq!(markup.inline_keyboard.len(), 1);
@@ -149,8 +242,8 @@ mod tests {
     #[test]
     fn reply_builder_returns_reply_markup() {
         let markup = ReplyKeyboardBuilder::new()
-            .button(KeyboardButton::new("yes"))
-            .button(KeyboardButton::new("no"))
+            .add(KeyboardButton::new("yes"))
+            .add(KeyboardButton::new("no"))
             .adjust(1)
             .as_markup();
 

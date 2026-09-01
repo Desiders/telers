@@ -10,14 +10,17 @@ use crate::{
 
 /// Accumulates media items and builds a [`SendMediaGroup`].
 ///
-/// Telegram requires 2-10 items per album; [`MediaGroupBuilder`] does not
-/// enforce this on its own.
+/// Telegram requires 2-10 items per album; [`MediaGroupBuilder`] caps additions
+/// at [`Self::MAX_SIZE`], the minimum is up to the Telegram API.
 pub struct MediaGroupBuilder {
     chat_id: ChatIdKind,
     media: Vec<InputMedia>,
 }
 
 impl MediaGroupBuilder {
+    /// Maximum number of media items per album.
+    pub const MAX_SIZE: usize = 10;
+
     /// Creates a builder for the given chat.
     #[must_use]
     pub fn new(chat_id: impl Into<ChatIdKind>) -> Self {
@@ -30,6 +33,9 @@ impl MediaGroupBuilder {
     /// Appends a photo.
     #[must_use]
     pub fn add_photo(mut self, media: impl Into<InputFile>) -> Self {
+        if self.media.len() == Self::MAX_SIZE {
+            return self;
+        }
         self.media
             .push(InputMedia::Photo(InputMediaPhoto::new(media)));
         self
@@ -38,6 +44,9 @@ impl MediaGroupBuilder {
     /// Appends a video.
     #[must_use]
     pub fn add_video(mut self, media: impl Into<InputFile>) -> Self {
+        if self.media.len() == Self::MAX_SIZE {
+            return self;
+        }
         self.media
             .push(InputMedia::Video(InputMediaVideo::new(media)));
         self
@@ -46,6 +55,9 @@ impl MediaGroupBuilder {
     /// Appends an audio file.
     #[must_use]
     pub fn add_audio(mut self, media: impl Into<InputFile>) -> Self {
+        if self.media.len() == Self::MAX_SIZE {
+            return self;
+        }
         self.media
             .push(InputMedia::Audio(InputMediaAudio::new(media)));
         self
@@ -54,6 +66,9 @@ impl MediaGroupBuilder {
     /// Appends a document.
     #[must_use]
     pub fn add_document(mut self, media: impl Into<InputFile>) -> Self {
+        if self.media.len() == Self::MAX_SIZE {
+            return self;
+        }
         self.media
             .push(InputMedia::Document(InputMediaDocument::new(media)));
         self
@@ -87,5 +102,14 @@ mod tests {
             .build();
 
         assert!(matches!(method.chat_id, ChatIdKind::Username(_)));
+    }
+
+    #[test]
+    fn add_ignores_media_beyond_max() {
+        let mut builder = MediaGroupBuilder::new(42);
+        for i in 0..MediaGroupBuilder::MAX_SIZE + 1 {
+            builder = builder.add_photo(InputFile::id(format!("photo{i}")));
+        }
+        assert_eq!(builder.build().media.len(), MediaGroupBuilder::MAX_SIZE);
     }
 }
