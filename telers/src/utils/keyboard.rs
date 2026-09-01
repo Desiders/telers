@@ -206,11 +206,7 @@ mod tests {
     fn row_splits_too_long_rows() {
         let rows = InlineKeyboardBuilder::new()
             .adjust(2)
-            .row([
-                inline_button("a"),
-                inline_button("b"),
-                inline_button("c"),
-            ])
+            .row([inline_button("a"), inline_button("b"), inline_button("c")])
             .export();
 
         assert_eq!(rows.len(), 2);
