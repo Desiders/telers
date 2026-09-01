@@ -52,8 +52,8 @@ pub struct KeyboardBuilder<B> {
 impl<B> KeyboardBuilder<B> {
     /// Creates an empty builder.
     ///
-    /// Defaults to 8 columns for inline keyboards and 10 for reply keyboards,
-    /// matching the Telegram limits.
+    /// Defaults to [`KeyboardButtonKind::DEFAULT_ADJUST`] columns, matching the
+    /// Telegram limits.
     #[must_use]
     pub fn new() -> Self
     where
