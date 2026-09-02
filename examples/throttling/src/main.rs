@@ -29,11 +29,6 @@ async fn main() {
                         let bot = request.bot.clone();
                         let chat_id = request.context.get::<Chat>("event_chat").map(Chat::id);
                         async move {
-                            tracing::warn!(
-                                exceeded_count = info.exceeded_count,
-                                time_left = ?info.time_left,
-                                "Request is throttled"
-                            );
                             if info.exceeded_count > 2 {
                                 return;
                             }

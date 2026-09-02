@@ -44,7 +44,7 @@ type OnThrottledCallback<Client> =
 /// The strategy controls which peer IDs form the throttling key, e.g. [`Strategy::Chat`]
 /// throttles per chat, [`Strategy::UserInThread`] per user and thread pair.
 ///
-/// Requests that exceed the rate are skipped (the handler is not called) and a warning is logged.
+/// Requests that exceed the rate are skipped (the handler is not called) and an info log is emitted.
 /// Timestamps of expired keys are pruned when a new key is inserted, so the memory usage is
 /// bounded by the number of keys inserted since the last prune.
 ///
@@ -171,7 +171,13 @@ where
             }
         };
         if let Some(info) = throttled {
-            event!(Level::WARN, "Request is throttled");
+            event!(
+                Level::INFO,
+                strategy = ?self.strategy,
+                exceeded_count = info.exceeded_count,
+                time_left = ?info.time_left,
+                "Request is throttled"
+            );
             if let Some(callback) = &self.on_throttled {
                 callback(&request, info).await;
             }
