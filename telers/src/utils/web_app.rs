@@ -15,8 +15,9 @@ use std::fmt::Write as _;
 /// The check passes only if the `hash` parameter is present and matches the
 /// `HMAC-SHA256` of the data computed with the bot token.
 ///
-/// Telegram always appends `hash` as the last parameter, so the signature is
-/// computed over everything before `&hash=`.
+/// Per the `Telegram` algorithm, the data check string is every parameter
+/// except `hash`, sorted by key and joined with a line feed, so the parameter
+/// order in `init_data` does not matter.
 ///
 /// # Examples
 /// ```rust
@@ -25,14 +26,35 @@ use std::fmt::Write as _;
 /// assert!(check_webapp_signature(
 ///     "123456:ABC",
 ///     "query_id=abc&user=%7B%22id%22%3A42%7D&auth_date=100&\
-///      hash=a36f0233cca666954ecc83983f9ddbdbe3f0b72b06514c7dd5a0ac4f1e4dc026"
+///      hash=9778490b4477d9ccfcf47b4041c9b5c65bcdced53b105a5a3e1ca39e57e1f06a"
 /// ));
 /// ```
 #[must_use]
 pub fn check_webapp_signature(bot_token: &str, init_data: &str) -> bool {
-    let Some((data_check_string, hash_value)) = init_data.split_once("&hash=") else {
+    let mut data_check_string = Vec::new();
+    let mut hash_value = None;
+
+    for pair in init_data.split('&') {
+        let Some((key, value)) = pair.split_once('=') else {
+            continue;
+        };
+        if key == "hash" {
+            hash_value = Some(value);
+        } else {
+            data_check_string.push((key, value));
+        }
+    }
+
+    let Some(hash_value) = hash_value else {
         return false;
     };
+    data_check_string.sort_unstable();
+
+    let data_check_string = data_check_string
+        .into_iter()
+        .map(|(key, value)| format!("{key}={value}"))
+        .collect::<Vec<_>>()
+        .join("\n");
 
     let secret_key = hmac_sha256(b"WebAppData", bot_token.as_bytes());
 
@@ -49,7 +71,7 @@ pub fn check_webapp_signature(bot_token: &str, init_data: &str) -> bool {
 /// use telers::utils::safe_parse_webapp_init_data;
 ///
 /// let init_data = "query_id=abc&user=%7B%22id%22%3A42%7D&auth_date=100&\
-///                  hash=a36f0233cca666954ecc83983f9ddbdbe3f0b72b06514c7dd5a0ac4f1e4dc026";
+///                  hash=9778490b4477d9ccfcf47b4041c9b5c65bcdced53b105a5a3e1ca39e57e1f06a";
 /// let parsed = safe_parse_webapp_init_data("123456:ABC", init_data).unwrap();
 /// assert_eq!(parsed.query_id.as_deref(), Some("abc"));
 /// ```
@@ -273,7 +295,7 @@ mod tests {
     fn init_data() -> String {
         format!(
             "query_id=abc&user=%7B%22id%22%3A42%7D&auth_date=100&hash={}",
-            "a36f0233cca666954ecc83983f9ddbdbe3f0b72b06514c7dd5a0ac4f1e4dc026"
+            "9778490b4477d9ccfcf47b4041c9b5c65bcdced53b105a5a3e1ca39e57e1f06a"
         )
     }
 
@@ -305,6 +327,12 @@ mod tests {
     }
 
     #[test]
+    fn test_check_webapp_signature_hash_first() {
+        let data = format!("hash={}&query_id=abc&user=%7B%22id%22%3A42%7D&auth_date=100", "9778490b4477d9ccfcf47b4041c9b5c65bcdced53b105a5a3e1ca39e57e1f06a");
+        assert!(check_webapp_signature(TOKEN, &data));
+    }
+
+    #[test]
     fn test_safe_parse_happy_path() {
         let parsed = safe_parse_webapp_init_data(TOKEN, &init_data()).unwrap();
 
@@ -318,7 +346,7 @@ mod tests {
 
     #[test]
     fn test_safe_parse_invalid_signature() {
-        let data = init_data().replace("hash=a36f", "hash=0000");
+        let data = init_data().replace("hash=9778", "hash=0000");
         assert!(matches!(
             safe_parse_webapp_init_data(TOKEN, &data),
             Err(WebAppValidationError::InvalidSignature)
