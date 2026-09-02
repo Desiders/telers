@@ -35,6 +35,90 @@ pub fn decode_payload(payload: &str) -> Result<String, DecodeError> {
     Ok(String::from_utf8(URL_SAFE_NO_PAD.decode(payload)?)?)
 }
 
+#[inline]
+fn encode(payload: &str, encode: bool) -> String {
+    if encode {
+        encode_payload(payload)
+    } else {
+        payload.to_owned()
+    }
+}
+
+/// Creates a `t.me` start link for a bot.
+///
+/// The payload is used as the `start` query parameter, optionally encoded
+/// with [`encode_payload`]. Raw payloads are limited to `a-zA-Z0-9_-` by
+/// Telegram, so encoding is recommended for anything else.
+///
+/// # Examples
+/// ```rust
+/// use telers::utils::create_start_link;
+///
+/// assert_eq!(
+///     create_start_link("my_bot", "ref123", false),
+///     "https://t.me/my_bot?start=ref123"
+/// );
+/// assert_eq!(
+///     create_start_link("my_bot", "hello world", true),
+///     "https://t.me/my_bot?start=aGVsbG8gd29ybGQ"
+/// );
+/// ```
+#[must_use]
+pub fn create_start_link(bot_username: &str, payload: &str, encoded: bool) -> String {
+    format!(
+        "https://t.me/{bot_username}?start={}",
+        encode(payload, encoded)
+    )
+}
+
+/// Creates a `t.me` deep link for an arbitrary command.
+///
+/// An empty payload produces a link without the `start` parameter.
+///
+/// # Examples
+/// ```rust
+/// use telers::utils::create_deep_link;
+///
+/// assert_eq!(
+///     create_deep_link("my_bot", "start", "ref123", false),
+///     "https://t.me/my_bot/start?start=ref123"
+/// );
+/// assert_eq!(
+///     create_deep_link("my_bot", "help", "", false),
+///     "https://t.me/my_bot/help"
+/// );
+/// ```
+#[must_use]
+pub fn create_deep_link(bot_username: &str, command: &str, payload: &str, encoded: bool) -> String {
+    if payload.is_empty() {
+        return format!("https://t.me/{bot_username}/{command}");
+    }
+
+    format!(
+        "https://t.me/{bot_username}/{command}?start={}",
+        encode(payload, encoded)
+    )
+}
+
+/// Creates a `t.me` link that starts the bot in a group.
+///
+/// # Examples
+/// ```rust
+/// use telers::utils::create_startgroup_link;
+///
+/// assert_eq!(
+///     create_startgroup_link("my_bot", "ref123", false),
+///     "https://t.me/my_bot?startgroup=ref123"
+/// );
+/// ```
+#[must_use]
+pub fn create_startgroup_link(bot_username: &str, payload: &str, encoded: bool) -> String {
+    format!(
+        "https://t.me/{bot_username}?startgroup={}",
+        encode(payload, encoded)
+    )
+}
+
 /// Error returned by [`decode_payload`].
 #[derive(Debug, thiserror::Error)]
 pub enum DecodeError {
