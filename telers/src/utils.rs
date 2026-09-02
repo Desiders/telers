@@ -29,5 +29,14 @@ pub use media_group::MediaGroupBuilder;
 #[cfg(feature = "signal")]
 pub mod signal;
 
+#[cfg(feature = "webapp-validation")]
+pub mod web_app;
+
 #[cfg(feature = "signal")]
 pub use signal::shutdown_signal;
+
+#[cfg(feature = "webapp-validation")]
+pub use web_app::{
+    check_signature, check_webapp_signature, safe_parse_webapp_init_data, WebAppChat,
+    WebAppInitData, WebAppUser, WebAppValidationError,
+};
