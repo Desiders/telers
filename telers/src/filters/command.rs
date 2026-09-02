@@ -11,6 +11,8 @@ use regex::Regex;
 use std::{borrow::Cow, iter::once};
 use tracing::{event, instrument, Level};
 
+use crate::utils::decode_payload;
+
 /// Represents a command pattern type for verification
 /// # Variants
 /// * `PatternType::Text(Cow<str>)` - A command pattern with text
@@ -376,6 +378,122 @@ impl Command {
     }
 }
 
+/// Deep-link payload validation rules for [`CommandStart`].
+#[derive(Debug, Clone, Copy)]
+pub enum DeepLink {
+    /// The `/start` command must carry a plain text payload.
+    Plain,
+    /// The `/start` command must carry a base64url-encoded payload;
+    /// it is decoded and replaces the raw arguments in the [`CommandObject`].
+    Encoded,
+}
+
+/// Filter for `/start` commands with optional deep-link payload validation.
+///
+/// It is a specialized [`Command`] filter that always matches the `start` command.
+///
+/// # Notes
+/// You can use parsed command using [`CommandObject`] struct in handler arguments,
+/// or get it from [`crate::context::Context`] by `command` key.
+/// If [`DeepLink::Encoded`] is used, the decoded payload replaces the raw command arguments.
+#[derive(Debug, Clone)]
+pub struct CommandStart {
+    command: Command,
+    deep_link: Option<DeepLink>,
+}
+
+impl Default for CommandStart {
+    #[inline]
+    fn default() -> Self {
+        Self::new(None, '/', false, false)
+    }
+}
+
+impl CommandStart {
+    /// Creates a new [`CommandStart`] filter
+    /// # Arguments
+    /// * `deep_link` - Deep-link payload validation rule ([`None`] matches any `/start` command)
+    /// * `prefix` - Command prefix
+    /// * `ignore_case` - Ignore other command case
+    /// * `ignore_mention` - Ignore bot mention
+    #[must_use]
+    pub fn new(
+        deep_link: Option<DeepLink>,
+        prefix: char,
+        ignore_case: bool,
+        ignore_mention: bool,
+    ) -> Self {
+        Self {
+            command: Command::builder()
+                .command("start")
+                .prefix(prefix)
+                .ignore_case(ignore_case)
+                .ignore_mention(ignore_mention)
+                .build(),
+            deep_link,
+        }
+    }
+}
+
+impl<Client> Filter<Client> for CommandStart
+where
+    Client: Session + 'static,
+{
+    type Error = SessionErrorKind;
+
+    #[instrument]
+    async fn check(&mut self, request: &mut Request<Client>) -> FilterResult<Self::Error> {
+        let Some(message) = request.update.message() else {
+            return Ok(false);
+        };
+        let Some(text) = message.text().or(message.caption()) else {
+            return Ok(false);
+        };
+        let Some(command) = CommandObject::extract(text) else {
+            return Ok(false);
+        };
+
+        match self
+            .command
+            .validate_command_object(&command, &request.bot)
+            .await
+        {
+            Ok(true) => {}
+            Ok(false) => return Ok(false),
+            Err(err) => {
+                event!(Level::ERROR, error = %err, "Failed to validate command object");
+                return Err(err);
+            }
+        }
+
+        match self.deep_link {
+            None => {
+                request.context.insert("command", command);
+                Ok(true)
+            }
+            Some(DeepLink::Plain) => {
+                if command.args.is_empty() {
+                    return Ok(false);
+                }
+                request.context.insert("command", command);
+                Ok(true)
+            }
+            Some(DeepLink::Encoded) => {
+                if command.args.is_empty() {
+                    return Ok(false);
+                }
+                let Ok(payload) = decode_payload(command.args.join(" ").as_str()) else {
+                    return Ok(false);
+                };
+                let mut command = command;
+                command.args = Box::new([payload.into_boxed_str()]);
+                request.context.insert("command", command);
+                Ok(true)
+            }
+        }
+    }
+}
+
 /// Represents parsed command from text
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, FromContext)]
@@ -662,4 +780,117 @@ mod tests {
     }
 
     // TODO: Add tests for `validate_mention` method
+
+    #[cfg(test)]
+    mod command_start_tests {
+        use super::*;
+        use crate::{
+            client::Reqwest,
+            types::{ChatPrivate, MessageText, Update, UpdateMessage},
+        };
+
+        use std::sync::Arc;
+
+        fn request(text: &str) -> Request<Reqwest> {
+            Request {
+                update: Arc::new(Update::Message(UpdateMessage::new(
+                    0,
+                    MessageText::new(0, 0, ChatPrivate::new(0), text),
+                ))),
+                bot: crate::Bot::default(),
+                context: crate::Context::default(),
+                extensions: crate::Extensions::default(),
+            }
+        }
+
+        #[tokio::test]
+        async fn test_rejects_other_commands() {
+            let mut req = request("/help");
+            assert!(!CommandStart::new(None, '/', false, false)
+                .check(&mut req)
+                .await
+                .unwrap());
+        }
+
+        #[tokio::test]
+        async fn test_rejects_non_commands() {
+            let mut req = request("just text");
+            assert!(!CommandStart::new(None, '/', false, false)
+                .check(&mut req)
+                .await
+                .unwrap());
+        }
+
+        #[tokio::test]
+        async fn test_rejects_wrong_prefix() {
+            let mut req = request("!start ref123");
+            assert!(!CommandStart::new(None, '/', false, false)
+                .check(&mut req)
+                .await
+                .unwrap());
+        }
+
+        #[tokio::test]
+        async fn test_matches_any_start_with_none() {
+            let mut req = request("/start");
+            assert!(CommandStart::new(None, '/', false, false)
+                .check(&mut req)
+                .await
+                .unwrap());
+        }
+
+        #[tokio::test]
+        async fn test_plain_requires_payload() {
+            let mut req = request("/start");
+            assert!(!CommandStart::new(Some(DeepLink::Plain), '/', false, false)
+                .check(&mut req)
+                .await
+                .unwrap());
+
+            let mut req = request("/start ref123");
+            assert!(CommandStart::new(Some(DeepLink::Plain), '/', false, false)
+                .check(&mut req)
+                .await
+                .unwrap());
+        }
+
+        #[tokio::test]
+        async fn test_encoded_validates_and_decodes() {
+            let mut req = request("/start aGVsbG8gd29ybGQ");
+            assert!(
+                CommandStart::new(Some(DeepLink::Encoded), '/', false, false)
+                    .check(&mut req)
+                    .await
+                    .unwrap()
+            );
+            let command = req.context.get::<CommandObject>("command").unwrap();
+            assert_eq!(
+                command.args,
+                Box::new(["hello world".to_string().into_boxed_str()]) as Box<_>
+            );
+
+            let mut req = request("/start ref123");
+            assert!(
+                !CommandStart::new(Some(DeepLink::Encoded), '/', false, false)
+                    .check(&mut req)
+                    .await
+                    .unwrap()
+            );
+        }
+
+        #[tokio::test]
+        async fn test_ignore_case() {
+            let mut req = request("/START ref123");
+            assert!(CommandStart::new(Some(DeepLink::Plain), '/', true, false)
+                .check(&mut req)
+                .await
+                .unwrap());
+
+            let mut req = request("/START ref123");
+            assert!(!CommandStart::new(Some(DeepLink::Plain), '/', false, false)
+                .check(&mut req)
+                .await
+                .unwrap());
+        }
+    }
 }

@@ -22,10 +22,7 @@ pub mod text;
 pub mod token;
 
 pub use chat_action::{ChatActionGuard, ChatActionSender};
-pub use deep_linking::{
-    create_deep_link, create_start_link, create_startapp_link, create_startgroup_link,
-    decode_payload, encode_payload, validate_payload, DeepLinkError, DEEPLINK_PAYLOAD_LENGTH,
-};
+pub use deep_linking::{decode_payload, encode_payload};
 pub use keyboard::{InlineKeyboardBuilder, KeyboardBuilder, ReplyKeyboardBuilder};
 pub use media_group::MediaGroupBuilder;
 
