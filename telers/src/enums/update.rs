@@ -29,6 +29,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::UpdatePurchasedPaidMedia`]
 /// - [`crate::types::UpdateRemovedChatBoost`]
 /// - [`crate::types::UpdateShippingQuery`]
+/// - [`crate::types::UpdateStoppedMessageGeneration`]
 /// - [`crate::types::UpdateSubscription`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#update>
@@ -97,12 +98,14 @@ pub enum UpdateType {
     RemovedChatBoost,
     #[strum(serialize = "shipping_query")]
     ShippingQuery,
+    #[strum(serialize = "stopped_message_generation")]
+    StoppedMessageGeneration,
     #[strum(serialize = "subscription")]
     Subscription,
 }
 impl UpdateType {
     #[must_use]
-    pub const fn all() -> [UpdateType; 26usize] {
+    pub const fn all() -> [UpdateType; 27usize] {
         [
             UpdateType::BusinessConnection,
             UpdateType::BusinessMessage,
@@ -129,6 +132,7 @@ impl UpdateType {
             UpdateType::PurchasedPaidMedia,
             UpdateType::RemovedChatBoost,
             UpdateType::ShippingQuery,
+            UpdateType::StoppedMessageGeneration,
             UpdateType::Subscription,
         ]
     }
@@ -176,6 +180,7 @@ impl<'a> From<&'a Update> for UpdateType {
             Update::PurchasedPaidMedia(_) => UpdateType::PurchasedPaidMedia,
             Update::RemovedChatBoost(_) => UpdateType::RemovedChatBoost,
             Update::ShippingQuery(_) => UpdateType::ShippingQuery,
+            Update::StoppedMessageGeneration(_) => UpdateType::StoppedMessageGeneration,
             Update::Subscription(_) => UpdateType::Subscription,
         }
     }

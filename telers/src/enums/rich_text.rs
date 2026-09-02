@@ -23,6 +23,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::RichTextHashtag`]
 /// - [`crate::types::RichTextCashtag`]
 /// - [`crate::types::RichTextBotCommand`]
+/// - [`crate::types::RichTextButton`]
 /// - [`crate::types::RichTextAnchor`]
 /// - [`crate::types::RichTextAnchorLink`]
 /// - [`crate::types::RichTextReference`]
@@ -86,6 +87,8 @@ pub enum RichTextType {
     Cashtag,
     #[strum(serialize = "bot_command")]
     BotCommand,
+    #[strum(serialize = "button")]
+    Button,
     #[strum(serialize = "anchor")]
     Anchor,
     #[strum(serialize = "anchor_link")]
@@ -99,7 +102,7 @@ pub enum RichTextType {
 }
 impl RichTextType {
     #[must_use]
-    pub const fn all() -> [RichTextType; 26usize] {
+    pub const fn all() -> [RichTextType; 27usize] {
         [
             RichTextType::Bold,
             RichTextType::Italic,
@@ -122,6 +125,7 @@ impl RichTextType {
             RichTextType::Hashtag,
             RichTextType::Cashtag,
             RichTextType::BotCommand,
+            RichTextType::Button,
             RichTextType::Anchor,
             RichTextType::AnchorLink,
             RichTextType::Reference,
@@ -171,6 +175,7 @@ impl<'a> TryFrom<&'a RichText> for RichTextType {
             RichText::Hashtag(_) => Ok(RichTextType::Hashtag),
             RichText::Cashtag(_) => Ok(RichTextType::Cashtag),
             RichText::BotCommand(_) => Ok(RichTextType::BotCommand),
+            RichText::Button(_) => Ok(RichTextType::Button),
             RichText::Anchor(_) => Ok(RichTextType::Anchor),
             RichText::AnchorLink(_) => Ok(RichTextType::AnchorLink),
             RichText::Reference(_) => Ok(RichTextType::Reference),

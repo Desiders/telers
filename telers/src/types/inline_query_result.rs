@@ -970,6 +970,12 @@ impl InlineQueryResult {
         }
     }
 
+    /// Helper method for nested field `force_reply`.
+    #[must_use]
+    pub fn force_reply(&self) -> Option<bool> {
+        self.reply_markup().and_then(|inner| inner.force_reply)
+    }
+
     /// Helper method for nested field `inline_keyboard`.
     #[must_use]
     pub fn inline_keyboard(&self) -> Option<&[Box<[crate::types::InlineKeyboardButton]>]> {

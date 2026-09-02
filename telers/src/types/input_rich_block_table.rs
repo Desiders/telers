@@ -12,6 +12,9 @@ pub struct InputRichBlockTable {
     /// Pass `true` if the table is striped
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_striped: Option<bool>,
+    /// Pass `true` if table cells must have smaller indents
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_compact: Option<bool>,
     /// Caption of the table
     #[serde(skip_serializing_if = "Option::is_none")]
     pub caption: Option<Box<crate::types::RichText>>,
@@ -35,6 +38,7 @@ impl InputRichBlockTable {
             cells: cells.into_iter().map(Into::into).collect(),
             is_bordered: None,
             is_striped: None,
+            is_compact: None,
             caption: None,
         }
     }
@@ -97,6 +101,20 @@ impl InputRichBlockTable {
     #[must_use]
     pub fn is_striped_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.is_striped = val.map(Into::into);
+        self
+    }
+
+    /// Pass `true` if table cells must have smaller indents
+    #[must_use]
+    pub fn is_compact<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_compact = Some(val.into());
+        self
+    }
+
+    /// Pass `true` if table cells must have smaller indents
+    #[must_use]
+    pub fn is_compact_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_compact = val.map(Into::into);
         self
     }
 

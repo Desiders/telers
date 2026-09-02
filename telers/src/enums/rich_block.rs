@@ -11,14 +11,17 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::RichBlockAnchor`]
 /// - [`crate::types::RichBlockList`]
 /// - [`crate::types::RichBlockBlockQuotation`]
+/// - [`crate::types::RichBlockExpandableBlockQuotation`]
 /// - [`crate::types::RichBlockPullQuotation`]
 /// - [`crate::types::RichBlockCollage`]
 /// - [`crate::types::RichBlockSlideshow`]
 /// - [`crate::types::RichBlockTable`]
 /// - [`crate::types::RichBlockDetails`]
 /// - [`crate::types::RichBlockMap`]
+/// - [`crate::types::RichBlockButtons`]
 /// - [`crate::types::RichBlockAnimation`]
 /// - [`crate::types::RichBlockAudio`]
+/// - [`crate::types::RichBlockDocument`]
 /// - [`crate::types::RichBlockPhoto`]
 /// - [`crate::types::RichBlockVideo`]
 /// - [`crate::types::RichBlockVoiceNote`]
@@ -58,6 +61,8 @@ pub enum RichBlockType {
     List,
     #[strum(serialize = "blockquote")]
     Blockquote,
+    #[strum(serialize = "expandable_blockquote")]
+    ExpandableBlockquote,
     #[strum(serialize = "pullquote")]
     Pullquote,
     #[strum(serialize = "collage")]
@@ -70,10 +75,14 @@ pub enum RichBlockType {
     Details,
     #[strum(serialize = "map")]
     Map,
+    #[strum(serialize = "buttons")]
+    Buttons,
     #[strum(serialize = "animation")]
     Animation,
     #[strum(serialize = "audio")]
     Audio,
+    #[strum(serialize = "document")]
+    Document,
     #[strum(serialize = "photo")]
     Photo,
     #[strum(serialize = "video")]
@@ -87,7 +96,7 @@ pub enum RichBlockType {
 }
 impl RichBlockType {
     #[must_use]
-    pub const fn all() -> [RichBlockType; 22usize] {
+    pub const fn all() -> [RichBlockType; 25usize] {
         [
             RichBlockType::Paragraph,
             RichBlockType::Heading,
@@ -98,14 +107,17 @@ impl RichBlockType {
             RichBlockType::Anchor,
             RichBlockType::List,
             RichBlockType::Blockquote,
+            RichBlockType::ExpandableBlockquote,
             RichBlockType::Pullquote,
             RichBlockType::Collage,
             RichBlockType::Slideshow,
             RichBlockType::Table,
             RichBlockType::Details,
             RichBlockType::Map,
+            RichBlockType::Buttons,
             RichBlockType::Animation,
             RichBlockType::Audio,
+            RichBlockType::Document,
             RichBlockType::Photo,
             RichBlockType::Video,
             RichBlockType::VoiceNote,
@@ -141,14 +153,17 @@ impl<'a> From<&'a RichBlock> for RichBlockType {
             RichBlock::Anchor(_) => RichBlockType::Anchor,
             RichBlock::List(_) => RichBlockType::List,
             RichBlock::Blockquote(_) => RichBlockType::Blockquote,
+            RichBlock::ExpandableBlockquote(_) => RichBlockType::ExpandableBlockquote,
             RichBlock::Pullquote(_) => RichBlockType::Pullquote,
             RichBlock::Collage(_) => RichBlockType::Collage,
             RichBlock::Slideshow(_) => RichBlockType::Slideshow,
             RichBlock::Table(_) => RichBlockType::Table,
             RichBlock::Details(_) => RichBlockType::Details,
             RichBlock::Map(_) => RichBlockType::Map,
+            RichBlock::Buttons(_) => RichBlockType::Buttons,
             RichBlock::Animation(_) => RichBlockType::Animation,
             RichBlock::Audio(_) => RichBlockType::Audio,
+            RichBlock::Document(_) => RichBlockType::Document,
             RichBlock::Photo(_) => RichBlockType::Photo,
             RichBlock::Video(_) => RichBlockType::Video,
             RichBlock::VoiceNote(_) => RichBlockType::VoiceNote,

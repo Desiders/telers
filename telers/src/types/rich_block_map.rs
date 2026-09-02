@@ -6,8 +6,8 @@ use serde::{Deserialize, Serialize};
 pub struct RichBlockMap {
     /// Location of the center of the map
     pub location: crate::types::Location,
-    /// Map zoom level; 13-20
-    pub zoom: u8,
+    /// Map zoom level
+    pub zoom: i64,
     /// Expected width of the map
     pub width: i64,
     /// Expected height of the map
@@ -21,14 +21,14 @@ impl RichBlockMap {
     ///
     /// # Arguments
     /// * `location` - Location of the center of the map
-    /// * `zoom` - Map zoom level; 13-20
+    /// * `zoom` - Map zoom level
     /// * `width` - Expected width of the map
     /// * `height` - Expected height of the map
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new<T0: Into<crate::types::Location>, T1: Into<u8>, T2: Into<i64>, T3: Into<i64>>(
+    pub fn new<T0: Into<crate::types::Location>, T1: Into<i64>, T2: Into<i64>, T3: Into<i64>>(
         location: T0,
         zoom: T1,
         width: T2,
@@ -50,9 +50,9 @@ impl RichBlockMap {
         self
     }
 
-    /// Map zoom level; 13-20
+    /// Map zoom level
     #[must_use]
-    pub fn zoom<T: Into<u8>>(mut self, val: T) -> Self {
+    pub fn zoom<T: Into<i64>>(mut self, val: T) -> Self {
         self.zoom = val.into();
         self
     }

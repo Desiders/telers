@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 /// Currently, it can be one of
 /// - [`crate::types::InputMediaAnimation`]
 /// - [`crate::types::InputMediaAudio`]
+/// - [`crate::types::InputMediaDocument`]
 /// - [`crate::types::InputMediaPhoto`]
 /// - [`crate::types::InputMediaVideo`]
 /// - [`crate::types::InputMediaVoiceNote`]
@@ -13,6 +14,7 @@ use serde::{Deserialize, Serialize};
 pub enum InputRichMessageMediaContent {
     Animation(crate::types::InputMediaAnimation),
     Audio(crate::types::InputMediaAudio),
+    Document(crate::types::InputMediaDocument),
     Photo(crate::types::InputMediaPhoto),
     Video(crate::types::InputMediaVideo),
     VoiceNote(crate::types::InputMediaVoiceNote),
@@ -23,6 +25,7 @@ impl InputRichMessageMediaContent {
     /// # Variants
     /// - `InputMediaAnimation`. Caption of the animation to be sent, 0-1024 characters after entities parsing
     /// - `InputMediaAudio`. Caption of the audio to be sent, 0-1024 characters after entities parsing
+    /// - `InputMediaDocument`. Caption of the document to be sent, 0-1024 characters after entities parsing
     /// - `InputMediaPhoto`. Caption of the photo to be sent, 0-1024 characters after entities parsing
     /// - `InputMediaVideo`. Caption of the video to be sent, 0-1024 characters after entities parsing
     /// - `InputMediaVoiceNote`. Caption of the voice message to be sent, 0-1024 characters after entities parsing
@@ -31,6 +34,7 @@ impl InputRichMessageMediaContent {
         match self {
             Self::Animation(val) => val.caption.as_deref(),
             Self::Audio(val) => val.caption.as_deref(),
+            Self::Document(val) => val.caption.as_deref(),
             Self::Photo(val) => val.caption.as_deref(),
             Self::Video(val) => val.caption.as_deref(),
             Self::VoiceNote(val) => val.caption.as_deref(),
@@ -45,6 +49,7 @@ impl InputRichMessageMediaContent {
         match self {
             Self::Animation(val) => val.caption_entities.as_deref(),
             Self::Audio(val) => val.caption_entities.as_deref(),
+            Self::Document(val) => val.caption_entities.as_deref(),
             Self::Photo(val) => val.caption_entities.as_deref(),
             Self::Video(val) => val.caption_entities.as_deref(),
             Self::VoiceNote(val) => val.caption_entities.as_deref(),
@@ -58,6 +63,17 @@ impl InputRichMessageMediaContent {
     pub fn cover(&self) -> Option<&crate::types::InputFile> {
         match self {
             Self::Video(val) => val.cover.as_ref(),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `disable_content_type_detection`.
+    ///
+    /// Disables automatic server-side content type detection for files uploaded using multipart/form-data. Always `true`, if the document is sent as part of an album.
+    #[must_use]
+    pub fn disable_content_type_detection(&self) -> Option<bool> {
+        match self {
+            Self::Document(val) => val.disable_content_type_detection,
             _ => None,
         }
     }
@@ -76,7 +92,7 @@ impl InputRichMessageMediaContent {
             Self::Audio(val) => val.duration,
             Self::Video(val) => val.duration,
             Self::VoiceNote(val) => val.duration,
-            Self::Photo(_) => None,
+            _ => None,
         }
     }
 
@@ -118,6 +134,7 @@ impl InputRichMessageMediaContent {
         match self {
             Self::Animation(val) => &val.media,
             Self::Audio(val) => &val.media,
+            Self::Document(val) => &val.media,
             Self::Photo(val) => &val.media,
             Self::Video(val) => &val.media,
             Self::VoiceNote(val) => &val.media,
@@ -129,6 +146,7 @@ impl InputRichMessageMediaContent {
     /// # Variants
     /// - `InputMediaAnimation`. Mode for parsing entities in the animation caption. See formatting options for more details.
     /// - `InputMediaAudio`. Mode for parsing entities in the audio caption. See formatting options for more details.
+    /// - `InputMediaDocument`. Mode for parsing entities in the document caption. See formatting options for more details.
     /// - `InputMediaPhoto`. Mode for parsing entities in the photo caption. See formatting options for more details.
     /// - `InputMediaVideo`. Mode for parsing entities in the video caption. See formatting options for more details.
     /// - `InputMediaVoiceNote`. Mode for parsing entities in the voice message caption. See formatting options for more details.
@@ -137,6 +155,7 @@ impl InputRichMessageMediaContent {
         match self {
             Self::Animation(val) => val.parse_mode.as_deref(),
             Self::Audio(val) => val.parse_mode.as_deref(),
+            Self::Document(val) => val.parse_mode.as_deref(),
             Self::Photo(val) => val.parse_mode.as_deref(),
             Self::Video(val) => val.parse_mode.as_deref(),
             Self::VoiceNote(val) => val.parse_mode.as_deref(),
@@ -197,6 +216,7 @@ impl InputRichMessageMediaContent {
         match self {
             Self::Animation(val) => val.thumbnail.as_ref(),
             Self::Audio(val) => val.thumbnail.as_ref(),
+            Self::Document(val) => val.thumbnail.as_ref(),
             Self::Video(val) => val.thumbnail.as_ref(),
             _ => None,
         }
@@ -261,6 +281,25 @@ impl TryFrom<InputRichMessageMediaContent> for crate::types::InputMediaAudio {
             Err(Self::Error::new(
                 stringify!(InputRichMessageMediaContent),
                 stringify!(InputMediaAudio),
+            ))
+        }
+    }
+}
+impl From<crate::types::InputMediaDocument> for InputRichMessageMediaContent {
+    fn from(val: crate::types::InputMediaDocument) -> Self {
+        Self::Document(val)
+    }
+}
+impl TryFrom<InputRichMessageMediaContent> for crate::types::InputMediaDocument {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: InputRichMessageMediaContent) -> Result<Self, Self::Error> {
+        if let InputRichMessageMediaContent::Document(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(InputRichMessageMediaContent),
+                stringify!(InputMediaDocument),
             ))
         }
     }

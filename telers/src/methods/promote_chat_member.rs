@@ -62,6 +62,9 @@ pub struct PromoteChatMember {
     /// Pass `true` if the administrator can edit the tags of regular members; for groups and supergroups only
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_tags: Option<bool>,
+    /// Pass `true` if the administrator can manage chat welcome messages or directly send them in the case of bots
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_send_welcome_messages: Option<bool>,
 }
 impl PromoteChatMember {
     /// Creates a new `PromoteChatMember`.
@@ -97,6 +100,7 @@ impl PromoteChatMember {
             can_manage_topics: None,
             can_manage_direct_messages: None,
             can_manage_tags: None,
+            can_send_welcome_messages: None,
         }
     }
 
@@ -349,6 +353,20 @@ impl PromoteChatMember {
     #[must_use]
     pub fn can_manage_tags_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.can_manage_tags = val.map(Into::into);
+        self
+    }
+
+    /// Pass `true` if the administrator can manage chat welcome messages or directly send them in the case of bots
+    #[must_use]
+    pub fn can_send_welcome_messages<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_send_welcome_messages = Some(val.into());
+        self
+    }
+
+    /// Pass `true` if the administrator can manage chat welcome messages or directly send them in the case of bots
+    #[must_use]
+    pub fn can_send_welcome_messages_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.can_send_welcome_messages = val.map(Into::into);
         self
     }
 }

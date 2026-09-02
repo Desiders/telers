@@ -984,13 +984,17 @@ impl NormalizedSchema {
     }
 
     /// Composes the enum for the non-array `media` union of [`InputRichMessageMedia`],
-    /// which is a distinct set from [`InputMedia`] (it drops `Document`/`LivePhoto` and adds `InputMediaVoiceNote`),
+    /// which is a distinct set from [`InputMedia`] (it drops `LivePhoto` and adds `InputMediaVoiceNote`),
     /// so it can't reuse that type.
     /// Like [`InputMedia`] the variants share a `type` discriminator, so the enum is tagged by it.
+    ///
+    /// Keep the variant list in sync with [`multi_type_is_input_rich_message_media`],
+    /// which decides that a field's raw union maps to this enum.
     pub fn compose_input_rich_message_media_type(&mut self) {
         let subtypes = vec![
             ("Animation".to_owned(), "InputMediaAnimation".to_owned()),
             ("Audio".to_owned(), "InputMediaAudio".to_owned()),
+            ("Document".to_owned(), "InputMediaDocument".to_owned()),
             ("Photo".to_owned(), "InputMediaPhoto".to_owned()),
             ("Video".to_owned(), "InputMediaVideo".to_owned()),
             ("VoiceNote".to_owned(), "InputMediaVoiceNote".to_owned()),
@@ -1099,6 +1103,7 @@ impl NormalizedSchema {
             "checklist_tasks_done",
             "checklist_tasks_added",
             "community_chat_added",
+            "community_chat_joined",
             "community_chat_removed",
             "direct_message_price_changed",
             "forum_topic_created",
@@ -2212,15 +2217,15 @@ pub fn multi_type_is_input_media(types: &[RawType], name: &str) -> bool {
             .all(|&expected_type| types.contains(&expected_type.to_string()))
 }
 
-/// `InputRichMessageMediaContent` for the non-array `media` union
-/// {`InputMediaAnimation`, `InputMediaAudio`, `InputMediaPhoto`, `InputMediaVideo`,
-/// `InputMediaVoiceNote`} of `InputRichMessageMedia`. Matched by the exact type set (the
-/// bare variants, not the `Array of ...` form), so it never collides with the array case.
+/// `InputRichMessageMediaContent` for the non-array `media` union of `InputRichMessageMedia`.
+/// Matched by the exact type set (the bare variants, not the `Array of ...` form),
+/// so it never collides with the array case.
 #[must_use]
 pub fn multi_type_is_input_rich_message_media(types: &[RawType]) -> bool {
     let expected = [
         "InputMediaAnimation",
         "InputMediaAudio",
+        "InputMediaDocument",
         "InputMediaPhoto",
         "InputMediaVideo",
         "InputMediaVoiceNote",
@@ -2247,6 +2252,7 @@ mod tests {
                 "InputMediaVoiceNote".to_owned(),
                 "InputMediaAudio".to_owned(),
                 "InputMediaPhoto".to_owned(),
+                "InputMediaDocument".to_owned(),
             ],
         };
         assert_eq!(

@@ -9,14 +9,17 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::RichBlockAnchor`]
 /// - [`crate::types::RichBlockList`]
 /// - [`crate::types::RichBlockBlockQuotation`]
+/// - [`crate::types::RichBlockExpandableBlockQuotation`]
 /// - [`crate::types::RichBlockPullQuotation`]
 /// - [`crate::types::RichBlockCollage`]
 /// - [`crate::types::RichBlockSlideshow`]
 /// - [`crate::types::RichBlockTable`]
 /// - [`crate::types::RichBlockDetails`]
 /// - [`crate::types::RichBlockMap`]
+/// - [`crate::types::RichBlockButtons`]
 /// - [`crate::types::RichBlockAnimation`]
 /// - [`crate::types::RichBlockAudio`]
+/// - [`crate::types::RichBlockDocument`]
 /// - [`crate::types::RichBlockPhoto`]
 /// - [`crate::types::RichBlockVideo`]
 /// - [`crate::types::RichBlockVoiceNote`]
@@ -35,14 +38,17 @@ pub enum RichBlock {
     Anchor(crate::types::RichBlockAnchor),
     List(crate::types::RichBlockList),
     Blockquote(crate::types::RichBlockBlockQuotation),
+    ExpandableBlockquote(crate::types::RichBlockExpandableBlockQuotation),
     Pullquote(crate::types::RichBlockPullQuotation),
     Collage(crate::types::RichBlockCollage),
     Slideshow(crate::types::RichBlockSlideshow),
     Table(crate::types::RichBlockTable),
     Details(crate::types::RichBlockDetails),
     Map(crate::types::RichBlockMap),
+    Buttons(crate::types::RichBlockButtons),
     Animation(crate::types::RichBlockAnimation),
     Audio(crate::types::RichBlockAudio),
+    Document(crate::types::RichBlockDocument),
     Photo(crate::types::RichBlockPhoto),
     Video(crate::types::RichBlockVideo),
     VoiceNote(crate::types::RichBlockVoiceNote),
@@ -52,6 +58,17 @@ pub enum RichBlock {
     Unknown(crate::types::RichBlockUnknown),
 }
 impl RichBlock {
+    /// Helper method for field `align`.
+    ///
+    /// Horizontal alignment of the buttons. Currently, must be one of `left`, `center`, or `right`.
+    #[must_use]
+    pub fn align(&self) -> Option<&str> {
+        match self {
+            Self::Buttons(val) => val.align.as_deref(),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `animation`.
     ///
     /// The animation
@@ -91,6 +108,17 @@ impl RichBlock {
         }
     }
 
+    /// Helper method for field `buttons`.
+    ///
+    /// The buttons
+    #[must_use]
+    pub fn buttons(&self) -> Option<&[crate::types::RichMessageButton]> {
+        match self {
+            Self::Buttons(val) => Some(val.buttons.as_ref()),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `cells`.
     ///
     /// Cells of the table
@@ -109,7 +137,19 @@ impl RichBlock {
     pub fn credit(&self) -> Option<&crate::types::RichText> {
         match self {
             Self::Blockquote(val) => val.credit.as_deref(),
+            Self::ExpandableBlockquote(val) => val.credit.as_deref(),
             Self::Pullquote(val) => val.credit.as_deref(),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `document`.
+    ///
+    /// The document
+    #[must_use]
+    pub fn document(&self) -> Option<&crate::types::Document> {
+        match self {
+            Self::Document(val) => Some(val.document.as_ref()),
             _ => None,
         }
     }
@@ -156,6 +196,17 @@ impl RichBlock {
     pub fn is_bordered(&self) -> Option<bool> {
         match self {
             Self::Table(val) => val.is_bordered,
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `is_compact`.
+    ///
+    /// `true`, if table cells have smaller indents
+    #[must_use]
+    pub fn is_compact(&self) -> Option<bool> {
+        match self {
+            Self::Table(val) => val.is_compact,
             _ => None,
         }
     }
@@ -263,6 +314,7 @@ impl RichBlock {
     ///
     /// # Variants
     /// - `RichBlockParagraph`, `RichBlockSectionHeading`, `RichBlockPreformatted`, `RichBlockFooter`, `RichBlockPullQuotation`. Text of the block
+    /// - `RichBlockExpandableBlockQuotation`. Content of the block
     /// - `RichBlockThinking`. Text of the block. See <https://t.me/addemoji/AIActions> for examples of custom emoji that are recommended for usage in the block.
     #[must_use]
     pub fn text(&self) -> Option<&crate::types::RichText> {
@@ -271,6 +323,7 @@ impl RichBlock {
             Self::Heading(val) => Some(val.text.as_ref()),
             Self::Pre(val) => Some(val.text.as_ref()),
             Self::Footer(val) => Some(val.text.as_ref()),
+            Self::ExpandableBlockquote(val) => Some(val.text.as_ref()),
             Self::Pullquote(val) => Some(val.text.as_ref()),
             Self::Thinking(val) => Some(val.text.as_ref()),
             _ => None,
@@ -312,9 +365,9 @@ impl RichBlock {
 
     /// Helper method for field `zoom`.
     ///
-    /// Map zoom level; 13-20
+    /// Map zoom level
     #[must_use]
-    pub fn zoom(&self) -> Option<u8> {
+    pub fn zoom(&self) -> Option<i64> {
         match self {
             Self::Map(val) => Some(val.zoom),
             _ => None,
@@ -369,6 +422,10 @@ impl RichBlock {
                 let inner = val.audio.as_ref();
                 Some(inner.file_id.as_ref())
             }
+            Self::Document(val) => {
+                let inner = val.document.as_ref();
+                Some(inner.file_id.as_ref())
+            }
             Self::Video(val) => {
                 let inner = val.video.as_ref();
                 Some(inner.file_id.as_ref())
@@ -393,6 +450,10 @@ impl RichBlock {
                 let inner = val.audio.as_ref();
                 inner.file_name.as_deref()
             }
+            Self::Document(val) => {
+                let inner = val.document.as_ref();
+                inner.file_name.as_deref()
+            }
             Self::Video(val) => {
                 let inner = val.video.as_ref();
                 inner.file_name.as_deref()
@@ -411,6 +472,10 @@ impl RichBlock {
             }
             Self::Audio(val) => {
                 let inner = val.audio.as_ref();
+                inner.file_size
+            }
+            Self::Document(val) => {
+                let inner = val.document.as_ref();
                 inner.file_size
             }
             Self::Video(val) => {
@@ -435,6 +500,10 @@ impl RichBlock {
             }
             Self::Audio(val) => {
                 let inner = val.audio.as_ref();
+                Some(inner.file_unique_id.as_ref())
+            }
+            Self::Document(val) => {
+                let inner = val.document.as_ref();
                 Some(inner.file_unique_id.as_ref())
             }
             Self::Video(val) => {
@@ -521,6 +590,10 @@ impl RichBlock {
                 let inner = val.audio.as_ref();
                 inner.mime_type.as_deref()
             }
+            Self::Document(val) => {
+                let inner = val.document.as_ref();
+                inner.mime_type.as_deref()
+            }
             Self::Video(val) => {
                 let inner = val.video.as_ref();
                 inner.mime_type.as_deref()
@@ -591,6 +664,10 @@ impl RichBlock {
             }
             Self::Audio(val) => {
                 let inner = val.audio.as_ref();
+                inner.thumbnail.as_ref()
+            }
+            Self::Document(val) => {
+                let inner = val.document.as_ref();
                 inner.thumbnail.as_ref()
             }
             Self::Video(val) => {
@@ -784,6 +861,25 @@ impl TryFrom<RichBlock> for crate::types::RichBlockBlockQuotation {
         }
     }
 }
+impl From<crate::types::RichBlockExpandableBlockQuotation> for RichBlock {
+    fn from(val: crate::types::RichBlockExpandableBlockQuotation) -> Self {
+        Self::ExpandableBlockquote(val)
+    }
+}
+impl TryFrom<RichBlock> for crate::types::RichBlockExpandableBlockQuotation {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: RichBlock) -> Result<Self, Self::Error> {
+        if let RichBlock::ExpandableBlockquote(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(RichBlock),
+                stringify!(RichBlockExpandableBlockQuotation),
+            ))
+        }
+    }
+}
 impl From<crate::types::RichBlockPullQuotation> for RichBlock {
     fn from(val: crate::types::RichBlockPullQuotation) -> Self {
         Self::Pullquote(val)
@@ -898,6 +994,25 @@ impl TryFrom<RichBlock> for crate::types::RichBlockMap {
         }
     }
 }
+impl From<crate::types::RichBlockButtons> for RichBlock {
+    fn from(val: crate::types::RichBlockButtons) -> Self {
+        Self::Buttons(val)
+    }
+}
+impl TryFrom<RichBlock> for crate::types::RichBlockButtons {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: RichBlock) -> Result<Self, Self::Error> {
+        if let RichBlock::Buttons(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(RichBlock),
+                stringify!(RichBlockButtons),
+            ))
+        }
+    }
+}
 impl From<crate::types::RichBlockAnimation> for RichBlock {
     fn from(val: crate::types::RichBlockAnimation) -> Self {
         Self::Animation(val)
@@ -932,6 +1047,25 @@ impl TryFrom<RichBlock> for crate::types::RichBlockAudio {
             Err(Self::Error::new(
                 stringify!(RichBlock),
                 stringify!(RichBlockAudio),
+            ))
+        }
+    }
+}
+impl From<crate::types::RichBlockDocument> for RichBlock {
+    fn from(val: crate::types::RichBlockDocument) -> Self {
+        Self::Document(val)
+    }
+}
+impl TryFrom<RichBlock> for crate::types::RichBlockDocument {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: RichBlock) -> Result<Self, Self::Error> {
+        if let RichBlock::Document(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(RichBlock),
+                stringify!(RichBlockDocument),
             ))
         }
     }

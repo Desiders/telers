@@ -68,6 +68,8 @@ pub enum TelegramObserverType {
     RemovedChatBoost,
     #[strum(serialize = "shipping_query")]
     ShippingQuery,
+    #[strum(serialize = "stopped_message_generation")]
+    StoppedMessageGeneration,
     #[strum(serialize = "subscription")]
     Subscription,
     #[strum(serialize = "update")]
@@ -87,14 +89,14 @@ macro_rules! with_telegram_observer_variants {
         message_reaction_count), (MyChatMember, my_chat_member), (Poll, poll),
         (PollAnswer, poll_answer), (PreCheckoutQuery, pre_checkout_query),
         (PurchasedPaidMedia, purchased_paid_media), (RemovedChatBoost,
-        removed_chat_boost), (ShippingQuery, shipping_query), (Subscription,
-        subscription), (Update, update), }
+        removed_chat_boost), (ShippingQuery, shipping_query), (StoppedMessageGeneration,
+        stopped_message_generation), (Subscription, subscription), (Update, update), }
     };
 }
 pub(crate) use with_telegram_observer_variants;
 impl TelegramObserverType {
     #[must_use]
-    pub const fn all() -> [TelegramObserverType; 27usize] {
+    pub const fn all() -> [TelegramObserverType; 28usize] {
         [
             TelegramObserverType::BusinessConnection,
             TelegramObserverType::BusinessMessage,
@@ -121,6 +123,7 @@ impl TelegramObserverType {
             TelegramObserverType::PurchasedPaidMedia,
             TelegramObserverType::RemovedChatBoost,
             TelegramObserverType::ShippingQuery,
+            TelegramObserverType::StoppedMessageGeneration,
             TelegramObserverType::Subscription,
             TelegramObserverType::Update,
         ]
@@ -169,6 +172,7 @@ impl From<UpdateType> for TelegramObserverType {
             UpdateType::PurchasedPaidMedia => TelegramObserverType::PurchasedPaidMedia,
             UpdateType::RemovedChatBoost => TelegramObserverType::RemovedChatBoost,
             UpdateType::ShippingQuery => TelegramObserverType::ShippingQuery,
+            UpdateType::StoppedMessageGeneration => TelegramObserverType::StoppedMessageGeneration,
             UpdateType::Subscription => TelegramObserverType::Subscription,
         }
     }

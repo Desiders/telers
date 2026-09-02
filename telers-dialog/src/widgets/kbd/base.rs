@@ -129,9 +129,9 @@ impl Keyboard for MultiKeyboard {
         if inline_rows.is_empty() {
             non_inline_markup
         } else {
-            Some(ReplyMarkup::InlineKeyboardMarkup(InlineKeyboardMarkup {
-                inline_keyboard: inline_rows.into_boxed_slice(),
-            }))
+            Some(ReplyMarkup::InlineKeyboardMarkup(
+                InlineKeyboardMarkup::new(inline_rows),
+            ))
         }
     }
 

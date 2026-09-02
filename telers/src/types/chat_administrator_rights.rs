@@ -41,9 +41,11 @@ pub struct ChatAdministratorRights {
     /// `true`, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_direct_messages: Option<bool>,
-    /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted, defaults to the value of `can_pin_messages`.
+    /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_tags: Option<bool>,
+    /// `true`, if the administrator can manage chat welcome messages or directly send them in the case of bots
+    pub can_send_welcome_messages: bool,
 }
 impl ChatAdministratorRights {
     /// Creates a new `ChatAdministratorRights`.
@@ -60,6 +62,7 @@ impl ChatAdministratorRights {
     /// * `can_post_stories` - `true`, if the administrator can post stories to the chat
     /// * `can_edit_stories` - `true`, if the administrator can edit stories posted by other users, post stories to the chat page, pin chat stories, and access the chat's story archive
     /// * `can_delete_stories` - `true`, if the administrator can delete stories posted by other users
+    /// * `can_send_welcome_messages` - `true`, if the administrator can manage chat welcome messages or directly send them in the case of bots
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -76,6 +79,7 @@ impl ChatAdministratorRights {
         T8: Into<bool>,
         T9: Into<bool>,
         T10: Into<bool>,
+        T11: Into<bool>,
     >(
         is_anonymous: T0,
         can_manage_chat: T1,
@@ -88,6 +92,7 @@ impl ChatAdministratorRights {
         can_post_stories: T8,
         can_edit_stories: T9,
         can_delete_stories: T10,
+        can_send_welcome_messages: T11,
     ) -> Self {
         Self {
             is_anonymous: is_anonymous.into(),
@@ -107,6 +112,7 @@ impl ChatAdministratorRights {
             can_manage_topics: None,
             can_manage_direct_messages: None,
             can_manage_tags: None,
+            can_send_welcome_messages: can_send_welcome_messages.into(),
         }
     }
 
@@ -257,17 +263,24 @@ impl ChatAdministratorRights {
         self
     }
 
-    /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted, defaults to the value of `can_pin_messages`.
+    /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only
     #[must_use]
     pub fn can_manage_tags<T: Into<bool>>(mut self, val: T) -> Self {
         self.can_manage_tags = Some(val.into());
         self
     }
 
-    /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted, defaults to the value of `can_pin_messages`.
+    /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only
     #[must_use]
     pub fn can_manage_tags_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.can_manage_tags = val.map(Into::into);
+        self
+    }
+
+    /// `true`, if the administrator can manage chat welcome messages or directly send them in the case of bots
+    #[must_use]
+    pub fn can_send_welcome_messages<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_send_welcome_messages = val.into();
         self
     }
 }

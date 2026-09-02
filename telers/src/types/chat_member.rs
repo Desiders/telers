@@ -147,7 +147,7 @@ impl ChatMember {
 
     /// Helper method for field `can_manage_tags`.
     ///
-    /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted, defaults to the value of `can_pin_messages`.
+    /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only
     #[must_use]
     pub fn can_manage_tags(&self) -> Option<bool> {
         match self {
@@ -345,6 +345,17 @@ impl ChatMember {
     pub fn can_send_voice_notes(&self) -> Option<bool> {
         match self {
             Self::Restricted(val) => Some(val.can_send_voice_notes),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `can_send_welcome_messages`.
+    ///
+    /// `true`, if the administrator can manage chat welcome messages or directly send them in the case of bots
+    #[must_use]
+    pub fn can_send_welcome_messages(&self) -> Option<bool> {
+        match self {
+            Self::Administrator(val) => Some(val.can_send_welcome_messages),
             _ => None,
         }
     }
