@@ -1,5 +1,6 @@
 {
   "version": "Bot API 10.3",
+  "api_version": "10.3",
   "release_date": "August 24, 2026",
   "changelog": "https://core.telegram.org/bots/api#august-24-2026",
   "methods": {
