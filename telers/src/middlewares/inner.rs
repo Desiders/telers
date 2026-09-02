@@ -16,6 +16,7 @@
 //! [`context`]: telers::context::Context
 
 pub mod base;
+pub mod callback_answer;
 pub mod logging;
 pub mod manager;
 pub mod throttling;
@@ -23,6 +24,7 @@ pub mod throttling;
 pub(crate) use base::{boxed_middleware_factory, BoxedCloneMiddlewareService};
 
 pub use base::{wrap_to_next, Middleware, Next};
+pub use callback_answer::CallbackAnswer;
 pub use logging::Logging;
 pub use manager::Manager;
 pub use throttling::{Strategy, Throttling};
