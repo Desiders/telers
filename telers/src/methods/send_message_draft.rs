@@ -12,7 +12,7 @@ pub struct SendMessageDraft {
     /// Unique identifier for the target message thread
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message_thread_id: Option<i64>,
-    /// Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated.
+    /// Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated. Otherwise, the draft is replaced without animation.
     pub draft_id: i64,
     /// Text of the message to be sent, 0-4096 characters after entities parsing. Pass an empty text to show a `Thinking...` placeholder.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -23,13 +23,19 @@ pub struct SendMessageDraft {
     /// A JSON-serialized list of special entities that appear in message text, which can be specified instead of `parse_mode`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub entities: Option<Box<[crate::types::MessageEntity]>>,
+    /// Pass `true` to show the user a button to stop further drafts. The bot will receive an Update `stopped_message_generation` if the user presses the button.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_stop: Option<bool>,
+    /// Pass `true` to keep the draft in the chat when the button is pressed. The draft will still disappear after a short time or if the bot sends a message. To fully preserve the partial draft, the bot should send it as a new message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub keep_on_stop: Option<bool>,
 }
 impl SendMessageDraft {
     /// Creates a new `SendMessageDraft`.
     ///
     /// # Arguments
     /// * `chat_id` - Unique identifier for the target private chat
-    /// * `draft_id` - Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated.
+    /// * `draft_id` - Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated. Otherwise, the draft is replaced without animation.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -42,6 +48,8 @@ impl SendMessageDraft {
             text: None,
             parse_mode: None,
             entities: None,
+            can_stop: None,
+            keep_on_stop: None,
         }
     }
 
@@ -66,7 +74,7 @@ impl SendMessageDraft {
         self
     }
 
-    /// Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated.
+    /// Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated. Otherwise, the draft is replaced without animation.
     #[must_use]
     pub fn draft_id<T: Into<i64>>(mut self, val: T) -> Self {
         self.draft_id = val.into();
@@ -151,6 +159,34 @@ impl SendMessageDraft {
         val: Option<T>,
     ) -> Self {
         self.entities = val.map(|v| v.into_iter().map(Into::into).collect());
+        self
+    }
+
+    /// Pass `true` to show the user a button to stop further drafts. The bot will receive an Update `stopped_message_generation` if the user presses the button.
+    #[must_use]
+    pub fn can_stop<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_stop = Some(val.into());
+        self
+    }
+
+    /// Pass `true` to show the user a button to stop further drafts. The bot will receive an Update `stopped_message_generation` if the user presses the button.
+    #[must_use]
+    pub fn can_stop_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.can_stop = val.map(Into::into);
+        self
+    }
+
+    /// Pass `true` to keep the draft in the chat when the button is pressed. The draft will still disappear after a short time or if the bot sends a message. To fully preserve the partial draft, the bot should send it as a new message.
+    #[must_use]
+    pub fn keep_on_stop<T: Into<bool>>(mut self, val: T) -> Self {
+        self.keep_on_stop = Some(val.into());
+        self
+    }
+
+    /// Pass `true` to keep the draft in the chat when the button is pressed. The draft will still disappear after a short time or if the bot sends a message. To fully preserve the partial draft, the bot should send it as a new message.
+    #[must_use]
+    pub fn keep_on_stop_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.keep_on_stop = val.map(Into::into);
         self
     }
 }

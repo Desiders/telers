@@ -1098,6 +1098,13 @@ impl ChatFullInfo {
             .and_then(crate::types::Message::community_chat_added)
     }
 
+    /// Helper method for nested field `community_chat_joined`.
+    #[must_use]
+    pub fn community_chat_joined(&self) -> Option<&crate::types::CommunityChatJoined> {
+        self.pinned_message()
+            .and_then(crate::types::Message::community_chat_joined)
+    }
+
     /// Helper method for nested field `community_chat_removed`.
     #[must_use]
     pub fn community_chat_removed(&self) -> Option<&crate::types::CommunityChatRemoved> {

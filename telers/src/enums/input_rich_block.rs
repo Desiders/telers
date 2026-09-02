@@ -11,14 +11,17 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::InputRichBlockAnchor`]
 /// - [`crate::types::InputRichBlockList`]
 /// - [`crate::types::InputRichBlockBlockQuotation`]
+/// - [`crate::types::InputRichBlockExpandableBlockQuotation`]
 /// - [`crate::types::InputRichBlockPullQuotation`]
 /// - [`crate::types::InputRichBlockCollage`]
 /// - [`crate::types::InputRichBlockSlideshow`]
 /// - [`crate::types::InputRichBlockTable`]
 /// - [`crate::types::InputRichBlockDetails`]
 /// - [`crate::types::InputRichBlockMap`]
+/// - [`crate::types::InputRichBlockButtons`]
 /// - [`crate::types::InputRichBlockAnimation`]
 /// - [`crate::types::InputRichBlockAudio`]
+/// - [`crate::types::InputRichBlockDocument`]
 /// - [`crate::types::InputRichBlockPhoto`]
 /// - [`crate::types::InputRichBlockVideo`]
 /// - [`crate::types::InputRichBlockVoiceNote`]
@@ -58,6 +61,8 @@ pub enum InputRichBlockType {
     List,
     #[strum(serialize = "blockquote")]
     Blockquote,
+    #[strum(serialize = "expandable_blockquote")]
+    ExpandableBlockquote,
     #[strum(serialize = "pullquote")]
     Pullquote,
     #[strum(serialize = "collage")]
@@ -70,10 +75,14 @@ pub enum InputRichBlockType {
     Details,
     #[strum(serialize = "map")]
     Map,
+    #[strum(serialize = "buttons")]
+    Buttons,
     #[strum(serialize = "animation")]
     Animation,
     #[strum(serialize = "audio")]
     Audio,
+    #[strum(serialize = "document")]
+    Document,
     #[strum(serialize = "photo")]
     Photo,
     #[strum(serialize = "video")]
@@ -85,7 +94,7 @@ pub enum InputRichBlockType {
 }
 impl InputRichBlockType {
     #[must_use]
-    pub const fn all() -> [InputRichBlockType; 21usize] {
+    pub const fn all() -> [InputRichBlockType; 24usize] {
         [
             InputRichBlockType::Paragraph,
             InputRichBlockType::Heading,
@@ -96,14 +105,17 @@ impl InputRichBlockType {
             InputRichBlockType::Anchor,
             InputRichBlockType::List,
             InputRichBlockType::Blockquote,
+            InputRichBlockType::ExpandableBlockquote,
             InputRichBlockType::Pullquote,
             InputRichBlockType::Collage,
             InputRichBlockType::Slideshow,
             InputRichBlockType::Table,
             InputRichBlockType::Details,
             InputRichBlockType::Map,
+            InputRichBlockType::Buttons,
             InputRichBlockType::Animation,
             InputRichBlockType::Audio,
+            InputRichBlockType::Document,
             InputRichBlockType::Photo,
             InputRichBlockType::Video,
             InputRichBlockType::VoiceNote,
@@ -138,14 +150,17 @@ impl<'a> From<&'a InputRichBlock> for InputRichBlockType {
             InputRichBlock::Anchor(_) => InputRichBlockType::Anchor,
             InputRichBlock::List(_) => InputRichBlockType::List,
             InputRichBlock::Blockquote(_) => InputRichBlockType::Blockquote,
+            InputRichBlock::ExpandableBlockquote(_) => InputRichBlockType::ExpandableBlockquote,
             InputRichBlock::Pullquote(_) => InputRichBlockType::Pullquote,
             InputRichBlock::Collage(_) => InputRichBlockType::Collage,
             InputRichBlock::Slideshow(_) => InputRichBlockType::Slideshow,
             InputRichBlock::Table(_) => InputRichBlockType::Table,
             InputRichBlock::Details(_) => InputRichBlockType::Details,
             InputRichBlock::Map(_) => InputRichBlockType::Map,
+            InputRichBlock::Buttons(_) => InputRichBlockType::Buttons,
             InputRichBlock::Animation(_) => InputRichBlockType::Animation,
             InputRichBlock::Audio(_) => InputRichBlockType::Audio,
+            InputRichBlock::Document(_) => InputRichBlockType::Document,
             InputRichBlock::Photo(_) => InputRichBlockType::Photo,
             InputRichBlock::Video(_) => InputRichBlockType::Video,
             InputRichBlock::VoiceNote(_) => InputRichBlockType::VoiceNote,

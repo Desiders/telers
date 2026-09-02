@@ -12,18 +12,23 @@ use serde::{Deserialize, Serialize};
 pub enum ReplyMarkup {
     ReplyKeyboardMarkup(crate::types::ReplyKeyboardMarkup),
     ForceReply(crate::types::ForceReply),
-    ReplyKeyboardRemove(crate::types::ReplyKeyboardRemove),
     InlineKeyboardMarkup(crate::types::InlineKeyboardMarkup),
+    ReplyKeyboardRemove(crate::types::ReplyKeyboardRemove),
 }
 impl ReplyMarkup {
     /// Helper method for field `force_reply`.
     ///
-    /// Shows reply interface to the user, as if they manually selected the bot's message and tapped 'Reply'
+    /// # Variants
+    /// - `ReplyKeyboardMarkup`. Pass `true` if the reply interface must be shown to the user, as if they had manually selected the bot's message and tapped 'Reply'
+    /// - `ForceReply`. Shows reply interface to the user, as if they had manually selected the bot's message and tapped 'Reply'
+    /// - `InlineKeyboardMarkup`. Pass `true` if the reply interface must be shown to the user, as if they had manually selected the bot's message and tapped 'Reply'. The value of the field can't be changed when the inline keyboard is edited.
     #[must_use]
     pub fn force_reply(&self) -> Option<bool> {
         match self {
+            Self::ReplyKeyboardMarkup(val) => val.force_reply,
             Self::ForceReply(val) => Some(val.force_reply),
-            _ => None,
+            Self::InlineKeyboardMarkup(val) => val.force_reply,
+            Self::ReplyKeyboardRemove(_) => None,
         }
     }
 
@@ -161,25 +166,6 @@ impl TryFrom<ReplyMarkup> for crate::types::ForceReply {
         }
     }
 }
-impl From<crate::types::ReplyKeyboardRemove> for ReplyMarkup {
-    fn from(val: crate::types::ReplyKeyboardRemove) -> Self {
-        Self::ReplyKeyboardRemove(val)
-    }
-}
-impl TryFrom<ReplyMarkup> for crate::types::ReplyKeyboardRemove {
-    type Error = crate::errors::ConvertToTypeError;
-
-    fn try_from(val: ReplyMarkup) -> Result<Self, Self::Error> {
-        if let ReplyMarkup::ReplyKeyboardRemove(inner) = val {
-            Ok(inner)
-        } else {
-            Err(Self::Error::new(
-                stringify!(ReplyMarkup),
-                stringify!(ReplyKeyboardRemove),
-            ))
-        }
-    }
-}
 impl From<crate::types::InlineKeyboardMarkup> for ReplyMarkup {
     fn from(val: crate::types::InlineKeyboardMarkup) -> Self {
         Self::InlineKeyboardMarkup(val)
@@ -195,6 +181,25 @@ impl TryFrom<ReplyMarkup> for crate::types::InlineKeyboardMarkup {
             Err(Self::Error::new(
                 stringify!(ReplyMarkup),
                 stringify!(InlineKeyboardMarkup),
+            ))
+        }
+    }
+}
+impl From<crate::types::ReplyKeyboardRemove> for ReplyMarkup {
+    fn from(val: crate::types::ReplyKeyboardRemove) -> Self {
+        Self::ReplyKeyboardRemove(val)
+    }
+}
+impl TryFrom<ReplyMarkup> for crate::types::ReplyKeyboardRemove {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: ReplyMarkup) -> Result<Self, Self::Error> {
+        if let ReplyMarkup::ReplyKeyboardRemove(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(ReplyMarkup),
+                stringify!(ReplyKeyboardRemove),
             ))
         }
     }

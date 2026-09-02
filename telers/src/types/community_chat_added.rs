@@ -1,17 +1,17 @@
 use serde::{Deserialize, Serialize};
-/// Describes a service message about a chat being added to a community.
+/// Describes a service message about a chat or a bot being added to a community.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#communitychatadded>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CommunityChatAdded {
-    /// The new community to which the chat belongs
+    /// The new community to which the chat or the bot belongs
     pub community: crate::types::Community,
 }
 impl CommunityChatAdded {
     /// Creates a new `CommunityChatAdded`.
     ///
     /// # Arguments
-    /// * `community` - The new community to which the chat belongs
+    /// * `community` - The new community to which the chat or the bot belongs
     #[must_use]
     pub fn new<T0: Into<crate::types::Community>>(community: T0) -> Self {
         Self {
@@ -19,7 +19,7 @@ impl CommunityChatAdded {
         }
     }
 
-    /// The new community to which the chat belongs
+    /// The new community to which the chat or the bot belongs
     #[must_use]
     pub fn community<T: Into<crate::types::Community>>(mut self, val: T) -> Self {
         self.community = val.into();

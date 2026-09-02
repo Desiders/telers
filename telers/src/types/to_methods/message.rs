@@ -4,23 +4,24 @@ use crate::{
         ChatIdKind, Message, MessageAnimation, MessageAudio, MessageBoostAdded,
         MessageChannelChatCreated, MessageChatBackgroundSet, MessageChatOwnerChanged,
         MessageChatOwnerLeft, MessageChatShared, MessageChecklist, MessageChecklistTasksAdded,
-        MessageChecklistTasksDone, MessageCommunityChatAdded, MessageCommunityChatRemoved,
-        MessageConnectedWebsite, MessageContact, MessageDeleteChatPhoto, MessageDice,
-        MessageDirectMessagePriceChanged, MessageDocument, MessageForumTopicClosed,
-        MessageForumTopicCreated, MessageForumTopicEdited, MessageForumTopicReopened, MessageGame,
-        MessageGeneralForumTopicHidden, MessageGeneralForumTopicUnhidden, MessageGift,
-        MessageGiftUpgradeSent, MessageGiveaway, MessageGiveawayCompleted, MessageGiveawayCreated,
-        MessageGiveawayWinners, MessageGroupChatCreated, MessageInvoice, MessageLeftChatMember,
-        MessageLivePhoto, MessageLocation, MessageManagedBotCreated,
-        MessageMessageAutoDeleteTimerChanged, MessageMigrateFromChatId, MessageMigrateToChatId,
-        MessageNewChatMembers, MessageNewChatPhoto, MessageNewChatTitle, MessagePaidMedia,
-        MessagePaidMessagePriceChanged, MessagePassportData, MessagePhoto, MessagePinnedMessage,
-        MessagePoll, MessagePollOptionAdded, MessagePollOptionDeleted,
-        MessageProximityAlertTriggered, MessageRefundedPayment, MessageRichMessage, MessageSticker,
-        MessageStory, MessageSuccessfulPayment, MessageSuggestedPostApprovalFailed,
-        MessageSuggestedPostApproved, MessageSuggestedPostDeclined, MessageSuggestedPostPaid,
-        MessageSuggestedPostRefunded, MessageSupergroupChatCreated, MessageText, MessageUniqueGift,
-        MessageUnknown, MessageUsersShared, MessageVenue, MessageVideo, MessageVideoChatEnded,
+        MessageChecklistTasksDone, MessageCommunityChatAdded, MessageCommunityChatJoined,
+        MessageCommunityChatRemoved, MessageConnectedWebsite, MessageContact,
+        MessageDeleteChatPhoto, MessageDice, MessageDirectMessagePriceChanged, MessageDocument,
+        MessageForumTopicClosed, MessageForumTopicCreated, MessageForumTopicEdited,
+        MessageForumTopicReopened, MessageGame, MessageGeneralForumTopicHidden,
+        MessageGeneralForumTopicUnhidden, MessageGift, MessageGiftUpgradeSent, MessageGiveaway,
+        MessageGiveawayCompleted, MessageGiveawayCreated, MessageGiveawayWinners,
+        MessageGroupChatCreated, MessageInvoice, MessageLeftChatMember, MessageLivePhoto,
+        MessageLocation, MessageManagedBotCreated, MessageMessageAutoDeleteTimerChanged,
+        MessageMigrateFromChatId, MessageMigrateToChatId, MessageNewChatMembers,
+        MessageNewChatPhoto, MessageNewChatTitle, MessagePaidMedia, MessagePaidMessagePriceChanged,
+        MessagePassportData, MessagePhoto, MessagePinnedMessage, MessagePoll,
+        MessagePollOptionAdded, MessagePollOptionDeleted, MessageProximityAlertTriggered,
+        MessageRefundedPayment, MessageRichMessage, MessageSticker, MessageStory,
+        MessageSuccessfulPayment, MessageSuggestedPostApprovalFailed, MessageSuggestedPostApproved,
+        MessageSuggestedPostDeclined, MessageSuggestedPostPaid, MessageSuggestedPostRefunded,
+        MessageSupergroupChatCreated, MessageText, MessageUniqueGift, MessageUnknown,
+        MessageUsersShared, MessageVenue, MessageVideo, MessageVideoChatEnded,
         MessageVideoChatParticipantsInvited, MessageVideoChatScheduled, MessageVideoChatStarted,
         MessageVideoNote, MessageVoice, MessageWebAppData, MessageWriteAccessAllowed,
     },
@@ -322,6 +323,25 @@ impl MessageChecklistTasksDone {
     }
 }
 impl MessageCommunityChatAdded {
+    /// Creates [`CopyMessage`] for this message.
+    #[must_use]
+    pub fn to_copy_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> CopyMessage {
+        CopyMessage::new(chat_id, self.chat.id(), self.message_id)
+    }
+
+    /// Creates [`ForwardMessage`] for this message.
+    #[must_use]
+    pub fn to_forward_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> ForwardMessage {
+        ForwardMessage::new(chat_id, self.chat.id(), self.message_id)
+    }
+
+    /// Creates [`DeleteMessage`] for this message.
+    #[must_use]
+    pub fn delete_message(&self) -> DeleteMessage {
+        DeleteMessage::new(self.chat.id(), self.message_id)
+    }
+}
+impl MessageCommunityChatJoined {
     /// Creates [`CopyMessage`] for this message.
     #[must_use]
     pub fn to_copy_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> CopyMessage {

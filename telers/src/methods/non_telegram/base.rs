@@ -262,6 +262,10 @@ pub fn prepare_input_rich_message_media_content(
             prepare_file(files, &mut inner.media);
             prepare_optional_file(files, &mut inner.thumbnail);
         }
+        InputRichMessageMediaContent::Document(inner) => {
+            prepare_file(files, &mut inner.media);
+            prepare_optional_file(files, &mut inner.thumbnail);
+        }
         InputRichMessageMediaContent::Photo(inner) => {
             prepare_file(files, &mut inner.media);
         }
@@ -285,6 +289,10 @@ pub fn prepare_input_rich_block(files: &mut Vec<InputFile>, block: &mut InputRic
         InputRichBlock::Audio(inner) => {
             prepare_file(files, &mut inner.audio.media);
             prepare_optional_file(files, &mut inner.audio.thumbnail);
+        }
+        InputRichBlock::Document(inner) => {
+            prepare_file(files, &mut inner.document.media);
+            prepare_optional_file(files, &mut inner.document.thumbnail);
         }
         InputRichBlock::Photo(inner) => {
             prepare_file(files, &mut inner.photo.media);
@@ -329,9 +337,11 @@ pub fn prepare_input_rich_block(files: &mut Vec<InputFile>, block: &mut InputRic
         | InputRichBlock::MathematicalExpression(_)
         | InputRichBlock::Anchor(_)
         | InputRichBlock::Blockquote(_)
+        | InputRichBlock::ExpandableBlockquote(_)
         | InputRichBlock::Pullquote(_)
         | InputRichBlock::Table(_)
         | InputRichBlock::Map(_)
+        | InputRichBlock::Buttons(_)
         | InputRichBlock::Thinking(_) => {}
     }
 }

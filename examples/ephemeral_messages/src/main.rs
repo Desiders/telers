@@ -3,7 +3,7 @@ use telers::{
     event::telegram::{Handler, HandlerResult},
     filters::Command,
     methods::{DeleteEphemeralMessage, EditEphemeralMessageText, SendMessage},
-    types::Message,
+    types::{EphemeralMessageParameters, Message},
     Bot, Dispatcher, Router,
 };
 
@@ -21,17 +21,15 @@ async fn whisper_handler(bot: Bot, message: Message) -> HandlerResult<()> {
                     user.first_name
                 ),
             )
-            .receiver_user_id(user.id),
+            .ephemeral_message_parameters(EphemeralMessageParameters::new(user.id)),
         )
         .await?;
     let ephemeral_message_id = sent.ephemeral_message_id().unwrap();
 
-    bot.send(EditEphemeralMessageText::new(
-        message.chat().id(),
-        user.id,
-        ephemeral_message_id,
-        "(edited) This whisper is still visible only to you.",
-    ))
+    bot.send(
+        EditEphemeralMessageText::new(message.chat().id(), user.id, ephemeral_message_id)
+            .text("(edited) This whisper is still visible only to you."),
+    )
     .await?;
 
     Ok(())
@@ -45,7 +43,7 @@ async fn cleanup_handler(bot: Bot, message: Message) -> HandlerResult<()> {
     let sent = bot
         .send(
             SendMessage::new(message.chat().id(), "This whisper will self-destruct...")
-                .receiver_user_id(user.id),
+                .ephemeral_message_parameters(EphemeralMessageParameters::new(user.id)),
         )
         .await?;
     let ephemeral_message_id = sent.ephemeral_message_id().unwrap();

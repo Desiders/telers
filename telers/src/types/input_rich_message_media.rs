@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#inputrichmessagemedia>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct InputRichMessageMedia {
-    /// Unique identifier of the media used in a `tg://photo?id=`, `tg://video?id=`, or `tg://audio?id=` link. 1-64 characters, only A-Z, a-z, 0-9, `_` and - are allowed.
+    /// Unique identifier of the media used in a `tg://photo?id=`, `tg://video?id=`, `tg://document?id=`, or `tg://audio?id=` link. 1-64 characters, only A-Z, a-z, 0-9, `_` and - are allowed.
     pub id: Box<str>,
     /// The media to be sent. Everything except the media itself and its properties is ignored.
     pub media: crate::types::InputRichMessageMediaContent,
@@ -13,7 +13,7 @@ impl InputRichMessageMedia {
     /// Creates a new `InputRichMessageMedia`.
     ///
     /// # Arguments
-    /// * `id` - Unique identifier of the media used in a `tg://photo?id=`, `tg://video?id=`, or `tg://audio?id=` link. 1-64 characters, only A-Z, a-z, 0-9, `_` and - are allowed.
+    /// * `id` - Unique identifier of the media used in a `tg://photo?id=`, `tg://video?id=`, `tg://document?id=`, or `tg://audio?id=` link. 1-64 characters, only A-Z, a-z, 0-9, `_` and - are allowed.
     /// * `media` - The media to be sent. Everything except the media itself and its properties is ignored.
     #[must_use]
     pub fn new<T0: Into<Box<str>>, T1: Into<crate::types::InputRichMessageMediaContent>>(
@@ -26,7 +26,7 @@ impl InputRichMessageMedia {
         }
     }
 
-    /// Unique identifier of the media used in a `tg://photo?id=`, `tg://video?id=`, or `tg://audio?id=` link. 1-64 characters, only A-Z, a-z, 0-9, `_` and - are allowed.
+    /// Unique identifier of the media used in a `tg://photo?id=`, `tg://video?id=`, `tg://document?id=`, or `tg://audio?id=` link. 1-64 characters, only A-Z, a-z, 0-9, `_` and - are allowed.
     #[must_use]
     pub fn id<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.id = val.into();

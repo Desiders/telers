@@ -13,7 +13,7 @@ pub struct EditEphemeralMessageMedia {
     pub receiver_user_id: i64,
     /// Identifier of the ephemeral message to edit
     pub ephemeral_message_id: i64,
-    /// A JSON-serialized object for the new media content of the message. A new file can't be uploaded; use a previously uploaded file via its `file_id` or specify a URL.
+    /// A JSON-serialized object for the new media content of the message
     pub media: crate::types::InputMedia,
     /// A JSON-serialized object for an inline keyboard
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -26,7 +26,7 @@ impl EditEphemeralMessageMedia {
     /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup in the format @username
     /// * `receiver_user_id` - Identifier of the user who received the message
     /// * `ephemeral_message_id` - Identifier of the ephemeral message to edit
-    /// * `media` - A JSON-serialized object for the new media content of the message. A new file can't be uploaded; use a previously uploaded file via its `file_id` or specify a URL.
+    /// * `media` - A JSON-serialized object for the new media content of the message
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -72,7 +72,7 @@ impl EditEphemeralMessageMedia {
         self
     }
 
-    /// A JSON-serialized object for the new media content of the message. A new file can't be uploaded; use a previously uploaded file via its `file_id` or specify a URL.
+    /// A JSON-serialized object for the new media content of the message
     #[must_use]
     pub fn media<T: Into<crate::types::InputMedia>>(mut self, val: T) -> Self {
         self.media = val.into();

@@ -21,6 +21,9 @@ pub struct ReplyKeyboardMarkup {
     /// Use this parameter if you want to show the keyboard to specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message. Example: A user requests to change the bot's language, bot replies to the request with a keyboard to select the new language. Other users in the group don't see the keyboard.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub selective: Option<bool>,
+    /// Pass `true` if the reply interface must be shown to the user, as if they had manually selected the bot's message and tapped 'Reply'
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub force_reply: Option<bool>,
 }
 impl ReplyKeyboardMarkup {
     /// Creates a new `ReplyKeyboardMarkup`.
@@ -44,6 +47,7 @@ impl ReplyKeyboardMarkup {
             one_time_keyboard: None,
             input_field_placeholder: None,
             selective: None,
+            force_reply: None,
         }
     }
 
@@ -147,6 +151,20 @@ impl ReplyKeyboardMarkup {
     #[must_use]
     pub fn selective_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.selective = val.map(Into::into);
+        self
+    }
+
+    /// Pass `true` if the reply interface must be shown to the user, as if they had manually selected the bot's message and tapped 'Reply'
+    #[must_use]
+    pub fn force_reply<T: Into<bool>>(mut self, val: T) -> Self {
+        self.force_reply = Some(val.into());
+        self
+    }
+
+    /// Pass `true` if the reply interface must be shown to the user, as if they had manually selected the bot's message and tapped 'Reply'
+    #[must_use]
+    pub fn force_reply_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.force_reply = val.map(Into::into);
         self
     }
 }

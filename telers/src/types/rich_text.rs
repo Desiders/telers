@@ -21,6 +21,7 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::RichTextHashtag`]
 /// - [`crate::types::RichTextCashtag`]
 /// - [`crate::types::RichTextBotCommand`]
+/// - [`crate::types::RichTextButton`]
 /// - [`crate::types::RichTextAnchor`]
 /// - [`crate::types::RichTextAnchorLink`]
 /// - [`crate::types::RichTextReference`]
@@ -51,6 +52,7 @@ pub enum RichText {
     Hashtag(crate::types::RichTextHashtag),
     Cashtag(crate::types::RichTextCashtag),
     BotCommand(crate::types::RichTextBotCommand),
+    Button(crate::types::RichTextButton),
     Anchor(crate::types::RichTextAnchor),
     AnchorLink(crate::types::RichTextAnchorLink),
     Reference(crate::types::RichTextReference),
@@ -106,6 +108,17 @@ impl RichText {
     pub fn bot_command(&self) -> Option<&str> {
         match self {
             Self::BotCommand(val) => Some(val.bot_command.as_ref()),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `button`.
+    ///
+    /// The button
+    #[must_use]
+    pub fn button(&self) -> Option<&crate::types::RichMessageButton> {
+        match self {
+            Self::Button(val) => Some(&val.button),
             _ => None,
         }
     }
@@ -315,6 +328,18 @@ impl RichText {
         }
     }
 
+    /// Helper method for nested field `callback_data`.
+    #[must_use]
+    pub fn callback_data(&self) -> Option<&str> {
+        match self {
+            Self::Button(val) => {
+                let inner = &val.button;
+                inner.callback_data.as_deref()
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `can_connect_to_business`.
     #[must_use]
     pub fn can_connect_to_business(&self) -> Option<bool> {
@@ -358,6 +383,30 @@ impl RichText {
             Self::TextMention(val) => {
                 let inner = val.user.as_ref();
                 inner.can_read_all_group_messages
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `copy_text`.
+    #[must_use]
+    pub fn copy_text(&self) -> Option<&crate::types::CopyTextButton> {
+        match self {
+            Self::Button(val) => {
+                let inner = &val.button;
+                inner.copy_text.as_ref()
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `disabled`.
+    #[must_use]
+    pub fn disabled(&self) -> Option<&crate::types::DisabledButton> {
+        match self {
+            Self::Button(val) => {
+                let inner = &val.button;
+                inner.disabled.as_ref()
             }
             _ => None,
         }
@@ -459,6 +508,30 @@ impl RichText {
         }
     }
 
+    /// Helper method for nested field `login_url`.
+    #[must_use]
+    pub fn login_url(&self) -> Option<&crate::types::LoginUrl> {
+        match self {
+            Self::Button(val) => {
+                let inner = &val.button;
+                inner.login_url.as_ref()
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `style`.
+    #[must_use]
+    pub fn style(&self) -> Option<&str> {
+        match self {
+            Self::Button(val) => {
+                let inner = &val.button;
+                inner.style.as_deref()
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `supports_guest_queries`.
     #[must_use]
     pub fn supports_guest_queries(&self) -> Option<bool> {
@@ -490,6 +563,56 @@ impl RichText {
             Self::TextMention(val) => {
                 let inner = val.user.as_ref();
                 inner.supports_join_request_queries
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `switch_inline_query`.
+    #[must_use]
+    pub fn switch_inline_query(&self) -> Option<&str> {
+        match self {
+            Self::Button(val) => {
+                let inner = &val.button;
+                inner.switch_inline_query.as_deref()
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `switch_inline_query_chosen_chat`.
+    #[must_use]
+    pub fn switch_inline_query_chosen_chat(
+        &self,
+    ) -> Option<&crate::types::SwitchInlineQueryChosenChat> {
+        match self {
+            Self::Button(val) => {
+                let inner = &val.button;
+                inner.switch_inline_query_chosen_chat.as_ref()
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `switch_inline_query_current_chat`.
+    #[must_use]
+    pub fn switch_inline_query_current_chat(&self) -> Option<&str> {
+        match self {
+            Self::Button(val) => {
+                let inner = &val.button;
+                inner.switch_inline_query_current_chat.as_deref()
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `web_app`.
+    #[must_use]
+    pub fn web_app(&self) -> Option<&crate::types::WebAppInfo> {
+        match self {
+            Self::Button(val) => {
+                let inner = &val.button;
+                inner.web_app.as_ref()
             }
             _ => None,
         }
@@ -915,6 +1038,25 @@ impl TryFrom<RichText> for crate::types::RichTextBotCommand {
             Err(Self::Error::new(
                 stringify!(RichText),
                 stringify!(RichTextBotCommand),
+            ))
+        }
+    }
+}
+impl From<crate::types::RichTextButton> for RichText {
+    fn from(val: crate::types::RichTextButton) -> Self {
+        Self::Button(val)
+    }
+}
+impl TryFrom<RichText> for crate::types::RichTextButton {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: RichText) -> Result<Self, Self::Error> {
+        if let RichText::Button(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(RichText),
+                stringify!(RichTextButton),
             ))
         }
     }

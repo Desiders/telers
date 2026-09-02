@@ -210,6 +210,12 @@ impl InlineQueryResultGifKind {
             .and_then(crate::types::InputMessageContent::first_name)
     }
 
+    /// Helper method for nested field `force_reply`.
+    #[must_use]
+    pub fn force_reply(&self) -> Option<bool> {
+        self.reply_markup().and_then(|inner| inner.force_reply)
+    }
+
     /// Helper method for nested field `foursquare_id`.
     #[must_use]
     pub fn foursquare_id(&self) -> Option<&str> {

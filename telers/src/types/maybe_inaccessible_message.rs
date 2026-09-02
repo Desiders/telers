@@ -191,7 +191,7 @@ impl MaybeInaccessibleMessage {
 
     /// Helper method for field `community_chat_added`.
     ///
-    /// Service message: chat added to a Community
+    /// Service message: chat or bot added to a Community
     #[must_use]
     pub fn community_chat_added(&self) -> Option<&crate::types::CommunityChatAdded> {
         match self {
@@ -200,9 +200,20 @@ impl MaybeInaccessibleMessage {
         }
     }
 
+    /// Helper method for field `community_chat_joined`.
+    ///
+    /// Service message: chat was joined by a user from a Community
+    #[must_use]
+    pub fn community_chat_joined(&self) -> Option<&crate::types::CommunityChatJoined> {
+        match self {
+            Self::Message(val) => crate::types::Message::community_chat_joined(val),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
     /// Helper method for field `community_chat_removed`.
     ///
-    /// Service message: chat removed from a Community
+    /// Service message: chat or bot removed from a Community
     #[must_use]
     pub fn community_chat_removed(&self) -> Option<&crate::types::CommunityChatRemoved> {
         match self {
@@ -1483,17 +1494,6 @@ impl MaybeInaccessibleMessage {
         }
     }
 
-    /// Helper method for nested field `community`.
-    #[must_use]
-    pub fn community(&self) -> Option<&crate::types::Community> {
-        match self {
-            Self::Message(val) => {
-                crate::types::Message::community_chat_added(val).map(|inner| &inner.community)
-            }
-            Self::InaccessibleMessage(_) => None,
-        }
-    }
-
     /// Helper method for nested field `correct_option_ids`.
     #[must_use]
     pub fn correct_option_ids(&self) -> Option<&[i64]> {
@@ -1598,6 +1598,17 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => {
                 crate::types::Message::poll(val).and_then(crate::types::Poll::explanation_media)
+            }
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for nested field `force_reply`.
+    #[must_use]
+    pub fn force_reply(&self) -> Option<bool> {
+        match self {
+            Self::Message(val) => {
+                crate::types::Message::reply_markup(val).and_then(|inner| inner.force_reply)
             }
             Self::InaccessibleMessage(_) => None,
         }

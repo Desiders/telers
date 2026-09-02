@@ -18,12 +18,9 @@ pub struct SendContact {
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
     #[serde(skip_serializing_if = "Option::is_none")]
     pub direct_messages_topic_id: Option<i64>,
-    /// For outgoing ephemeral messages, unique identifier of the user who will receive the message; for group and supergroup chats only. It is not guaranteed that the user will receive the message, especially if they are offline. See ephemeral message sending for more details.
+    /// A JSON-serialized object containing the parameters of the ephemeral message to send
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub receiver_user_id: Option<i64>,
-    /// For outgoing ephemeral messages, identifier of the callback query which triggered the message if any
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub callback_query_id: Option<Box<str>>,
+    pub ephemeral_message_parameters: Option<crate::types::EphemeralMessageParameters>,
     /// Contact's phone number
     pub phone_number: Box<str>,
     /// Contact's first name
@@ -77,8 +74,7 @@ impl SendContact {
             chat_id: chat_id.into(),
             message_thread_id: None,
             direct_messages_topic_id: None,
-            receiver_user_id: None,
-            callback_query_id: None,
+            ephemeral_message_parameters: None,
             phone_number: phone_number.into(),
             first_name: first_name.into(),
             last_name: None,
@@ -142,31 +138,25 @@ impl SendContact {
         self
     }
 
-    /// For outgoing ephemeral messages, unique identifier of the user who will receive the message; for group and supergroup chats only. It is not guaranteed that the user will receive the message, especially if they are offline. See ephemeral message sending for more details.
+    /// A JSON-serialized object containing the parameters of the ephemeral message to send
     #[must_use]
-    pub fn receiver_user_id<T: Into<i64>>(mut self, val: T) -> Self {
-        self.receiver_user_id = Some(val.into());
+    pub fn ephemeral_message_parameters<T: Into<crate::types::EphemeralMessageParameters>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.ephemeral_message_parameters = Some(val.into());
         self
     }
 
-    /// For outgoing ephemeral messages, unique identifier of the user who will receive the message; for group and supergroup chats only. It is not guaranteed that the user will receive the message, especially if they are offline. See ephemeral message sending for more details.
+    /// A JSON-serialized object containing the parameters of the ephemeral message to send
     #[must_use]
-    pub fn receiver_user_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
-        self.receiver_user_id = val.map(Into::into);
-        self
-    }
-
-    /// For outgoing ephemeral messages, identifier of the callback query which triggered the message if any
-    #[must_use]
-    pub fn callback_query_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
-        self.callback_query_id = Some(val.into());
-        self
-    }
-
-    /// For outgoing ephemeral messages, identifier of the callback query which triggered the message if any
-    #[must_use]
-    pub fn callback_query_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
-        self.callback_query_id = val.map(Into::into);
+    pub fn ephemeral_message_parameters_option<
+        T: Into<crate::types::EphemeralMessageParameters>,
+    >(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.ephemeral_message_parameters = val.map(Into::into);
         self
     }
 

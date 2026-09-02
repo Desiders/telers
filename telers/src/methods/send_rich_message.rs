@@ -18,6 +18,9 @@ pub struct SendRichMessage {
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
     #[serde(skip_serializing_if = "Option::is_none")]
     pub direct_messages_topic_id: Option<i64>,
+    /// A JSON-serialized object containing the parameters of the ephemeral message to send
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ephemeral_message_parameters: Option<crate::types::EphemeralMessageParameters>,
     /// The message to be sent
     pub rich_message: crate::types::InputRichMessage,
     /// Sends the message silently. Users will receive a notification with no sound.
@@ -61,6 +64,7 @@ impl SendRichMessage {
             chat_id: chat_id.into(),
             message_thread_id: None,
             direct_messages_topic_id: None,
+            ephemeral_message_parameters: None,
             rich_message: rich_message.into(),
             disable_notification: None,
             protect_content: None,
@@ -118,6 +122,28 @@ impl SendRichMessage {
     #[must_use]
     pub fn direct_messages_topic_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.direct_messages_topic_id = val.map(Into::into);
+        self
+    }
+
+    /// A JSON-serialized object containing the parameters of the ephemeral message to send
+    #[must_use]
+    pub fn ephemeral_message_parameters<T: Into<crate::types::EphemeralMessageParameters>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.ephemeral_message_parameters = Some(val.into());
+        self
+    }
+
+    /// A JSON-serialized object containing the parameters of the ephemeral message to send
+    #[must_use]
+    pub fn ephemeral_message_parameters_option<
+        T: Into<crate::types::EphemeralMessageParameters>,
+    >(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.ephemeral_message_parameters = val.map(Into::into);
         self
     }
 
