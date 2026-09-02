@@ -4,7 +4,7 @@
 //! [Web Apps](https://core.telegram.org/bots/webapps#validating-data-received-via-the-mini-app)
 //! and the [login widget](https://core.telegram.org/widgets/login#checking-authorization).
 
-use hmac::{Hmac, Mac};
+use hmac::{Hmac, KeyInit, Mac};
 use sha2::Sha256;
 use subtle::ConstantTimeEq;
 

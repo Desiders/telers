@@ -56,7 +56,7 @@ base64 = { version = "0.22", default-features = false, features = ["alloc"] }
 bytes = { version = "1.5", default-features = false }
 deadpool-redis = { version = "0.23", default-features = false, features = ["rt_tokio_1"], optional = true }
 futures-util = { version = "0.3", default-features = false }
-hmac = { version = "0.12", default-features = false, optional = true }
+hmac = { version = "0.13", default-features = false, optional = true }
 native-tls = { version = "0.2", optional = true }
 paste = { version = "1.0", default-features = false }
 pathdiff = { version = "0.2", default-features = false }
@@ -68,7 +68,7 @@ serde = { version = "1.0", default-features = false, features = ["derive", "allo
 serde_json = { version = "1.0", default-features = false, features = ["alloc", "unbounded_depth"] }
 serde_stacker = { version = "0.1", default-features = false }
 serde_with = { version = "3.6", default-features = false, features = ["macros"] }
-sha2 = { version = "0.10", default-features = false, optional = true }
+sha2 = { version = "0.11", default-features = false, optional = true }
 strum = { version = "0.28", default-features = false, features = ["std"] }
 strum_macros = { version = "0.28", default-features = false }
 subtle = { version = "2.6", default-features = false, optional = true }
