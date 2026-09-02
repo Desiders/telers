@@ -67,8 +67,8 @@ secrecy = { version = "0.10", default-features = false }
 serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
 serde_json = { version = "1.0", default-features = false, features = ["alloc", "unbounded_depth"] }
 serde_stacker = { version = "0.1", default-features = false }
-sha2 = { version = "0.10", default-features = false, optional = true }
 serde_with = { version = "3.6", default-features = false, features = ["macros"] }
+sha2 = { version = "0.10", default-features = false, optional = true }
 strum = { version = "0.28", default-features = false, features = ["std"] }
 strum_macros = { version = "0.28", default-features = false }
 subtle = { version = "2.6", default-features = false, optional = true }
