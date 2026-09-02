@@ -2461,6 +2461,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "throttling"
+version = "0.1.0"
+dependencies = [
+ "telers",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "time"
 version = "0.3.55"
 source = "registry+https://github.com/rust-lang/crates.io-index"
