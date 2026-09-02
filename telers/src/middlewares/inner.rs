@@ -18,9 +18,11 @@
 pub mod base;
 pub mod logging;
 pub mod manager;
+pub mod throttling;
 
 pub(crate) use base::{boxed_middleware_factory, BoxedCloneMiddlewareService};
 
 pub use base::{wrap_to_next, Middleware, Next};
 pub use logging::Logging;
 pub use manager::Manager;
+pub use throttling::{Strategy, Throttling};

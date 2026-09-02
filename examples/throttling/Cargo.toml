@@ -1,0 +1,11 @@
+[package]
+name = "throttling"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+telers = { path = "../../telers", features = ["default-signal"] }
+tokio = { version = "1.36", features = ["macros"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
