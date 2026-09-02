@@ -10,8 +10,8 @@ use crate::{
 
 /// Accumulates media items and builds a [`SendMediaGroup`].
 ///
-/// Telegram requires 2-10 items per album; [`MediaGroupBuilder`] caps additions
-/// at [`Self::MAX_SIZE`], the minimum is up to the Telegram API.
+/// Telegram requires 2-10 items per album; [`MediaGroupBuilder`] panics when
+/// [`Self::MAX_SIZE`] is exceeded, the minimum is up to the Telegram API.
 pub struct MediaGroupBuilder {
     chat_id: ChatIdKind,
     media: Vec<InputMedia>,
@@ -30,45 +30,61 @@ impl MediaGroupBuilder {
         }
     }
 
+    fn assert_can_add(&self) {
+        assert!(
+            self.media.len() < Self::MAX_SIZE,
+            "cannot add more than {} media items",
+            Self::MAX_SIZE
+        );
+    }
+
     /// Appends a photo.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the album already has [`Self::MAX_SIZE`] media items.
     #[must_use]
     pub fn add_photo(mut self, media: impl Into<InputFile>) -> Self {
-        if self.media.len() == Self::MAX_SIZE {
-            return self;
-        }
+        self.assert_can_add();
         self.media
             .push(InputMedia::Photo(InputMediaPhoto::new(media)));
         self
     }
 
     /// Appends a video.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the album already has [`Self::MAX_SIZE`] media items.
     #[must_use]
     pub fn add_video(mut self, media: impl Into<InputFile>) -> Self {
-        if self.media.len() == Self::MAX_SIZE {
-            return self;
-        }
+        self.assert_can_add();
         self.media
             .push(InputMedia::Video(InputMediaVideo::new(media)));
         self
     }
 
     /// Appends an audio file.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the album already has [`Self::MAX_SIZE`] media items.
     #[must_use]
     pub fn add_audio(mut self, media: impl Into<InputFile>) -> Self {
-        if self.media.len() == Self::MAX_SIZE {
-            return self;
-        }
+        self.assert_can_add();
         self.media
             .push(InputMedia::Audio(InputMediaAudio::new(media)));
         self
     }
 
     /// Appends a document.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the album already has [`Self::MAX_SIZE`] media items.
     #[must_use]
     pub fn add_document(mut self, media: impl Into<InputFile>) -> Self {
-        if self.media.len() == Self::MAX_SIZE {
-            return self;
-        }
+        self.assert_can_add();
         self.media
             .push(InputMedia::Document(InputMediaDocument::new(media)));
         self
@@ -105,11 +121,12 @@ mod tests {
     }
 
     #[test]
-    fn add_ignores_media_beyond_max() {
+    #[should_panic]
+    fn add_panics_beyond_max() {
         let mut builder = MediaGroupBuilder::new(42);
-        for i in 0..MediaGroupBuilder::MAX_SIZE + 1 {
-            builder = builder.add_photo(InputFile::id(format!("photo{i}")));
+        for _ in 0..MediaGroupBuilder::MAX_SIZE {
+            builder = builder.add_photo(InputFile::id("photo"));
         }
-        assert_eq!(builder.build().media.len(), MediaGroupBuilder::MAX_SIZE);
+        let _ = builder.add_photo(InputFile::id("photo"));
     }
 }

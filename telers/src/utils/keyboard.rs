@@ -7,6 +7,7 @@
 use crate::types::{
     InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup,
 };
+use std::mem;
 
 /// A button type that a [`KeyboardBuilder`] can build a markup from.
 pub trait KeyboardButtonKind: Sized {
@@ -74,16 +75,21 @@ impl<B> KeyboardBuilder<B> {
 
     /// Appends one button, starting a new row when the last one is full.
     ///
-    /// Buttons beyond [`KeyboardButtonKind::MAX_BUTTONS`] are ignored.
+    /// # Panics
+    ///
+    /// Panics if the markup already has [`KeyboardButtonKind::MAX_BUTTONS`]
+    /// buttons.
     #[must_use]
     #[allow(clippy::should_implement_trait)]
     pub fn add(mut self, button: B) -> Self
     where
         B: KeyboardButtonKind,
     {
-        if self.buttons == B::MAX_BUTTONS {
-            return self;
-        }
+        assert!(
+            self.buttons < B::MAX_BUTTONS,
+            "cannot add more than {} buttons",
+            B::MAX_BUTTONS
+        );
         match self.rows.last_mut() {
             Some(row) if row.len() < self.adjust => row.push(button),
             _ => self.rows.push(vec![button]),
@@ -95,8 +101,12 @@ impl<B> KeyboardBuilder<B> {
     /// Appends one or more explicit rows.
     ///
     /// When too many buttons are passed, they are split into rows of at most
-    /// `adjust` columns. Buttons beyond [`KeyboardButtonKind::MAX_BUTTONS`]
-    /// are ignored.
+    /// `adjust` columns.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the markup would exceed [`KeyboardButtonKind::MAX_BUTTONS`]
+    /// buttons.
     #[must_use]
     pub fn row(mut self, buttons: impl IntoIterator<Item = B>) -> Self
     where
@@ -104,11 +114,13 @@ impl<B> KeyboardBuilder<B> {
     {
         let mut row: Vec<B> = Vec::new();
         for button in buttons {
-            if self.buttons == B::MAX_BUTTONS {
-                break;
-            }
+            assert!(
+                self.buttons < B::MAX_BUTTONS,
+                "cannot add more than {} buttons",
+                B::MAX_BUTTONS
+            );
             if row.len() == self.adjust {
-                self.rows.push(std::mem::take(&mut row));
+                self.rows.push(mem::take(&mut row));
             }
             row.push(button);
             self.buttons += 1;
@@ -215,13 +227,13 @@ mod tests {
     }
 
     #[test]
-    fn add_ignores_buttons_beyond_max() {
+    #[should_panic]
+    fn add_panics_beyond_max() {
         let mut builder = InlineKeyboardBuilder::new();
-        for i in 0..InlineKeyboardButton::MAX_BUTTONS + 1 {
-            builder = builder.add(inline_button(&i.to_string()));
+        for _ in 0..InlineKeyboardButton::MAX_BUTTONS {
+            builder = builder.add(inline_button("x"));
         }
-        let total: usize = builder.export().iter().map(|row| row.len()).sum();
-        assert_eq!(total, InlineKeyboardButton::MAX_BUTTONS);
+        let _ = builder.add(inline_button("x"));
     }
 
     #[test]
