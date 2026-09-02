@@ -4,7 +4,7 @@
 
 [![docs.rs](https://img.shields.io/docsrs/telers?style=flat-square)](https://docs.rs/telers)
 [![crates.io](https://shieldcn.dev/crates/telers.svg?variant=branded&size=xs)](https://crates.io/crates/telers)
-<a href="https://core.telegram.org/bots/api" target="_blank" rel="noopener noreferrer"><picture><source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/Desiders/telers/refs/heads/dev-1.x/telers-codegen/schemas/api.json&query=$.version&variant=outline&size=xs&logo=ri:FaTelegramPlane&logoColor=24A1DE&label=Telegram+Bot+API&mode=dark"><img alt="Telegram Bot API" src="https://shieldcn.dev/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/Desiders/telers/refs/heads/dev-1.x/telers-codegen/schemas/api.json&query=$.version&variant=outline&size=xs&mode=light&theme=zinc&logo=ri:FaTelegramPlane&logoColor=24A1DE&label=Telegram+Bot+API"></picture></a>
+<a href="https://core.telegram.org/bots/api" target="_blank" rel="noopener noreferrer"><picture><source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/Desiders/telers/refs/heads/dev-1.x/telers-codegen/schemas/api.json&query=$.api-version&variant=outline&size=xs&logo=ri:FaTelegramPlane&logoColor=24A1DE&label=Telegram+Bot+API&mode=dark"><img alt="Telegram Bot API" src="https://shieldcn.dev/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/Desiders/telers/refs/heads/dev-1.x/telers-codegen/schemas/api.json&query=$.version&variant=outline&size=xs&mode=light&theme=zinc&logo=ri:FaTelegramPlane&logoColor=24A1DE&label=Telegram+Bot+API"></picture></a>
 
 ### An asynchronous framework for Telegram Bot API written in Rust
 
