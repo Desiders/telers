@@ -13,7 +13,7 @@ pub struct InputRichMessage {
     /// Content of the rich message to send described using Markdown formatting. See rich message formatting options for more details. Use media field to specify the media used in the message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub markdown: Option<Box<str>>,
-    /// List of media that are specified in the markdown or html fields using `tg://photo?id=`, `tg://video?id=`, and `tg://audio?id=` links
+    /// List of media that are specified in the markdown or html fields using `tg://photo?id=`, `tg://video?id=`, `tg://document?id=`, and `tg://audio?id=` links
     #[serde(skip_serializing_if = "Option::is_none")]
     pub media: Option<Box<[crate::types::InputRichMessageMedia]>>,
     /// Pass `true` if the rich message must be shown right-to-left
@@ -115,7 +115,7 @@ impl InputRichMessage {
         self
     }
 
-    /// List of media that are specified in the markdown or html fields using `tg://photo?id=`, `tg://video?id=`, and `tg://audio?id=` links
+    /// List of media that are specified in the markdown or html fields using `tg://photo?id=`, `tg://video?id=`, `tg://document?id=`, and `tg://audio?id=` links
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -132,7 +132,7 @@ impl InputRichMessage {
         self
     }
 
-    /// List of media that are specified in the markdown or html fields using `tg://photo?id=`, `tg://video?id=`, and `tg://audio?id=` links
+    /// List of media that are specified in the markdown or html fields using `tg://photo?id=`, `tg://video?id=`, `tg://document?id=`, and `tg://audio?id=` links
     ///
     /// # Notes
     /// Adds a single element.

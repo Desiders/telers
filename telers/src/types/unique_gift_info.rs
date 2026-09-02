@@ -8,6 +8,15 @@ pub struct UniqueGiftInfo {
     pub gift: Box<crate::types::UniqueGift>,
     /// Origin of the gift. Currently, either `upgrade` for gifts upgraded from regular gifts, `transfer` for gifts transferred from other users or channels, `resale` for gifts bought from other users, `gifted_upgrade` for upgrades purchased after the gift was sent, or `offer` for gifts bought or sold through gift purchase offers.
     pub origin: Box<str>,
+    /// Text of the message that was added to the gift
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<Box<str>>,
+    /// Special entities that appear in the text
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub entities: Option<Box<[crate::types::MessageEntity]>>,
+    /// `true`, if the sender and gift text are shown only to the gift receiver; otherwise, everyone will be able to see them
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_private: Option<bool>,
     /// For gifts bought from other users, the currency in which the payment for the gift was done. Currently, one of `XTR` for Telegram Stars or `TON` for TON grams.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_resale_currency: Option<Box<str>>,
@@ -41,6 +50,9 @@ impl UniqueGiftInfo {
         Self {
             gift: Box::new(gift.into()),
             origin: origin.into(),
+            text: None,
+            entities: None,
+            is_private: None,
             last_resale_currency: None,
             last_resale_amount: None,
             owned_gift_id: None,
@@ -60,6 +72,81 @@ impl UniqueGiftInfo {
     #[must_use]
     pub fn origin<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.origin = val.into();
+        self
+    }
+
+    /// Text of the message that was added to the gift
+    #[must_use]
+    pub fn text<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.text = Some(val.into());
+        self
+    }
+
+    /// Text of the message that was added to the gift
+    #[must_use]
+    pub fn text_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.text = val.map(Into::into);
+        self
+    }
+
+    /// Special entities that appear in the text
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn entities<T: Into<Box<[crate::types::MessageEntity]>>>(mut self, val: T) -> Self {
+        self.entities = Some(
+            self.entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into())
+                .collect(),
+        );
+        self
+    }
+
+    /// Special entities that appear in the text
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.entities = Some(
+            self.entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        self
+    }
+
+    /// Special entities that appear in the text
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn entities_option<T: Into<Box<[crate::types::MessageEntity]>>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.entities = val.map(Into::into);
+        self
+    }
+
+    /// `true`, if the sender and gift text are shown only to the gift receiver; otherwise, everyone will be able to see them
+    #[must_use]
+    pub fn is_private<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_private = Some(val.into());
+        self
+    }
+
+    /// `true`, if the sender and gift text are shown only to the gift receiver; otherwise, everyone will be able to see them
+    #[must_use]
+    pub fn is_private_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_private = val.map(Into::into);
         self
     }
 

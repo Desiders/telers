@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#forcereply>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ForceReply {
-    /// Shows reply interface to the user, as if they manually selected the bot's message and tapped 'Reply'
+    /// Shows reply interface to the user, as if they had manually selected the bot's message and tapped 'Reply'
     pub force_reply: bool,
     /// The placeholder to be shown in the input field when the reply is active; 1-64 characters
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -17,7 +17,7 @@ impl ForceReply {
     /// Creates a new `ForceReply`.
     ///
     /// # Arguments
-    /// * `force_reply` - Shows reply interface to the user, as if they manually selected the bot's message and tapped 'Reply'
+    /// * `force_reply` - Shows reply interface to the user, as if they had manually selected the bot's message and tapped 'Reply'
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -30,7 +30,7 @@ impl ForceReply {
         }
     }
 
-    /// Shows reply interface to the user, as if they manually selected the bot's message and tapped 'Reply'
+    /// Shows reply interface to the user, as if they had manually selected the bot's message and tapped 'Reply'
     #[must_use]
     pub fn force_reply<T: Into<bool>>(mut self, val: T) -> Self {
         self.force_reply = val.into();

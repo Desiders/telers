@@ -15,6 +15,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::MessageChecklistTasksAdded`]
 /// - [`crate::types::MessageChecklistTasksDone`]
 /// - [`crate::types::MessageCommunityChatAdded`]
+/// - [`crate::types::MessageCommunityChatJoined`]
 /// - [`crate::types::MessageCommunityChatRemoved`]
 /// - [`crate::types::MessageConnectedWebsite`]
 /// - [`crate::types::MessageContact`]
@@ -125,6 +126,8 @@ pub enum MessageType {
     ChecklistTasksDone,
     #[strum(serialize = "community_chat_added")]
     CommunityChatAdded,
+    #[strum(serialize = "community_chat_joined")]
+    CommunityChatJoined,
     #[strum(serialize = "community_chat_removed")]
     CommunityChatRemoved,
     #[strum(serialize = "connected_website")]
@@ -256,7 +259,7 @@ pub enum MessageType {
 }
 impl MessageType {
     #[must_use]
-    pub const fn all() -> [MessageType; 78usize] {
+    pub const fn all() -> [MessageType; 79usize] {
         [
             MessageType::Animation,
             MessageType::LivePhoto,
@@ -272,6 +275,7 @@ impl MessageType {
             MessageType::ChecklistTasksAdded,
             MessageType::ChecklistTasksDone,
             MessageType::CommunityChatAdded,
+            MessageType::CommunityChatJoined,
             MessageType::CommunityChatRemoved,
             MessageType::ConnectedWebsite,
             MessageType::Contact,
@@ -371,6 +375,7 @@ impl<'a> From<&'a Message> for MessageType {
             Message::ChecklistTasksAdded(_) => MessageType::ChecklistTasksAdded,
             Message::ChecklistTasksDone(_) => MessageType::ChecklistTasksDone,
             Message::CommunityChatAdded(_) => MessageType::CommunityChatAdded,
+            Message::CommunityChatJoined(_) => MessageType::CommunityChatJoined,
             Message::CommunityChatRemoved(_) => MessageType::CommunityChatRemoved,
             Message::ConnectedWebsite(_) => MessageType::ConnectedWebsite,
             Message::Contact(_) => MessageType::Contact,

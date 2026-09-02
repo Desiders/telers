@@ -32,7 +32,7 @@ pub struct EditMessageText {
     /// Link preview generation options for the message
     #[serde(skip_serializing_if = "Option::is_none")]
     pub link_preview_options: Option<crate::types::LinkPreviewOptions>,
-    /// New rich content of the message; required if text isn't specified. Direct upload of new files isn't supported when an inline message is edited.
+    /// New rich content of the message; required if text isn't specified. Direct upload of new files and explicit upload of files by a URL isn't supported when an inline message is edited.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rich_message: Option<crate::types::InputRichMessage>,
     /// A JSON-serialized object for an inline keyboard
@@ -217,14 +217,14 @@ impl EditMessageText {
         self
     }
 
-    /// New rich content of the message; required if text isn't specified. Direct upload of new files isn't supported when an inline message is edited.
+    /// New rich content of the message; required if text isn't specified. Direct upload of new files and explicit upload of files by a URL isn't supported when an inline message is edited.
     #[must_use]
     pub fn rich_message<T: Into<crate::types::InputRichMessage>>(mut self, val: T) -> Self {
         self.rich_message = Some(val.into());
         self
     }
 
-    /// New rich content of the message; required if text isn't specified. Direct upload of new files isn't supported when an inline message is edited.
+    /// New rich content of the message; required if text isn't specified. Direct upload of new files and explicit upload of files by a URL isn't supported when an inline message is edited.
     #[must_use]
     pub fn rich_message_option<T: Into<crate::types::InputRichMessage>>(
         mut self,

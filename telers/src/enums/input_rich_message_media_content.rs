@@ -5,6 +5,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// Currently, it can be one of
 /// - [`crate::types::InputMediaAnimation`]
 /// - [`crate::types::InputMediaAudio`]
+/// - [`crate::types::InputMediaDocument`]
 /// - [`crate::types::InputMediaPhoto`]
 /// - [`crate::types::InputMediaVideo`]
 /// - [`crate::types::InputMediaVoiceNote`]
@@ -29,6 +30,8 @@ pub enum InputRichMessageMediaContentType {
     Animation,
     #[strum(serialize = "audio")]
     Audio,
+    #[strum(serialize = "document")]
+    Document,
     #[strum(serialize = "photo")]
     Photo,
     #[strum(serialize = "video")]
@@ -38,10 +41,11 @@ pub enum InputRichMessageMediaContentType {
 }
 impl InputRichMessageMediaContentType {
     #[must_use]
-    pub const fn all() -> [InputRichMessageMediaContentType; 5usize] {
+    pub const fn all() -> [InputRichMessageMediaContentType; 6usize] {
         [
             InputRichMessageMediaContentType::Animation,
             InputRichMessageMediaContentType::Audio,
+            InputRichMessageMediaContentType::Document,
             InputRichMessageMediaContentType::Photo,
             InputRichMessageMediaContentType::Video,
             InputRichMessageMediaContentType::VoiceNote,
@@ -70,6 +74,7 @@ impl<'a> From<&'a InputRichMessageMediaContent> for InputRichMessageMediaContent
                 InputRichMessageMediaContentType::Animation
             }
             InputRichMessageMediaContent::Audio(_) => InputRichMessageMediaContentType::Audio,
+            InputRichMessageMediaContent::Document(_) => InputRichMessageMediaContentType::Document,
             InputRichMessageMediaContent::Photo(_) => InputRichMessageMediaContentType::Photo,
             InputRichMessageMediaContent::Video(_) => InputRichMessageMediaContentType::Video,
             InputRichMessageMediaContent::VoiceNote(_) => {

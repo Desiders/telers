@@ -4,14 +4,14 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#inputrichmessagecontent>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct InputRichMessageContent {
-    /// The message to be sent
+    /// The message to be sent. Only previously uploaded files may be used in the message.
     pub rich_message: crate::types::InputRichMessage,
 }
 impl InputRichMessageContent {
     /// Creates a new `InputRichMessageContent`.
     ///
     /// # Arguments
-    /// * `rich_message` - The message to be sent
+    /// * `rich_message` - The message to be sent. Only previously uploaded files may be used in the message.
     #[must_use]
     pub fn new<T0: Into<crate::types::InputRichMessage>>(rich_message: T0) -> Self {
         Self {
@@ -19,7 +19,7 @@ impl InputRichMessageContent {
         }
     }
 
-    /// The message to be sent
+    /// The message to be sent. Only previously uploaded files may be used in the message.
     #[must_use]
     pub fn rich_message<T: Into<crate::types::InputRichMessage>>(mut self, val: T) -> Self {
         self.rich_message = val.into();

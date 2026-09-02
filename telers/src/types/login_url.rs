@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
-/// This object represents a parameter of the inline keyboard button used to automatically authorize a user. Serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram. All the user needs to do is tap/click a button and confirm that they want to log in:
-/// Telegram apps support these buttons as of version 5.7.
+/// This object represents a parameter of the inline keyboard button used to automatically authorize a user. It serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram. All the user needs to do is tap/click a button and confirm that they want to log in:
 /// # Documentation
 /// <https://core.telegram.org/bots/api#loginurl>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -10,7 +9,7 @@ pub struct LoginUrl {
     /// New text of the button in forwarded messages
     #[serde(skip_serializing_if = "Option::is_none")]
     pub forward_text: Option<Box<str>>,
-    /// Username of a bot, which will be used for user authorization. See Setting up a bot for more details. If not specified, the current bot's username will be assumed. The url's domain must be the same as the domain linked with the bot. See Linking your domain to the bot for more details.
+    /// Username of a bot, which will be used for user authorization; not supported in [`crate::types::RichMessageButton`]. See Setting up a bot for more details. If not specified, the current bot's username will be assumed. The url's domain must be the same as the domain linked with the bot. See Linking your domain to the bot for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bot_username: Option<Box<str>>,
     /// Pass `true` to request the permission for your bot to send messages to the user
@@ -56,14 +55,14 @@ impl LoginUrl {
         self
     }
 
-    /// Username of a bot, which will be used for user authorization. See Setting up a bot for more details. If not specified, the current bot's username will be assumed. The url's domain must be the same as the domain linked with the bot. See Linking your domain to the bot for more details.
+    /// Username of a bot, which will be used for user authorization; not supported in [`crate::types::RichMessageButton`]. See Setting up a bot for more details. If not specified, the current bot's username will be assumed. The url's domain must be the same as the domain linked with the bot. See Linking your domain to the bot for more details.
     #[must_use]
     pub fn bot_username<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.bot_username = Some(val.into());
         self
     }
 
-    /// Username of a bot, which will be used for user authorization. See Setting up a bot for more details. If not specified, the current bot's username will be assumed. The url's domain must be the same as the domain linked with the bot. See Linking your domain to the bot for more details.
+    /// Username of a bot, which will be used for user authorization; not supported in [`crate::types::RichMessageButton`]. See Setting up a bot for more details. If not specified, the current bot's username will be assumed. The url's domain must be the same as the domain linked with the bot. See Linking your domain to the bot for more details.
     #[must_use]
     pub fn bot_username_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.bot_username = val.map(Into::into);

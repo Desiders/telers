@@ -21,7 +21,7 @@ pub struct InlineKeyboardButton {
     /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method [`crate::methods::AnswerWebAppQuery`]. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub web_app: Option<crate::types::WebAppInfo>,
-    /// An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget.
+    /// An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget. Not supported for ephemeral messages.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub login_url: Option<crate::types::LoginUrl>,
     /// If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent in channel direct messages chats and on behalf of a business account.
@@ -42,6 +42,9 @@ pub struct InlineKeyboardButton {
     /// Specify `true`, to send a Pay button. Substrings `⭐` and `XTR` in the buttons's text will be replaced with a Telegram Star icon. NOTE: This type of button must always be the first button in the first row and can only be used in invoice messages.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pay: Option<bool>,
+    /// If set, then the button is disabled and does nothing
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disabled: Option<crate::types::DisabledButton>,
 }
 impl InlineKeyboardButton {
     /// Creates a new `InlineKeyboardButton`.
@@ -67,6 +70,7 @@ impl InlineKeyboardButton {
             copy_text: None,
             callback_game: None,
             pay: None,
+            disabled: None,
         }
     }
 
@@ -147,14 +151,14 @@ impl InlineKeyboardButton {
         self
     }
 
-    /// An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget.
+    /// An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget. Not supported for ephemeral messages.
     #[must_use]
     pub fn login_url<T: Into<crate::types::LoginUrl>>(mut self, val: T) -> Self {
         self.login_url = Some(val.into());
         self
     }
 
-    /// An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget.
+    /// An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget. Not supported for ephemeral messages.
     #[must_use]
     pub fn login_url_option<T: Into<crate::types::LoginUrl>>(mut self, val: Option<T>) -> Self {
         self.login_url = val.map(Into::into);
@@ -259,6 +263,23 @@ impl InlineKeyboardButton {
     #[must_use]
     pub fn pay_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.pay = val.map(Into::into);
+        self
+    }
+
+    /// If set, then the button is disabled and does nothing
+    #[must_use]
+    pub fn disabled<T: Into<crate::types::DisabledButton>>(mut self, val: T) -> Self {
+        self.disabled = Some(val.into());
+        self
+    }
+
+    /// If set, then the button is disabled and does nothing
+    #[must_use]
+    pub fn disabled_option<T: Into<crate::types::DisabledButton>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.disabled = val.map(Into::into);
         self
     }
 }

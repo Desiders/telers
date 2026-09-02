@@ -7,11 +7,14 @@ pub struct InputRichBlockMap {
     /// Location of the center of the map
     pub location: crate::types::Location,
     /// Map zoom level; 0-24
-    pub zoom: u8,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub zoom: Option<u8>,
     /// Map width; 0-10000
-    pub width: u16,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub width: Option<u16>,
     /// Map height; 0-10000
-    pub height: u16,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub height: Option<u16>,
     /// Caption of the block
     #[serde(skip_serializing_if = "Option::is_none")]
     pub caption: Option<crate::types::RichBlockCaption>,
@@ -21,24 +24,16 @@ impl InputRichBlockMap {
     ///
     /// # Arguments
     /// * `location` - Location of the center of the map
-    /// * `zoom` - Map zoom level; 0-24
-    /// * `width` - Map width; 0-10000
-    /// * `height` - Map height; 0-10000
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new<T0: Into<crate::types::Location>, T1: Into<u8>, T2: Into<u16>, T3: Into<u16>>(
-        location: T0,
-        zoom: T1,
-        width: T2,
-        height: T3,
-    ) -> Self {
+    pub fn new<T0: Into<crate::types::Location>>(location: T0) -> Self {
         Self {
             location: location.into(),
-            zoom: zoom.into(),
-            width: width.into(),
-            height: height.into(),
+            zoom: None,
+            width: None,
+            height: None,
             caption: None,
         }
     }
@@ -53,21 +48,42 @@ impl InputRichBlockMap {
     /// Map zoom level; 0-24
     #[must_use]
     pub fn zoom<T: Into<u8>>(mut self, val: T) -> Self {
-        self.zoom = val.into();
+        self.zoom = Some(val.into());
+        self
+    }
+
+    /// Map zoom level; 0-24
+    #[must_use]
+    pub fn zoom_option<T: Into<u8>>(mut self, val: Option<T>) -> Self {
+        self.zoom = val.map(Into::into);
         self
     }
 
     /// Map width; 0-10000
     #[must_use]
     pub fn width<T: Into<u16>>(mut self, val: T) -> Self {
-        self.width = val.into();
+        self.width = Some(val.into());
+        self
+    }
+
+    /// Map width; 0-10000
+    #[must_use]
+    pub fn width_option<T: Into<u16>>(mut self, val: Option<T>) -> Self {
+        self.width = val.map(Into::into);
         self
     }
 
     /// Map height; 0-10000
     #[must_use]
     pub fn height<T: Into<u16>>(mut self, val: T) -> Self {
-        self.height = val.into();
+        self.height = Some(val.into());
+        self
+    }
+
+    /// Map height; 0-10000
+    #[must_use]
+    pub fn height_option<T: Into<u16>>(mut self, val: Option<T>) -> Self {
+        self.height = val.map(Into::into);
         self
     }
 

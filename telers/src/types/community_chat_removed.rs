@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-/// Describes a service message about a chat being removed from a community. Currently holds no information.
+/// Describes a service message about a chat or a bot being removed from a community. Currently holds no information.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#communitychatremoved>
 #[derive(Clone, Debug, Serialize, Deserialize)]

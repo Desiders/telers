@@ -27,6 +27,7 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::UpdatePurchasedPaidMedia`]
 /// - [`crate::types::UpdateRemovedChatBoost`]
 /// - [`crate::types::UpdateShippingQuery`]
+/// - [`crate::types::UpdateStoppedMessageGeneration`]
 /// - [`crate::types::UpdateSubscription`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#update>
@@ -58,6 +59,7 @@ pub enum Update {
     PurchasedPaidMedia(crate::types::UpdatePurchasedPaidMedia),
     RemovedChatBoost(crate::types::UpdateRemovedChatBoost),
     ShippingQuery(crate::types::UpdateShippingQuery),
+    StoppedMessageGeneration(crate::types::UpdateStoppedMessageGeneration),
     Subscription(crate::types::UpdateSubscription),
 }
 impl Update {
@@ -336,6 +338,17 @@ impl Update {
         }
     }
 
+    /// Helper method for field `stopped_message_generation`.
+    ///
+    /// A user asked the bot to stop the generation of a message
+    #[must_use]
+    pub fn stopped_message_generation(&self) -> Option<&crate::types::MessageGenerationStopped> {
+        match self {
+            Self::StoppedMessageGeneration(val) => Some(&val.stopped_message_generation),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `subscription`.
     ///
     /// User payment subscription has changed
@@ -378,6 +391,7 @@ impl Update {
             Self::PurchasedPaidMedia(val) => val.update_id,
             Self::RemovedChatBoost(val) => val.update_id,
             Self::ShippingQuery(val) => val.update_id,
+            Self::StoppedMessageGeneration(val) => val.update_id,
             Self::Subscription(val) => val.update_id,
         }
     }
@@ -822,6 +836,10 @@ impl Update {
                 let inner = &val.removed_chat_boost;
                 Some(inner.chat.as_ref())
             }
+            Self::StoppedMessageGeneration(val) => {
+                let inner = &val.stopped_message_generation;
+                Some(inner.chat.as_ref())
+            }
             _ => None,
         }
     }
@@ -1145,6 +1163,42 @@ impl Update {
             Self::Message(val) => {
                 let inner = val.message.as_ref();
                 crate::types::Message::community_chat_added(inner)
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `community_chat_joined`.
+    #[must_use]
+    pub fn community_chat_joined(&self) -> Option<&crate::types::CommunityChatJoined> {
+        match self {
+            Self::BusinessMessage(val) => {
+                let inner = val.business_message.as_ref();
+                crate::types::Message::community_chat_joined(inner)
+            }
+            Self::ChannelPost(val) => {
+                let inner = val.channel_post.as_ref();
+                crate::types::Message::community_chat_joined(inner)
+            }
+            Self::EditedBusinessMessage(val) => {
+                let inner = val.edited_business_message.as_ref();
+                crate::types::Message::community_chat_joined(inner)
+            }
+            Self::EditedChannelPost(val) => {
+                let inner = val.edited_channel_post.as_ref();
+                crate::types::Message::community_chat_joined(inner)
+            }
+            Self::EditedMessage(val) => {
+                let inner = val.edited_message.as_ref();
+                crate::types::Message::community_chat_joined(inner)
+            }
+            Self::GuestMessage(val) => {
+                let inner = val.guest_message.as_ref();
+                crate::types::Message::community_chat_joined(inner)
+            }
+            Self::Message(val) => {
+                let inner = val.message.as_ref();
+                crate::types::Message::community_chat_joined(inner)
             }
             _ => None,
         }
@@ -1565,6 +1619,18 @@ impl Update {
             Self::Message(val) => {
                 let inner = val.message.as_ref();
                 crate::types::Message::document(inner)
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `draft_id`.
+    #[must_use]
+    pub fn draft_id(&self) -> Option<i64> {
+        match self {
+            Self::StoppedMessageGeneration(val) => {
+                let inner = &val.stopped_message_generation;
+                Some(inner.draft_id)
             }
             _ => None,
         }
@@ -3267,6 +3333,10 @@ impl Update {
             Self::Message(val) => {
                 let inner = val.message.as_ref();
                 crate::types::Message::message_thread_id(inner)
+            }
+            Self::StoppedMessageGeneration(val) => {
+                let inner = &val.stopped_message_generation;
+                inner.message_thread_id
             }
             _ => None,
         }
@@ -6115,6 +6185,24 @@ impl<Client> crate::Extractor<Client> for crate::types::MessageCommunityChatAdde
         async move { val }
     }
 }
+impl TryFrom<Update> for crate::types::MessageCommunityChatJoined {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, Self::Error> {
+        let parent: crate::types::Message = val.try_into()?;
+        parent.try_into()
+    }
+}
+impl<Client> crate::Extractor<Client> for crate::types::MessageCommunityChatJoined {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
 impl TryFrom<Update> for crate::types::MessageCommunityChatRemoved {
     type Error = crate::errors::ConvertToTypeError;
 
@@ -7267,6 +7355,29 @@ impl<Client> crate::Extractor<Client> for crate::types::MessageUnknown {
         async move { val }
     }
 }
+impl TryFrom<Update> for crate::types::MessageGenerationStopped {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, crate::errors::ConvertToTypeError> {
+        match val {
+            Update::StoppedMessageGeneration(val) => Ok(val.stopped_message_generation),
+            _ => Err(crate::errors::ConvertToTypeError::new(
+                stringify!(Update),
+                stringify!(MessageGenerationStopped),
+            )),
+        }
+    }
+}
+impl<Client> crate::Extractor<Client> for crate::types::MessageGenerationStopped {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
 impl TryFrom<Update> for crate::types::MessageReactionCountUpdated {
     type Error = crate::errors::ConvertToTypeError;
 
@@ -7950,6 +8061,25 @@ impl TryFrom<Update> for crate::types::UpdateShippingQuery {
             Err(Self::Error::new(
                 stringify!(Update),
                 stringify!(UpdateShippingQuery),
+            ))
+        }
+    }
+}
+impl From<crate::types::UpdateStoppedMessageGeneration> for Update {
+    fn from(val: crate::types::UpdateStoppedMessageGeneration) -> Self {
+        Self::StoppedMessageGeneration(val)
+    }
+}
+impl TryFrom<Update> for crate::types::UpdateStoppedMessageGeneration {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, Self::Error> {
+        if let Update::StoppedMessageGeneration(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Update),
+                stringify!(UpdateStoppedMessageGeneration),
             ))
         }
     }

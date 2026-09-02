@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::MessageChecklistTasksAdded`]
 /// - [`crate::types::MessageChecklistTasksDone`]
 /// - [`crate::types::MessageCommunityChatAdded`]
+/// - [`crate::types::MessageCommunityChatJoined`]
 /// - [`crate::types::MessageCommunityChatRemoved`]
 /// - [`crate::types::MessageConnectedWebsite`]
 /// - [`crate::types::MessageContact`]
@@ -97,6 +98,7 @@ pub enum Message {
     ChecklistTasksAdded(crate::types::MessageChecklistTasksAdded),
     ChecklistTasksDone(crate::types::MessageChecklistTasksDone),
     CommunityChatAdded(crate::types::MessageCommunityChatAdded),
+    CommunityChatJoined(crate::types::MessageCommunityChatJoined),
     CommunityChatRemoved(crate::types::MessageCommunityChatRemoved),
     ConnectedWebsite(crate::types::MessageConnectedWebsite),
     Contact(crate::types::MessageContact),
@@ -205,6 +207,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.author_signature.as_deref(),
             Self::ChecklistTasksDone(val) => val.author_signature.as_deref(),
             Self::CommunityChatAdded(val) => val.author_signature.as_deref(),
+            Self::CommunityChatJoined(val) => val.author_signature.as_deref(),
             Self::CommunityChatRemoved(val) => val.author_signature.as_deref(),
             Self::ConnectedWebsite(val) => val.author_signature.as_deref(),
             Self::Contact(val) => val.author_signature.as_deref(),
@@ -303,6 +306,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.business_connection_id.as_deref(),
             Self::ChecklistTasksDone(val) => val.business_connection_id.as_deref(),
             Self::CommunityChatAdded(val) => val.business_connection_id.as_deref(),
+            Self::CommunityChatJoined(val) => val.business_connection_id.as_deref(),
             Self::CommunityChatRemoved(val) => val.business_connection_id.as_deref(),
             Self::ConnectedWebsite(val) => val.business_connection_id.as_deref(),
             Self::Contact(val) => val.business_connection_id.as_deref(),
@@ -390,6 +394,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.caption.as_deref(),
             Self::ChecklistTasksDone(val) => val.caption.as_deref(),
             Self::CommunityChatAdded(val) => val.caption.as_deref(),
+            Self::CommunityChatJoined(val) => val.caption.as_deref(),
             Self::CommunityChatRemoved(val) => val.caption.as_deref(),
             Self::ConnectedWebsite(val) => val.caption.as_deref(),
             Self::Contact(val) => val.caption.as_deref(),
@@ -477,6 +482,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.caption_entities.as_deref(),
             Self::ChecklistTasksDone(val) => val.caption_entities.as_deref(),
             Self::CommunityChatAdded(val) => val.caption_entities.as_deref(),
+            Self::CommunityChatJoined(val) => val.caption_entities.as_deref(),
             Self::CommunityChatRemoved(val) => val.caption_entities.as_deref(),
             Self::ConnectedWebsite(val) => val.caption_entities.as_deref(),
             Self::Contact(val) => val.caption_entities.as_deref(),
@@ -575,6 +581,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.chat.as_ref(),
             Self::ChecklistTasksDone(val) => val.chat.as_ref(),
             Self::CommunityChatAdded(val) => val.chat.as_ref(),
+            Self::CommunityChatJoined(val) => val.chat.as_ref(),
             Self::CommunityChatRemoved(val) => val.chat.as_ref(),
             Self::ConnectedWebsite(val) => val.chat.as_ref(),
             Self::Contact(val) => val.chat.as_ref(),
@@ -721,7 +728,7 @@ impl Message {
 
     /// Helper method for field `community_chat_added`.
     ///
-    /// Service message: chat added to a Community
+    /// Service message: chat or bot added to a Community
     #[must_use]
     pub fn community_chat_added(&self) -> Option<&crate::types::CommunityChatAdded> {
         match self {
@@ -730,9 +737,20 @@ impl Message {
         }
     }
 
+    /// Helper method for field `community_chat_joined`.
+    ///
+    /// Service message: chat was joined by a user from a Community
+    #[must_use]
+    pub fn community_chat_joined(&self) -> Option<&crate::types::CommunityChatJoined> {
+        match self {
+            Self::CommunityChatJoined(val) => Some(&val.community_chat_joined),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `community_chat_removed`.
     ///
-    /// Service message: chat removed from a Community
+    /// Service message: chat or bot removed from a Community
     #[must_use]
     pub fn community_chat_removed(&self) -> Option<&crate::types::CommunityChatRemoved> {
         match self {
@@ -783,6 +801,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.date,
             Self::ChecklistTasksDone(val) => val.date,
             Self::CommunityChatAdded(val) => val.date,
+            Self::CommunityChatJoined(val) => val.date,
             Self::CommunityChatRemoved(val) => val.date,
             Self::ConnectedWebsite(val) => val.date,
             Self::Contact(val) => val.date,
@@ -903,6 +922,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.direct_messages_topic.as_ref(),
             Self::ChecklistTasksDone(val) => val.direct_messages_topic.as_ref(),
             Self::CommunityChatAdded(val) => val.direct_messages_topic.as_ref(),
+            Self::CommunityChatJoined(val) => val.direct_messages_topic.as_ref(),
             Self::CommunityChatRemoved(val) => val.direct_messages_topic.as_ref(),
             Self::ConnectedWebsite(val) => val.direct_messages_topic.as_ref(),
             Self::Contact(val) => val.direct_messages_topic.as_ref(),
@@ -1001,6 +1021,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.edit_date,
             Self::ChecklistTasksDone(val) => val.edit_date,
             Self::CommunityChatAdded(val) => val.edit_date,
+            Self::CommunityChatJoined(val) => val.edit_date,
             Self::CommunityChatRemoved(val) => val.edit_date,
             Self::ConnectedWebsite(val) => val.edit_date,
             Self::Contact(val) => val.edit_date,
@@ -1088,6 +1109,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.effect_id.as_deref(),
             Self::ChecklistTasksDone(val) => val.effect_id.as_deref(),
             Self::CommunityChatAdded(val) => val.effect_id.as_deref(),
+            Self::CommunityChatJoined(val) => val.effect_id.as_deref(),
             Self::CommunityChatRemoved(val) => val.effect_id.as_deref(),
             Self::ConnectedWebsite(val) => val.effect_id.as_deref(),
             Self::Contact(val) => val.effect_id.as_deref(),
@@ -1175,6 +1197,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.entities.as_deref(),
             Self::ChecklistTasksDone(val) => val.entities.as_deref(),
             Self::CommunityChatAdded(val) => val.entities.as_deref(),
+            Self::CommunityChatJoined(val) => val.entities.as_deref(),
             Self::CommunityChatRemoved(val) => val.entities.as_deref(),
             Self::ConnectedWebsite(val) => val.entities.as_deref(),
             Self::Contact(val) => val.entities.as_deref(),
@@ -1262,6 +1285,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.ephemeral_message_id,
             Self::ChecklistTasksDone(val) => val.ephemeral_message_id,
             Self::CommunityChatAdded(val) => val.ephemeral_message_id,
+            Self::CommunityChatJoined(val) => val.ephemeral_message_id,
             Self::CommunityChatRemoved(val) => val.ephemeral_message_id,
             Self::ConnectedWebsite(val) => val.ephemeral_message_id,
             Self::Contact(val) => val.ephemeral_message_id,
@@ -1349,6 +1373,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.external_reply.as_deref(),
             Self::ChecklistTasksDone(val) => val.external_reply.as_deref(),
             Self::CommunityChatAdded(val) => val.external_reply.as_deref(),
+            Self::CommunityChatJoined(val) => val.external_reply.as_deref(),
             Self::CommunityChatRemoved(val) => val.external_reply.as_deref(),
             Self::ConnectedWebsite(val) => val.external_reply.as_deref(),
             Self::Contact(val) => val.external_reply.as_deref(),
@@ -1480,6 +1505,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.forward_origin.as_ref(),
             Self::ChecklistTasksDone(val) => val.forward_origin.as_ref(),
             Self::CommunityChatAdded(val) => val.forward_origin.as_ref(),
+            Self::CommunityChatJoined(val) => val.forward_origin.as_ref(),
             Self::CommunityChatRemoved(val) => val.forward_origin.as_ref(),
             Self::ConnectedWebsite(val) => val.forward_origin.as_ref(),
             Self::Contact(val) => val.forward_origin.as_ref(),
@@ -1567,6 +1593,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.from.as_deref(),
             Self::ChecklistTasksDone(val) => val.from.as_deref(),
             Self::CommunityChatAdded(val) => val.from.as_deref(),
+            Self::CommunityChatJoined(val) => val.from.as_deref(),
             Self::CommunityChatRemoved(val) => val.from.as_deref(),
             Self::ConnectedWebsite(val) => val.from.as_deref(),
             Self::Contact(val) => val.from.as_deref(),
@@ -1764,6 +1791,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.guest_bot_caller_chat.as_deref(),
             Self::ChecklistTasksDone(val) => val.guest_bot_caller_chat.as_deref(),
             Self::CommunityChatAdded(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::CommunityChatJoined(val) => val.guest_bot_caller_chat.as_deref(),
             Self::CommunityChatRemoved(val) => val.guest_bot_caller_chat.as_deref(),
             Self::ConnectedWebsite(val) => val.guest_bot_caller_chat.as_deref(),
             Self::Contact(val) => val.guest_bot_caller_chat.as_deref(),
@@ -1851,6 +1879,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.guest_bot_caller_user.as_deref(),
             Self::ChecklistTasksDone(val) => val.guest_bot_caller_user.as_deref(),
             Self::CommunityChatAdded(val) => val.guest_bot_caller_user.as_deref(),
+            Self::CommunityChatJoined(val) => val.guest_bot_caller_user.as_deref(),
             Self::CommunityChatRemoved(val) => val.guest_bot_caller_user.as_deref(),
             Self::ConnectedWebsite(val) => val.guest_bot_caller_user.as_deref(),
             Self::Contact(val) => val.guest_bot_caller_user.as_deref(),
@@ -1938,6 +1967,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.guest_query_id.as_deref(),
             Self::ChecklistTasksDone(val) => val.guest_query_id.as_deref(),
             Self::CommunityChatAdded(val) => val.guest_query_id.as_deref(),
+            Self::CommunityChatJoined(val) => val.guest_query_id.as_deref(),
             Self::CommunityChatRemoved(val) => val.guest_query_id.as_deref(),
             Self::ConnectedWebsite(val) => val.guest_query_id.as_deref(),
             Self::Contact(val) => val.guest_query_id.as_deref(),
@@ -2025,6 +2055,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.has_media_spoiler,
             Self::ChecklistTasksDone(val) => val.has_media_spoiler,
             Self::CommunityChatAdded(val) => val.has_media_spoiler,
+            Self::CommunityChatJoined(val) => val.has_media_spoiler,
             Self::CommunityChatRemoved(val) => val.has_media_spoiler,
             Self::ConnectedWebsite(val) => val.has_media_spoiler,
             Self::Contact(val) => val.has_media_spoiler,
@@ -2112,6 +2143,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.has_protected_content,
             Self::ChecklistTasksDone(val) => val.has_protected_content,
             Self::CommunityChatAdded(val) => val.has_protected_content,
+            Self::CommunityChatJoined(val) => val.has_protected_content,
             Self::CommunityChatRemoved(val) => val.has_protected_content,
             Self::ConnectedWebsite(val) => val.has_protected_content,
             Self::Contact(val) => val.has_protected_content,
@@ -2210,6 +2242,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.is_automatic_forward,
             Self::ChecklistTasksDone(val) => val.is_automatic_forward,
             Self::CommunityChatAdded(val) => val.is_automatic_forward,
+            Self::CommunityChatJoined(val) => val.is_automatic_forward,
             Self::CommunityChatRemoved(val) => val.is_automatic_forward,
             Self::ConnectedWebsite(val) => val.is_automatic_forward,
             Self::Contact(val) => val.is_automatic_forward,
@@ -2297,6 +2330,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.is_from_offline,
             Self::ChecklistTasksDone(val) => val.is_from_offline,
             Self::CommunityChatAdded(val) => val.is_from_offline,
+            Self::CommunityChatJoined(val) => val.is_from_offline,
             Self::CommunityChatRemoved(val) => val.is_from_offline,
             Self::ConnectedWebsite(val) => val.is_from_offline,
             Self::Contact(val) => val.is_from_offline,
@@ -2384,6 +2418,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.is_paid_post,
             Self::ChecklistTasksDone(val) => val.is_paid_post,
             Self::CommunityChatAdded(val) => val.is_paid_post,
+            Self::CommunityChatJoined(val) => val.is_paid_post,
             Self::CommunityChatRemoved(val) => val.is_paid_post,
             Self::ConnectedWebsite(val) => val.is_paid_post,
             Self::Contact(val) => val.is_paid_post,
@@ -2471,6 +2506,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.is_topic_message,
             Self::ChecklistTasksDone(val) => val.is_topic_message,
             Self::CommunityChatAdded(val) => val.is_topic_message,
+            Self::CommunityChatJoined(val) => val.is_topic_message,
             Self::CommunityChatRemoved(val) => val.is_topic_message,
             Self::ConnectedWebsite(val) => val.is_topic_message,
             Self::Contact(val) => val.is_topic_message,
@@ -2569,6 +2605,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.link_preview_options.as_ref(),
             Self::ChecklistTasksDone(val) => val.link_preview_options.as_ref(),
             Self::CommunityChatAdded(val) => val.link_preview_options.as_ref(),
+            Self::CommunityChatJoined(val) => val.link_preview_options.as_ref(),
             Self::CommunityChatRemoved(val) => val.link_preview_options.as_ref(),
             Self::ConnectedWebsite(val) => val.link_preview_options.as_ref(),
             Self::Contact(val) => val.link_preview_options.as_ref(),
@@ -2689,6 +2726,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.media_group_id.as_deref(),
             Self::ChecklistTasksDone(val) => val.media_group_id.as_deref(),
             Self::CommunityChatAdded(val) => val.media_group_id.as_deref(),
+            Self::CommunityChatJoined(val) => val.media_group_id.as_deref(),
             Self::CommunityChatRemoved(val) => val.media_group_id.as_deref(),
             Self::ConnectedWebsite(val) => val.media_group_id.as_deref(),
             Self::Contact(val) => val.media_group_id.as_deref(),
@@ -2791,6 +2829,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.message_id,
             Self::ChecklistTasksDone(val) => val.message_id,
             Self::CommunityChatAdded(val) => val.message_id,
+            Self::CommunityChatJoined(val) => val.message_id,
             Self::CommunityChatRemoved(val) => val.message_id,
             Self::ConnectedWebsite(val) => val.message_id,
             Self::Contact(val) => val.message_id,
@@ -2878,6 +2917,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.message_thread_id,
             Self::ChecklistTasksDone(val) => val.message_thread_id,
             Self::CommunityChatAdded(val) => val.message_thread_id,
+            Self::CommunityChatJoined(val) => val.message_thread_id,
             Self::CommunityChatRemoved(val) => val.message_thread_id,
             Self::ConnectedWebsite(val) => val.message_thread_id,
             Self::Contact(val) => val.message_thread_id,
@@ -3042,6 +3082,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.paid_star_count,
             Self::ChecklistTasksDone(val) => val.paid_star_count,
             Self::CommunityChatAdded(val) => val.paid_star_count,
+            Self::CommunityChatJoined(val) => val.paid_star_count,
             Self::CommunityChatRemoved(val) => val.paid_star_count,
             Self::ConnectedWebsite(val) => val.paid_star_count,
             Self::Contact(val) => val.paid_star_count,
@@ -3206,6 +3247,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.quote.as_ref(),
             Self::ChecklistTasksDone(val) => val.quote.as_ref(),
             Self::CommunityChatAdded(val) => val.quote.as_ref(),
+            Self::CommunityChatJoined(val) => val.quote.as_ref(),
             Self::CommunityChatRemoved(val) => val.quote.as_ref(),
             Self::ConnectedWebsite(val) => val.quote.as_ref(),
             Self::Contact(val) => val.quote.as_ref(),
@@ -3293,6 +3335,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.receiver_user.as_deref(),
             Self::ChecklistTasksDone(val) => val.receiver_user.as_deref(),
             Self::CommunityChatAdded(val) => val.receiver_user.as_deref(),
+            Self::CommunityChatJoined(val) => val.receiver_user.as_deref(),
             Self::CommunityChatRemoved(val) => val.receiver_user.as_deref(),
             Self::ConnectedWebsite(val) => val.receiver_user.as_deref(),
             Self::Contact(val) => val.receiver_user.as_deref(),
@@ -3391,6 +3434,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.reply_markup.as_ref(),
             Self::ChecklistTasksDone(val) => val.reply_markup.as_ref(),
             Self::CommunityChatAdded(val) => val.reply_markup.as_ref(),
+            Self::CommunityChatJoined(val) => val.reply_markup.as_ref(),
             Self::CommunityChatRemoved(val) => val.reply_markup.as_ref(),
             Self::ConnectedWebsite(val) => val.reply_markup.as_ref(),
             Self::Contact(val) => val.reply_markup.as_ref(),
@@ -3478,6 +3522,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.reply_to_checklist_task_id,
             Self::ChecklistTasksDone(val) => val.reply_to_checklist_task_id,
             Self::CommunityChatAdded(val) => val.reply_to_checklist_task_id,
+            Self::CommunityChatJoined(val) => val.reply_to_checklist_task_id,
             Self::CommunityChatRemoved(val) => val.reply_to_checklist_task_id,
             Self::ConnectedWebsite(val) => val.reply_to_checklist_task_id,
             Self::Contact(val) => val.reply_to_checklist_task_id,
@@ -3565,6 +3610,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.reply_to_message.as_deref(),
             Self::ChecklistTasksDone(val) => val.reply_to_message.as_deref(),
             Self::CommunityChatAdded(val) => val.reply_to_message.as_deref(),
+            Self::CommunityChatJoined(val) => val.reply_to_message.as_deref(),
             Self::CommunityChatRemoved(val) => val.reply_to_message.as_deref(),
             Self::ConnectedWebsite(val) => val.reply_to_message.as_deref(),
             Self::Contact(val) => val.reply_to_message.as_deref(),
@@ -3652,6 +3698,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.reply_to_poll_option_id.as_deref(),
             Self::ChecklistTasksDone(val) => val.reply_to_poll_option_id.as_deref(),
             Self::CommunityChatAdded(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::CommunityChatJoined(val) => val.reply_to_poll_option_id.as_deref(),
             Self::CommunityChatRemoved(val) => val.reply_to_poll_option_id.as_deref(),
             Self::ConnectedWebsite(val) => val.reply_to_poll_option_id.as_deref(),
             Self::Contact(val) => val.reply_to_poll_option_id.as_deref(),
@@ -3739,6 +3786,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.reply_to_story.as_ref(),
             Self::ChecklistTasksDone(val) => val.reply_to_story.as_ref(),
             Self::CommunityChatAdded(val) => val.reply_to_story.as_ref(),
+            Self::CommunityChatJoined(val) => val.reply_to_story.as_ref(),
             Self::CommunityChatRemoved(val) => val.reply_to_story.as_ref(),
             Self::ConnectedWebsite(val) => val.reply_to_story.as_ref(),
             Self::Contact(val) => val.reply_to_story.as_ref(),
@@ -3837,6 +3885,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.sender_boost_count,
             Self::ChecklistTasksDone(val) => val.sender_boost_count,
             Self::CommunityChatAdded(val) => val.sender_boost_count,
+            Self::CommunityChatJoined(val) => val.sender_boost_count,
             Self::CommunityChatRemoved(val) => val.sender_boost_count,
             Self::ConnectedWebsite(val) => val.sender_boost_count,
             Self::Contact(val) => val.sender_boost_count,
@@ -3924,6 +3973,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.sender_business_bot.as_deref(),
             Self::ChecklistTasksDone(val) => val.sender_business_bot.as_deref(),
             Self::CommunityChatAdded(val) => val.sender_business_bot.as_deref(),
+            Self::CommunityChatJoined(val) => val.sender_business_bot.as_deref(),
             Self::CommunityChatRemoved(val) => val.sender_business_bot.as_deref(),
             Self::ConnectedWebsite(val) => val.sender_business_bot.as_deref(),
             Self::Contact(val) => val.sender_business_bot.as_deref(),
@@ -4011,6 +4061,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.sender_chat.as_deref(),
             Self::ChecklistTasksDone(val) => val.sender_chat.as_deref(),
             Self::CommunityChatAdded(val) => val.sender_chat.as_deref(),
+            Self::CommunityChatJoined(val) => val.sender_chat.as_deref(),
             Self::CommunityChatRemoved(val) => val.sender_chat.as_deref(),
             Self::ConnectedWebsite(val) => val.sender_chat.as_deref(),
             Self::Contact(val) => val.sender_chat.as_deref(),
@@ -4098,6 +4149,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.sender_tag.as_deref(),
             Self::ChecklistTasksDone(val) => val.sender_tag.as_deref(),
             Self::CommunityChatAdded(val) => val.sender_tag.as_deref(),
+            Self::CommunityChatJoined(val) => val.sender_tag.as_deref(),
             Self::CommunityChatRemoved(val) => val.sender_tag.as_deref(),
             Self::ConnectedWebsite(val) => val.sender_tag.as_deref(),
             Self::Contact(val) => val.sender_tag.as_deref(),
@@ -4185,6 +4237,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.show_caption_above_media,
             Self::ChecklistTasksDone(val) => val.show_caption_above_media,
             Self::CommunityChatAdded(val) => val.show_caption_above_media,
+            Self::CommunityChatJoined(val) => val.show_caption_above_media,
             Self::CommunityChatRemoved(val) => val.show_caption_above_media,
             Self::ConnectedWebsite(val) => val.show_caption_above_media,
             Self::Contact(val) => val.show_caption_above_media,
@@ -4340,6 +4393,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.suggested_post_info.as_ref(),
             Self::ChecklistTasksDone(val) => val.suggested_post_info.as_ref(),
             Self::CommunityChatAdded(val) => val.suggested_post_info.as_ref(),
+            Self::CommunityChatJoined(val) => val.suggested_post_info.as_ref(),
             Self::CommunityChatRemoved(val) => val.suggested_post_info.as_ref(),
             Self::ConnectedWebsite(val) => val.suggested_post_info.as_ref(),
             Self::Contact(val) => val.suggested_post_info.as_ref(),
@@ -4504,6 +4558,7 @@ impl Message {
             Self::ChecklistTasksAdded(val) => val.via_bot.as_deref(),
             Self::ChecklistTasksDone(val) => val.via_bot.as_deref(),
             Self::CommunityChatAdded(val) => val.via_bot.as_deref(),
+            Self::CommunityChatJoined(val) => val.via_bot.as_deref(),
             Self::CommunityChatRemoved(val) => val.via_bot.as_deref(),
             Self::ConnectedWebsite(val) => val.via_bot.as_deref(),
             Self::Contact(val) => val.via_bot.as_deref(),
@@ -4878,6 +4933,10 @@ impl Message {
         match self {
             Self::CommunityChatAdded(val) => {
                 let inner = &val.community_chat_added;
+                Some(&inner.community)
+            }
+            Self::CommunityChatJoined(val) => {
+                let inner = &val.community_chat_joined;
                 Some(&inner.community)
             }
             _ => None,
@@ -5276,6 +5335,12 @@ impl Message {
         }
     }
 
+    /// Helper method for nested field `force_reply`.
+    #[must_use]
+    pub fn force_reply(&self) -> Option<bool> {
+        self.reply_markup().and_then(|inner| inner.force_reply)
+    }
+
     /// Helper method for nested field `foursquare_id`.
     #[must_use]
     pub fn foursquare_id(&self) -> Option<&str> {
@@ -5566,6 +5631,10 @@ impl Message {
             }
             Self::GiftUpgradeSent(val) => {
                 let inner = &val.gift_upgrade_sent;
+                inner.is_private
+            }
+            Self::UniqueGift(val) => {
+                let inner = &val.unique_gift;
                 inner.is_private
             }
             _ => None,
@@ -7021,6 +7090,25 @@ impl TryFrom<Message> for crate::types::MessageCommunityChatAdded {
             Err(Self::Error::new(
                 stringify!(Message),
                 stringify!(MessageCommunityChatAdded),
+            ))
+        }
+    }
+}
+impl From<crate::types::MessageCommunityChatJoined> for Message {
+    fn from(val: crate::types::MessageCommunityChatJoined) -> Self {
+        Self::CommunityChatJoined(val)
+    }
+}
+impl TryFrom<Message> for crate::types::MessageCommunityChatJoined {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Message) -> Result<Self, Self::Error> {
+        if let Message::CommunityChatJoined(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Message),
+                stringify!(MessageCommunityChatJoined),
             ))
         }
     }

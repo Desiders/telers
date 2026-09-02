@@ -401,7 +401,7 @@ impl InputMessageContent {
 
     /// Helper method for field `rich_message`.
     ///
-    /// The message to be sent
+    /// The message to be sent. Only previously uploaded files may be used in the message.
     #[must_use]
     pub fn rich_message(&self) -> Option<&crate::types::InputRichMessage> {
         match self {

@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-/// Service message: chat removed from a Community
+/// Service message: chat or bot removed from a Community
 /// # Notes
 /// This object represents a service message from original message field `community_chat_removed`.
 /// # Documentation
@@ -129,7 +129,7 @@ pub struct MessageCommunityChatRemoved {
     /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
-    /// Service message: chat removed from a Community
+    /// Service message: chat or bot removed from a Community
     pub community_chat_removed: crate::types::CommunityChatRemoved,
 }
 impl MessageCommunityChatRemoved {
@@ -139,7 +139,7 @@ impl MessageCommunityChatRemoved {
     /// * `message_id` - Unique message identifier inside this chat; 0 for ephemeral messages. In specific instances (e.g., a message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     /// * `date` - Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     /// * `chat` - Chat the message belongs to
-    /// * `community_chat_removed` - Service message: chat removed from a Community
+    /// * `community_chat_removed` - Service message: chat or bot removed from a Community
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -871,7 +871,7 @@ impl MessageCommunityChatRemoved {
         self
     }
 
-    /// Service message: chat removed from a Community
+    /// Service message: chat or bot removed from a Community
     #[must_use]
     pub fn community_chat_removed<T: Into<crate::types::CommunityChatRemoved>>(
         mut self,

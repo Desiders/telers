@@ -12,18 +12,24 @@ pub struct SendRichMessageDraft {
     /// Unique identifier for the target message thread
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message_thread_id: Option<i64>,
-    /// Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated.
+    /// Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated. Otherwise, the draft is replaced without animation.
     pub draft_id: i64,
-    /// The partial message to be streamed. Direct upload of new files isn't supported.
+    /// The partial message to be streamed. Direct upload of new files and explicit upload of files by a URL isn't supported.
     pub rich_message: crate::types::InputRichMessage,
+    /// Pass `true` to show the user a button to stop further drafts. The bot will receive an Update `stopped_message_generation` if the user presses the button.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_stop: Option<bool>,
+    /// Pass `true` to keep the draft in the chat when the button is pressed. The draft will still disappear after a short time or if the bot sends a message. To fully preserve the partial draft, the bot should send it as a new message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub keep_on_stop: Option<bool>,
 }
 impl SendRichMessageDraft {
     /// Creates a new `SendRichMessageDraft`.
     ///
     /// # Arguments
     /// * `chat_id` - Unique identifier for the target private chat
-    /// * `draft_id` - Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated.
-    /// * `rich_message` - The partial message to be streamed. Direct upload of new files isn't supported.
+    /// * `draft_id` - Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated. Otherwise, the draft is replaced without animation.
+    /// * `rich_message` - The partial message to be streamed. Direct upload of new files and explicit upload of files by a URL isn't supported.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -38,6 +44,8 @@ impl SendRichMessageDraft {
             message_thread_id: None,
             draft_id: draft_id.into(),
             rich_message: rich_message.into(),
+            can_stop: None,
+            keep_on_stop: None,
         }
     }
 
@@ -62,17 +70,45 @@ impl SendRichMessageDraft {
         self
     }
 
-    /// Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated.
+    /// Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated. Otherwise, the draft is replaced without animation.
     #[must_use]
     pub fn draft_id<T: Into<i64>>(mut self, val: T) -> Self {
         self.draft_id = val.into();
         self
     }
 
-    /// The partial message to be streamed. Direct upload of new files isn't supported.
+    /// The partial message to be streamed. Direct upload of new files and explicit upload of files by a URL isn't supported.
     #[must_use]
     pub fn rich_message<T: Into<crate::types::InputRichMessage>>(mut self, val: T) -> Self {
         self.rich_message = val.into();
+        self
+    }
+
+    /// Pass `true` to show the user a button to stop further drafts. The bot will receive an Update `stopped_message_generation` if the user presses the button.
+    #[must_use]
+    pub fn can_stop<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_stop = Some(val.into());
+        self
+    }
+
+    /// Pass `true` to show the user a button to stop further drafts. The bot will receive an Update `stopped_message_generation` if the user presses the button.
+    #[must_use]
+    pub fn can_stop_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.can_stop = val.map(Into::into);
+        self
+    }
+
+    /// Pass `true` to keep the draft in the chat when the button is pressed. The draft will still disappear after a short time or if the bot sends a message. To fully preserve the partial draft, the bot should send it as a new message.
+    #[must_use]
+    pub fn keep_on_stop<T: Into<bool>>(mut self, val: T) -> Self {
+        self.keep_on_stop = Some(val.into());
+        self
+    }
+
+    /// Pass `true` to keep the draft in the chat when the button is pressed. The draft will still disappear after a short time or if the bot sends a message. To fully preserve the partial draft, the bot should send it as a new message.
+    #[must_use]
+    pub fn keep_on_stop_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.keep_on_stop = val.map(Into::into);
         self
     }
 }

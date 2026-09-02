@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to edit an ephemeral text message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, `true` is returned.
+/// Use this method to edit an ephemeral text or rich message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, `true` is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#editephemeralmessagetext>
 /// # Returns
@@ -13,14 +13,18 @@ pub struct EditEphemeralMessageText {
     pub receiver_user_id: i64,
     /// Identifier of the ephemeral message to edit
     pub ephemeral_message_id: i64,
-    /// New text of the message, 1-4096 characters after entity parsing
-    pub text: Box<str>,
+    /// New text of the message, 1-4096 characters after entity parsing; required if `rich_message` isn't specified
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<Box<str>>,
     /// Mode for parsing entities in the message text. See formatting options for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parse_mode: Option<Box<str>>,
     /// A JSON-serialized list of special entities that appear in message text, which can be specified instead of `parse_mode`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub entities: Option<Box<[crate::types::MessageEntity]>>,
+    /// New rich content of the message; required if text isn't specified
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rich_message: Option<crate::types::InputRichMessage>,
     /// Link preview generation options for the message
     #[serde(skip_serializing_if = "Option::is_none")]
     pub link_preview_options: Option<crate::types::LinkPreviewOptions>,
@@ -35,29 +39,23 @@ impl EditEphemeralMessageText {
     /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup in the format @username
     /// * `receiver_user_id` - Identifier of the user who received the message
     /// * `ephemeral_message_id` - Identifier of the ephemeral message to edit
-    /// * `text` - New text of the message, 1-4096 characters after entity parsing
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new<
-        T0: Into<crate::types::ChatIdKind>,
-        T1: Into<i64>,
-        T2: Into<i64>,
-        T3: Into<Box<str>>,
-    >(
+    pub fn new<T0: Into<crate::types::ChatIdKind>, T1: Into<i64>, T2: Into<i64>>(
         chat_id: T0,
         receiver_user_id: T1,
         ephemeral_message_id: T2,
-        text: T3,
     ) -> Self {
         Self {
             chat_id: chat_id.into(),
             receiver_user_id: receiver_user_id.into(),
             ephemeral_message_id: ephemeral_message_id.into(),
-            text: text.into(),
+            text: None,
             parse_mode: None,
             entities: None,
+            rich_message: None,
             link_preview_options: None,
             reply_markup: None,
         }
@@ -84,10 +82,17 @@ impl EditEphemeralMessageText {
         self
     }
 
-    /// New text of the message, 1-4096 characters after entity parsing
+    /// New text of the message, 1-4096 characters after entity parsing; required if `rich_message` isn't specified
     #[must_use]
     pub fn text<T: Into<Box<str>>>(mut self, val: T) -> Self {
-        self.text = val.into();
+        self.text = Some(val.into());
+        self
+    }
+
+    /// New text of the message, 1-4096 characters after entity parsing; required if `rich_message` isn't specified
+    #[must_use]
+    pub fn text_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.text = val.map(Into::into);
         self
     }
 
@@ -158,6 +163,23 @@ impl EditEphemeralMessageText {
         self
     }
 
+    /// New rich content of the message; required if text isn't specified
+    #[must_use]
+    pub fn rich_message<T: Into<crate::types::InputRichMessage>>(mut self, val: T) -> Self {
+        self.rich_message = Some(val.into());
+        self
+    }
+
+    /// New rich content of the message; required if text isn't specified
+    #[must_use]
+    pub fn rich_message_option<T: Into<crate::types::InputRichMessage>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.rich_message = val.map(Into::into);
+        self
+    }
+
     /// Link preview generation options for the message
     #[must_use]
     pub fn link_preview_options<T: Into<crate::types::LinkPreviewOptions>>(
@@ -199,7 +221,11 @@ impl super::TelegramMethod for EditEphemeralMessageText {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
-        super::Request::new("editEphemeralMessageText", self, None)
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        let mut files = vec![];
+        if let Some(rich_message) = &mut self.rich_message {
+            super::prepare_input_rich_message(&mut files, rich_message);
+        }
+        super::Request::new("editEphemeralMessageText", self, Some(files))
     }
 }

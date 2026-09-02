@@ -28,10 +28,10 @@ pub enum ReplyMarkupType {
     ReplyKeyboardMarkup,
     #[strum(serialize = "force_reply")]
     ForceReply,
-    #[strum(serialize = "reply_keyboard_remove")]
-    ReplyKeyboardRemove,
     #[strum(serialize = "inline_keyboard_markup")]
     InlineKeyboardMarkup,
+    #[strum(serialize = "reply_keyboard_remove")]
+    ReplyKeyboardRemove,
 }
 impl ReplyMarkupType {
     #[must_use]
@@ -39,8 +39,8 @@ impl ReplyMarkupType {
         [
             ReplyMarkupType::ReplyKeyboardMarkup,
             ReplyMarkupType::ForceReply,
-            ReplyMarkupType::ReplyKeyboardRemove,
             ReplyMarkupType::InlineKeyboardMarkup,
+            ReplyMarkupType::ReplyKeyboardRemove,
         ]
     }
 }
@@ -64,8 +64,8 @@ impl<'a> From<&'a ReplyMarkup> for ReplyMarkupType {
         match val {
             ReplyMarkup::ReplyKeyboardMarkup(_) => ReplyMarkupType::ReplyKeyboardMarkup,
             ReplyMarkup::ForceReply(_) => ReplyMarkupType::ForceReply,
-            ReplyMarkup::ReplyKeyboardRemove(_) => ReplyMarkupType::ReplyKeyboardRemove,
             ReplyMarkup::InlineKeyboardMarkup(_) => ReplyMarkupType::InlineKeyboardMarkup,
+            ReplyMarkup::ReplyKeyboardRemove(_) => ReplyMarkupType::ReplyKeyboardRemove,
         }
     }
 }
