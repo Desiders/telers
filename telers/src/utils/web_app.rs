@@ -328,7 +328,10 @@ mod tests {
 
     #[test]
     fn test_check_webapp_signature_hash_first() {
-        let data = format!("hash={}&query_id=abc&user=%7B%22id%22%3A42%7D&auth_date=100", "9778490b4477d9ccfcf47b4041c9b5c65bcdced53b105a5a3e1ca39e57e1f06a");
+        let data = format!(
+            "hash={}&query_id=abc&user=%7B%22id%22%3A42%7D&auth_date=100",
+            "9778490b4477d9ccfcf47b4041c9b5c65bcdced53b105a5a3e1ca39e57e1f06a"
+        );
         assert!(check_webapp_signature(TOKEN, &data));
     }
 
