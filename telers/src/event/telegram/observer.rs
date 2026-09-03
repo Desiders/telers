@@ -268,7 +268,7 @@ mod tests {
     use crate::{
         client::Reqwest,
         errors::{HandlerError, MiddlewareError},
-        filters::Command,
+        filters::CommandStart,
         middlewares::Next,
         types::{ChatPrivate, MessageText, Update, UpdateMessage},
         Bot, Extensions,
@@ -283,7 +283,7 @@ mod tests {
     async fn test_observer_trigger() {
         let mut observer = Observer::default()
             // Register common filter, which handlers can't pass
-            .filter(Command::one("start"))
+            .filter(CommandStart::default())
             .register(Handler::new(|| async {
                 Ok::<_, Infallible>(EventReturn::Finish)
             }))

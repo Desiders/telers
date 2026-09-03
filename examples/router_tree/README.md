@@ -14,7 +14,7 @@ This is an echo bot built from nested routers:
 
 Three routers are wired into a tree:
 
-- `private_router` (named `private`) filters its `on_message` observer with `ChatType::one(Private)` and registers `start_private` behind `Command::one("start")`, replying with `SendMessage`.
+- `private_router` (named `private`) filters its `on_message` observer with `ChatType::one(Private)` and registers `start_private` behind `CommandStart`, replying with `SendMessage`.
 - `echo_router` (named `echo`) registers an outer middleware and two handlers: `stats_echo_router` behind `Command::many(["stats", "statistics"])`, and a catch-all `echo_handler` that re-sends the message with `CopyMessage`.
 - `main_router` (named `main`) uses `.include(private_router)` and `.include(echo_router)`; updates not handled by an earlier router fall through to the next.
 
