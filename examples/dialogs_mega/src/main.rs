@@ -69,7 +69,7 @@ async fn main() {
         })
         .on_message(|observer| {
             observer
-                .register(Handler::new(handle_start).filter(CommandStart::builder().build()))
+                .register(Handler::new(handle_start).filter(CommandStart::default()))
                 .setup_dialogs::<MemoryStorage>()
         })
         .on_callback_query(DialogObserverExt::setup_dialogs::<MemoryStorage>);

@@ -283,7 +283,7 @@ mod tests {
     async fn test_observer_trigger() {
         let mut observer = Observer::default()
             // Register common filter, which handlers can't pass
-            .filter(CommandStart::builder().build())
+            .filter(CommandStart::default())
             .register(Handler::new(|| async {
                 Ok::<_, Infallible>(EventReturn::Finish)
             }))
