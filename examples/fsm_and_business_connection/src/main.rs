@@ -1,7 +1,7 @@
 use telers::{
     enums::{MessageType::Text, UpdateType},
     event::telegram::{Handler, HandlerResult},
-    filters::{Command, MessageType, State as StateFilter},
+    filters::{MessageType, State as StateFilter, CommandStart},
     fsm::{Context as FSMContext, MemoryStorage, Strategy::UserInChatAndConnection},
     methods::SendMessage,
     middlewares::outer::FSMContext as FSMContextMiddleware,
@@ -149,7 +149,7 @@ async fn main() {
         .on_business_message(|observer| {
             observer.registers([
                 Handler::new(start_handler)
-                    .filter(Command::one("start"))
+                    .filter(CommandStart::builder().build())
                     .filter(StateFilter::none()),
                 Handler::new(name_handler)
                     .filter(MessageType::one(Text))

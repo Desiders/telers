@@ -9,7 +9,7 @@ use telers::{
         telegram::{Handler, HandlerResult},
         EventReturn,
     },
-    filters::{ChatType, Command},
+    filters::{ChatType, Command, CommandStart},
     methods::{CopyMessage, SendMessage},
     middlewares::{outer::MiddlewareResponse, OuterMiddleware},
     types::Message,
@@ -80,7 +80,7 @@ async fn main() {
             // Register filter for all private messages
             .filter(ChatType::one(Private))
             // Register handler for private messages, which will send a greeting message
-            .register(Handler::new(start_private).filter(Command::one("start")))
+            .register(Handler::new(start_private).filter(CommandStart::builder().build()))
     });
 
     let echo_router = Router::new("echo")

@@ -14,7 +14,7 @@ Each feature dialog is self-contained and exercises one part of the widget toolk
 
 - An FSM is provided by `FSMContextMiddleware` over a `MemoryStorage`, registered as an outer middleware on the update observer with `Strategy::UserInChat`.
 - `DialogObserverExt::setup_dialogs::<MemoryStorage>()` is attached to both the message observer and the callback-query observer so the dialog engine processes those updates.
-- A `Handler` filtered by `Command::one("start")` calls `DialogManager::start(..., MAIN_MENU_STATE, Value::Null, StartMode::ResetStack)` to (re)open the menu.
+- A `Handler` filtered by `CommandStart` calls `DialogManager::start(..., MAIN_MENU_STATE, Value::Null, StartMode::ResetStack)` to (re)open the menu.
 - `registry()` builds a `DialogRegistry`, registering every `dialogs::<feature>::dialog()` in turn (each `register` returns a `Result`, chained with `and_then`, validated at startup so duplicate state ids fail fast).
 - The registry is passed to the `Dispatcher` as an `extension`; `allowed_updates` is `[Message, CallbackQuery]`.
 

@@ -6,7 +6,7 @@ use telers::{
     enums::UpdateType,
     errors::HandlerError,
     event::telegram::{Handler, HandlerResult},
-    filters::Command,
+    filters::CommandStart,
     fsm::{MemoryStorage, Strategy::UserInChat},
     middlewares::outer::FSMContext as FSMContextMiddleware,
     Bot, Dispatcher, Router,
@@ -69,7 +69,7 @@ async fn main() {
         })
         .on_message(|observer| {
             observer
-                .register(Handler::new(handle_start).filter(Command::one("start")))
+                .register(Handler::new(handle_start).filter(CommandStart::builder().build()))
                 .setup_dialogs::<MemoryStorage>()
         })
         .on_callback_query(DialogObserverExt::setup_dialogs::<MemoryStorage>);
