@@ -84,7 +84,9 @@ pub mod user;
 pub use base::{Filter, FilterResult};
 pub use chat_member_updated::ChatMemberUpdated;
 pub use chat_type::ChatType;
-pub use command::{Builder as CommandBuilder, Command, CommandObject, CommandStart, DeepLink};
+pub use command::{
+    Builder as CommandBuilder, Command, CommandObject, CommandStart, CommandStartBuilder, DeepLink,
+};
 pub use logical::{And, Invert, Or};
 pub use message_type::MessageType;
 pub use smart::SmartFilter;

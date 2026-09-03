@@ -433,6 +433,80 @@ impl CommandStart {
             deep_link,
         }
     }
+
+    #[inline]
+    #[must_use]
+    pub fn builder() -> CommandStartBuilder {
+        CommandStartBuilder::new()
+    }
+}
+
+/// Builder for the [`CommandStart`] filter
+#[derive(Debug, Clone)]
+pub struct CommandStartBuilder {
+    deep_link: Option<DeepLink>,
+    prefix: char,
+    ignore_case: bool,
+    ignore_mention: bool,
+}
+
+impl CommandStartBuilder {
+    #[inline]
+    #[must_use]
+    pub fn new() -> CommandStartBuilder {
+        Self::default()
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn deep_link(mut self, val: Option<DeepLink>) -> Self {
+        self.deep_link = val;
+        self
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn prefix(mut self, val: char) -> Self {
+        self.prefix = val;
+        self
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn ignore_case(mut self, val: bool) -> Self {
+        self.ignore_case = val;
+        self
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn ignore_mention(mut self, val: bool) -> Self {
+        self.ignore_mention = val;
+        self
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn build(self) -> CommandStart {
+        CommandStart::new(
+            self.deep_link,
+            self.prefix,
+            self.ignore_case,
+            self.ignore_mention,
+        )
+    }
+}
+
+impl Default for CommandStartBuilder {
+    #[inline]
+    fn default() -> Self {
+        Self {
+            deep_link: None,
+            prefix: '/',
+            ignore_case: false,
+            ignore_mention: false,
+        }
+    }
 }
 
 impl<Client> Filter<Client> for CommandStart
@@ -888,6 +962,35 @@ mod tests {
 
             let mut req = request("/START ref123");
             assert!(!CommandStart::new(Some(DeepLink::Plain), '/', false, false)
+                .check(&mut req)
+                .await
+                .unwrap());
+        }
+
+        #[tokio::test]
+        async fn test_builder() {
+            let mut req = request("/start aGVsbG8gd29ybGQ");
+            assert!(CommandStart::builder()
+                .deep_link(Some(DeepLink::Encoded))
+                .ignore_case(true)
+                .build()
+                .check(&mut req)
+                .await
+                .unwrap());
+
+            let mut req = request("/START aGVsbG8gd29ybGQ");
+            assert!(CommandStart::builder()
+                .deep_link(Some(DeepLink::Encoded))
+                .ignore_case(true)
+                .build()
+                .check(&mut req)
+                .await
+                .unwrap());
+
+            let mut req = request("!start aGVsbG8gd29ybGQ");
+            assert!(!CommandStart::builder()
+                .deep_link(Some(DeepLink::Encoded))
+                .build()
                 .check(&mut req)
                 .await
                 .unwrap());
