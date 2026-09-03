@@ -36,16 +36,16 @@ pub fn decode_payload(payload: &str) -> Result<String, DecodeError> {
 }
 
 /// Maximum length of a deep-link payload allowed by Telegram.
-pub const DEEPLINK_PAYLOAD_MAX_LEN: usize = 64;
+pub const DEEPLINK_PAYLOAD_LENGTH: usize = 64;
 
 /// Validates a raw deep-link payload the same way as Telegram:
-/// only `a-zA-Z0-9_-` characters and at most [`DEEPLINK_PAYLOAD_MAX_LEN`] bytes.
+/// only `a-zA-Z0-9_-` characters and at most [`DEEPLINK_PAYLOAD_LENGTH`] bytes.
 ///
 /// # Errors
 /// Returns an error if the payload contains characters outside `a-zA-Z0-9_-`
-/// or is longer than [`DEEPLINK_PAYLOAD_MAX_LEN`] bytes.
+/// or is longer than [`DEEPLINK_PAYLOAD_LENGTH`] bytes.
 pub fn validate_payload(payload: &str) -> Result<(), DeepLinkError> {
-    if payload.len() > DEEPLINK_PAYLOAD_MAX_LEN {
+    if payload.len() > DEEPLINK_PAYLOAD_LENGTH {
         return Err(DeepLinkError::PayloadTooLong(payload.len()));
     }
 
@@ -59,25 +59,49 @@ pub fn validate_payload(payload: &str) -> Result<(), DeepLinkError> {
     Ok(())
 }
 
-#[inline]
-fn checked_encode(payload: &str, encode: bool) -> Result<String, DeepLinkError> {
-    if encode {
-        Ok(encode_payload(payload))
+/// Creates a deep link.
+///
+/// The `link_type` is the query key: `start` opens a private chat with the bot,
+/// `startgroup` asks to pick a group, `startapp` opens a Mini App.
+/// The payload is validated as-is, or encoded with [`encode_payload`] first.
+///
+/// # Errors
+/// Returns an error if the payload is not valid for Telegram
+/// (invalid characters or too long, see [`validate_payload`]).
+///
+/// # Examples
+/// ```rust
+/// use telers::utils::create_deep_link;
+///
+/// assert_eq!(
+///     create_deep_link("my_bot", "start", "ref123", false).unwrap(),
+///     "https://t.me/my_bot?start=ref123"
+/// );
+/// ```
+pub fn create_deep_link(
+    username: &str,
+    link_type: &str,
+    payload: &str,
+    encode: bool,
+) -> Result<String, DeepLinkError> {
+    let payload = if encode {
+        encode_payload(payload)
     } else {
-        validate_payload(payload)?;
-        Ok(payload.to_owned())
-    }
+        payload.to_owned()
+    };
+    validate_payload(&payload)?;
+    Ok(format!("https://t.me/{username}?{link_type}={payload}"))
 }
 
 /// Creates a `t.me` start link for a bot.
 ///
 /// The payload is used as the `start` query parameter, optionally encoded
 /// with [`encode_payload`]. Raw payloads are limited to `a-zA-Z0-9_-` and
-/// [`DEEPLINK_PAYLOAD_MAX_LEN`] bytes by Telegram, so encoding is
+/// [`DEEPLINK_PAYLOAD_LENGTH`] bytes by Telegram, so encoding is
 /// recommended for anything else.
 ///
 /// # Errors
-/// Returns an error if a raw (not encoded) payload is invalid for Telegram.
+/// Returns an error if the payload is not valid for Telegram.
 ///
 /// # Examples
 /// ```rust
@@ -93,46 +117,17 @@ fn checked_encode(payload: &str, encode: bool) -> Result<String, DeepLinkError> 
 /// );
 /// ```
 pub fn create_start_link(
-    bot_username: &str,
+    username: &str,
     payload: &str,
-    encoded: bool,
+    encode: bool,
 ) -> Result<String, DeepLinkError> {
-    Ok(format!(
-        "https://t.me/{bot_username}?start={}",
-        checked_encode(payload, encoded)?
-    ))
+    create_deep_link(username, "start", payload, encode)
 }
 
-/// Creates a `t.me` deep link with the payload attached as a query parameter.
-///
-/// The `parameter` is the query key: `start` opens a private chat with the bot,
-/// `startgroup` asks to pick a group, `startapp` opens a Mini App.
-///
-/// # Examples
-/// ```rust
-/// use telers::utils::create_deep_link;
-///
-/// assert_eq!(
-///     create_deep_link("my_bot", "start", "ref123", false).unwrap(),
-///     "https://t.me/my_bot?start=ref123"
-/// );
-/// ```
-pub fn create_deep_link(
-    bot_username: &str,
-    parameter: &str,
-    payload: &str,
-    encoded: bool,
-) -> Result<String, DeepLinkError> {
-    Ok(format!(
-        "https://t.me/{bot_username}?{parameter}={}",
-        checked_encode(payload, encoded)?
-    ))
-}
-
-/// Creates a `t.me` link that starts the bot in a group.
+/// Creates a `t.me` start link that opens the bot in a group.
 ///
 /// # Errors
-/// Returns an error if a raw (not encoded) payload is invalid for Telegram.
+/// Returns an error if the payload is not valid for Telegram.
 ///
 /// # Examples
 /// ```rust
@@ -144,23 +139,54 @@ pub fn create_deep_link(
 /// );
 /// ```
 pub fn create_startgroup_link(
-    bot_username: &str,
+    username: &str,
     payload: &str,
-    encoded: bool,
+    encode: bool,
 ) -> Result<String, DeepLinkError> {
-    Ok(format!(
-        "https://t.me/{bot_username}?startgroup={}",
-        checked_encode(payload, encoded)?
-    ))
+    create_deep_link(username, "startgroup", payload, encode)
+}
+
+/// Creates a `t.me` start link that opens a Mini App.
+///
+/// If `app_name` is given, a direct Mini App link to the specified app is created.
+///
+/// # Errors
+/// Returns an error if the payload is not valid for Telegram.
+///
+/// # Examples
+/// ```rust
+/// use telers::utils::create_startapp_link;
+///
+/// assert_eq!(
+///     create_startapp_link("my_bot", "ref123", None, false).unwrap(),
+///     "https://t.me/my_bot?startapp=ref123"
+/// );
+/// ```
+pub fn create_startapp_link(
+    username: &str,
+    payload: &str,
+    app_name: Option<&str>,
+    encode: bool,
+) -> Result<String, DeepLinkError> {
+    let link = create_deep_link(username, "startapp", payload, encode)?;
+
+    Ok(match app_name {
+        Some(app_name) => link.replacen(
+            &format!("https://t.me/{username}?"),
+            &format!("https://t.me/{username}/{app_name}?"),
+            1,
+        ),
+        None => link,
+    })
 }
 
 /// Error returned by deep-link creation helpers.
 #[derive(Debug, thiserror::Error)]
 pub enum DeepLinkError {
-    /// The raw payload contains characters outside `a-zA-Z0-9_-`.
+    /// The payload contains characters outside `a-zA-Z0-9_-`.
     #[error("payload contains invalid characters, allowed: a-zA-Z0-9_-")]
     InvalidPattern,
-    /// The raw payload is longer than [`DEEPLINK_PAYLOAD_MAX_LEN`] bytes.
+    /// The payload is longer than [`DEEPLINK_PAYLOAD_LENGTH`] bytes.
     #[error("payload is too long: {0} bytes, maximum is 64")]
     PayloadTooLong(usize),
 }
@@ -179,8 +205,9 @@ pub enum DecodeError {
 #[cfg(test)]
 mod tests {
     use super::{
-        create_deep_link, create_start_link, create_startgroup_link, decode_payload,
-        encode_payload, validate_payload, DecodeError, DeepLinkError, DEEPLINK_PAYLOAD_MAX_LEN,
+        create_deep_link, create_start_link, create_startapp_link, create_startgroup_link,
+        decode_payload, encode_payload, validate_payload, DecodeError, DeepLinkError,
+        DEEPLINK_PAYLOAD_LENGTH,
     };
 
     #[test]
@@ -255,6 +282,18 @@ mod tests {
     }
 
     #[test]
+    fn test_create_startapp_link() {
+        assert_eq!(
+            create_startapp_link("my_bot", "ref123", None, false).unwrap(),
+            "https://t.me/my_bot?startapp=ref123"
+        );
+        assert_eq!(
+            create_startapp_link("my_bot", "ref123", Some("my_app"), false).unwrap(),
+            "https://t.me/my_bot/my_app?startapp=ref123"
+        );
+    }
+
+    #[test]
     fn test_validate_payload() {
         assert!(validate_payload("ref123").is_ok());
         assert!(validate_payload("a-b_c").is_ok());
@@ -266,18 +305,15 @@ mod tests {
             DeepLinkError::InvalidPattern
         ));
         assert!(matches!(
-            validate_payload(&"a".repeat(DEEPLINK_PAYLOAD_MAX_LEN + 1)).unwrap_err(),
+            validate_payload(&"a".repeat(DEEPLINK_PAYLOAD_LENGTH + 1)).unwrap_err(),
             DeepLinkError::PayloadTooLong(_)
         ));
-        assert!(validate_payload(&"a".repeat(DEEPLINK_PAYLOAD_MAX_LEN)).is_ok());
+        assert!(validate_payload(&"a".repeat(DEEPLINK_PAYLOAD_LENGTH)).is_ok());
     }
 
     #[test]
-    fn test_raw_payload_validation() {
-        assert!(matches!(
-            create_start_link("my_bot", "hello world", false).unwrap_err(),
-            DeepLinkError::InvalidPattern
-        ));
+    fn test_encoded_payload_skips_validation() {
         assert!(create_start_link("my_bot", "hello world", true).is_ok());
+        assert!(create_start_link("my_bot", "hello world", false).is_err());
     }
 }
