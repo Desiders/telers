@@ -436,24 +436,24 @@ impl CommandStart {
 
     #[inline]
     #[must_use]
-    pub fn builder() -> CommandStartBuilder {
-        CommandStartBuilder::new()
+    pub fn builder() -> StartBuilder {
+        StartBuilder::new()
     }
 }
 
 /// Builder for the [`CommandStart`] filter
 #[derive(Debug, Clone)]
-pub struct CommandStartBuilder {
+pub struct StartBuilder {
     deep_link: Option<DeepLink>,
     prefix: char,
     ignore_case: bool,
     ignore_mention: bool,
 }
 
-impl CommandStartBuilder {
+impl StartBuilder {
     #[inline]
     #[must_use]
-    pub fn new() -> CommandStartBuilder {
+    pub fn new() -> StartBuilder {
         Self::default()
     }
 
@@ -497,7 +497,7 @@ impl CommandStartBuilder {
     }
 }
 
-impl Default for CommandStartBuilder {
+impl Default for StartBuilder {
     #[inline]
     fn default() -> Self {
         Self {
