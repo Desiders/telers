@@ -14,9 +14,7 @@ impl RichTextAnchor {
     /// * `name` - The name of the anchor
     #[must_use]
     pub fn new<T0: Into<Box<str>>>(name: T0) -> Self {
-        Self {
-            name: name.into(),
-        }
+        Self { name: name.into() }
     }
 
     /// The name of the anchor

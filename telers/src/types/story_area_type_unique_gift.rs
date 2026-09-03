@@ -14,9 +14,7 @@ impl StoryAreaTypeUniqueGift {
     /// * `name` - Unique name of the gift
     #[must_use]
     pub fn new<T0: Into<Box<str>>>(name: T0) -> Self {
-        Self {
-            name: name.into(),
-        }
+        Self { name: name.into() }
     }
 
     /// Unique name of the gift

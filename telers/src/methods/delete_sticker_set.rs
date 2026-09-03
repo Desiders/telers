@@ -17,9 +17,7 @@ impl DeleteStickerSet {
     /// * `name` - Sticker set name
     #[must_use]
     pub fn new<T0: Into<Box<str>>>(name: T0) -> Self {
-        Self {
-            name: name.into(),
-        }
+        Self { name: name.into() }
     }
 
     /// Sticker set name

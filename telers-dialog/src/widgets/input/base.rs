@@ -31,9 +31,7 @@ impl MultiInput {
     #[inline]
     #[must_use]
     pub(crate) const fn new() -> Self {
-        Self {
-            inputs: Vec::new(),
-        }
+        Self { inputs: Vec::new() }
     }
 
     #[must_use]

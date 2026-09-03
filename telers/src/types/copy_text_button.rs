@@ -14,9 +14,7 @@ impl CopyTextButton {
     /// * `text` - The text to be copied to the clipboard; 1-256 characters
     #[must_use]
     pub fn new<T0: Into<Box<str>>>(text: T0) -> Self {
-        Self {
-            text: text.into(),
-        }
+        Self { text: text.into() }
     }
 
     /// The text to be copied to the clipboard; 1-256 characters

@@ -91,9 +91,7 @@ impl Extensions {
     #[inline]
     #[must_use]
     pub const fn new() -> Self {
-        Self {
-            map: None,
-        }
+        Self { map: None }
     }
 
     pub fn insert<T: Clone + Send + Sync + 'static>(&mut self, val: T) -> Option<T> {

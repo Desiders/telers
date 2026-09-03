@@ -124,15 +124,11 @@ impl PrepareStepKind {
     #[must_use]
     fn required_tokens(self, field_name: &Ident) -> TokenStream {
         match self {
-            Self::Single {
-                function_name, ..
-            } => {
+            Self::Single { function_name, .. } => {
                 let function = format_ident!("{function_name}");
                 quote! { super::#function(&mut files, &mut self.#field_name); }
             }
-            Self::Group {
-                function_name, ..
-            } => {
+            Self::Group { function_name, .. } => {
                 let function = format_ident!("{function_name}");
                 quote! { super::#function(&mut files, self.#field_name.iter_mut().collect()); }
             }

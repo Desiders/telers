@@ -176,9 +176,7 @@ where
             }
         });
 
-        ChatActionGuard {
-            handle,
-        }
+        ChatActionGuard { handle }
     }
 }
 

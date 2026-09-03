@@ -16,10 +16,7 @@ impl<'a> HelperFieldSource<'a> {
     #[must_use]
     pub fn field(self) -> &'a NormalizedField {
         match self {
-            HelperFieldSource::Direct(field)
-            | HelperFieldSource::EnumHelper {
-                field, ..
-            } => field,
+            HelperFieldSource::Direct(field) | HelperFieldSource::EnumHelper { field, .. } => field,
         }
     }
 
@@ -27,9 +24,7 @@ impl<'a> HelperFieldSource<'a> {
     pub fn required(self) -> bool {
         match self {
             HelperFieldSource::Direct(field) => field.required,
-            HelperFieldSource::EnumHelper {
-                fully_required, ..
-            } => fully_required,
+            HelperFieldSource::EnumHelper { fully_required, .. } => fully_required,
         }
     }
 }

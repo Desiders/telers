@@ -15,9 +15,7 @@ impl ChatOwnerLeft {
     /// Use builder methods to set optional fields.
     #[must_use]
     pub fn new() -> Self {
-        Self {
-            new_owner: None,
-        }
+        Self { new_owner: None }
     }
 
     /// The user who will become the new owner of the chat if the previous owner does not return to the chat

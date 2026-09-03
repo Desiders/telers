@@ -18,9 +18,7 @@ impl GetChatMenuButton {
     /// Use builder methods to set optional fields.
     #[must_use]
     pub fn new() -> Self {
-        Self {
-            chat_id: None,
-        }
+        Self { chat_id: None }
     }
 
     /// Unique identifier for the target private chat. If not specified, the bot's default menu button will be returned.

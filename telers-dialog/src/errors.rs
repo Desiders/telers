@@ -72,10 +72,7 @@ mod tests {
     #[test]
     fn access_denied_message() {
         assert_eq!(
-            DialogError::AccessDenied {
-                user_id: 5
-            }
-            .to_string(),
+            DialogError::AccessDenied { user_id: 5 }.to_string(),
             "Access denied for user 5"
         );
     }

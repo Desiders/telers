@@ -16,9 +16,7 @@ impl PollMediaLink {
     /// * `link` - The HTTP link attached to the poll option
     #[must_use]
     pub fn new<T0: Into<crate::types::Link>>(link: T0) -> Self {
-        Self {
-            link: link.into(),
-        }
+        Self { link: link.into() }
     }
 
     /// The HTTP link attached to the poll option

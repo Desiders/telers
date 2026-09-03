@@ -13,10 +13,7 @@ impl ChatMemberUpdated {
     #[inline]
     #[must_use]
     pub const fn new(new: ChatMemberType) -> Self {
-        Self {
-            new,
-            old: None,
-        }
+        Self { new, old: None }
     }
 
     #[inline]

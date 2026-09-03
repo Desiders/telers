@@ -94,10 +94,7 @@ fn write_tag(tag: &Tag, buf: &mut String) {
                 .unwrap();
             }
         },
-        Kind::DateTime {
-            unix_time,
-            format,
-        } => match tag.place {
+        Kind::DateTime { unix_time, format } => match tag.place {
             Place::Start => buf.push_str(MARKDOWN.date_time.start),
             Place::MidNewLine => unreachable!(),
             Place::End => match format {

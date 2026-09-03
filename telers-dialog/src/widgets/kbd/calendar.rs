@@ -163,9 +163,7 @@ impl CalendarAppearance {
             CalendarTextRenderer,
         >,
     ) -> Self {
-        Self {
-            text_renderer,
-        }
+        Self { text_renderer }
     }
 }
 
@@ -674,9 +672,7 @@ where
             [self
                 .button(
                     render_ctx,
-                    CalendarButtonKind::DaysHeader {
-                        month,
-                    },
+                    CalendarButtonKind::DaysHeader { month },
                     CALLBACK_SCOPE_MONTHS,
                 )
                 .await]
@@ -733,9 +729,7 @@ where
             row.push(
                 self.button(
                     render_ctx,
-                    CalendarButtonKind::Weekday {
-                        weekday,
-                    },
+                    CalendarButtonKind::Weekday { weekday },
                     CALLBACK_NOOP,
                 )
                 .await,
@@ -761,9 +755,7 @@ where
             if let Some(prev) = prev {
                 self.button(
                     render_ctx,
-                    CalendarButtonKind::DaysPrevMonth {
-                        month: prev,
-                    },
+                    CalendarButtonKind::DaysPrevMonth { month: prev },
                     CALLBACK_PREV_MONTH,
                 )
                 .await
@@ -772,18 +764,14 @@ where
             },
             self.button(
                 render_ctx,
-                CalendarButtonKind::DaysZoom {
-                    month: offset,
-                },
+                CalendarButtonKind::DaysZoom { month: offset },
                 CALLBACK_SCOPE_MONTHS,
             )
             .await,
             if let Some(next) = next {
                 self.button(
                     render_ctx,
-                    CalendarButtonKind::DaysNextMonth {
-                        month: next,
-                    },
+                    CalendarButtonKind::DaysNextMonth { month: next },
                     CALLBACK_NEXT_MONTH,
                 )
                 .await
@@ -862,9 +850,7 @@ where
             if can_go_prev {
                 self.button(
                     render_ctx,
-                    CalendarButtonKind::MonthsPrevYear {
-                        year: year - 1,
-                    },
+                    CalendarButtonKind::MonthsPrevYear { year: year - 1 },
                     CALLBACK_PREV_YEAR,
                 )
                 .await
@@ -873,18 +859,14 @@ where
             },
             self.button(
                 render_ctx,
-                CalendarButtonKind::MonthsZoom {
-                    year,
-                },
+                CalendarButtonKind::MonthsZoom { year },
                 CALLBACK_SCOPE_YEARS,
             )
             .await,
             if can_go_next {
                 self.button(
                     render_ctx,
-                    CalendarButtonKind::MonthsNextYear {
-                        year: year + 1,
-                    },
+                    CalendarButtonKind::MonthsNextYear { year: year + 1 },
                     CALLBACK_NEXT_YEAR,
                 )
                 .await
@@ -942,9 +924,7 @@ where
                     if can_go_prev {
                         self.button(
                             render_ctx,
-                            CalendarButtonKind::YearsPrevPage {
-                                year: prev_year,
-                            },
+                            CalendarButtonKind::YearsPrevPage { year: prev_year },
                             CALLBACK_PREV_YEARS_PAGE,
                         )
                         .await
@@ -954,9 +934,7 @@ where
                     if can_go_next {
                         self.button(
                             render_ctx,
-                            CalendarButtonKind::YearsNextPage {
-                                year: next_year,
-                            },
+                            CalendarButtonKind::YearsNextPage { year: next_year },
                             CALLBACK_NEXT_YEARS_PAGE,
                         )
                         .await
@@ -1186,67 +1164,37 @@ fn default_calendar_text_renderer<'a>(
 fn default_calendar_text(kind: CalendarButtonKind, _render_ctx: &RenderContext) -> String {
     match kind {
         CalendarButtonKind::Empty => " ".to_owned(),
-        CalendarButtonKind::Weekday {
-            weekday,
-        } => weekday_label(weekday).to_owned(),
-        CalendarButtonKind::DaysHeader {
-            month,
-        } => month_label(month),
-        CalendarButtonKind::Day {
-            date,
-            is_today,
-        } => {
+        CalendarButtonKind::Weekday { weekday } => weekday_label(weekday).to_owned(),
+        CalendarButtonKind::DaysHeader { month } => month_label(month),
+        CalendarButtonKind::Day { date, is_today } => {
             if is_today {
                 format!("[{:02}]", date.day())
             } else {
                 format!("{:02}", date.day())
             }
         }
-        CalendarButtonKind::DaysPrevMonth {
-            month,
-        } => {
+        CalendarButtonKind::DaysPrevMonth { month } => {
             format!("<< {}", month_year_label(month))
         }
-        CalendarButtonKind::DaysZoom {
-            ..
+        CalendarButtonKind::DaysZoom { .. } | CalendarButtonKind::MonthsZoom { .. } => {
+            "Zoom".to_owned()
         }
-        | CalendarButtonKind::MonthsZoom {
-            ..
-        } => "Zoom".to_owned(),
-        CalendarButtonKind::DaysNextMonth {
-            month,
-        } => {
+        CalendarButtonKind::DaysNextMonth { month } => {
             format!("{} >>", month_year_label(month))
         }
-        CalendarButtonKind::MonthsHeader {
-            year,
-        } => format!("{year}"),
-        CalendarButtonKind::Month {
-            month,
-            is_current,
-        } => {
+        CalendarButtonKind::MonthsHeader { year } => format!("{year}"),
+        CalendarButtonKind::Month { month, is_current } => {
             if is_current {
                 format!("[{}]", month.month())
             } else {
                 month.month().to_string()
             }
         }
-        CalendarButtonKind::MonthsPrevYear {
-            year,
-        }
-        | CalendarButtonKind::YearsPrevPage {
-            year,
-        } => format!("<< {year}"),
-        CalendarButtonKind::MonthsNextYear {
-            year,
-        }
-        | CalendarButtonKind::YearsNextPage {
-            year,
-        } => format!("{year} >>"),
-        CalendarButtonKind::Year {
-            year,
-            is_current,
-        } => {
+        CalendarButtonKind::MonthsPrevYear { year }
+        | CalendarButtonKind::YearsPrevPage { year } => format!("<< {year}"),
+        CalendarButtonKind::MonthsNextYear { year }
+        | CalendarButtonKind::YearsNextPage { year } => format!("{year} >>"),
+        CalendarButtonKind::Year { year, is_current } => {
             if is_current {
                 format!("[ {year} ]")
             } else {
@@ -1370,12 +1318,8 @@ mod tests {
 
     async fn custom_text_renderer(kind: CalendarButtonKind, _render_ctx: RenderContext) -> String {
         match kind {
-            CalendarButtonKind::Day {
-                date, ..
-            } => format!("D{}", date.day()),
-            CalendarButtonKind::Weekday {
-                weekday,
-            } => {
+            CalendarButtonKind::Day { date, .. } => format!("D{}", date.day()),
+            CalendarButtonKind::Weekday { weekday } => {
                 format!("W{}", weekday.number_from_monday())
             }
             _ => "x".to_owned(),

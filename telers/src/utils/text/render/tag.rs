@@ -109,10 +109,7 @@ pub(crate) struct SimpleTag {
 
 impl SimpleTag {
     pub const fn new(start: &'static str, end: &'static str) -> Self {
-        Self {
-            start,
-            end,
-        }
+        Self { start, end }
     }
 
     pub fn get_tag(&self, place: Place) -> &'static str {
@@ -133,11 +130,7 @@ pub(crate) struct ComplexTag {
 
 impl ComplexTag {
     pub const fn new(start: &'static str, middle: &'static str, end: &'static str) -> Self {
-        Self {
-            start,
-            middle,
-            end,
-        }
+        Self { start, middle, end }
     }
 }
 
@@ -175,11 +168,7 @@ pub(crate) struct NewLineRepeatedTag {
 
 impl NewLineRepeatedTag {
     pub const fn new(start: &'static str, repeat: &'static str, end: &'static str) -> Self {
-        Self {
-            start,
-            repeat,
-            end,
-        }
+        Self { start, repeat, end }
     }
 }
 
