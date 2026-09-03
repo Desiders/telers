@@ -2,6 +2,7 @@
 
 use super::base::{Middleware, Next};
 use crate::{
+    client::{Bot, Session},
     errors::{EventErrorKind, SessionErrorKind},
     event::telegram::HandlerResponse,
     methods::AnswerCallbackQuery,
@@ -72,14 +73,16 @@ impl CallbackAnswer {
         self.cache_time = Some(val.into());
         self
     }
+}
 
+impl CallbackAnswer {
     async fn answer<Client>(
         &self,
         callback_query_id: &str,
-        bot: &crate::client::Bot<Client>,
+        bot: &Bot<Client>,
     ) -> Result<(), SessionErrorKind>
     where
-        Client: crate::client::Session,
+        Client: Session,
     {
         let mut method = AnswerCallbackQuery::new(callback_query_id);
         if let Some(text) = &self.text {
@@ -97,20 +100,9 @@ impl CallbackAnswer {
         bot.send(method).await?;
         Ok(())
     }
-
-    async fn try_answer<Client>(&self, callback_query_id: &str, bot: &crate::client::Bot<Client>)
-    where
-        Client: crate::client::Session,
-    {
-        if let Err(err) = self.answer(callback_query_id, bot).await {
-            event!(Level::ERROR, error = %err, "Failed to answer callback query");
-        }
-    }
 }
 
-impl<Client: Send + Sync + Clone + 'static + crate::client::Session> Middleware<Client>
-    for CallbackAnswer
-{
+impl<Client: Send + Sync + Clone + 'static + Session> Middleware<Client> for CallbackAnswer {
     async fn call(
         &mut self,
         request: Request<Client>,
@@ -125,7 +117,9 @@ impl<Client: Send + Sync + Clone + 'static + crate::client::Session> Middleware<
 
         if self.pre {
             if let Some(id) = &callback_query_id {
-                self.try_answer(id, &bot).await;
+                if let Err(err) = self.answer(id, &bot).await {
+                    event!(Level::ERROR, error = %err, "Failed to answer callback query");
+                }
             }
         }
 
@@ -133,7 +127,9 @@ impl<Client: Send + Sync + Clone + 'static + crate::client::Session> Middleware<
 
         if !self.pre {
             if let Some(id) = &callback_query_id {
-                self.try_answer(id, &bot).await;
+                if let Err(err) = self.answer(id, &bot).await {
+                    event!(Level::ERROR, error = %err, "Failed to answer callback query");
+                }
             }
         }
 
