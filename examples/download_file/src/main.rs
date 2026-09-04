@@ -1,9 +1,13 @@
 use telers::{
-    enums::UpdateType,
+    enums::{
+        MessageType::{Document, Photo},
+        UpdateType,
+    },
     event::telegram::{Handler, HandlerResult},
+    filters::MessageType,
     methods::SendMessage,
     types::{Message, MessageDocument, MessagePhoto},
-    Bot, Dispatcher, Router,
+    Bot, Dispatcher, Filter, Router,
 };
 
 async fn photo_handler(bot: Bot, message: MessagePhoto) -> HandlerResult<()> {
@@ -55,10 +59,11 @@ async fn main() {
     let bot = Bot::from_env();
 
     let router = Router::new("main").on_message(|observer| {
-        observer
-            .register(Handler::new(photo_handler))
-            .register(Handler::new(document_handler))
-            .register(Handler::new(fallback_handler))
+        observer.registers([
+            Handler::new(photo_handler).filter(MessageType::one(Photo)),
+            Handler::new(document_handler).filter(MessageType::one(Document)),
+            Handler::new(fallback_handler).filter(MessageType::many([Photo, Document]).invert()),
+        ])
     });
 
     let dispatcher = Dispatcher::builder()
