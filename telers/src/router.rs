@@ -132,9 +132,10 @@ use crate::{
     enums::{
         telegram_observer_type::with_telegram_observer_variants, TelegramObserverType, UpdateType,
     },
-    errors::EventErrorKind,
+    errors::{EventErrorKind, HandlerError},
     event::{
         bases::{EventReturn, PropagateEventResult},
+        error::{ErrorEvent, Observer as ErrorObserver, PropagateErrorResult},
         service::Service as _,
         simple::{HandlerResult as SimpleHandlerResult, Observer as SimpleObserver},
         telegram::Observer as TelegramObserver,
@@ -223,6 +224,23 @@ pub trait PropagateEvent<Client>: Clone + Send + Sync + 'static {
     /// If any startup observer returns error
     fn emit_startup(&mut self) -> impl Future<Output = SimpleHandlerResult> + Send;
 
+    /// Propagate error event to the error observers.
+    ///
+    /// Called by the [`Dispatcher`](crate::Dispatcher) when an error occurs while processing an update.
+    /// Default implementation returns [`PropagateErrorResult::Unhandled`], so propagators
+    /// without error observers are not affected.
+    /// # Errors
+    /// If any error handler returns error
+    fn propagate_error_event(
+        &mut self,
+        _event: ErrorEvent<Client>,
+    ) -> impl Future<Output = Result<PropagateErrorResult<Client>, HandlerError>> + Send
+    where
+        Client: Send + Sync + Clone,
+    {
+        std::future::ready(Ok(PropagateErrorResult::Unhandled(_event)))
+    }
+
     fn startup_handlers_len(&self) -> usize;
 
     /// Emit shutdown events
@@ -274,6 +292,8 @@ macro_rules! define_router_struct {
                 $observer: TelegramObserver<Client>,
             )+
 
+            pub error: ErrorObserver<Client>,
+
             startup: SimpleObserver,
             shutdown: SimpleObserver,
         }
@@ -289,6 +309,7 @@ macro_rules! router_constructor {
             $(
                 $observer: TelegramObserver::new(stringify!($observer)),
             )+
+            error: ErrorObserver::new("error"),
             startup: SimpleObserver::new("startup"),
             shutdown: SimpleObserver::new("shutdown"),
         }
@@ -340,6 +361,21 @@ macro_rules! impl_router_on_methods {
             F: FnOnce(SimpleObserver) -> SimpleObserver,
         {
             self.shutdown = configure(self.shutdown);
+            self
+        }
+
+        /// Configure error observer in builder style.
+        ///
+        /// Error handlers are called when an error occurs while processing an update.
+        /// See the [`error` module](crate::event::error) for details.
+        /// # Notes
+        /// Error handlers of sub routers are called before the handlers of this router.
+        #[must_use]
+        pub fn on_error<F>(mut self, configure: F) -> Self
+        where
+            F: FnOnce(ErrorObserver<Client>) -> ErrorObserver<Client>,
+        {
+            self.error = configure(self.error);
             self
         }
     };
@@ -534,6 +570,7 @@ impl<Client> Router<Client> {
                     $(
                         $observer: self.$observer,
                     )+
+                    error: self.error,
                     startup: self.startup,
                     shutdown: self.shutdown,
                 }
@@ -582,6 +619,7 @@ impl<Client> Clone for Router<Client> {
                     $(
                         $observer: self.$observer.clone(),
                     )+
+                    error: self.error.clone(),
                     startup: self.startup.clone(),
                     shutdown: self.shutdown.clone(),
                 }
@@ -600,6 +638,8 @@ macro_rules! define_configured_struct {
             $(
                 $observer: TelegramObserver<Client>,
             )+
+
+            pub error: ErrorObserver<Client>,
 
             pub startup: SimpleObserver,
             pub shutdown: SimpleObserver,
@@ -801,6 +841,50 @@ where
     }
 
     #[instrument(skip_all, fields(router = self.name))]
+    async fn propagate_error_event(
+        &mut self,
+        event: ErrorEvent<Client>,
+    ) -> Result<PropagateErrorResult<Client>, HandlerError>
+    where
+        Client: Send + Sync + Clone,
+    {
+        fn recurse<Client: Clone + Send + Sync + 'static>(
+            router: &mut Configured<Client>,
+            mut event: ErrorEvent<Client>,
+        ) -> Pin<
+            Box<
+                dyn Future<Output = Result<PropagateErrorResult<Client>, HandlerError>> + Send + '_,
+            >,
+        > {
+            Box::pin(async move {
+                // Sub routers are more specific, so their error handlers are called first
+                for sub_router in &mut router.sub_routers {
+                    event = match recurse(sub_router, event).await? {
+                        PropagateErrorResult::Handled => {
+                            event!(Level::TRACE, "Error handled by sub router");
+                            return Ok(PropagateErrorResult::Handled);
+                        }
+                        PropagateErrorResult::Unhandled(event) => event,
+                    };
+                }
+
+                match router.error.trigger(event).await? {
+                    PropagateErrorResult::Handled => {
+                        event!(Level::TRACE, "Error handled by router");
+                        Ok(PropagateErrorResult::Handled)
+                    }
+                    PropagateErrorResult::Unhandled(event) => {
+                        event!(Level::TRACE, "Error unhandled by router");
+                        Ok(PropagateErrorResult::Unhandled(event))
+                    }
+                }
+            })
+        }
+
+        recurse(self, event).await
+    }
+
+    #[instrument(skip_all, fields(router = self.name))]
     async fn emit_startup(&mut self) -> SimpleHandlerResult {
         fn recurse<Client: 'static>(
             router: &mut Configured<Client>,
@@ -901,6 +985,7 @@ impl<Client> Clone for Configured<Client> {
                     $(
                         $observer: self.$observer.clone(),
                     )+
+                    error: self.error.clone(),
                     startup: self.startup.clone(),
                     shutdown: self.shutdown.clone(),
                 }
@@ -1094,6 +1179,7 @@ mod tests {
     use crate::{
         client::Reqwest,
         event::{
+            error::Handler as ErrorHandler,
             simple::Handler as SimpleHandler,
             telegram::{Handler as TelegramHandler, HandlerResult as TelegramHandlerResult},
             EventReturn,
@@ -1103,7 +1189,14 @@ mod tests {
         Bot, Context, Extensions,
     };
 
-    use std::{convert::Infallible, sync::Arc};
+    use anyhow::anyhow;
+    use std::{
+        convert::Infallible,
+        sync::{
+            atomic::{AtomicBool, Ordering},
+            Arc,
+        },
+    };
     use tokio;
 
     #[test]
@@ -1491,6 +1584,98 @@ mod tests {
         assert_eq!(update_types.len(), 2);
         assert!(update_types.contains(UpdateType::EditedMessage.as_ref()));
         assert!(update_types.contains(UpdateType::ChannelPost.as_ref()));
+    }
+
+    #[tokio::test]
+    async fn test_propagate_error_event_bottom_up() {
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                0,
+                MessageText::new(0, 0, ChatPrivate::new(0), ""),
+            ))),
+            bot: Bot::default(),
+            context: Context::default(),
+            extensions: Extensions::default(),
+        };
+
+        // Sub router error handlers are called first (bottom-up),
+        // so the main router handler shouldn't be called if the sub router handled the error
+        let sub_called = Arc::new(AtomicBool::new(false));
+        let main_called = Arc::new(AtomicBool::new(false));
+        let sub_flag = Arc::clone(&sub_called);
+        let main_flag = Arc::clone(&main_called);
+
+        let router = Router::new("main")
+            .include(Router::new("sub").on_error(move |observer| {
+                observer.register(ErrorHandler::new(move |_event: ErrorEvent<Reqwest>| {
+                    let called = Arc::clone(&sub_flag);
+                    async move {
+                        called.store(true, Ordering::SeqCst);
+                        Ok::<_, HandlerError>(EventReturn::Finish)
+                    }
+                }))
+            }))
+            .on_error(move |observer| {
+                observer.register(ErrorHandler::new(move |_event: ErrorEvent<Reqwest>| {
+                    let called = Arc::clone(&main_flag);
+                    async move {
+                        called.store(true, Ordering::SeqCst);
+                        Ok::<_, HandlerError>(EventReturn::Finish)
+                    }
+                }))
+            });
+
+        let mut router_configured = router.configure_default();
+
+        let event = ErrorEvent::new(
+            request.clone(),
+            Arc::new(EventErrorKind::Handler(HandlerError::new(anyhow!(
+                "test error"
+            )))),
+        );
+
+        let result = router_configured
+            .propagate_error_event(event)
+            .await
+            .unwrap();
+
+        assert!(matches!(result, PropagateErrorResult::Handled));
+        assert!(sub_called.load(Ordering::SeqCst));
+        assert!(!main_called.load(Ordering::SeqCst));
+
+        // Without error handlers in the sub router,
+        // the main router handler should be called
+        let main_called = Arc::new(AtomicBool::new(false));
+        let main_flag = Arc::clone(&main_called);
+
+        let router = Router::new("main")
+            .include(Router::new("sub"))
+            .on_error(move |observer| {
+                observer.register(ErrorHandler::new(move |_event: ErrorEvent<Reqwest>| {
+                    let called = Arc::clone(&main_flag);
+                    async move {
+                        called.store(true, Ordering::SeqCst);
+                        Ok::<_, HandlerError>(EventReturn::Finish)
+                    }
+                }))
+            });
+
+        let mut router_configured = router.configure_default();
+
+        let event = ErrorEvent::new(
+            request,
+            Arc::new(EventErrorKind::Handler(HandlerError::new(anyhow!(
+                "test error"
+            )))),
+        );
+
+        let result = router_configured
+            .propagate_error_event(event)
+            .await
+            .unwrap();
+
+        assert!(matches!(result, PropagateErrorResult::Handled));
+        assert!(main_called.load(Ordering::SeqCst));
     }
 
     struct DummyClient;

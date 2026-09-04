@@ -13,7 +13,7 @@ use thiserror;
 /// An error that can occur when extracting arguments from an event and a context to pass to a handler.
 /// For example, if you try to extract [`crate::types::User`] from the [`crate::Context`] and the context does not contain the user,
 /// you can use this error type.
-#[derive(Debug, thiserror::Error)]
+#[derive(Clone, Debug, thiserror::Error)]
 #[error("Extraction error: {msg}")]
 pub struct Error {
     msg: Cow<'static, str>,
