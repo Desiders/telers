@@ -40,10 +40,29 @@
 //! }
 //! ```
 //!
+//! Files can be downloaded with the [`Bot::download`] method, which accepts a file ID or any object
+//! that represents a file, for example [`PhotoSize`](crate::types::PhotoSize).
+//! Check the [`download`] module docs for more information:
+//!
+//! ```rust
+//! use telers::{types::PhotoSize, Bot};
+//!
+//! async fn save_photo(bot: Bot, photo: &PhotoSize) {
+//!     let _ = bot
+//!         .download(photo)
+//!         .await
+//!         .unwrap()
+//!         .to_path("photo.jpg")
+//!         .await;
+//! }
+//! ```
+//!
 //! More production examples can be found in the [`examples`] directory.
 //!
 //! [`examples`]: https://github.com/Desiders/telers/tree/dev-1.x/examples
 //! [`methods`]: telers::methods
+
+pub mod download;
 
 use super::{session::base::Session, Reqwest};
 

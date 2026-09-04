@@ -103,3 +103,8 @@ impl VideoQuality {
         self
     }
 }
+impl crate::types::FileIdGetter for VideoQuality {
+    fn file_id(&self) -> &str {
+        &self.file_id
+    }
+}

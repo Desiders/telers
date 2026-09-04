@@ -11,11 +11,14 @@ use crate::{
     methods::{Response, TelegramMethod},
 };
 
+use bytes::Bytes;
+use futures_util::Stream;
 use serde::de::DeserializeOwned;
 use std::{
-    fmt::{self, Display, Formatter},
+    fmt::{self, Debug, Display, Formatter},
     future::Future,
     ops::RangeInclusive,
+    pin::Pin,
 };
 use tracing::{debug_span, event, instrument, Level, Span};
 
@@ -82,6 +85,31 @@ impl ClientResponse {
     }
 }
 
+pub type ContentStream = Pin<Box<dyn Stream<Item = Result<Bytes, anyhow::Error>> + Send>>;
+
+pub struct ClientStreamResponse {
+    pub status_code: StatusCode,
+    pub content: ContentStream,
+}
+
+impl ClientStreamResponse {
+    #[must_use]
+    pub fn new(status_code: impl Into<StatusCode>, content: ContentStream) -> Self {
+        Self {
+            status_code: status_code.into(),
+            content,
+        }
+    }
+}
+
+impl Debug for ClientStreamResponse {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ClientStreamResponse")
+            .field("status_code", &self.status_code)
+            .finish_non_exhaustive()
+    }
+}
+
 pub trait Session: Send + Sync {
     /// Get configuration of Telegram Bot API server endpoints and local mode
     #[must_use]
@@ -106,6 +134,20 @@ pub trait Session: Send + Sync {
         Client: Session,
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync;
+
+    /// Streams the content of a file from the Telegram Bot API file server
+    /// # Arguments
+    /// * `url` - URL of the file, usually built by [`APIServer::file_url`]
+    /// * `timeout` - Request timeout.
+    ///   If `None`, then client timeout will be used, which is [`DEFAULT_TIMEOUT`] by default.
+    /// # Errors
+    /// If the request cannot be sent
+    #[must_use]
+    fn stream_content(
+        &self,
+        url: &str,
+        timeout: Option<f32>,
+    ) -> impl Future<Output = Result<ClientStreamResponse, anyhow::Error>> + Send;
 
     /// Checks a response from Telegram API
     /// # Arguments

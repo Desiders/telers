@@ -169,3 +169,8 @@ impl LivePhoto {
         self
     }
 }
+impl crate::types::FileIdGetter for LivePhoto {
+    fn file_id(&self) -> &str {
+        &self.file_id
+    }
+}

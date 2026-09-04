@@ -157,3 +157,8 @@ impl Animation {
         self
     }
 }
+impl crate::types::FileIdGetter for Animation {
+    fn file_id(&self) -> &str {
+        &self.file_id
+    }
+}

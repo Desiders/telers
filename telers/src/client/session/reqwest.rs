@@ -11,7 +11,7 @@
 //! [`Arc`]: std::sync::Arc
 //! [`APIServer`]: telers::client::telegram::APIServer
 
-use super::base::{ClientResponse, Session, DEFAULT_TIMEOUT};
+use super::base::{ClientResponse, ClientStreamResponse, Session, DEFAULT_TIMEOUT};
 
 use crate::{
     client::{telegram, Bot},
@@ -21,6 +21,7 @@ use crate::{
     utils::format_error_report,
 };
 
+use futures_util::TryStreamExt as _;
 use reqwest::{
     multipart::{Form, Part},
     Body, Client, ClientBuilder,
@@ -219,5 +220,60 @@ impl Session for Reqwest {
         })?;
 
         Ok(ClientResponse::new(status_code, content))
+    }
+
+    /// Sends a `GET` request to the given URL and returns a response with the content stream.
+    /// # Arguments
+    /// * `url` - The file URL
+    /// * `timeout` - The request timeout
+    /// # Warning
+    /// If the timeout is not set, the default timeout will not be used.
+    /// # Errors
+    /// Returns an error if the request cannot be sent.
+    #[instrument(name = "stream", skip_all, fields(timeout))]
+    async fn stream_content(
+        &self,
+        url: &str,
+        timeout: Option<f32>,
+    ) -> Result<ClientStreamResponse, anyhow::Error> {
+        let response = if let Some(timeout) = timeout {
+            Span::current().record("timeout", timeout);
+
+            self.client
+                .get(url)
+                .timeout(Duration::from_secs_f32(timeout))
+        } else {
+            self.client.get(url)
+        }
+        .send()
+        .await
+        .map_err(|err| {
+            if err.is_timeout() {
+                event!(Level::WARN, error = %err, "Request timed out",);
+            } else {
+                event!(
+                    Level::ERROR,
+                    error = format_error_report(&err),
+                    "Cannot send a request",
+                );
+            }
+            err
+        })?;
+
+        let status_code = response.status().as_u16();
+
+        let content = response
+            .bytes_stream()
+            .inspect_err(move |err| {
+                event!(
+                    Level::ERROR,
+                    error = format_error_report(err),
+                    status_code,
+                    "Cannot get a response content",
+                );
+            })
+            .map_err(anyhow::Error::from);
+
+        Ok(ClientStreamResponse::new(status_code, Box::pin(content)))
     }
 }

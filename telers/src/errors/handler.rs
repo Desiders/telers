@@ -5,7 +5,7 @@
 //! Usually it is a wrapper for [`SessionErrorKind`] or [`TelegramErrorKind`] errors,
 //! but it can also be a wrapper for any another error.
 
-use super::{SessionErrorKind, TelegramErrorKind};
+use super::{DownloadErrorKind, SessionErrorKind, TelegramErrorKind};
 
 use anyhow;
 use thiserror;
@@ -62,6 +62,13 @@ impl From<TelegramErrorKind> for Error {
 /// To possible to wrap [`SessionErrorKind`] error in [`Error`] struct without boilerplate code
 impl From<SessionErrorKind> for Error {
     fn from(err: SessionErrorKind) -> Self {
+        Self::new(err)
+    }
+}
+
+/// To possible to wrap [`DownloadErrorKind`] error in [`Error`] struct without boilerplate code
+impl From<DownloadErrorKind> for Error {
+    fn from(err: DownloadErrorKind) -> Self {
         Self::new(err)
     }
 }

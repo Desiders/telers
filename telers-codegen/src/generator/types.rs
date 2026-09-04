@@ -344,6 +344,29 @@ pub fn get_impls_for_types(
 
     let mut impl_quotes = vec![];
 
+    // Types with a required `file_id` field, or enums whose every variant has it,
+    // implement `FileIdGetter`, so they can be passed to `Bot::download`
+    let has_file_id = collect_common_fields(type_quote, schema)
+        .get("file_id")
+        .is_some_and(|(field, fully_required, _)| {
+            *fully_required && field.r#type == TypeKindInField::String
+        });
+    if has_file_id {
+        let body = if type_quote.subtypes.is_empty() {
+            quote! { &self.file_id }
+        } else {
+            quote! { #name::file_id(self) }
+        };
+
+        impl_quotes.push(quote! {
+            impl crate::types::FileIdGetter for #name {
+                fn file_id(&self) -> &str {
+                    #body
+                }
+            }
+        });
+    }
+
     if type_quote.is_update_variant() {
         let ty_field = type_quote
             .update_variant_ty_field()
