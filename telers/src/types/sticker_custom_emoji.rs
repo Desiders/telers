@@ -208,3 +208,8 @@ impl StickerCustomEmoji {
         self
     }
 }
+impl crate::types::FileIdGetter for StickerCustomEmoji {
+    fn file_id(&self) -> &str {
+        &self.file_id
+    }
+}

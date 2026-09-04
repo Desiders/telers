@@ -207,3 +207,8 @@ impl StickerUnknown {
         self
     }
 }
+impl crate::types::FileIdGetter for StickerUnknown {
+    fn file_id(&self) -> &str {
+        &self.file_id
+    }
+}

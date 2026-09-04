@@ -163,3 +163,8 @@ impl Audio {
         self
     }
 }
+impl crate::types::FileIdGetter for Audio {
+    fn file_id(&self) -> &str {
+        &self.file_id
+    }
+}

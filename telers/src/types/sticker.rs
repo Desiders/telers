@@ -241,6 +241,11 @@ impl Sticker {
         }
     }
 }
+impl crate::types::FileIdGetter for Sticker {
+    fn file_id(&self) -> &str {
+        Sticker::file_id(self)
+    }
+}
 impl From<crate::types::StickerRegular> for Sticker {
     fn from(val: crate::types::StickerRegular) -> Self {
         Self::Regular(val)

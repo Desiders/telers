@@ -274,3 +274,8 @@ impl Video {
         self
     }
 }
+impl crate::types::FileIdGetter for Video {
+    fn file_id(&self) -> &str {
+        &self.file_id
+    }
+}

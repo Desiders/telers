@@ -103,3 +103,8 @@ impl VideoNote {
         self
     }
 }
+impl crate::types::FileIdGetter for VideoNote {
+    fn file_id(&self) -> &str {
+        &self.file_id
+    }
+}
