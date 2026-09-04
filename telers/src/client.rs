@@ -12,7 +12,7 @@ pub mod bot;
 pub mod session;
 pub mod telegram;
 
-pub use bot::Bot;
+pub use bot::{download::FileDownload, Bot};
 pub use session::{Reqwest, Session};
 
 // Re-exported because [`Bot::token`] returns a [`SecretString`], so users need these to read the

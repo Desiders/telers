@@ -4,6 +4,8 @@
 //! - [`SessionErrorKind`] is returned by [`Bot::send`](crate::Bot::send): a network/client
 //!   failure or an error response from the Telegram API ([`TelegramErrorKind`], e.g. flood
 //!   control or a malformed request)
+//! - [`DownloadErrorKind`] is returned by [`Bot::download`](crate::Bot::download) and related
+//!   methods: a `getFile` failure, a missing file path, or an I/O error
 //! - [`HandlerError`] is the error type your handlers return, wrapping any [`anyhow::Error`]
 //! - [`ExtractionError`] means a handler argument couldn't be extracted from the request
 //!   (see the [`extractor` module](crate::extractor))
@@ -15,6 +17,7 @@
 #![allow(clippy::module_name_repetitions)]
 
 pub mod convert;
+pub mod download;
 pub mod event;
 pub mod extractor;
 pub mod filter;
@@ -24,6 +27,7 @@ pub mod session;
 pub mod telegram;
 
 pub use convert::ConvertToType as ConvertToTypeError;
+pub use download::ErrorKind as DownloadErrorKind;
 pub use event::ErrorKind as EventErrorKind;
 pub use extractor::Error as ExtractionError;
 pub use filter::Error as FilterError;
