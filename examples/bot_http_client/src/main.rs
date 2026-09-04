@@ -1,6 +1,9 @@
 use std::borrow::Cow;
 use telers::{
-    client::{session::ClientResponse, telegram, Session},
+    client::{
+        session::{ClientResponse, ClientStreamResponse},
+        telegram, Session,
+    },
     enums::UpdateType,
     event::telegram::{Handler, HandlerResult},
     methods::{CopyMessage, TelegramMethod},
@@ -39,6 +42,17 @@ impl Session for CustomClient {
     {
         unimplemented!(
             "Send request is not implemented for custom client. You can use default client or \
+             implement it for your custom client."
+        )
+    }
+
+    async fn stream_content(
+        &self,
+        _url: &str,
+        _timeout: Option<f32>,
+    ) -> Result<ClientStreamResponse, anyhow::Error> {
+        unimplemented!(
+            "Stream content is not implemented for custom client. You can use default client or \
              implement it for your custom client."
         )
     }
