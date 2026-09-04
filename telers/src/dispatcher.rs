@@ -59,6 +59,10 @@ use crate::{
     either::Either,
     enums::UpdateType,
     errors::{EventErrorKind, HandlerError},
+    event::{
+        bases::PropagateEventResult,
+        error::{ErrorEvent, PropagateErrorResult},
+    },
     methods::GetUpdates,
     types::Update,
     Extensions, Request, RouterConfigured,
@@ -342,6 +346,11 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
     /// This method will propagate update to the main router.
     /// # Errors
     /// Returns an error when event propagation fails.
+    /// # Notes
+    /// If an error occurs while processing the update (a handler returns an error,
+    /// or argument extraction, middleware or filter fails), it's propagated to the error handlers
+    /// (see the [`error` module](crate::event::error)).
+    /// If no error handler handles the error, it's logged with the `ERROR` level.
     #[instrument(skip_all, fields(update_id = update.update_id(), update_type))]
     pub async fn feed_update(
         &mut self,
@@ -356,17 +365,69 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
 
         Span::current().record("update_type", field::display(&update_type));
 
-        self.propagator
-            .propagate_event(
-                update_type,
-                Request {
-                    bot,
-                    update,
-                    context: self.context.clone(),
-                    extensions: self.extensions.clone(),
-                },
-            )
+        let request = Request {
+            bot,
+            update,
+            context: self.context.clone(),
+            extensions: self.extensions.clone(),
+        };
+
+        match self
+            .propagator
+            .propagate_event(update_type, request.clone())
             .await
+        {
+            Ok(response) => {
+                // If the handler returned an error, the observer wraps it into a `Handled` response,
+                // so we need to look inside to detect and propagate it to the error handlers
+                if let Response {
+                    propagate_result: PropagateEventResult::Handled(handler_response),
+                    ..
+                } = &response
+                {
+                    if let Err(err) = handler_response.result.as_ref() {
+                        self.propagate_error(request, EventErrorKind::Handler(err.clone()))
+                            .await;
+                    }
+                }
+
+                Ok(response)
+            }
+            Err(error) => {
+                self.propagate_error(request, error.clone()).await;
+
+                Err(error)
+            }
+        }
+    }
+
+    /// Propagate the error to the error handlers of the main router and its sub routers.
+    /// If no error handler handles the error, it's logged with the `ERROR` level.
+    async fn propagate_error(&mut self, request: Request<Client>, error: EventErrorKind)
+    where
+        Client: Send + Sync + Clone + 'static,
+        Propagator: PropagateEvent<Client>,
+    {
+        let event = ErrorEvent::new(request, Arc::new(error));
+
+        match self.propagator.propagate_error_event(event).await {
+            Ok(PropagateErrorResult::Handled) => {}
+            Ok(PropagateErrorResult::Unhandled(event)) => {
+                event!(
+                    Level::ERROR,
+                    update_id = event.request.update.update_id(),
+                    error = ?event.error,
+                    "Error while processing update is unhandled by any error handler",
+                );
+            }
+            Err(err) => {
+                event!(
+                    Level::ERROR,
+                    error = %err,
+                    "Error handler failed while processing an error",
+                );
+            }
+        }
     }
 
     /// Start listening updates for the bot.
@@ -771,13 +832,19 @@ mod tests {
         client::Reqwest,
         event::{
             bases::{EventReturn, PropagateEventResult},
-            telegram::Handler,
+            error::ErrorEvent,
+            telegram::Handler as TelegramHandler,
         },
+        extensions::Extension,
         router::Router,
         types::{ChatPrivate, MessageText, UpdateMessage},
     };
 
-    use std::convert::Infallible;
+    use anyhow::anyhow;
+    use std::{
+        convert::Infallible,
+        sync::atomic::{AtomicBool, Ordering},
+    };
     use tokio;
 
     #[tokio::test]
@@ -805,7 +872,7 @@ mod tests {
         }
 
         let router = Router::new("main").on_message(|observer| {
-            observer.register(Handler::new(|| async {
+            observer.register(TelegramHandler::new(|| async {
                 Ok::<_, Infallible>(EventReturn::Finish)
             }))
         });
@@ -821,6 +888,173 @@ mod tests {
             PropagateEventResult::Handled(_) => {}
             _ => panic!("Unexpected result"),
         }
+    }
+
+    #[tokio::test]
+    async fn test_feed_update_handler_error_is_propagated_to_error_handlers() {
+        let bot = Bot::<Reqwest>::default();
+        let update = Arc::new(Update::Message(UpdateMessage::new(
+            0,
+            MessageText::new(0, 0, ChatPrivate::new(0), ""),
+        )));
+        let called = Arc::new(AtomicBool::new(false));
+        let handler_called = Arc::clone(&called);
+
+        let router = Router::new("main")
+            .on_message(|observer| {
+                observer.register(TelegramHandler::new(|| async {
+                    Err::<EventReturn, _>(HandlerError::new(anyhow!("test error")))
+                }))
+            })
+            .on_error(move |observer| {
+                observer.register(crate::event::error::Handler::new(
+                    move |event: ErrorEvent<Reqwest>| {
+                        let called = Arc::clone(&handler_called);
+                        async move {
+                            assert!(matches!(event.error.as_ref(), EventErrorKind::Handler(_)));
+                            called.store(true, Ordering::SeqCst);
+                            Ok::<_, HandlerError>(EventReturn::Finish)
+                        }
+                    },
+                ))
+            });
+
+        let mut dispatcher = Dispatcher::builder()
+            .main_router(router.configure_default())
+            .build();
+
+        // The handler error is wrapped by the observer into a `Handled` response,
+        // so `feed_update` returns `Ok` with the error inside (untouched)
+        let response = dispatcher.feed_update(bot, update).await.unwrap();
+
+        match response.propagate_result {
+            PropagateEventResult::Handled(ref response) => {
+                assert!(response.result.is_err());
+            }
+            _ => panic!("Unexpected result"),
+        }
+        assert!(called.load(Ordering::SeqCst));
+    }
+
+    #[tokio::test]
+    async fn test_feed_update_extraction_error_is_propagated_to_error_handlers() {
+        let bot = Bot::<Reqwest>::default();
+        let update = Arc::new(Update::Message(UpdateMessage::new(
+            0,
+            MessageText::new(0, 0, ChatPrivate::new(0), ""),
+        )));
+        let called = Arc::new(AtomicBool::new(false));
+        let handler_called = Arc::clone(&called);
+
+        let router = Router::new("main")
+            .on_message(|observer| {
+                // `Extension` extraction fails because nothing was inserted into the extensions
+                observer.register(TelegramHandler::new(|_extension: Extension<Test1>| async {
+                    Ok::<_, Infallible>(EventReturn::Finish)
+                }))
+            })
+            .on_error(move |observer| {
+                observer.register(crate::event::error::Handler::new(
+                    move |event: ErrorEvent<Reqwest>| {
+                        let called = Arc::clone(&handler_called);
+                        async move {
+                            assert!(matches!(
+                                event.error.as_ref(),
+                                EventErrorKind::Extraction(_)
+                            ));
+                            called.store(true, Ordering::SeqCst);
+                            Ok::<_, HandlerError>(EventReturn::Finish)
+                        }
+                    },
+                ))
+            });
+
+        let mut dispatcher = Dispatcher::builder()
+            .main_router(router.configure_default())
+            .build();
+
+        // The extraction error is returned as `Err` from `feed_update` (untouched)
+        // after being propagated to the error handlers
+        let result = dispatcher.feed_update(bot, update).await;
+
+        assert!(result.is_err());
+        assert!(called.load(Ordering::SeqCst));
+    }
+
+    #[tokio::test]
+    async fn test_feed_update_unhandled_error_is_logged() {
+        let bot = Bot::<Reqwest>::default();
+        let update = Arc::new(Update::Message(UpdateMessage::new(
+            0,
+            MessageText::new(0, 0, ChatPrivate::new(0), ""),
+        )));
+
+        let router = Router::new("main").on_message(|observer| {
+            observer.register(TelegramHandler::new(|| async {
+                Err::<EventReturn, _>(HandlerError::new(anyhow!("test error")))
+            }))
+        });
+
+        let mut dispatcher = Dispatcher::builder()
+            .main_router(router.configure_default())
+            .build();
+
+        // No error handlers are registered, so the error is just logged;
+        // `feed_update` result must be untouched
+        let response = dispatcher.feed_update(bot, update).await.unwrap();
+
+        match response.propagate_result {
+            PropagateEventResult::Handled(ref response) => {
+                assert!(response.result.is_err());
+            }
+            _ => panic!("Unexpected result"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_feed_update_error_handler_result_is_respected() {
+        let bot = Bot::<Reqwest>::default();
+        let update = Arc::new(Update::Message(UpdateMessage::new(
+            0,
+            MessageText::new(0, 0, ChatPrivate::new(0), ""),
+        )));
+        let called = Arc::new(AtomicBool::new(false));
+        let handler_called = Arc::clone(&called);
+
+        let router = Router::new("main")
+            .on_message(|observer| {
+                observer.register(TelegramHandler::new(|| async {
+                    Err::<EventReturn, _>(HandlerError::new(anyhow!("test error")))
+                }))
+            })
+            .on_error(move |observer| {
+                observer.register(crate::event::error::Handler::new(
+                    move |event: ErrorEvent<Reqwest>| {
+                        let called = Arc::clone(&handler_called);
+                        async move {
+                            assert!(matches!(event.error.as_ref(), EventErrorKind::Handler(_)));
+                            called.store(true, Ordering::SeqCst);
+                            Ok::<_, HandlerError>(EventReturn::Skip)
+                        }
+                    },
+                ))
+            });
+
+        let mut dispatcher = Dispatcher::builder()
+            .main_router(router.configure_default())
+            .build();
+
+        // The error handler skips the event, so the error is unhandled
+        // (and logged), but `feed_update` result must be untouched
+        let response = dispatcher.feed_update(bot, update).await.unwrap();
+
+        match response.propagate_result {
+            PropagateEventResult::Handled(ref response) => {
+                assert!(response.result.is_err());
+            }
+            _ => panic!("Unexpected result"),
+        }
+        assert!(called.load(Ordering::SeqCst));
     }
 
     #[derive(Clone)]

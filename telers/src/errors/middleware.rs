@@ -11,18 +11,19 @@ use std::{
     convert::Infallible,
     fmt, io,
     num::{ParseFloatError, ParseIntError},
+    sync::Arc,
 };
-use thiserror;
 
 /// A wrapper for any error that can occur when processing a middleware.
 /// We use this wrapper around [`anyhow::Error`], because it allows us to wrap any error type, including custom errors
 /// and don't use [`anyhow::Error`] directly.
 /// Usually it is a wrapper for [`crate::errors::HandlerError`] errors, but it can also be a wrapper for any another error.
-#[derive(Debug, thiserror::Error)]
-#[error(transparent)]
+///
+/// The source error is wrapped in [`Arc`], so the [`Error`] can be cloned cheaply
+/// and shared (for example, with error handlers).
+#[derive(Clone, Debug)]
 pub struct Error {
-    #[from]
-    source: anyhow::Error,
+    source: Arc<anyhow::Error>,
 }
 
 impl Error {
@@ -32,7 +33,7 @@ impl Error {
     /// If you want to pass just a message, you can use [`Error::from_display`] or [`Error::from_debug`] methods.
     pub fn new(err: impl Into<anyhow::Error>) -> Self {
         Self {
-            source: err.into(),
+            source: Arc::new(err.into()),
         }
     }
 
@@ -52,6 +53,29 @@ impl Error {
     /// If you want to pass an error, you can use [`Error::new`] method.
     pub fn from_debug(info: impl fmt::Debug) -> Self {
         Self::new(anyhow::anyhow!("{info:?}"))
+    }
+
+    /// Returns a reference to the source error.
+    /// Useful for downcasting to a concrete error type (e.g. `err.as_anyhow().downcast_ref::<MyError>()`).
+    ///
+    /// # Notes
+    /// Named `as_anyhow` (not `source`) to avoid shadowing [`std::error::Error::source`],
+    /// which would silently change the meaning of `err.source()` calls.
+    #[must_use]
+    pub fn as_anyhow(&self) -> &anyhow::Error {
+        &self.source
+    }
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt::Display::fmt(&*self.source, f)
+    }
+}
+
+impl std::error::Error for Error {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        self.source.as_ref().source()
     }
 }
 

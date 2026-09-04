@@ -15,7 +15,7 @@ use thiserror;
 /// - [`HandlerError`] - An error that can occur when processing a handler
 /// - [`MiddlewareError`] - An error that can occur when processing a middleware (may wrap [`HandlerError`])
 /// - [`FilterError`] - An error that can occur when processing a filter
-#[derive(Debug, thiserror::Error)]
+#[derive(Clone, Debug, thiserror::Error)]
 pub enum ErrorKind {
     #[error(transparent)]
     Extraction(#[from] ExtractionError),
