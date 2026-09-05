@@ -67,6 +67,7 @@ pub(crate) mod any;
 #[macro_use]
 pub(crate) mod macros;
 
+pub mod callback_data;
 pub mod client;
 pub mod context;
 pub mod dispatcher;
@@ -88,8 +89,9 @@ pub mod utils;
 #[cfg(feature = "webhooks")]
 pub mod webhooks;
 
-pub use telers_macros::{FromContext, FromEvent};
+pub use telers_macros::{CallbackData, FromContext, FromEvent};
 
+pub use callback_data::{CallbackData, CallbackDataError, CallbackDataValue};
 pub use client::Bot;
 pub use context::Context;
 pub use dispatcher::{Builder as DispatcherBuilder, Dispatcher};

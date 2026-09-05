@@ -71,6 +71,7 @@
 //! [`text pattern type`]: text::PatternType
 
 pub mod base;
+pub mod callback_data;
 pub mod chat_member_updated;
 pub mod chat_type;
 pub mod command;
@@ -82,6 +83,7 @@ pub mod text;
 pub mod user;
 
 pub use base::{Filter, FilterResult};
+pub use callback_data::CallbackDataFilter;
 pub use chat_member_updated::ChatMemberUpdated;
 pub use chat_type::ChatType;
 pub use command::{
