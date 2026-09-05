@@ -72,6 +72,8 @@ use crate::{
     utils::token,
 };
 
+use backoff::{future::retry, Error as BackoffError, ExponentialBackoff};
+
 use secrecy::SecretString;
 use std::{
     env,
@@ -80,6 +82,72 @@ use std::{
     time::Duration,
 };
 use tracing::{event, Level};
+
+/// Retry policy used by [`Bot::send_with_retry`] and [`Bot::send_with_timeout_and_retry`].
+///
+/// - `max_retries` limits the number of retries for transient server errors
+///   ([`ServerError`](crate::errors::TelegramErrorKind::ServerError) and
+///   [`MigrateToChat`](crate::errors::TelegramErrorKind::MigrateToChat))
+/// - `backoff` controls the delays between retries and the elapsed time budget for
+///   [`RetryAfter`](crate::errors::TelegramErrorKind::RetryAfter) errors,
+///   for which Telegram API dictates the wait time itself
+///
+/// # Examples
+///
+/// Customizing the backoff algorithm:
+///
+/// ```rust
+/// use telers::client::RetryPolicy;
+///
+/// use backoff::ExponentialBackoff;
+/// use std::time::Duration;
+///
+/// let mut backoff = ExponentialBackoff::default();
+/// backoff.max_elapsed_time = Some(Duration::from_secs(30));
+///
+/// let policy = RetryPolicy {
+///     max_retries: 3,
+///     backoff,
+/// };
+/// ```
+#[derive(Debug, Clone)]
+pub struct RetryPolicy {
+    /// Maximum number of retries for transient server errors
+    /// ([`ServerError`](crate::errors::TelegramErrorKind::ServerError) and
+    /// [`MigrateToChat`](crate::errors::TelegramErrorKind::MigrateToChat)).
+    /// [`RetryAfter`](crate::errors::TelegramErrorKind::RetryAfter) errors are not
+    /// limited by this number, but by the elapsed time budget of [`Self::backoff`] instead
+    pub max_retries: u32,
+    /// Backoff algorithm that provides delays between retries.
+    /// Defaults to `ExponentialBackoff::default()` with a 15 minutes elapsed time budget.
+    /// Customize it directly, for example with `ExponentialBackoffBuilder`
+    pub backoff: ExponentialBackoff,
+}
+
+impl RetryPolicy {
+    /// Creates a new retry policy with the given maximum number of retries
+    /// and the default exponential backoff
+    #[must_use]
+    pub fn new(max_retries: u32) -> Self {
+        Self {
+            max_retries,
+            backoff: ExponentialBackoff::default(),
+        }
+    }
+}
+
+impl Default for RetryPolicy {
+    /// Returns a policy without transient server error retries and the default backoff
+    fn default() -> Self {
+        Self::new(0)
+    }
+}
+
+impl From<u32> for RetryPolicy {
+    fn from(max_retries: u32) -> Self {
+        Self::new(max_retries)
+    }
+}
 
 /// Represents a bot with its token and ID, also contains client for sending requests to Telegram API.
 /// # Notes
@@ -248,12 +316,16 @@ impl<Client: Session> Bot<Client> {
             .await
     }
 
-    /// Use this method to send requests to Telegram API and retry them after [`RetryAfter`] errors
+    /// Use this method to send requests to Telegram API and retry them after [`RetryAfter`],
+    /// [`ServerError`] and [`MigrateToChat`] errors
     ///
     /// [`RetryAfter`]: crate::errors::TelegramErrorKind::RetryAfter
+    /// [`ServerError`]: crate::errors::TelegramErrorKind::ServerError
+    /// [`MigrateToChat`]: crate::errors::TelegramErrorKind::MigrateToChat
     /// # Arguments
     /// * `method` - Telegram API method
-    /// * `max_attempts` - Maximum number of request attempts (including the first one), so `1` means no retries
+    /// * `retry_policy` - Retry policy, check [`RetryPolicy`] for more information.
+    ///   Can be constructed from a number of retries: `bot.send_with_retry(method, 3.into())`
     /// # Errors
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
@@ -262,32 +334,39 @@ impl<Client: Session> Bot<Client> {
     /// This method uses default timeout for requests, which is 30 seconds.
     /// If you want to use custom timeout, use [`Bot::send_with_timeout_and_retry`] method.
     ///
-    /// Only [`RetryAfter`] errors are retried: the method waits for the number of seconds
-    /// returned by Telegram API and then sends the same request again.
-    /// Other errors are returned immediately without retries.
-    /// If all attempts are exhausted, the last error is returned.
+    /// Retryable errors:
+    /// - [`RetryAfter`] — the method waits for the number of seconds returned by Telegram API
+    ///   and then sends the same request again. These retries are limited by the elapsed time
+    ///   budget of the backoff algorithm (15 minutes by default) instead of the number of retries
+    /// - [`ServerError`] and [`MigrateToChat`] — the method retries them with an exponential
+    ///   backoff, up to `max_retries` retries from the retry policy
     ///
-    /// [`RetryAfter`]: crate::errors::TelegramErrorKind::RetryAfter
+    /// Other errors are returned immediately without retries.
+    /// If all retries are exhausted, the last error is returned.
     pub async fn send_with_retry<T>(
         &self,
         method: T,
-        max_attempts: u32,
+        retry_policy: impl Into<RetryPolicy>,
     ) -> Result<T::Return, SessionErrorKind>
     where
         T: TelegramMethod + Clone + Send + Sync,
         T::Method: Send + Sync,
     {
-        self.send_with_retry_inner(method, None, max_attempts).await
+        self.send_with_retry_inner(method, None, retry_policy.into())
+            .await
     }
 
     /// Use this method to send requests to Telegram API with timeout
-    /// and retry them after [`RetryAfter`] errors
+    /// and retry them after [`RetryAfter`], [`ServerError`] and [`MigrateToChat`] errors
     ///
     /// [`RetryAfter`]: crate::errors::TelegramErrorKind::RetryAfter
+    /// [`ServerError`]: crate::errors::TelegramErrorKind::ServerError
+    /// [`MigrateToChat`]: crate::errors::TelegramErrorKind::MigrateToChat
     /// # Arguments
     /// * `method` - Telegram API method
     /// * `request_timeout` - Request timeout
-    /// * `max_attempts` - Maximum number of request attempts (including the first one), so `1` means no retries
+    /// * `retry_policy` - Retry policy, check [`RetryPolicy`] for more information.
+    ///   Can be constructed from a number of retries: `bot.send_with_timeout_and_retry(method, timeout, 3.into())`
     /// # Errors
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
@@ -296,23 +375,26 @@ impl<Client: Session> Bot<Client> {
     /// This method uses passed timeout for requests.
     /// If you want to use default timeout, use [`Bot::send_with_retry`] method.
     ///
-    /// Only [`RetryAfter`] errors are retried: the method waits for the number of seconds
-    /// returned by Telegram API and then sends the same request again.
-    /// Other errors are returned immediately without retries.
-    /// If all attempts are exhausted, the last error is returned.
+    /// Retryable errors:
+    /// - [`RetryAfter`] — the method waits for the number of seconds returned by Telegram API
+    ///   and then sends the same request again. These retries are limited by the elapsed time
+    ///   budget of the backoff algorithm (15 minutes by default) instead of the number of retries
+    /// - [`ServerError`] and [`MigrateToChat`] — the method retries them with an exponential
+    ///   backoff, up to `max_retries` retries from the retry policy
     ///
-    /// [`RetryAfter`]: crate::errors::TelegramErrorKind::RetryAfter
+    /// Other errors are returned immediately without retries.
+    /// If all retries are exhausted, the last error is returned.
     pub async fn send_with_timeout_and_retry<T>(
         &self,
         method: T,
         request_timeout: f32,
-        max_attempts: u32,
+        retry_policy: impl Into<RetryPolicy>,
     ) -> Result<T::Return, SessionErrorKind>
     where
         T: TelegramMethod + Clone + Send + Sync,
         T::Method: Send + Sync,
     {
-        self.send_with_retry_inner(method, Some(request_timeout), max_attempts)
+        self.send_with_retry_inner(method, Some(request_timeout), retry_policy.into())
             .await
     }
 
@@ -320,37 +402,73 @@ impl<Client: Session> Bot<Client> {
         &self,
         method: T,
         timeout: Option<f32>,
-        max_attempts: u32,
+        retry_policy: RetryPolicy,
     ) -> Result<T::Return, SessionErrorKind>
     where
         T: TelegramMethod + Clone + Send + Sync,
         T::Method: Send + Sync,
     {
-        for attempt in 1..=max_attempts {
-            match self
-                .client
-                .make_request_and_get_result(self, method.clone(), timeout)
-                .await
-            {
-                Err(SessionErrorKind::Telegram(TelegramErrorKind::RetryAfter {
-                    retry_after,
-                    ..
-                })) if attempt < max_attempts => {
-                    event!(
-                        Level::WARN,
-                        attempt,
-                        max_attempts,
-                        retry_after,
-                        "Request was rate limited, retrying after retry_after seconds"
-                    );
+        let RetryPolicy {
+            max_retries,
+            backoff,
+        } = retry_policy;
+        let mut transient_retries = 0_u32;
 
-                    tokio::time::sleep(Duration::from_secs(retry_after.max(0) as u64)).await;
+        retry(backoff, || {
+            let method = method.clone();
+            let attempt = transient_retries;
+            transient_retries += 1;
+
+            async move {
+                match self
+                    .client
+                    .make_request_and_get_result(self, method, timeout)
+                    .await
+                {
+                    Err(SessionErrorKind::Telegram(
+                        error @ TelegramErrorKind::RetryAfter {
+                            retry_after, ..
+                        },
+                    )) => {
+                        event!(
+                            Level::WARN,
+                            retry_after,
+                            "Request was rate limited, retrying after retry_after seconds"
+                        );
+
+                        Err(BackoffError::retry_after(
+                            SessionErrorKind::Telegram(error),
+                            Duration::from_secs(retry_after.max(0) as u64),
+                        ))
+                    }
+                    Err(
+                        error @ SessionErrorKind::Telegram(
+                            TelegramErrorKind::ServerError {
+                                ..
+                            }
+                            | TelegramErrorKind::MigrateToChat {
+                                ..
+                            },
+                        ),
+                    ) => {
+                        if attempt < max_retries {
+                            event!(
+                                Level::WARN,
+                                attempt = attempt + 1,
+                                max_retries,
+                                "Request failed with retryable server error, retrying with backoff"
+                            );
+
+                            Err(BackoffError::transient(error))
+                        } else {
+                            Err(BackoffError::permanent(error))
+                        }
+                    }
+                    result => result.map_err(BackoffError::permanent),
                 }
-                result => return result,
             }
-        }
-
-        unreachable!("the loop returns the result on the last attempt")
+        })
+        .await
     }
 }
 
@@ -379,11 +497,15 @@ mod tests {
     const OK_STATUS_CODE: u16 = 200;
     const RATE_LIMITED_STATUS_CODE: u16 = 429;
     const SERVER_ERROR_STATUS_CODE: u16 = 500;
+    const MIGRATE_STATUS_CODE: u16 = 400;
 
     const OK_RESPONSE: &str = r#"{"ok":true,"result":42}"#;
     const RATE_LIMITED_RESPONSE: &str = r#"{"ok":false,"description":"Too Many Requests","error_code":429,"parameters":{"retry_after":0}}"#;
     const SERVER_ERROR_RESPONSE: &str =
         r#"{"ok":false,"description":"Internal Server Error","error_code":500}"#;
+    const MIGRATE_RESPONSE: &str = r#"{"ok":false,"description":"Group migrated to a supergroup chat","error_code":400,"parameters":{"migrate_to_chat_id":-1001234567890}}"#;
+    const BAD_REQUEST_RESPONSE: &str =
+        r#"{"ok":false,"description":"Bad Request: chat not found","error_code":400}"#;
 
     /// Returns a response from the prepared queue and counts attempts
     struct MockSession {
@@ -474,46 +596,41 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn retry_after_stops_after_max_attempts() {
+    async fn retry_after_is_not_limited_by_max_retries() {
         let session = MockSession::new(&[
             (RATE_LIMITED_STATUS_CODE, RATE_LIMITED_RESPONSE),
             (RATE_LIMITED_STATUS_CODE, RATE_LIMITED_RESPONSE),
+            (OK_STATUS_CODE, OK_RESPONSE),
         ]);
         let bot = Bot::with_client("123:token", session);
 
-        let result = bot.send_with_retry(TestMethod, 2).await;
+        let result = bot.send_with_retry(TestMethod, 0).await;
 
-        match result {
-            Err(SessionErrorKind::Telegram(TelegramErrorKind::RetryAfter {
-                retry_after, ..
-            })) => {
-                assert_eq!(retry_after, 0);
-            }
-            _ => panic!("Expected RetryAfter error"),
-        }
-
-        assert_eq!(attempts(&bot), 2);
+        assert_eq!(result.unwrap(), 42);
+        assert_eq!(attempts(&bot), 3);
     }
 
     #[tokio::test]
-    async fn other_errors_are_not_retried() {
-        let session = MockSession::new(&[(SERVER_ERROR_STATUS_CODE, SERVER_ERROR_RESPONSE)]);
+    async fn server_error_is_retried_until_success() {
+        let session = MockSession::new(&[
+            (SERVER_ERROR_STATUS_CODE, SERVER_ERROR_RESPONSE),
+            (SERVER_ERROR_STATUS_CODE, SERVER_ERROR_RESPONSE),
+            (OK_STATUS_CODE, OK_RESPONSE),
+        ]);
         let bot = Bot::with_client("123:token", session);
 
-        let result = bot.send_with_retry(TestMethod, 5).await;
+        let result = bot.send_with_retry(TestMethod, 3).await;
 
-        assert!(matches!(
-            result,
-            Err(SessionErrorKind::Telegram(
-                TelegramErrorKind::ServerError { .. }
-            ))
-        ));
-        assert_eq!(attempts(&bot), 1);
+        assert_eq!(result.unwrap(), 42);
+        assert_eq!(attempts(&bot), 3);
     }
 
     #[tokio::test]
-    async fn single_attempt_does_not_retry() {
-        let session = MockSession::new(&[(RATE_LIMITED_STATUS_CODE, RATE_LIMITED_RESPONSE)]);
+    async fn server_error_stops_after_max_retries() {
+        let session = MockSession::new(&[
+            (SERVER_ERROR_STATUS_CODE, SERVER_ERROR_RESPONSE),
+            (SERVER_ERROR_STATUS_CODE, SERVER_ERROR_RESPONSE),
+        ]);
         let bot = Bot::with_client("123:token", session);
 
         let result = bot.send_with_retry(TestMethod, 1).await;
@@ -521,7 +638,37 @@ mod tests {
         assert!(matches!(
             result,
             Err(SessionErrorKind::Telegram(
-                TelegramErrorKind::RetryAfter { .. }
+                TelegramErrorKind::ServerError { .. }
+            ))
+        ));
+        assert_eq!(attempts(&bot), 2);
+    }
+
+    #[tokio::test]
+    async fn migrate_to_chat_is_retried() {
+        let session = MockSession::new(&[
+            (MIGRATE_STATUS_CODE, MIGRATE_RESPONSE),
+            (OK_STATUS_CODE, OK_RESPONSE),
+        ]);
+        let bot = Bot::with_client("123:token", session);
+
+        let result = bot.send_with_retry(TestMethod, 2).await;
+
+        assert_eq!(result.unwrap(), 42);
+        assert_eq!(attempts(&bot), 2);
+    }
+
+    #[tokio::test]
+    async fn other_errors_are_not_retried() {
+        let session = MockSession::new(&[(MIGRATE_STATUS_CODE, BAD_REQUEST_RESPONSE)]);
+        let bot = Bot::with_client("123:token", session);
+
+        let result = bot.send_with_retry(TestMethod, 5).await;
+
+        assert!(matches!(
+            result,
+            Err(SessionErrorKind::Telegram(
+                TelegramErrorKind::BadRequest { .. }
             ))
         ));
         assert_eq!(attempts(&bot), 1);
