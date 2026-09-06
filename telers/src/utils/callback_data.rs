@@ -1,76 +1,32 @@
-//! This module contains the [`CallbackData`] trait and [`CallbackDataError`] enum,
-//! which are used to pack structured data into a callback data string and unpack it back.
+//! Helpers for packing structured data into callback data strings and unpacking it back.
 //!
-//! The easiest way to implement [`CallbackData`] for your types is to use the [`CallbackData`]
-//! derive macro:
+//! The easiest way to implement [`CallbackData`] for your types is to use the derive macro:
 //!
 //! ```rust
-//! use telers::{types::CallbackQuery, CallbackData, Filter, Request};
+//! use telers::utils::callback_data::CallbackData;
 //!
-//! #[derive(CallbackData, Clone)]
+//! #[derive(telers::CallbackData, Clone)]
 //! #[callback_data(prefix = "language")]
 //! struct LanguageSettings {
 //!     language_code: String,
 //!     enabled: bool,
 //! }
 //!
-//! // Packing data to a string and sending it with a button
 //! let callback_data = LanguageSettings {
 //!     language_code: "en".into(),
 //!     enabled: true,
 //! }
 //! .pack()
 //! .unwrap();
-//! assert_eq!(callback_data, "language:en:true");
+//! assert_eq!(callback_data, "language:en:1");
 //!
-//! // Unpacking data from a callback query string
-//! let unpacked = LanguageSettings::unpack("language:en:true").unwrap();
+//! let unpacked = LanguageSettings::unpack("language:en:1").unwrap();
 //! assert_eq!(unpacked.language_code, "en");
 //! assert!(unpacked.enabled);
 //! ```
 //!
-//! You can use the [`CallbackDataFilter`] to filter [`CallbackQuery`] updates and unpack the data
-//! into the request context. Then you can extract it in handlers via the derived extractor
-//! implementation (provided by the [`CallbackData`] derive macro):
-//!
-//! ```rust
-//! use telers::{enums::UpdateType, event::bases::PropagateEventResult, event::telegram::Handler, event::telegram::HandlerResult, event::EventReturn, filters::callback_data::CallbackDataFilter, router::PropagateEvent, types::Update, Bot, Request, Router};
-//! # use telers::{CallbackData, types::{CallbackQuery, User, UpdateCallbackQuery}};
-//! # use std::sync::Arc;
-//!
-//! # #[derive(CallbackData, Clone)]
-//! # #[callback_data(prefix = "language")]
-//! # struct LanguageSettings {
-//! #     language_code: String,
-//! #     enabled: bool,
-//! # }
-//!
-//! async fn handle_settings(bot: Bot, settings: LanguageSettings) -> HandlerResult {
-//!     // Here you can be sure that the callback query data is `LanguageSettings`
-//!     // and use it, for example, to update the settings
-//!     Ok(EventReturn::Finish)
-//! }
-//!
-//! # async fn register() {
-//! let router: Router = Router::new("callback settings").on_callback_query(|observer| {
-//!     observer
-//!         .filter(CallbackDataFilter::<LanguageSettings>::new())
-//!         .register(Handler::new(handle_settings))
-//! });
-//! # let mut request = Request {
-//! #     bot: Bot::default(),
-//! #     update: Arc::new(Update::CallbackQuery(UpdateCallbackQuery::new(0, CallbackQuery::new("id", User::new(1, true, "test"), "chat instance").data("language:en:true")))),
-//! #     context: Default::default(),
-//! #     extensions: Default::default(),
-//! # };
-//! # let mut router = router.configure_default();
-//! # let response = router.propagate_event(UpdateType::CallbackQuery, request).await.unwrap();
-//! # assert!(matches!(response.propagate_result, PropagateEventResult::Handled(_)));
-//! # }
-//! ```
-//!
-//! [`CallbackQuery`]: crate::types::CallbackQuery
-//! [`Filter`]: crate::filters::Filter
+//! Use the [`CallbackData`](crate::filters::CallbackData) filter to unpack the data
+//! and extract it in handlers.
 
 /// Maximum length of the callback data string in bytes
 /// (<https://core.telegram.org/bots/api#callbackquery>)
@@ -238,14 +194,14 @@ impl_callback_data_value_display_parse!(
 impl CallbackDataValue for bool {
     #[inline]
     fn encode(&self) -> Result<String, CallbackDataError> {
-        Ok(if *self { "true" } else { "false" }.into())
+        Ok(if *self { "1" } else { "0" }.into())
     }
 
     #[inline]
     fn decode(value: &str, field: &'static str) -> Result<Self, CallbackDataError> {
         match value {
-            "true" => Ok(true),
-            "false" => Ok(false),
+            "1" => Ok(true),
+            "0" => Ok(false),
             _ => Err(CallbackDataError::InvalidValue {
                 field,
                 value: value.into(),
@@ -287,7 +243,7 @@ impl<T: CallbackDataValue> CallbackDataValue for Option<T> {
 pub fn pack_values(
     prefix: &'static str,
     separator: char,
-    values: &[Result<String, CallbackDataError>],
+    values: Vec<Result<String, CallbackDataError>>,
 ) -> Result<String, CallbackDataError> {
     if prefix.contains(separator) {
         return Err(CallbackDataError::SeparatorInValue(
@@ -298,14 +254,11 @@ pub fn pack_values(
 
     let mut packed = Vec::with_capacity(values.len());
     for value in values {
-        let value = value.as_ref().map_err(Clone::clone)?;
+        let value = value?;
         if value.contains(separator) {
-            return Err(CallbackDataError::SeparatorInValue(
-                value.clone().into(),
-                separator,
-            ));
+            return Err(CallbackDataError::SeparatorInValue(value.into(), separator));
         }
-        packed.push(value.clone());
+        packed.push(value);
     }
 
     let callback_data = std::iter::once(prefix.to_string())
@@ -367,7 +320,7 @@ mod tests {
     #[test]
     fn pack_values_with_separator_in_value() {
         assert!(matches!(
-            pack_values("prefix", DEFAULT_SEPARATOR, &["value:with:separator".to_string().encode()]),
+            pack_values("prefix", DEFAULT_SEPARATOR, vec!["value:with:separator".to_string().encode()]),
             Err(CallbackDataError::SeparatorInValue(value, ':')) if value.as_ref() == "value:with:separator",
         ));
     }
@@ -375,7 +328,7 @@ mod tests {
     #[test]
     fn pack_values_with_separator_in_prefix() {
         assert!(matches!(
-            pack_values("pre:fix", DEFAULT_SEPARATOR, &[]),
+            pack_values("pre:fix", DEFAULT_SEPARATOR, vec![]),
             Err(CallbackDataError::SeparatorInValue(value, ':')) if value.as_ref() == "pre:fix",
         ));
     }
@@ -385,7 +338,7 @@ mod tests {
         let values = vec!["a".repeat(MAX_CALLBACK_LENGTH).encode()];
         let expected_length = MAX_CALLBACK_LENGTH + "prefix".len() + 1;
         assert!(matches!(
-            pack_values("prefix", DEFAULT_SEPARATOR, &values),
+            pack_values("prefix", DEFAULT_SEPARATOR, values),
             Err(CallbackDataError::TooLong {
                 length,
                 max: MAX_CALLBACK_LENGTH,
@@ -421,7 +374,7 @@ mod tests {
             pack_values(
                 "prefix",
                 DEFAULT_SEPARATOR,
-                &["value1".to_string().encode(), "value2".to_string().encode()]
+                vec!["value1".to_string().encode(), "value2".to_string().encode()]
             )
             .unwrap(),
             "prefix:value1:value2",
@@ -436,16 +389,18 @@ mod tests {
         assert_eq!(String::from("test").encode().unwrap(), "test");
         assert_eq!(Box::<str>::from("test").encode().unwrap(), "test");
         assert_eq!(1i32.encode().unwrap(), "1");
-        assert_eq!(true.encode().unwrap(), "true");
+        assert_eq!(true.encode().unwrap(), "1");
+        assert_eq!(false.encode().unwrap(), "0");
         assert_eq!(Some(1i32).encode().unwrap(), "1");
         assert_eq!(None::<i32>.encode().unwrap(), "");
 
         assert_eq!(i32::decode("42", "field").unwrap(), 42);
-        assert!(bool::decode("true", "field").unwrap());
+        assert!(bool::decode("1", "field").unwrap());
+        assert!(!bool::decode("0", "field").unwrap());
         assert_eq!(Option::<i32>::decode("", "field").unwrap(), None);
         assert_eq!(Option::<i32>::decode("42", "field").unwrap(), Some(42));
 
         assert!(i32::decode("nope", "field").is_err());
-        assert!(bool::decode("1", "field").is_err());
+        assert!(bool::decode("true", "field").is_err());
     }
 }

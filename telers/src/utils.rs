@@ -2,6 +2,7 @@
 //!
 //! - [`text`] contains utilities for building, formatting and rendering message text
 //!   with entities (HTML / `MarkdownV2`)
+//! - [`callback_data`] packs structured data into callback data strings and unpacks it back
 //! - [`chat_action`] keeps a chat action like "typing" alive during long-running
 //!   operations via [`ChatActionSender`]
 //! - [`deep_linking`] encodes and decodes payloads for Telegram deep links
@@ -14,6 +15,7 @@ mod error;
 
 pub(crate) use error::format_error_report;
 
+pub mod callback_data;
 pub mod chat_action;
 pub mod deep_linking;
 pub mod keyboard;
@@ -21,6 +23,7 @@ pub mod media_group;
 pub mod text;
 pub mod token;
 
+pub use callback_data::{CallbackData, CallbackDataError, CallbackDataValue};
 pub use chat_action::{ChatActionGuard, ChatActionSender};
 pub use deep_linking::{
     create_deep_link, create_start_link, create_startapp_link, create_startgroup_link,

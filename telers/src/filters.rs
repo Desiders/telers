@@ -83,7 +83,7 @@ pub mod text;
 pub mod user;
 
 pub use base::{Filter, FilterResult};
-pub use callback_data::CallbackDataFilter;
+pub use callback_data::CallbackData;
 pub use chat_member_updated::ChatMemberUpdated;
 pub use chat_type::ChatType;
 pub use command::{

@@ -67,7 +67,6 @@ pub(crate) mod any;
 #[macro_use]
 pub(crate) mod macros;
 
-pub mod callback_data;
 pub mod client;
 pub mod context;
 pub mod dispatcher;
@@ -91,7 +90,6 @@ pub mod webhooks;
 
 pub use telers_macros::{CallbackData, FromContext, FromEvent};
 
-pub use callback_data::{CallbackData, CallbackDataError, CallbackDataValue};
 pub use client::Bot;
 pub use context::Context;
 pub use dispatcher::{Builder as DispatcherBuilder, Dispatcher};
@@ -102,3 +100,5 @@ pub use filters::{Filter, FilterResult};
 pub use fsm::Context as FSMContext;
 pub use request::Request;
 pub use router::{Configured as RouterConfigured, Router};
+
+pub use utils::callback_data::{CallbackDataError, CallbackDataValue};

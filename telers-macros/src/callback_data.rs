@@ -1,4 +1,4 @@
-use crate::{attrs_parsing::parse_attr, stream::trim_chars};
+﻿use crate::{attrs_parsing::parse_attr, stream::trim_chars};
 
 use proc_macro2::TokenStream;
 use quote::{quote_spanned, ToTokens};
@@ -264,7 +264,7 @@ pub(crate) fn expand(item: Item) -> Result<TokenStream, syn::Error> {
 
     Ok(quote_spanned! { ident.span() =>
         #[automatically_derived]
-        impl #ident_impl_generics ::telers::callback_data::CallbackData for #ident #ident_ty_generics #ident_where_clause
+        impl #ident_impl_generics ::telers::utils::callback_data::CallbackData for #ident #ident_ty_generics #ident_where_clause
         {
             const PREFIX: &'static str = #prefix;
             const SEPARATOR: char = #separator;
@@ -273,14 +273,14 @@ pub(crate) fn expand(item: Item) -> Result<TokenStream, syn::Error> {
             ///
             /// # Errors
             /// - If a value contains the separator character
-            /// - If the resulting string is longer than [`MAX_CALLBACK_LENGTH`](::telers::callback_data::MAX_CALLBACK_LENGTH) bytes
+            /// - If the resulting string is longer than [`MAX_CALLBACK_LENGTH`](::telers::utils::callback_data::MAX_CALLBACK_LENGTH) bytes
             #[inline]
-            fn pack(&self) -> ::std::result::Result<::std::string::String, ::telers::callback_data::CallbackDataError> {
-                ::telers::callback_data::pack_values(
+            fn pack(&self) -> ::std::result::Result<::std::string::String, ::telers::utils::callback_data::CallbackDataError> {
+                ::telers::utils::callback_data::pack_values(
                     Self::PREFIX,
                     Self::SEPARATOR,
-                    &[
-                        #(::telers::callback_data::CallbackDataValue::encode(&self.#field_idents),)*
+                    vec![
+                        #(::telers::utils::callback_data::CallbackDataValue::encode(&self.#field_idents),)*
                     ],
                 )
             }
@@ -292,12 +292,12 @@ pub(crate) fn expand(item: Item) -> Result<TokenStream, syn::Error> {
             /// - If the number of values doesn't match the number of fields
             /// - If a value can't be parsed to the field type
             #[inline]
-            fn unpack(value: &str) -> ::std::result::Result<Self, ::telers::callback_data::CallbackDataError> {
-                let values = ::telers::callback_data::unpack_values(value, Self::PREFIX, Self::SEPARATOR, #field_count)?;
+            fn unpack(value: &str) -> ::std::result::Result<Self, ::telers::utils::callback_data::CallbackDataError> {
+                let values = ::telers::utils::callback_data::unpack_values(value, Self::PREFIX, Self::SEPARATOR, #field_count)?;
                 let mut values = values.into_vec().into_iter();
 
                 #(
-                    let #field_idents = <#field_tys as ::telers::callback_data::CallbackDataValue>::decode(
+                    let #field_idents = <#field_tys as ::telers::utils::callback_data::CallbackDataValue>::decode(
                         values.next().unwrap_or_default(),
                         #field_names,
                     )?;
