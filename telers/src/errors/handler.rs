@@ -6,6 +6,7 @@
 //! but it can also be a wrapper for any another error.
 
 use super::{DownloadErrorKind, SessionErrorKind, TelegramErrorKind};
+use crate::utils::callback_data::CallbackDataError;
 
 use anyhow;
 use thiserror;
@@ -69,6 +70,13 @@ impl From<SessionErrorKind> for Error {
 /// To possible to wrap [`DownloadErrorKind`] error in [`Error`] struct without boilerplate code
 impl From<DownloadErrorKind> for Error {
     fn from(err: DownloadErrorKind) -> Self {
+        Self::new(err)
+    }
+}
+
+/// To possible to wrap [`CallbackDataError`] error in [`Error`] struct without boilerplate code
+impl From<CallbackDataError> for Error {
+    fn from(err: CallbackDataError) -> Self {
         Self::new(err)
     }
 }
