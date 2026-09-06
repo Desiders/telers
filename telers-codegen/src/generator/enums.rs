@@ -247,7 +247,8 @@ pub fn tokenize_enum_parse_mode() -> TokenStream {
 pub fn tokenize_enum_telegram_observer_type(schema: &NormalizedSchema) -> TokenStream {
     // Derived from the `Update` subtypes so new update types can't drift out of sync
     // (the previous hardcoded list missed `subscription` when it was added), plus the
-    // extra `Update` observer that receives every update kind.
+    // extra `Update` observer that receives every update kind and the `Error` observer
+    // that receives the errors of the other observers.
     let update = schema
         .types
         .get("Update")
@@ -259,6 +260,7 @@ pub fn tokenize_enum_telegram_observer_type(schema: &NormalizedSchema) -> TokenS
         .collect();
     variants.sort();
     variants.push(("Update".to_owned(), "update".to_owned()));
+    variants.push(("Error".to_owned(), "error".to_owned()));
 
     let variant_count = variants.len();
 
@@ -292,7 +294,7 @@ pub fn tokenize_enum_telegram_observer_type(schema: &NormalizedSchema) -> TokenS
 
     let from_update_type_arms: Box<[_]> = variants
         .iter()
-        .filter(|(name, _)| *name != "Update")
+        .filter(|(name, _)| *name != "Update" && *name != "Error")
         .map(|(name, _)| {
             let variant = format_ident!("{name}");
             quote! { UpdateType::#variant => TelegramObserverType::#variant }
@@ -306,7 +308,7 @@ pub fn tokenize_enum_telegram_observer_type(schema: &NormalizedSchema) -> TokenS
         use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 
         /// This enum represents all possible telegram observer types.
-        /// It contains all [`UpdateType`] variants plus `Update`.
+        /// It contains all [`UpdateType`] variants plus `Update` and `Error`.
         #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr, Deserialize, Serialize)]
         pub enum TelegramObserverType {
             #( #enum_variants )*

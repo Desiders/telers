@@ -2,7 +2,7 @@ use crate::{enums::UpdateType, types::Update};
 use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This enum represents all possible telegram observer types.
-/// It contains all [`UpdateType`] variants plus `Update`.
+/// It contains all [`UpdateType`] variants plus `Update` and `Error`.
 #[derive(
     Debug,
     Display,
@@ -74,6 +74,8 @@ pub enum TelegramObserverType {
     Subscription,
     #[strum(serialize = "update")]
     Update,
+    #[strum(serialize = "error")]
+    Error,
 }
 macro_rules! with_telegram_observer_variants {
     ($callback:ident $(, $args:tt)*) => {
@@ -90,13 +92,14 @@ macro_rules! with_telegram_observer_variants {
         (PollAnswer, poll_answer), (PreCheckoutQuery, pre_checkout_query),
         (PurchasedPaidMedia, purchased_paid_media), (RemovedChatBoost,
         removed_chat_boost), (ShippingQuery, shipping_query), (StoppedMessageGeneration,
-        stopped_message_generation), (Subscription, subscription), (Update, update), }
+        stopped_message_generation), (Subscription, subscription), (Update, update),
+        (Error, error), }
     };
 }
 pub(crate) use with_telegram_observer_variants;
 impl TelegramObserverType {
     #[must_use]
-    pub const fn all() -> [TelegramObserverType; 28usize] {
+    pub const fn all() -> [TelegramObserverType; 29usize] {
         [
             TelegramObserverType::BusinessConnection,
             TelegramObserverType::BusinessMessage,
@@ -126,6 +129,7 @@ impl TelegramObserverType {
             TelegramObserverType::StoppedMessageGeneration,
             TelegramObserverType::Subscription,
             TelegramObserverType::Update,
+            TelegramObserverType::Error,
         ]
     }
 }
