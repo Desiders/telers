@@ -88,7 +88,7 @@ pub mod utils;
 #[cfg(feature = "webhooks")]
 pub mod webhooks;
 
-pub use telers_macros::{FromContext, FromEvent};
+pub use telers_macros::{CallbackData, FromContext, FromEvent};
 
 pub use client::Bot;
 pub use context::Context;
@@ -100,3 +100,5 @@ pub use filters::{Filter, FilterResult};
 pub use fsm::Context as FSMContext;
 pub use request::Request;
 pub use router::{Configured as RouterConfigured, Router};
+
+pub use utils::callback_data::{CallbackDataError, CallbackDataValue};
