@@ -1,0 +1,45 @@
+name: CI features
+
+env:
+  CARGO_TERM_COLOR: always
+
+# Feature-combination checks only need to rerun when a manifest changes, so
+# this lives outside `ci.yaml` to get a `paths` filter without gating the
+# other jobs.
+on:
+  push:
+    branches:
+    - dev-1.x
+    - master
+    paths:
+    - '**/Cargo.toml'
+  pull_request:
+    paths:
+    - '**/Cargo.toml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # `--each-feature` builds the crate with every feature one at a time, plus
+  # the implicit no-default-features run, so negative `#[cfg(not(feature = ...))]`
+  # code is covered too. Aggregate features (`default`, `full`, `storages`) and
+  # the heavy ones (rustls-tls, webhooks-axum, redis-storage) are skipped,
+  # because their combinations are already compiled together by the
+  # `--all-features` test and check jobs.
+  check-hack:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+    - uses: actions/checkout@v7
+    - uses: dtolnay/rust-toolchain@stable
+    - uses: Swatinem/rust-cache@v2
+    - name: Install cargo-hack
+      uses: taiki-e/install-action@v2
+      with:
+        tool: cargo-hack
+    - run: cargo hack check --each-feature --no-dev-deps --skip default,full,storages,rustls-tls,webhooks-axum,redis-storage
