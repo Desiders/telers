@@ -1,0 +1,19 @@
+name: cleanup-caches
+
+on:
+  schedule:
+    - cron: '30 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  actions: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: MyAlbum/purge-cache@v2
+        with:
+          # GitHub only evicts at 7 days, which is too slow for mode=max builds
+          # on every push; 2 days keeps the live generation and drops the rest.
+          max-age: 172800
