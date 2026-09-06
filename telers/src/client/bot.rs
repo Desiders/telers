@@ -72,7 +72,7 @@ use crate::{
     utils::token,
 };
 
-use backoff::{future::retry, Error as BackoffError, ExponentialBackoff};
+use backoff::{exponential::ExponentialBackoff, future::retry, Error as BackoffError, SystemClock};
 
 use secrecy::SecretString;
 use std::{
@@ -99,11 +99,12 @@ use tracing::{event, Level};
 /// ```rust
 /// use telers::client::RetryPolicy;
 ///
-/// use backoff::ExponentialBackoff;
+/// use backoff::{exponential::ExponentialBackoffBuilder, SystemClock};
 /// use std::time::Duration;
 ///
-/// let mut backoff = ExponentialBackoff::default();
-/// backoff.max_elapsed_time = Some(Duration::from_secs(30));
+/// let backoff = ExponentialBackoffBuilder::<SystemClock>::new()
+///     .with_max_elapsed_time(Some(Duration::from_secs(30)))
+///     .build();
 ///
 /// let policy = RetryPolicy {
 ///     max_retries: 3,
@@ -111,7 +112,7 @@ use tracing::{event, Level};
 /// };
 /// ```
 #[derive(Debug, Clone)]
-pub struct RetryPolicy {
+pub struct RetryPolicy<B = ExponentialBackoff<SystemClock>> {
     /// Maximum number of retries for transient server errors
     /// ([`ServerError`](crate::errors::TelegramErrorKind::ServerError) and
     /// [`MigrateToChat`](crate::errors::TelegramErrorKind::MigrateToChat)).
@@ -121,17 +122,30 @@ pub struct RetryPolicy {
     /// Backoff algorithm that provides delays between retries.
     /// Defaults to `ExponentialBackoff::default()` with a 15 minutes elapsed time budget.
     /// Customize it directly, for example with `ExponentialBackoffBuilder`
-    pub backoff: ExponentialBackoff,
+    pub backoff: B,
 }
 
-impl RetryPolicy {
+impl<B> RetryPolicy<B> {
     /// Creates a new retry policy with the given maximum number of retries
     /// and the default exponential backoff
     #[must_use]
-    pub fn new(max_retries: u32) -> Self {
+    pub fn new(max_retries: u32) -> Self
+    where
+        B: Default,
+    {
         Self {
             max_retries,
-            backoff: ExponentialBackoff::default(),
+            backoff: B::default(),
+        }
+    }
+
+    /// Creates a new retry policy with the given maximum number of retries
+    /// and the given backoff algorithm
+    #[must_use]
+    pub fn with_backoff(max_retries: u32, backoff: B) -> Self {
+        Self {
+            max_retries,
+            backoff,
         }
     }
 }
@@ -343,14 +357,15 @@ impl<Client: Session> Bot<Client> {
     ///
     /// Other errors are returned immediately without retries.
     /// If all retries are exhausted, the last error is returned.
-    pub async fn send_with_retry<T>(
+    pub async fn send_with_retry<T, B>(
         &self,
         method: T,
-        retry_policy: impl Into<RetryPolicy>,
+        retry_policy: impl Into<RetryPolicy<B>>,
     ) -> Result<T::Return, SessionErrorKind>
     where
         T: TelegramMethod + Clone + Send + Sync,
         T::Method: Send + Sync,
+        B: backoff::backoff::Backoff + Send + Sync + Clone + 'static,
     {
         self.send_with_retry_inner(method, None, retry_policy.into())
             .await
@@ -384,34 +399,35 @@ impl<Client: Session> Bot<Client> {
     ///
     /// Other errors are returned immediately without retries.
     /// If all retries are exhausted, the last error is returned.
-    pub async fn send_with_timeout_and_retry<T>(
+    pub async fn send_with_timeout_and_retry<T, B>(
         &self,
         method: T,
         request_timeout: f32,
-        retry_policy: impl Into<RetryPolicy>,
+        retry_policy: impl Into<RetryPolicy<B>>,
     ) -> Result<T::Return, SessionErrorKind>
     where
         T: TelegramMethod + Clone + Send + Sync,
         T::Method: Send + Sync,
+        B: backoff::backoff::Backoff + Send + Sync + Clone + 'static,
     {
         self.send_with_retry_inner(method, Some(request_timeout), retry_policy.into())
             .await
     }
 
-    async fn send_with_retry_inner<T>(
+    async fn send_with_retry_inner<T, B>(
         &self,
         method: T,
         timeout: Option<f32>,
-        retry_policy: RetryPolicy,
+        RetryPolicy {
+            max_retries,
+            backoff,
+        }: RetryPolicy<B>,
     ) -> Result<T::Return, SessionErrorKind>
     where
         T: TelegramMethod + Clone + Send + Sync,
         T::Method: Send + Sync,
+        B: backoff::backoff::Backoff + Send + Sync + Clone + 'static,
     {
-        let RetryPolicy {
-            max_retries,
-            backoff,
-        } = retry_policy;
         let mut transient_retries = 0_u32;
 
         retry(backoff, || {
