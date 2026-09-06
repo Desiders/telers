@@ -325,7 +325,7 @@ pub(crate) fn expand(item: Item) -> Result<TokenStream, syn::Error> {
                     ::std::option::Option::Some(value) => ::std::result::Result::Ok((*value).clone()),
                     ::std::option::Option::None => ::std::result::Result::Err(Error::new(concat!(
                         "No found data in context by key `callback_data` or value has wrong type expected `", stringify!(#ident), "`. ",
-                        "You didn't forget to add the `CallbackDataFilter` filter to the handler?",
+                        "You didn't forget to add the `CallbackData` filter to the handler?",
                     ))),
                 };
                 async move { res }

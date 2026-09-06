@@ -251,7 +251,7 @@ pub fn derive_from_event(item: TokenStream) -> TokenStream {
 /// * `CallbackData` implementation with `pack` and `unpack` methods.
 ///   Fields must implement `CallbackDataValue` (implemented for primitives, `String`, `Box<str>` and `Option<T>`).
 /// * `Extractor` implementation to extract the unpacked data from context
-///   (the `CallbackDataFilter` filter places it there).
+///   (the `CallbackData` filter from `telers::filters` places it there).
 ///
 /// This macro supports the following attributes:
 /// * `#[callback_data(prefix = "...")]` - the prefix of callback data (required).
@@ -261,7 +261,10 @@ pub fn derive_from_event(item: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust
-/// use telers::{filters::callback_data::CallbackDataFilter, CallbackData};
+/// use telers::{
+///     filters::CallbackData as CallbackDataFilter, utils::callback_data::CallbackData as _,
+///     CallbackData,
+/// };
 ///
 /// #[derive(CallbackData, Clone)]
 /// #[callback_data(prefix = "language")]
@@ -277,17 +280,18 @@ pub fn derive_from_event(item: TokenStream) -> TokenStream {
 /// }
 /// .pack()
 /// .unwrap();
-/// assert_eq!(callback_data, "language:en:true");
+/// assert_eq!(callback_data, "language:en:1");
 ///
 /// // Unpacking data from a callback query string
-/// let unpacked = LanguageSettings::unpack("language:en:true").unwrap();
+/// let unpacked = LanguageSettings::unpack("language:en:1").unwrap();
 /// assert_eq!(unpacked.language_code, "en");
 /// assert!(unpacked.enabled);
 ///
 /// // Filtering callback queries and extracting data in handlers
-/// let router = telers::Router::new("language settings").on_callback_query(|observer| {
-///     observer.filter(CallbackDataFilter::<LanguageSettings>::new())
-/// });
+/// let router: telers::Router =
+///     telers::Router::new("language settings").on_callback_query(|observer| {
+///         observer.filter(CallbackDataFilter::<LanguageSettings>::new())
+///     });
 /// ```
 #[proc_macro_derive(CallbackData, attributes(callback_data))]
 pub fn derive_callback_data(item: TokenStream) -> TokenStream {
