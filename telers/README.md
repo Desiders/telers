@@ -90,6 +90,7 @@ For more, check out the [crate documentation][docs] and the [examples below][exa
  - [Stats updates middleware][examples/stats_incoming_updates_middleware]. This example shows how to create a middleware that count incoming updates.
  - [Input file][examples/input_file]. This example shows how to send files by the bot.
  - [Download file][examples/download_file]. This example shows how to download files sent to the bot.
+ - [Callback data][examples/callback_data]. This example shows how to pack structured data into inline keyboard buttons and unpack it in handlers.
  - [Finite state machine][examples/fsm]. This example shows how to use a finite state machine (conversation).
  - [Router tree][examples/router_tree]. This example shows how to create a router tree.
  - [Bot http client][examples/bot_http_client]. This example shows how to set a custom bot HTTP client.
@@ -117,6 +118,7 @@ This project is licensed under either of the following licenses, at your option:
 [examples/fsm]: https://github.com/Desiders/telers/tree/dev-1.x/examples/fsm
 [examples/input_file]: https://github.com/Desiders/telers/tree/dev-1.x/examples/input_file
 [examples/download_file]: https://github.com/Desiders/telers/tree/dev-1.x/examples/download_file
+[examples/callback_data]: https://github.com/Desiders/telers/tree/dev-1.x/examples/callback_data
 [examples/stats_incoming_updates_middleware]: https://github.com/Desiders/telers/tree/dev-1.x/examples/stats_incoming_updates_middleware
 [examples/smart_filter]: https://github.com/Desiders/telers/tree/dev-1.x/examples/smart_filter
 [examples/text_case_filters]: https://github.com/Desiders/telers/tree/dev-1.x/examples/text_case_filters
