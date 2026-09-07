@@ -147,10 +147,7 @@ where
             match Args::extract(&request).await {
                 Ok(args) => Ok(Response {
                     request,
-                    result: match handler.call(args).await.into_handler_result() {
-                        Ok(response) => Ok(response),
-                        Err(err) => Err(HandlerError::new(err)),
-                    },
+                    result: handler.call(args).await.into_handler_result(),
                 }),
                 Err(err) => {
                     let err = err.into();
