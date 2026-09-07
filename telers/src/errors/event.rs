@@ -45,3 +45,10 @@ impl ErrorKind {
         }
     }
 }
+
+/// The error of the event downcast to `E`, see [`ErrorKind::downcast_ref`].
+/// # Notes
+/// Extraction fails if the error isn't an `E`, so register the handler with the
+/// [`ErrorType`](crate::filters::ErrorType) filter or use `Option<Error<E>>` as handler argument.
+/// If the type of the error doesn't matter, for example to log it, use [`ErrorKind`] as handler argument.
+pub struct Error<E>(pub E);

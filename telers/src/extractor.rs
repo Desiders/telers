@@ -293,12 +293,17 @@ use crate::{
     client::{Bot, Reqwest},
     context::Context,
     either::Either,
-    errors::ExtractionError,
+    errors::{EventError, EventErrorKind, ExtractionError},
     extensions::Extension,
     Extensions, Request,
 };
 
-use std::{any::type_name, convert::Infallible, future::Future};
+use std::{
+    any::type_name,
+    convert::Infallible,
+    fmt::{Debug, Display},
+    future::Future,
+};
 
 /// Trait for extracting data from [`crate::types::Update`] and [`Context`] to handlers arguments
 pub trait Extractor<Client = Reqwest>: Sized {
@@ -448,6 +453,54 @@ where
                     type_name::<Value>()
                 )
             })),
+        };
+        async move { res }
+    }
+}
+
+/// To be able to use the error of the event as handler argument in the `error` observer.
+/// The error is put to [`Extensions`] by the [`Dispatcher`](crate::Dispatcher) before it propagates the error event,
+/// so the extraction fails in the other observers.
+impl<Client> Extractor<Client> for EventErrorKind {
+    type Error = ExtractionError;
+
+    fn extract(
+        request: &Request<Client>,
+    ) -> impl Future<Output = Result<Self, Self::Error>> + Send {
+        let res = match request.extensions.get::<Self>() {
+            Some(err) => Ok(err.clone()),
+            None => Err(ExtractionError::new(
+                "Failed to extract the error of the event. It's available only in the `error` \
+                 observer.",
+            )),
+        };
+        async move { res }
+    }
+}
+
+/// To be able to use the error of the event downcast to `E` as handler argument in the `error` observer.
+/// The extraction fails if the error isn't an `E`, see [`EventError`].
+impl<Client, E> Extractor<Client> for EventError<E>
+where
+    E: Clone + Display + Debug + Send + Sync + 'static,
+{
+    type Error = ExtractionError;
+
+    fn extract(
+        request: &Request<Client>,
+    ) -> impl Future<Output = Result<Self, Self::Error>> + Send {
+        let res = match request.extensions.get::<EventErrorKind>() {
+            Some(err) => match err.downcast_ref::<E>() {
+                Some(err) => Ok(Self(err.clone())),
+                None => Err(ExtractionError::new(format!(
+                    "Failed to extract the error of the event as `{}`. The error is `{err}`.",
+                    type_name::<E>()
+                ))),
+            },
+            None => Err(ExtractionError::new(
+                "Failed to extract the error of the event. It's available only in the `error` \
+                 observer.",
+            )),
         };
         async move { res }
     }
