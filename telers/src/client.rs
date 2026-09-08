@@ -18,3 +18,7 @@ pub use session::{Reqwest, Session};
 // Re-exported because [`Bot::token`] returns a [`SecretString`], so users need these to read the
 // token without adding a direct `secrecy` dependency.
 pub use secrecy::{ExposeSecret, SecretString};
+
+// Re-exported because [`Reqwest::with_proxy`] takes a [`Proxy`], so users need it to configure
+// a proxy without adding a direct `reqwest` dependency.
+pub use reqwest::Proxy;

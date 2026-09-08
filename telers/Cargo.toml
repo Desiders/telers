@@ -42,6 +42,9 @@ default-signal = ["signal"]
 # Legacy feature `default-signal` with underscore naming
 default_signal = ["default-signal"]
 
+# For possible use SOCKS proxies in `Reqwest::with_proxy`
+socks = ["reqwest/socks"]
+
 webhooks = ["subtle"]
 webhooks-axum = ["webhooks", "axum"]
 
