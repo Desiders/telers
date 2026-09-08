@@ -32,6 +32,11 @@
 //!   for example, text, [`BotCommand`] (just alias to text of command) or [`Regex`].
 //!   You can create a filter with `new` method with transferring all necessary data at once, or use [`CommandBuilder`] to create a filter step by step.
 //!   Instead of [`CommandBuilder`] you can use [`Command`] `one`, `one_with_prefix`, `many`, `many_with_prefix` methods.
+//! * [`ErrorType`] and [`ErrorMessage`]:
+//!   Filters for the `error` observer, see the [`router module`] for how errors are handled.
+//!   [`ErrorType`] checks that the error can be downcast to the specified type
+//!   and [`ErrorMessage`] checks the text of the error against [`text pattern type`].
+//!   Both don't pass outside the `error` observer.
 //! * [`MessageType`]:
 //!   Filter for checking the type of the message content.
 //!   Usually used with [`enums::MessageType`] (or its string representation) to check the type of content.
@@ -69,12 +74,14 @@
 //! [`context`]: telers::context::Context
 //! [`command pattern type`]: command::PatternType
 //! [`text pattern type`]: text::PatternType
+//! [`router module`]: telers::router
 
 pub mod base;
 pub mod callback_data;
 pub mod chat_member_updated;
 pub mod chat_type;
 pub mod command;
+pub mod error;
 pub mod logical;
 pub mod message_type;
 pub mod smart;
@@ -90,6 +97,7 @@ pub use command::{
     Builder as CommandBuilder, Command, CommandObject, CommandStart, DeepLink,
     StartBuilder as CommandStartBuilder,
 };
+pub use error::{ErrorMessage, ErrorType};
 pub use logical::{And, Invert, Or};
 pub use message_type::MessageType;
 pub use smart::SmartFilter;

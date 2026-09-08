@@ -12,7 +12,9 @@
 //! - [`ConvertToTypeError`] means a conversion between an enum and one of its variants failed,
 //!   e.g. extracting a [`Message`](crate::types::Message) from an update of another kind
 //! - [`EventErrorKind`] groups the errors that can interrupt event propagation
-//!   (filter, middleware and handler errors)
+//!   (filter, middleware and handler errors); it's also what the `error` observer receives,
+//!   see the [`router` module](crate::router)
+//! - [`EventError`] is the error of the event downcast to a type, for handlers of the `error` observer
 
 #![allow(clippy::module_name_repetitions)]
 
@@ -28,7 +30,7 @@ pub mod telegram;
 
 pub use convert::ConvertToType as ConvertToTypeError;
 pub use download::ErrorKind as DownloadErrorKind;
-pub use event::ErrorKind as EventErrorKind;
+pub use event::{Error as EventError, ErrorKind as EventErrorKind};
 pub use extractor::Error as ExtractionError;
 pub use filter::Error as FilterError;
 pub use handler::Error as HandlerError;

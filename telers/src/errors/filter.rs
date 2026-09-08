@@ -8,6 +8,10 @@
 use super::{SessionErrorKind, TelegramErrorKind};
 
 use anyhow;
+use std::{
+    fmt::{Debug, Display},
+    sync::Arc,
+};
 use thiserror;
 
 /// A wrapper for any error that can occur when processing a filter.
@@ -15,11 +19,10 @@ use thiserror;
 /// and don't use [`anyhow::Error`] directly.
 /// Usually it is a wrapper for [`SessionErrorKind`] or [`TelegramErrorKind`] errors,
 /// but it can also be a wrapper for any another error.
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, Clone, thiserror::Error)]
 #[error(transparent)]
 pub struct Error {
-    #[from]
-    source: anyhow::Error,
+    source: Arc<anyhow::Error>,
 }
 
 impl Error {
@@ -27,10 +30,23 @@ impl Error {
     /// * `err` - The error to wrap.
     /// # Notes
     /// If you want to pass just a message, you can use [`Error::from_display`] or [`Error::from_debug`] methods.
+    /// If `err` is already an [`Error`], it's returned as is instead of being wrapped again.
     pub fn new(err: impl Into<anyhow::Error>) -> Self {
-        Self {
-            source: err.into(),
+        match err.into().downcast::<Self>() {
+            Ok(err) => err,
+            Err(source) => Self {
+                source: Arc::new(source),
+            },
         }
+    }
+
+    /// Returns a reference to the wrapped error if it is of type `E`
+    #[must_use]
+    pub fn downcast_ref<E>(&self) -> Option<&E>
+    where
+        E: Display + Debug + Send + Sync + 'static,
+    {
+        self.source.downcast_ref()
     }
 
     /// # Arguments
@@ -38,7 +54,7 @@ impl Error {
     /// # Notes
     /// This method is useful when you want to pass just a message.
     /// If you want to pass an error, you can use [`Error::new`] method.
-    pub fn from_display(info: impl std::fmt::Display) -> Self {
+    pub fn from_display(info: impl Display) -> Self {
         Self::new(anyhow::anyhow!("{info}"))
     }
 
@@ -47,8 +63,15 @@ impl Error {
     /// # Notes
     /// This method is useful when you want to pass just a message.
     /// If you want to pass an error, you can use [`Error::new`] method.
-    pub fn from_debug(info: impl std::fmt::Debug) -> Self {
+    pub fn from_debug(info: impl Debug) -> Self {
         Self::new(anyhow::anyhow!("{info:?}"))
+    }
+}
+
+/// To possible to wrap [`anyhow::Error`] error in [`Error`] struct without boilerplate code
+impl From<anyhow::Error> for Error {
+    fn from(err: anyhow::Error) -> Self {
+        Self::new(err)
     }
 }
 

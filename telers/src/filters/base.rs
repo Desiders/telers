@@ -1,7 +1,7 @@
 use super::{And, Invert, Or};
 use crate::{
     client::Reqwest,
-    errors::FilterError,
+    errors::{EventErrorKind, FilterError},
     event::service::{service_fn, BoxCloneService},
     Request,
 };
@@ -9,7 +9,7 @@ use crate::{
 use std::future::Future;
 
 pub type BoxedCloneFilterService<Client> =
-    BoxCloneService<Request<Client>, (bool, Request<Client>), FilterError>;
+    BoxCloneService<Request<Client>, (bool, Request<Client>), (EventErrorKind, Request<Client>)>;
 
 #[allow(type_alias_bounds)]
 pub type FilterResult<E: Into<anyhow::Error> = FilterError> = Result<bool, E>;
@@ -126,7 +126,7 @@ where
         async move {
             match filter.check(&mut request).await {
                 Ok(result) => Ok((result, request)),
-                Err(err) => Err(FilterError::new(err)),
+                Err(err) => Err((FilterError::new(err).into(), request)),
             }
         }
     }))

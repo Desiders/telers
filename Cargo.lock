@@ -691,6 +691,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "error_handling"
+version = "0.1.0"
+dependencies = [
+ "regex",
+ "telers",
+ "thiserror",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "event-listener"
 version = "5.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
