@@ -585,18 +585,26 @@ pub struct CommandObject {
     pub mention: Option<Box<str>>,
     /// Command arguments
     pub args: Box<[Box<str>]>,
+    /// Command arguments as is, without splitting
+    pub raw_args: Box<str>,
 }
 
 impl CommandObject {
     /// Extracts [`CommandObject`] from text
     #[must_use]
     pub fn extract(text: &str) -> Option<Self> {
-        // Split on any run of whitespace (spaces, tabs, newlines), skipping empties — a
-        // command is commonly followed by a newline (`/start\nfoo`), and splitting only on
-        // a single `' '` left the newline stuck to the command so it never matched.
-        let mut parts = text.split_whitespace();
-        let full_command = parts.next()?;
-        let args = parts.map(|arg| arg.to_owned().into_boxed_str()).collect();
+        // Split on any whitespace (spaces, tabs, newlines): a command is commonly followed by
+        // a newline (`/start\nfoo`), and splitting only on a single `' '` left the newline
+        // stuck to the command so it never matched.
+        let text = text.trim_start();
+        let (full_command, raw_args) = match text.split_once(char::is_whitespace) {
+            Some((full_command, raw_args)) => (full_command, raw_args.trim()),
+            None => (text, ""),
+        };
+        let args = raw_args
+            .split_whitespace()
+            .map(|arg| arg.to_owned().into_boxed_str())
+            .collect();
 
         let mut full_command_chars = full_command.chars();
 
@@ -631,6 +639,7 @@ impl CommandObject {
             prefix,
             mention: mention.map(Into::into),
             args,
+            raw_args: raw_args.into(),
         })
     }
 }
