@@ -20,9 +20,9 @@
 //! Implement [`CommandArg`] for your types to use them as fields of commands,
 //! or use the [`command_arg_via_from_str`](crate::command_arg_via_from_str) macro
 //! if the type implements [`FromStr`](std::str::FromStr).
-//! Implement [`CommandArgs`] for your type to parse all the arguments manually.
 
 use std::{
+    fmt::{Debug, Display},
     mem,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
@@ -37,7 +37,8 @@ pub enum SplitKind {
 ///
 /// [`next_arg`](Self::next_arg) takes one argument, [`take_rest`](Self::take_rest) takes
 /// everything that is left as is. Separators before an argument are skipped,
-/// so `a  b` gives the same arguments as `a b`.
+/// so `a  b` gives the same arguments as `a b`. In [`SplitKind::Char`] mode whitespace
+/// around an argument is skipped too, so `a, b` gives the same arguments as `a,b`.
 #[derive(Debug, Clone, Copy)]
 pub struct ArgsCursor<'a> {
     rest: &'a str,
@@ -70,7 +71,7 @@ impl<'a> ArgsCursor<'a> {
         };
         self.rest = rest;
 
-        Some(arg)
+        Some(arg.trim_end())
     }
 
     pub fn take_rest(&mut self) -> &'a str {
@@ -103,7 +104,9 @@ impl<'a> ArgsCursor<'a> {
     fn without_separators(&self) -> &'a str {
         match self.split {
             SplitKind::Whitespace => self.rest.trim_start(),
-            SplitKind::Char(separator) => self.rest.trim_start_matches(separator),
+            SplitKind::Char(separator) => self
+                .rest
+                .trim_start_matches(|ch: char| ch == separator || ch.is_whitespace()),
         }
     }
 }
@@ -125,6 +128,24 @@ pub enum CommandArgsError {
 }
 
 impl CommandArgsError {
+    /// # Arguments
+    /// * `info` - The error message.
+    /// # Notes
+    /// This method is useful when you want to pass just a message.
+    /// If you want to pass an error, you can convert it with `?` or `into`.
+    pub fn from_display(info: impl Display) -> Self {
+        Self::Custom(anyhow::anyhow!("{info}"))
+    }
+
+    /// # Arguments
+    /// * `info` - The error message.
+    /// # Notes
+    /// This method is useful when you want to pass just a message.
+    /// If you want to pass an error, you can convert it with `?` or `into`.
+    pub fn from_debug(info: impl Debug) -> Self {
+        Self::Custom(anyhow::anyhow!("{info:?}"))
+    }
+
     #[must_use]
     pub fn at_index(self, index: usize) -> Self {
         match self {
@@ -199,7 +220,6 @@ pub trait CommandArg: Sized {
 /// Parses all fields of a command from its arguments.
 ///
 /// This trait is implemented for tuples of [`CommandArg`] fields up to 16 elements.
-/// Implement it for your type to parse all the arguments manually.
 pub trait CommandArgs: Sized {
     /// Parses all fields, checking that no arguments are left
     ///
