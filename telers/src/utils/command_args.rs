@@ -25,6 +25,7 @@ use std::{
     fmt::{Debug, Display},
     mem,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    sync::Arc,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -111,7 +112,7 @@ impl<'a> ArgsCursor<'a> {
     }
 }
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, Clone, thiserror::Error)]
 pub enum CommandArgsError {
     #[error("Missing argument for the field at position {index}")]
     Missing { index: usize },
@@ -121,10 +122,17 @@ pub enum CommandArgsError {
     InvalidValue {
         index: usize,
         value: Box<str>,
-        source: anyhow::Error,
+        source: Arc<anyhow::Error>,
     },
     #[error(transparent)]
-    Custom(#[from] anyhow::Error),
+    Custom(Arc<anyhow::Error>),
+}
+
+/// To possible to wrap [`anyhow::Error`] error in [`CommandArgsError`] enum without boilerplate code
+impl From<anyhow::Error> for CommandArgsError {
+    fn from(err: anyhow::Error) -> Self {
+        Self::Custom(Arc::new(err))
+    }
 }
 
 impl CommandArgsError {
@@ -134,7 +142,7 @@ impl CommandArgsError {
     /// This method is useful when you want to pass just a message.
     /// If you want to pass an error, you can convert it with `?` or `into`.
     pub fn from_display(info: impl Display) -> Self {
-        Self::Custom(anyhow::anyhow!("{info}"))
+        Self::from(anyhow::anyhow!("{info}"))
     }
 
     /// # Arguments
@@ -143,7 +151,7 @@ impl CommandArgsError {
     /// This method is useful when you want to pass just a message.
     /// If you want to pass an error, you can convert it with `?` or `into`.
     pub fn from_debug(info: impl Debug) -> Self {
-        Self::Custom(anyhow::anyhow!("{info:?}"))
+        Self::from(anyhow::anyhow!("{info:?}"))
     }
 
     #[must_use]
@@ -269,7 +277,7 @@ macro_rules! command_arg_via_from_str {
                         $crate::utils::command_args::CommandArgsError::InvalidValue {
                             index: 0,
                             value: value.into(),
-                            source: err.into(),
+                            source: ::std::sync::Arc::new(err.into()),
                         }
                     })
                 }
