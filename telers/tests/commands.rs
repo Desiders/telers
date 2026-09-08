@@ -46,7 +46,7 @@ where
 
 #[test]
 fn test_extract_unit_variant() {
-    let request = request_with_command(Some("/help some extra args"));
+    let request = request_with_command(Some("/help"));
 
     let Commands::Help = extract(&request).unwrap() else {
         panic!("expected `Help` variant")
@@ -92,7 +92,7 @@ fn test_extract_error_not_enough_arguments() {
     let request = request_with_command(Some("/username"));
 
     let err = extract::<Commands>(&request).unwrap_err();
-    assert!(err.to_string().contains("Not enough arguments"));
+    assert!(err.to_string().contains("Missing argument"));
 }
 
 #[test]
@@ -100,7 +100,9 @@ fn test_extract_error_wrong_argument_type() {
     let request = request_with_command(Some("/username_and_age 42 not_a_number"));
 
     let err = extract::<Commands>(&request).unwrap_err();
-    assert!(err.to_string().contains("Failed to parse `u8`"));
+    assert!(err
+        .to_string()
+        .contains("Invalid value `not_a_number` for argument `age`"));
 }
 
 #[test]

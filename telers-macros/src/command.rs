@@ -2,7 +2,7 @@ use crate::attrs_parsing::parse_attr;
 
 use heck::ToSnakeCase;
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote_spanned, ToTokens};
+use quote::{format_ident, quote_spanned};
 use std::collections::HashSet;
 use syn::{
     parse::{Parse, ParseStream},
@@ -18,6 +18,7 @@ mod keywords {
     syn::custom_keyword!(aliases);
     syn::custom_keyword!(rename);
     syn::custom_keyword!(prefix);
+    syn::custom_keyword!(split);
 }
 
 /// Rename rule for command names
@@ -53,12 +54,14 @@ impl RenameRule {
 struct CommandAttrs {
     rename_rule: RenameRule,
     prefix: Option<char>,
+    split: Option<char>,
 }
 
 impl Parse for CommandAttrs {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
         let mut rename_rule = None;
         let mut prefix = None;
+        let mut split = None;
 
         while !input.is_empty() {
             let lookahead = input.lookahead1();
@@ -106,16 +109,35 @@ impl Parse for CommandAttrs {
                 continue;
             }
 
+            if lookahead.peek(keywords::split) {
+                let input_split: keywords::split = input.parse()?;
+                input.parse::<Token![=]>()?;
+
+                let value: LitChar = input.parse()?;
+
+                if split.is_some() {
+                    return Err(syn::Error::new_spanned(
+                        input_split,
+                        "duplicate `split` attribute",
+                    ));
+                }
+
+                split = Some(value.value());
+
+                continue;
+            }
+
             // If we found unknown attribute, then we need to return error
             return Err(syn::Error::new(
                 input.span(),
-                "expected `rename_rule` or `prefix` attribute",
+                "expected `rename_rule`, `prefix` or `split` attribute",
             ));
         }
 
         Ok(Self {
             rename_rule: rename_rule.unwrap_or(RenameRule::Lower),
             prefix,
+            split,
         })
     }
 }
@@ -128,6 +150,7 @@ struct VariantAttrs {
     aliases: Vec<String>,
     rename: Option<String>,
     prefix: Option<char>,
+    split: Option<char>,
 }
 
 #[allow(clippy::too_many_lines)]
@@ -138,6 +161,7 @@ impl Parse for VariantAttrs {
         let mut aliases = None;
         let mut rename = None;
         let mut prefix = None;
+        let mut split = None;
 
         while !input.is_empty() {
             let lookahead = input.lookahead1();
@@ -242,10 +266,29 @@ impl Parse for VariantAttrs {
                 continue;
             }
 
+            if lookahead.peek(keywords::split) {
+                let input_split: keywords::split = input.parse()?;
+                input.parse::<Token![=]>()?;
+
+                let value: LitChar = input.parse()?;
+
+                if split.is_some() {
+                    return Err(syn::Error::new_spanned(
+                        input_split,
+                        "duplicate `split` attribute",
+                    ));
+                }
+
+                split = Some(value.value());
+
+                continue;
+            }
+
             // If we found unknown attribute, then we need to return error
             return Err(syn::Error::new(
                 input.span(),
-                "expected `description`, `hidden`, `aliases`, `rename` or `prefix` attribute",
+                "expected `description`, `hidden`, `aliases`, `rename`, `prefix` or `split` \
+                 attribute",
             ));
         }
 
@@ -255,6 +298,7 @@ impl Parse for VariantAttrs {
             aliases: aliases.unwrap_or_default(),
             rename,
             prefix,
+            split,
         })
     }
 }
@@ -296,7 +340,6 @@ struct VariantCodegen {
     extractor_arm: TokenStream,
     descriptions_entry: TokenStream,
     bot_commands_entry: TokenStream,
-    field_tys: Vec<Type>,
     match_names: Vec<String>,
 }
 
@@ -369,69 +412,52 @@ fn expand_variant(
     };
 
     let fields = fields_of(&variant.fields);
-    let field_count = fields.len();
-
     let variant_ident = &variant.ident;
 
-    let args_binding = if fields.is_empty() {
-        Vec::new()
-    } else {
-        vec![quote_spanned! { variant.span() =>
-            let mut __args = __command.args.iter();
-        }]
+    let local_idents = (0..fields.len())
+        .map(|index| format_ident!("__field{index}"))
+        .collect::<Vec<_>>();
+    let field_names = match &variant.fields {
+        Fields::Named(_) => fields.iter().map(|field| field.ident.to_string()).collect(),
+        Fields::Unnamed(_) | Fields::Unit => Vec::new(),
     };
 
-    let parsed_fields = fields.iter().enumerate().map(|(index, field)| {
-        let local_ident = format_ident!("__field{index}");
-        let field_ty = &field.ty;
-        let ty_name = field_ty.to_token_stream().to_string();
-
-        quote_spanned! { field.ty.span() =>
-            let #local_ident: #field_ty = __args.next()
-                .ok_or_else(|| Error::new(format!(
-                    concat!(
-                        "Not enough arguments for `", #name, "` command: expected ",
-                        #field_count, ", got {}",
-                    ),
-                    __command.args.len(),
-                )))?
-                .parse()
-                .map_err(|err| Error::new(format!(
-                    concat!("Failed to parse `", #ty_name, "` for `", #name, "` command: {}"),
-                    err,
-                )))?;
-        }
-    });
+    let field_tys = fields.iter().map(|field| &field.ty);
+    let parse_args = quote_spanned! { variant.span() =>
+        let (#(#local_idents,)*) = <(#(#field_tys,)*) as ::telers::utils::command_args::CommandArgs>::parse_args(__cursor)
+    };
 
     let construct = match &variant.fields {
-        Fields::Unit => quote_spanned! { variant.span() => Ok(Self::#variant_ident) },
+        Fields::Unit => quote_spanned! { variant.span() => Self::#variant_ident },
         Fields::Unnamed(_) => {
-            let local_idents = fields
-                .iter()
-                .enumerate()
-                .map(|(index, _)| format_ident!("__field{index}"));
-            quote_spanned! { variant.span() => Ok(Self::#variant_ident(#(#local_idents),*)) }
+            quote_spanned! { variant.span() => Self::#variant_ident(#(#local_idents),*) }
         }
         Fields::Named(_) => {
-            let field_bindings = fields.iter().enumerate().map(|(index, field)| {
-                let field_ident = &field.ident;
-                let local_ident = format_ident!("__field{index}");
-                quote_spanned! { field.ident.span() => #field_ident: #local_ident }
-            });
-            quote_spanned! { variant.span() => Ok(Self::#variant_ident { #(#field_bindings),* }) }
+            let field_bindings = fields
+                .iter()
+                .zip(&local_idents)
+                .map(|(field, local_ident)| {
+                    let field_ident = &field.ident;
+                    quote_spanned! { field.ident.span() => #field_ident: #local_ident }
+                });
+            quote_spanned! { variant.span() => Self::#variant_ident { #(#field_bindings),* } }
         }
+    };
+
+    let split = match variant_attrs.split.or(attrs.split) {
+        None | Some(' ') => quote_spanned! { variant.span() =>
+            ::telers::utils::command_args::SplitKind::Whitespace
+        },
+        Some(split) => quote_spanned! { variant.span() =>
+            ::telers::utils::command_args::SplitKind::Char(#split)
+        },
     };
 
     let body = quote_spanned! { variant.span() =>
-        #(#args_binding)*
-        #(#parsed_fields)*
-        #construct
+        let __cursor = ::telers::utils::command_args::ArgsCursor::new(&__command.raw_args, #split);
+        #parse_args.map_err(|err| Error::new(err.describe(#name, &[#(#field_names),*])))?;
+        ::std::result::Result::Ok(#construct)
     };
-
-    let field_tys = fields
-        .iter()
-        .map(|field| field.ty.clone())
-        .collect::<Vec<_>>();
 
     let match_pattern = if match_names.len() == 1 {
         let name = &match_names[0];
@@ -453,7 +479,6 @@ fn expand_variant(
         extractor_arm,
         descriptions_entry,
         bot_commands_entry,
-        field_tys,
         match_names,
     })
 }
@@ -480,6 +505,7 @@ fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
         Ok(None) => CommandAttrs {
             rename_rule: RenameRule::Lower,
             prefix: None,
+            split: None,
         },
         Err(err) => {
             return Err(syn::Error::new_spanned(
@@ -496,7 +522,6 @@ fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
     let mut extractor_arms = Vec::new();
     let mut descriptions_entries = Vec::new();
     let mut bot_commands_entries = Vec::new();
-    let mut all_field_tys = Vec::new();
 
     let mut seen_names = HashSet::new();
     for variant in &data.variants {
@@ -514,7 +539,6 @@ fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
         extractor_arms.push(codegen.extractor_arm);
         descriptions_entries.push(codegen.descriptions_entry);
         bot_commands_entries.push(codegen.bot_commands_entry);
-        all_field_tys.extend(codegen.field_tys);
     }
 
     let extractor_impl_generics = quote_spanned! { ident.span() =>
@@ -526,8 +550,6 @@ fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
         #extractor_impl_generics
         where
             #ident: Send + 'static,
-            #(#all_field_tys: ::std::str::FromStr,)*
-            #(<#all_field_tys as ::std::str::FromStr>::Err: ::std::fmt::Display,)*
         {
             type Error = ::telers::errors::ExtractionError;
 
