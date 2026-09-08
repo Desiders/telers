@@ -1,7 +1,8 @@
 use telers::{
     enums::UpdateType,
+    errors::EventError,
     event::telegram::{Handler, HandlerResult},
-    filters::{command::Command as CommandFilter, CommandObject},
+    filters::{command::Command as CommandFilter, CommandObject, ErrorType},
     methods::{SendMessage, SetMyCommands},
     types::Message,
     utils::command_args::{ArgsCursor, CommandArg, CommandArgsError},
@@ -31,6 +32,12 @@ struct Settings(Vec<(String, String)>);
 
 impl CommandArg for Settings {
     fn parse_arg(cursor: &mut ArgsCursor<'_>) -> Result<Self, CommandArgsError> {
+        if cursor.is_exhausted() {
+            return Err(CommandArgsError::Missing {
+                index: 0,
+            });
+        }
+
         let mut settings = Vec::new();
 
         while let Some(arg) = cursor.next_arg() {
@@ -92,6 +99,16 @@ async fn settings_handler(bot: Bot, message: Message, command: Commands) -> Hand
     Ok(())
 }
 
+async fn on_command_args_error(
+    bot: Bot,
+    message: Message,
+    EventError(err): EventError<CommandArgsError>,
+) -> HandlerResult<()> {
+    bot.send(SendMessage::new(message.chat().id(), err.to_string()))
+        .await?;
+    Ok(())
+}
+
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
     tracing_subscriber::fmt().init();
@@ -114,6 +131,11 @@ async fn main() {
         })
         .on_message(|observer| {
             observer.register(Handler::new(settings_handler).filter(CommandFilter::one("settings")))
+        })
+        .on_error(|observer| {
+            observer.register(
+                Handler::new(on_command_args_error).filter(ErrorType::<CommandArgsError>::new()),
+            )
         });
 
     let dispatcher = Dispatcher::builder()
