@@ -8,6 +8,21 @@
 //! This structure is cheap to clone,
 //! because it contains only [`reqwest::Client`] field which is wrapped in [`Arc`] and [`APIServer`] wrapped in [`Cow`].
 //!
+//! # Proxy
+//!
+//! Use [`Reqwest::with_proxy`] to send all requests through a proxy.
+//! HTTP proxies are always supported, SOCKS proxies only with the `socks` feature:
+//! without it a SOCKS URL is accepted by [`Proxy`], but requests are sent to it as to an HTTP proxy and fail.
+//! ```no_run
+//! use telers::{
+//!     client::{Proxy, Reqwest},
+//!     Bot,
+//! };
+//!
+//! let proxy = Proxy::all("socks5://127.0.0.1:1080").expect("Failed to create proxy");
+//! let bot = Bot::with_client("TOKEN", Reqwest::with_proxy(proxy));
+//! ```
+//!
 //! [`Arc`]: std::sync::Arc
 //! [`APIServer`]: telers::client::telegram::APIServer
 
@@ -24,7 +39,7 @@ use crate::{
 use futures_util::TryStreamExt as _;
 use reqwest::{
     multipart::{Form, Part},
-    Body, Client, ClientBuilder,
+    Body, Client, ClientBuilder, Proxy,
 };
 use secrecy::ExposeSecret as _;
 use serde::Serialize;
@@ -44,6 +59,23 @@ impl Reqwest {
             client,
             api: Cow::Borrowed(&telegram::PRODUCTION),
         }
+    }
+
+    /// Creates a client with [`DEFAULT_TIMEOUT`] that sends all requests through the proxy
+    /// # Notes
+    /// SOCKS proxies are supported only with the `socks` feature.
+    /// Without it a SOCKS URL is accepted by [`Proxy`], but requests are sent to it as to an HTTP proxy and fail.
+    /// # Panics
+    /// This method panics if the client cannot be created
+    #[must_use]
+    pub fn with_proxy(proxy: Proxy) -> Self {
+        Self::new(
+            ClientBuilder::new()
+                .timeout(Duration::from_secs_f32(DEFAULT_TIMEOUT))
+                .proxy(proxy)
+                .build()
+                .unwrap(),
+        )
     }
 
     #[must_use]
