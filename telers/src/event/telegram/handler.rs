@@ -1,6 +1,6 @@
 use super::response::{IntoHandlerResult, Response};
 use crate::{
-    errors::{ExtractionError, FilterError, HandlerError},
+    errors::{EventErrorKind, ExtractionError, HandlerError},
     event::{
         service::{service_fn, BoxCloneService, Service},
         EventReturn,
@@ -90,15 +90,16 @@ where
     /// Check if the handler pass the filters.
     /// If the handler pass all them, it will be called.
     /// # Errors
-    /// If any filter returns error, it will be wrapped into [`FilterError`] and returned
+    /// If any filter returns error, it will be wrapped into [`FilterError`](crate::errors::FilterError)
+    /// and returned together with the request
     #[allow(clippy::missing_panics_doc)]
     #[instrument(skip(self, request))]
     pub async fn check(
         &mut self,
         mut request: Request<Client>,
-    ) -> Result<(bool, Request<Client>), FilterError> {
+    ) -> Result<(bool, Request<Client>), (EventErrorKind, Request<Client>)> {
         for filter in &mut self.filters {
-            let (result, new_request) = filter.call(request).await.map_err(FilterError::new)?;
+            let (result, new_request) = filter.call(request).await?;
             if !result {
                 return Ok((false, new_request));
             }

@@ -360,7 +360,8 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
 
         Span::current().record("update_type", field::display(&update_type));
 
-        self.propagator
+        match self
+            .propagator
             .propagate_event_with_error_handling(
                 update_type,
                 Request {
@@ -371,6 +372,10 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
                 },
             )
             .await
+        {
+            Ok(response) => Ok(response),
+            Err((err, _)) => Err(err),
+        }
     }
 
     /// Start listening updates for the bot.

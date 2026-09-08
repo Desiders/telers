@@ -126,12 +126,15 @@ impl<Client> Observer<Client> {
     /// Propagate event to handlers and stops propagation on first match.
     /// Handler will be called when all its filters is pass.
     /// # Errors
-    /// - If any handler returns error. Probably it's error to extract args to the handler.
+    /// - If any filter or inner middleware returns error
+    /// - If it's error to extract args to the handler
+    ///
+    /// The error is returned together with the request as it was when the error occurred
     #[instrument(skip_all)]
     pub async fn trigger(
         &mut self,
         request: Request<Client>,
-    ) -> Result<Response<Client>, EventErrorKind>
+    ) -> Result<Response<Client>, (EventErrorKind, Request<Client>)>
     where
         Client: Send + Sync + Clone + 'static,
     {
@@ -170,18 +173,20 @@ impl<Client> Observer<Client> {
                     );
 
                     match middleware.call((request.clone(), next)).await {
-                        Err(EventErrorKind::Handler(err)) => Ok(HandlerResponse {
+                        Ok(response) => response,
+                        // The handler error is the correct result from the point of view of observer, see below
+                        Err(EventErrorKind::Handler(err)) => HandlerResponse {
                             request: request.clone(),
                             result: Err(err),
-                        }),
-                        other => other,
+                        },
+                        Err(err) => return Err((err, request)),
                     }
                 }
-                None => handler
-                    .call(request.clone())
-                    .await
-                    .map_err(EventErrorKind::Extraction),
-            }?;
+                None => match handler.call(request.clone()).await {
+                    Ok(response) => response,
+                    Err(err) => return Err((err.into(), request)),
+                },
+            };
 
             return match response.result {
                 // If the handler or middleware returns skip, then we should skip it
@@ -419,7 +424,7 @@ mod tests {
         };
 
         match observer.trigger(request).await {
-            Err(EventErrorKind::Middleware(_)) => {}
+            Err((EventErrorKind::Middleware(_), _)) => {}
             _ => panic!("middleware error must propagate as `Err`, not be swallowed"),
         }
     }
