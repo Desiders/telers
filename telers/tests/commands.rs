@@ -157,20 +157,20 @@ enum VariedCommands {
 }
 
 #[test]
-fn test_v2_snake_case_rename_rule() {
+fn test_snake_case_rename_rule() {
     let request = request_with_command(Some("!help_me"));
     assert!(matches!(extract(&request).unwrap(), VariedCommands::HelpMe));
 }
 
 #[test]
-fn test_v2_enum_level_prefix() {
+fn test_enum_level_prefix() {
     let request = request_with_command(Some("/help_me"));
     let err = extract::<VariedCommands>(&request).unwrap_err();
     assert!(err.to_string().contains("Unknown command"));
 }
 
 #[test]
-fn test_v2_rename_attr() {
+fn test_rename_attr() {
     let request = request_with_command(Some("!do-it"));
     assert!(matches!(extract(&request).unwrap(), VariedCommands::DoIt));
 
@@ -182,7 +182,7 @@ fn test_v2_rename_attr() {
 }
 
 #[test]
-fn test_v2_aliases() {
+fn test_aliases() {
     for command in ["!start", "!go", "!begin"] {
         let request = request_with_command(Some(command));
         assert!(
@@ -193,7 +193,7 @@ fn test_v2_aliases() {
 }
 
 #[test]
-fn test_v2_hidden_excluded_from_lists_but_matchable() {
+fn test_hidden_excluded_from_lists_but_matchable() {
     let descriptions = VariedCommands::descriptions();
     assert!(!descriptions.contains("help_me"));
     assert_eq!(

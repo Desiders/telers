@@ -307,8 +307,8 @@ pub fn derive_callback_data(item: TokenStream) -> TokenStream {
 ///
 /// Command names are derived from the variant names and are matched case-insensitively.
 /// Fields of tuple and named variants are parsed from the command arguments in declaration order
-/// via the [`CommandArg`] trait (all the fields of a variant as a tuple via [`CommandArgs`]);
-/// a missing or extra argument or a parse failure is reported as an [`ExtractionError`].
+/// via the [`CommandArg`] trait; a missing or extra argument or a parse failure is reported
+/// as an [`ExtractionError`].
 ///
 /// This macro supports the following attributes:
 /// * `#[command(rename_rule = "...")]` (enum-level) - the rule used to convert variant names into command names. \
@@ -366,7 +366,6 @@ pub fn derive_callback_data(item: TokenStream) -> TokenStream {
 /// [`CommandObject`]: telers::filters::CommandObject
 /// [`Command`]: telers::filters::Command
 /// [`CommandArg`]: telers::utils::command_args::CommandArg
-/// [`CommandArgs`]: telers::utils::command_args::CommandArgs
 /// [`ExtractionError`]: telers::errors::ExtractionError
 #[proc_macro_derive(Command, attributes(command))]
 pub fn derive_command(item: TokenStream) -> TokenStream {

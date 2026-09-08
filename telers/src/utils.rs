@@ -27,7 +27,7 @@ pub mod token;
 
 pub use callback_data::{CallbackData, CallbackDataError, CallbackDataValue};
 pub use chat_action::{ChatActionGuard, ChatActionSender};
-pub use command_args::{ArgsCursor, CommandArg, CommandArgs, CommandArgsError, Rest, SplitKind};
+pub use command_args::{ArgsCursor, CommandArg, CommandArgsError, Rest, SplitType};
 pub use deep_linking::{
     create_deep_link, create_start_link, create_startapp_link, create_startgroup_link,
     decode_payload, encode_payload, validate_payload, DeepLinkError, DEEPLINK_PAYLOAD_LENGTH,

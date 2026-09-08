@@ -423,8 +423,8 @@ fn expand_variant(
     };
 
     let field_tys = fields.iter().map(|field| &field.ty);
-    let parse_args = quote_spanned! { variant.span() =>
-        let (#(#local_idents,)*) = <(#(#field_tys,)*) as ::telers::utils::command_args::CommandArgs>::parse_args(__cursor)
+    let args_binding = quote_spanned! { variant.span() =>
+        let (#(#local_idents,)*) = ::telers::utils::command_args::parse_args::<(#(#field_tys,)*)>(__cursor)
     };
 
     let construct = match &variant.fields {
@@ -446,16 +446,16 @@ fn expand_variant(
 
     let split = match variant_attrs.split.or(attrs.split) {
         None | Some(' ') => quote_spanned! { variant.span() =>
-            ::telers::utils::command_args::SplitKind::Whitespace
+            ::telers::utils::command_args::SplitType::Whitespace
         },
         Some(split) => quote_spanned! { variant.span() =>
-            ::telers::utils::command_args::SplitKind::Char(#split)
+            ::telers::utils::command_args::SplitType::Char(#split)
         },
     };
 
     let body = quote_spanned! { variant.span() =>
         let __cursor = ::telers::utils::command_args::ArgsCursor::new(&__command.raw_args, #split);
-        #parse_args.map_err(|err| Error::new_with_source(err.describe(#name, &[#(#field_names),*]), err))?;
+        #args_binding.map_err(|err| Error::new_with_source(err.describe(#name, &[#(#field_names),*]), err))?;
         ::std::result::Result::Ok(#construct)
     };
 

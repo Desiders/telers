@@ -103,5 +103,5 @@ pub use router::{Configured as RouterConfigured, Router};
 
 pub use utils::{
     callback_data::{CallbackDataError, CallbackDataValue},
-    command_args::{CommandArg, CommandArgs, CommandArgsError},
+    command_args::{CommandArg, CommandArgsError},
 };
