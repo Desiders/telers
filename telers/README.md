@@ -92,6 +92,7 @@ For more, check out the [crate documentation][docs] and the [examples below][exa
  - [Download file][examples/download_file]. This example shows how to download files sent to the bot.
  - [Callback data][examples/callback_data]. This example shows how to pack structured data into inline keyboard buttons and unpack it in handlers.
  - [Finite state machine][examples/fsm]. This example shows how to use a finite state machine (conversation).
+ - [Error handling][examples/error_handling]. This example shows how to handle errors of handlers, filters and middlewares in one place.
  - [Router tree][examples/router_tree]. This example shows how to create a router tree.
  - [Bot http client][examples/bot_http_client]. This example shows how to set a custom bot HTTP client.
  - [Axum and echo bot][examples/axum_and_echo_bot]. This example shows how to create an echo bot and run it concurrently with polling `axum` server.
@@ -116,6 +117,7 @@ This project is licensed under either of the following licenses, at your option:
 [examples/bot_http_client]: https://github.com/Desiders/telers/tree/dev-1.x/examples/bot_http_client
 [examples/router_tree]: https://github.com/Desiders/telers/tree/dev-1.x/examples/router_tree
 [examples/fsm]: https://github.com/Desiders/telers/tree/dev-1.x/examples/fsm
+[examples/error_handling]: https://github.com/Desiders/telers/tree/dev-1.x/examples/error_handling
 [examples/input_file]: https://github.com/Desiders/telers/tree/dev-1.x/examples/input_file
 [examples/download_file]: https://github.com/Desiders/telers/tree/dev-1.x/examples/download_file
 [examples/callback_data]: https://github.com/Desiders/telers/tree/dev-1.x/examples/callback_data
