@@ -1,6 +1,6 @@
 use crate::attrs_parsing::parse_attr;
 
-use heck::{ToLowerCamelCase, ToSnakeCase, ToUpperCamelCase};
+use heck::ToSnakeCase;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote_spanned, ToTokens};
 use std::collections::HashSet;
@@ -27,10 +27,6 @@ enum RenameRule {
     Lower,
     /// `UserName` -> `user_name`
     SnakeCase,
-    /// `UserName` -> `UserName`
-    PascalCase,
-    /// `UserName` -> `userName`
-    CamelCase,
 }
 
 impl RenameRule {
@@ -38,11 +34,9 @@ impl RenameRule {
         match value.value().as_str() {
             "lowercase" => Ok(Self::Lower),
             "snake_case" => Ok(Self::SnakeCase),
-            "pascal_case" => Ok(Self::PascalCase),
-            "camel_case" => Ok(Self::CamelCase),
             _ => Err(syn::Error::new_spanned(
                 value,
-                "expected one of: `lowercase`, `snake_case`, `pascal_case`, `camel_case`",
+                "expected one of: `lowercase`, `snake_case`",
             )),
         }
     }
@@ -51,8 +45,6 @@ impl RenameRule {
         match self {
             Self::Lower => ident.to_string().to_lowercase(),
             Self::SnakeCase => ident.to_string().to_snake_case(),
-            Self::PascalCase => ident.to_string().to_upper_camel_case(),
-            Self::CamelCase => ident.to_string().to_lower_camel_case(),
         }
     }
 }

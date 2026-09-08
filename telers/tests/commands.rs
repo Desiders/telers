@@ -142,7 +142,7 @@ fn test_bot_commands() {
 }
 
 #[derive(Clone, Debug, Command)]
-#[command(rename_rule = "camel_case", prefix = '!')]
+#[command(rename_rule = "snake_case", prefix = '!')]
 enum VariedCommands {
     #[command(description = "hidden help", hidden)]
     HelpMe,
@@ -155,14 +155,14 @@ enum VariedCommands {
 }
 
 #[test]
-fn test_v2_camel_case_rename_rule() {
-    let request = request_with_command(Some("!helpMe"));
+fn test_v2_snake_case_rename_rule() {
+    let request = request_with_command(Some("!help_me"));
     assert!(matches!(extract(&request).unwrap(), VariedCommands::HelpMe));
 }
 
 #[test]
 fn test_v2_enum_level_prefix() {
-    let request = request_with_command(Some("/helpMe"));
+    let request = request_with_command(Some("/help_me"));
     let err = extract::<VariedCommands>(&request).unwrap_err();
     assert!(err.to_string().contains("Unknown command"));
 }
@@ -193,18 +193,18 @@ fn test_v2_aliases() {
 #[test]
 fn test_v2_hidden_excluded_from_lists_but_matchable() {
     let descriptions = VariedCommands::descriptions();
-    assert!(!descriptions.contains("helpMe"));
+    assert!(!descriptions.contains("help_me"));
     assert_eq!(
         descriptions,
-        "/start - start\n/do-it - custom name\n/nameAndAge - name and age"
+        "/start - start\n/do-it - custom name\n/name_and_age - name and age"
     );
 
     let commands = VariedCommands::bot_commands();
     assert_eq!(commands.len(), 3);
     assert!(!commands
         .iter()
-        .any(|command| command.command.as_ref() == "helpMe"));
+        .any(|command| command.command.as_ref() == "help_me"));
 
-    let request = request_with_command(Some("!helpMe"));
+    let request = request_with_command(Some("!help_me"));
     assert!(matches!(extract(&request).unwrap(), VariedCommands::HelpMe));
 }

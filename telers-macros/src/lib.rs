@@ -312,7 +312,7 @@ pub fn derive_callback_data(item: TokenStream) -> TokenStream {
 ///
 /// This macro supports the following attributes:
 /// * `#[command(rename_rule = "...")]` (enum-level) - the rule used to convert variant names into command names. \
-///   Supported rules: `lowercase` (default), `snake_case`, `pascal_case`, `camel_case`.
+///   Supported rules: `lowercase` (default), `snake_case`.
 /// * `#[command(prefix = '!')]` (enum-level) - the command prefix required by the generated extractor. \
 ///   When set, the extractor reports an unknown command if the prefix differs.
 /// * `#[command(description = "...")]` (variant-level, optional) - the description of the command. \
