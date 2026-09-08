@@ -38,7 +38,9 @@ impl ErrorKind {
         E: Display + Debug + Send + Sync + 'static,
     {
         match self {
-            Self::Extraction(err) => (err as &dyn Any).downcast_ref(),
+            Self::Extraction(err) => (err as &dyn Any)
+                .downcast_ref()
+                .or_else(|| err.downcast_ref()),
             Self::Handler(err) => err.downcast_ref(),
             Self::Middleware(err) => err.downcast_ref(),
             Self::Filter(err) => err.downcast_ref(),

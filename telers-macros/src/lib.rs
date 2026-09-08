@@ -11,6 +11,7 @@ pub(crate) mod attrs_parsing;
 pub(crate) mod stream;
 
 mod callback_data;
+mod command;
 mod from_context;
 mod from_event;
 
@@ -296,6 +297,81 @@ pub fn derive_from_event(item: TokenStream) -> TokenStream {
 #[proc_macro_derive(CallbackData, attributes(callback_data))]
 pub fn derive_callback_data(item: TokenStream) -> TokenStream {
     expand_with(item, callback_data::expand)
+}
+
+/// Derive an implementation of `Extractor` for the given enum.
+///
+/// The macro generates an `Extractor` implementation that parses the command name and arguments
+/// from the [`CommandObject`] that the [`Command`] filter puts into the context, so the derived
+/// enum can be used as a handler argument right after the filter.
+///
+/// Command names are derived from the variant names and are matched case-insensitively.
+/// Fields of tuple and named variants are parsed from the command arguments in declaration order
+/// via the [`CommandArg`] trait; a missing or extra argument or a parse failure is reported
+/// as an [`ExtractionError`].
+///
+/// This macro supports the following attributes:
+/// * `#[command(rename_rule = "...")]` (enum-level) - the rule used to convert variant names into command names. \
+///   Supported rules: `lowercase` (default), `snake_case`.
+/// * `#[command(prefix = '!')]` (enum-level) - the command prefix, `/` by default. \
+///   It is a part of the command, so `!start` and `/start` are different commands.
+/// * `#[command(split = ',')]` (enum-level) - the character the command arguments are split on. \
+///   By default (or with `' '`) they are split on any run of whitespace.
+/// * `#[command(description = "...")]` (variant-level, optional) - the description of the command. \
+///   Used by the generated `descriptions()` and `bot_commands()` methods.
+/// * `#[command(hidden)]` (variant-level, optional) - excludes the variant from `descriptions()` \
+///   and `bot_commands()`, but the command stays matchable.
+/// * `#[command(aliases = ["a", "b"])]` (variant-level, optional) - extra names the variant matches.
+/// * `#[command(rename = "custom_name")]` (variant-level, optional) - an explicit command name \
+///   overriding the `rename_rule` for that variant.
+/// * `#[command(prefix = '!')]` (variant-level) - a per-variant override of the enum-level value.
+/// * `#[command(split = ',')]` (variant-level) - a per-variant override of the enum-level value.
+///
+/// Besides the `Extractor` implementation, the macro generates:
+/// * `descriptions()` - descriptions in the format `/command - description` (with the prefix of the command), \
+///   separated by newlines.
+/// * `bot_commands()` - commands in the format required by the `setMyCommands` Telegram API method. \
+///   Only commands with the `/` prefix are included, because the method supports no other prefix.
+///
+/// # Notes
+/// * The [`Command`] filter must be used together with the derived enum,
+///   because the macro reads the [`CommandObject`] from the context.
+/// * Extra arguments are an error: use `Option<T>`, `Vec<T>` or `Rest` fields to take them.
+///
+/// # Example
+/// ```rust
+/// use telers_macros::Command;
+///
+/// #[derive(Command)]
+/// #[command(rename_rule = "snake_case")]
+/// enum Commands {
+///     #[command(description = "display this text")]
+///     Help,
+///     #[command(description = "handle a username")]
+///     Username(String),
+///     #[command(description = "handle a username and an age")]
+///     UsernameAndAge { username: String, age: u8 },
+/// }
+///
+/// async fn handler(commands: Commands) {
+///     match commands {
+///         Commands::Help => {}
+///         Commands::Username(username) => {}
+///         Commands::UsernameAndAge {
+///             username,
+///             age,
+///         } => {}
+///     }
+/// }
+/// ```
+///
+/// [`CommandObject`]: telers::filters::CommandObject
+/// [`Command`]: telers::filters::Command
+/// [`CommandArg`]: telers::utils::command_args::CommandArg
+/// [`ExtractionError`]: telers::errors::ExtractionError
+#[proc_macro_derive(Command, attributes(command))]
+pub fn derive_command(item: TokenStream) -> TokenStream {
+    expand_with(item, command::expand)
 }
 
 fn expand_with<F, I, K>(input: TokenStream, f: F) -> TokenStream
