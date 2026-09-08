@@ -455,7 +455,7 @@ fn expand_variant(
 
     let body = quote_spanned! { variant.span() =>
         let __cursor = ::telers::utils::command_args::ArgsCursor::new(&__command.raw_args, #split);
-        #parse_args.map_err(|err| Error::new(err.describe(#name, &[#(#field_names),*])))?;
+        #parse_args.map_err(|err| Error::new_with_source(err.describe(#name, &[#(#field_names),*]), err))?;
         ::std::result::Result::Ok(#construct)
     };
 
