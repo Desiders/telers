@@ -198,14 +198,11 @@ fn test_hidden_excluded_from_lists_but_matchable() {
     assert!(!descriptions.contains("help_me"));
     assert_eq!(
         descriptions,
-        "/start - start\n/do-it - custom name\n/name_and_age - name and age"
+        "!start - start\n!do-it - custom name\n!name_and_age - name and age"
     );
 
-    let commands = VariedCommands::bot_commands();
-    assert_eq!(commands.len(), 3);
-    assert!(!commands
-        .iter()
-        .any(|command| command.command.as_ref() == "help_me"));
+    // `setMyCommands` supports only the `/` prefix, so the `!` commands aren't listed
+    assert!(VariedCommands::bot_commands().is_empty());
 
     let request = request_with_command(Some("!help_me"));
     assert!(matches!(extract(&request).unwrap(), VariedCommands::HelpMe));

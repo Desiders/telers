@@ -313,8 +313,8 @@ pub fn derive_callback_data(item: TokenStream) -> TokenStream {
 /// This macro supports the following attributes:
 /// * `#[command(rename_rule = "...")]` (enum-level) - the rule used to convert variant names into command names. \
 ///   Supported rules: `lowercase` (default), `snake_case`.
-/// * `#[command(prefix = '!')]` (enum-level) - the command prefix required by the generated extractor. \
-///   When set, the extractor reports an unknown command if the prefix differs.
+/// * `#[command(prefix = '!')]` (enum-level) - the command prefix, `/` by default. \
+///   It is a part of the command, so `!start` and `/start` are different commands.
 /// * `#[command(split = ',')]` (enum-level) - the character the command arguments are split on. \
 ///   By default (or with `' '`) they are split on any run of whitespace.
 /// * `#[command(description = "...")]` (variant-level, optional) - the description of the command. \
@@ -328,8 +328,10 @@ pub fn derive_callback_data(item: TokenStream) -> TokenStream {
 /// * `#[command(split = ',')]` (variant-level) - a per-variant override of the enum-level value.
 ///
 /// Besides the `Extractor` implementation, the macro generates:
-/// * `descriptions()` - descriptions in the format `/command - description`, separated by newlines.
-/// * `bot_commands()` - commands in the format required by the `setMyCommands` Telegram API method.
+/// * `descriptions()` - descriptions in the format `/command - description` (with the prefix of the command), \
+///   separated by newlines.
+/// * `bot_commands()` - commands in the format required by the `setMyCommands` Telegram API method. \
+///   Only commands with the `/` prefix are included, because the method supports no other prefix.
 ///
 /// # Notes
 /// * The [`Command`] filter must be used together with the derived enum,

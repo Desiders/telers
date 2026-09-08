@@ -8,7 +8,7 @@ use syn::{
     parse::{Parse, ParseStream},
     punctuated::Punctuated,
     spanned::Spanned,
-    Data, DeriveInput, Fields, Ident, Item, LitChar, LitStr, Token, Type,
+    Data, DeriveInput, Fields, Ident, Item, LitChar, LitStr, Token,
 };
 
 mod keywords {
@@ -303,44 +303,12 @@ impl Parse for VariantAttrs {
     }
 }
 
-/// Field of a command variant: identifier (if named) and type
-struct CommandField {
-    ident: Ident,
-    ty: Type,
-}
-
-/// Parse a field of a tuple or named variant
-///
-/// For tuple variants we generate artificial identifiers (`field0`, `field1`, ...).
-fn fields_of(fields: &Fields) -> Vec<CommandField> {
-    match fields {
-        Fields::Unit => vec![],
-        Fields::Unnamed(fields) => fields
-            .unnamed
-            .iter()
-            .enumerate()
-            .map(|(index, field)| CommandField {
-                ident: format_ident!("field{index}"),
-                ty: field.ty.clone(),
-            })
-            .collect(),
-        Fields::Named(fields) => fields
-            .named
-            .iter()
-            .map(|field| CommandField {
-                ident: field.ident.clone().expect("named fields are always named"),
-                ty: field.ty.clone(),
-            })
-            .collect(),
-    }
-}
-
 /// Code generated for a single command variant
 struct VariantCodegen {
     extractor_arm: TokenStream,
     descriptions_entry: TokenStream,
     bot_commands_entry: TokenStream,
-    match_names: Vec<String>,
+    match_names: Vec<(char, String)>,
 }
 
 #[allow(clippy::too_many_lines)]
@@ -359,75 +327,60 @@ fn expand_variant(
         }
     };
 
-    let name = match &variant_attrs.rename {
-        Some(rename) => rename.clone(),
-        None => attrs.rename_rule.apply(&variant.ident),
-    };
-    let name_lower = name.to_lowercase();
+    let name = variant_attrs
+        .rename
+        .unwrap_or_else(|| attrs.rename_rule.apply(&variant.ident));
 
-    let mut match_names = vec![name_lower.clone()];
+    // The prefix is a part of the command, so `!start` and `/start` are different commands
+    let prefix = variant_attrs.prefix.or(attrs.prefix).unwrap_or('/');
+
+    let mut match_names = vec![(prefix, name.to_lowercase())];
     match_names.extend(
         variant_attrs
             .aliases
             .iter()
-            .map(|alias| alias.to_lowercase()),
+            .map(|alias| (prefix, alias.to_lowercase())),
     );
 
-    let description = variant_attrs.description;
-    let bot_description = description.clone().unwrap_or_default();
-
+    let description = variant_attrs.description.as_deref();
     let hidden = variant_attrs.hidden;
 
     let descriptions_entry = if hidden {
         TokenStream::new()
-    } else if let Some(description) = &description {
+    } else if let Some(description) = description {
         quote_spanned! { variant.span() =>
-            concat!("/", #name, " - ", #description),
+            concat!(#prefix, #name, " - ", #description),
         }
     } else {
         quote_spanned! { variant.span() =>
-            concat!("/", #name),
+            concat!(#prefix, #name),
         }
     };
-    let bot_commands_entry = if hidden {
+    // `setMyCommands` supports only commands with the `/` prefix
+    let bot_commands_entry = if hidden || prefix != '/' {
         TokenStream::new()
     } else {
+        let description = description.unwrap_or_default();
+
         quote_spanned! { variant.span() =>
-            ::telers::types::BotCommand::new(#name, #bot_description),
+            ::telers::types::BotCommand::new(#name, #description),
         }
     };
 
-    let prefix = variant_attrs.prefix.or(attrs.prefix);
-    let prefix_check = if let Some(prefix) = prefix {
-        quote_spanned! { variant.span() =>
-            if __command.prefix != #prefix {
-                return Err(Error::new(format!(
-                    "Unknown command `{}{}`",
-                    __command.prefix, __command.command
-                )));
-            }
-        }
-    } else {
-        TokenStream::new()
-    };
-
-    let fields = fields_of(&variant.fields);
     let variant_ident = &variant.ident;
+    let fields = &variant.fields;
 
     let local_idents = (0..fields.len())
         .map(|index| format_ident!("__field{index}"))
         .collect::<Vec<_>>();
-    let field_names = match &variant.fields {
-        Fields::Named(_) => fields.iter().map(|field| field.ident.to_string()).collect(),
-        Fields::Unnamed(_) | Fields::Unit => Vec::new(),
-    };
-
+    let field_idents = fields.iter().filter_map(|field| field.ident.as_ref());
     let field_tys = fields.iter().map(|field| &field.ty);
+
     let args_binding = quote_spanned! { variant.span() =>
         let (#(#local_idents,)*) = ::telers::utils::command_args::parse_args::<(#(#field_tys,)*)>(__cursor)
     };
 
-    let construct = match &variant.fields {
+    let construct = match fields {
         Fields::Unit => quote_spanned! { variant.span() => Self::#variant_ident },
         Fields::Unnamed(_) => {
             quote_spanned! { variant.span() => Self::#variant_ident(#(#local_idents),*) }
@@ -437,8 +390,8 @@ fn expand_variant(
                 .iter()
                 .zip(&local_idents)
                 .map(|(field, local_ident)| {
-                    let field_ident = &field.ident;
-                    quote_spanned! { field.ident.span() => #field_ident: #local_ident }
+                    let field_ident = field.ident.as_ref().expect("named fields are always named");
+                    quote_spanned! { field_ident.span() => #field_ident: #local_ident }
                 });
             quote_spanned! { variant.span() => Self::#variant_ident { #(#field_bindings),* } }
         }
@@ -455,22 +408,16 @@ fn expand_variant(
 
     let body = quote_spanned! { variant.span() =>
         let __cursor = ::telers::utils::command_args::ArgsCursor::new(&__command.raw_args, #split);
-        #args_binding.map_err(|err| Error::new_with_source(err.describe(#name, &[#(#field_names),*]), err))?;
+        #args_binding.map_err(|err| Error::new_with_source(err.describe(#name, &[#(stringify!(#field_idents)),*]), err))?;
         ::std::result::Result::Ok(#construct)
     };
 
-    let match_pattern = if match_names.len() == 1 {
-        let name = &match_names[0];
-        quote_spanned! { variant.span() => #name }
-    } else {
-        let name = &match_names[0];
-        let aliases = &match_names[1..];
-        quote_spanned! { variant.span() => #name | #(#aliases)|* }
-    };
+    let match_patterns = match_names
+        .iter()
+        .map(|(prefix, name)| quote_spanned! { variant.span() => (#prefix, #name) });
 
     let extractor_arm = quote_spanned! { variant.span() =>
-        #match_pattern => {
-            #prefix_check
+        #(#match_patterns)|* => {
             #body
         }
     };
@@ -527,11 +474,11 @@ fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
     for variant in &data.variants {
         let codegen = expand_variant(&command_attrs, variant)?;
 
-        for name in &codegen.match_names {
-            if !seen_names.insert(name.clone()) {
+        for name in codegen.match_names {
+            if let Some((prefix, name)) = seen_names.replace(name) {
                 return Err(syn::Error::new_spanned(
                     &variant.ident,
-                    format!("duplicate command name `{name}`"),
+                    format!("duplicate command name `{prefix}{name}`"),
                 ));
             }
         }
@@ -566,11 +513,12 @@ fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
                             "No `command` in context: the `Command` filter must be used to parse the command. \
                              You didn't forget to add it to the handler?",
                         ))?;
-                    let __command_name = __command.command.to_lowercase();
-
-                    match __command_name.as_str() {
+                    match (__command.prefix, __command.command.to_lowercase().as_str()) {
                         #(#extractor_arms)*
-                        _ => Err(Error::new(format!("Unknown command `{}`", __command.command))),
+                        _ => Err(Error::new(format!(
+                            "Unknown command `{}{}`",
+                            __command.prefix, __command.command
+                        ))),
                     }
                 }
             }
@@ -579,7 +527,7 @@ fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
 
     let helpers_impl = quote_spanned! { ident.span() =>
         impl #ident {
-            /// Returns the descriptions of the commands in the format `/command - description`, separated by newlines
+            /// Returns the descriptions of the commands in the format `/command - description` (with the prefix of the command), separated by newlines
             #[must_use]
             pub fn descriptions() -> String {
                 let descriptions: ::std::vec::Vec<&'static str> = ::std::vec![
@@ -589,14 +537,13 @@ fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
                 descriptions.join("\n")
             }
 
-            /// Returns the commands in the format required by the Telegram Bot API (`setMyCommands`)
+            /// Returns the commands in the format required by the Telegram Bot API (`setMyCommands`).
+            /// Only commands with the `/` prefix are included, because the method supports no other prefix
             #[must_use]
             pub fn bot_commands() -> ::std::vec::Vec<::telers::types::BotCommand> {
-                let commands: ::std::vec::Vec<::telers::types::BotCommand> = ::std::vec![
+                ::std::vec![
                     #(#bot_commands_entries)*
-                ];
-
-                commands
+                ]
             }
         }
     };
