@@ -101,4 +101,7 @@ pub use fsm::Context as FSMContext;
 pub use request::Request;
 pub use router::{Configured as RouterConfigured, Router};
 
-pub use utils::callback_data::{CallbackDataError, CallbackDataValue};
+pub use utils::{
+    callback_data::{CallbackDataError, CallbackDataValue},
+    command_args::{CommandArg, CommandArgs, CommandArgsError},
+};
