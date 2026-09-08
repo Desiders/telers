@@ -4,6 +4,7 @@ use telers::{
     filters::{command::Command as CommandFilter, CommandObject},
     methods::{SendMessage, SetMyCommands},
     types::Message,
+    utils::command_args::{ArgsCursor, CommandArg, CommandArgsError},
     Bot, Command, Dispatcher, Router,
 };
 
@@ -16,6 +17,32 @@ enum Commands {
     Username(String),
     #[command(description = "handle a username and an age")]
     UsernameAndAge { username: String, age: u8 },
+    #[command(
+        description = "handle settings in the `key=value,key=value` format",
+        split = ','
+    )]
+    Settings(Settings),
+}
+
+/// Settings in the `key=value` format separated by commas,
+/// for example `/settings lang=en, notifications=off`
+#[derive(Clone)]
+struct Settings(Vec<(String, String)>);
+
+impl CommandArg for Settings {
+    fn parse_arg(cursor: &mut ArgsCursor<'_>) -> Result<Self, CommandArgsError> {
+        let mut settings = Vec::new();
+
+        while let Some(arg) = cursor.next_arg() {
+            let (key, value) = arg.split_once('=').ok_or_else(|| {
+                CommandArgsError::from_display(format!("Expected `key=value`, got `{arg}`"))
+            })?;
+
+            settings.push((key.to_owned(), value.to_owned()));
+        }
+
+        Ok(Self(settings))
+    }
 }
 
 async fn help_handler(bot: Bot, message: Message) -> HandlerResult<()> {
@@ -41,8 +68,24 @@ async fn username_handler(
         } => {
             format!("Your username is {username}, age is {age}")
         }
-        Commands::Help => return Ok(()),
+        Commands::Help | Commands::Settings(_) => return Ok(()),
     };
+
+    bot.send(SendMessage::new(message.chat().id(), text))
+        .await?;
+    Ok(())
+}
+
+async fn settings_handler(bot: Bot, message: Message, command: Commands) -> HandlerResult<()> {
+    let Commands::Settings(Settings(settings)) = command else {
+        return Ok(());
+    };
+
+    let text = settings
+        .iter()
+        .map(|(key, value)| format!("{key} = {value}"))
+        .collect::<Vec<_>>()
+        .join("\n");
 
     bot.send(SendMessage::new(message.chat().id(), text))
         .await?;
@@ -61,24 +104,16 @@ async fn main() {
 
     let router = Router::new("main")
         .on_message(|observer| {
-            observer.register(
-                Handler::new(help_handler).filter(
-                    CommandFilter::builder()
-                        .command("help")
-                        .ignore_case(true)
-                        .build(),
-                ),
-            )
+            observer.register(Handler::new(help_handler).filter(CommandFilter::one("help")))
         })
         .on_message(|observer| {
             observer.register(
-                Handler::new(username_handler).filter(
-                    CommandFilter::builder()
-                        .commands(["username", "username_and_age"])
-                        .ignore_case(true)
-                        .build(),
-                ),
+                Handler::new(username_handler)
+                    .filter(CommandFilter::many(["username", "username_and_age"])),
             )
+        })
+        .on_message(|observer| {
+            observer.register(Handler::new(settings_handler).filter(CommandFilter::one("settings")))
         });
 
     let dispatcher = Dispatcher::builder()
