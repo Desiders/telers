@@ -35,6 +35,9 @@
 //! These methods are useful for testing or if you want to use your own update source.
 //! The second method allows you to pass a [`Context`] with your own data, which will be used in the handlers, middlewares, etc. (see the [`context module`] for more information).
 //!
+//! If the propagation of an update fails, the dispatcher propagates the error to the `error` observers of the routers,
+//! see the [`router module`] for how errors are handled.
+//!
 //! Check out the `examples` directory for usage examples.
 //!
 //! [`Router`]: telers::router::Router
@@ -341,7 +344,8 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
     /// Main entry point for incoming updates.
     /// This method will propagate update to the main router.
     /// # Errors
-    /// Returns an error when event propagation fails.
+    /// Returns an error when event propagation fails and no error handler handles the error,
+    /// or when the propagation of the error event fails.
     #[instrument(skip_all, fields(update_id = update.update_id(), update_type))]
     pub async fn feed_update(
         &mut self,
@@ -357,7 +361,7 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
         Span::current().record("update_type", field::display(&update_type));
 
         self.propagator
-            .propagate_event(
+            .propagate_event_with_error_handling(
                 update_type,
                 Request {
                     bot,
