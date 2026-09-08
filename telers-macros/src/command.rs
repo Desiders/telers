@@ -6,6 +6,7 @@ use quote::{format_ident, quote_spanned, ToTokens};
 use std::collections::HashSet;
 use syn::{
     parse::{Parse, ParseStream},
+    punctuated::Punctuated,
     spanned::Spanned,
     Data, DeriveInput, Fields, Ident, Item, LitChar, LitStr, Token, Type,
 };
@@ -16,7 +17,6 @@ mod keywords {
     syn::custom_keyword!(hidden);
     syn::custom_keyword!(aliases);
     syn::custom_keyword!(rename);
-    syn::custom_keyword!(parse_with);
     syn::custom_keyword!(prefix);
 }
 
@@ -60,14 +60,12 @@ impl RenameRule {
 /// Enum-level `#[command(...)]` attributes
 struct CommandAttrs {
     rename_rule: RenameRule,
-    parse_with: Option<syn::Path>,
     prefix: Option<char>,
 }
 
 impl Parse for CommandAttrs {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
         let mut rename_rule = None;
-        let mut parse_with = None;
         let mut prefix = None;
 
         while !input.is_empty() {
@@ -98,24 +96,6 @@ impl Parse for CommandAttrs {
                 continue;
             }
 
-            if lookahead.peek(keywords::parse_with) {
-                let input_parse_with: keywords::parse_with = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: syn::Path = input.parse()?;
-
-                if parse_with.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_parse_with,
-                        "duplicate `parse_with` attribute",
-                    ));
-                }
-
-                parse_with = Some(value);
-
-                continue;
-            }
-
             if lookahead.peek(keywords::prefix) {
                 let input_prefix: keywords::prefix = input.parse()?;
                 input.parse::<Token![=]>()?;
@@ -137,13 +117,12 @@ impl Parse for CommandAttrs {
             // If we found unknown attribute, then we need to return error
             return Err(syn::Error::new(
                 input.span(),
-                "expected `rename_rule`, `parse_with` or `prefix` attribute",
+                "expected `rename_rule` or `prefix` attribute",
             ));
         }
 
         Ok(Self {
             rename_rule: rename_rule.unwrap_or(RenameRule::Lower),
-            parse_with,
             prefix,
         })
     }
@@ -156,7 +135,6 @@ struct VariantAttrs {
     hidden: bool,
     aliases: Vec<String>,
     rename: Option<String>,
-    parse_with: Option<syn::Path>,
     prefix: Option<char>,
 }
 
@@ -167,7 +145,6 @@ impl Parse for VariantAttrs {
         let mut hidden = None;
         let mut aliases = None;
         let mut rename = None;
-        let mut parse_with = None;
         let mut prefix = None;
 
         while !input.is_empty() {
@@ -227,16 +204,10 @@ impl Parse for VariantAttrs {
                 let content;
                 syn::bracketed!(content in input);
 
-                let mut values = Vec::new();
-                while !content.is_empty() {
-                    values.push(content.parse::<LitStr>()?.value());
-
-                    if content.is_empty() {
-                        break;
-                    }
-
-                    content.parse::<Token![,]>()?;
-                }
+                let values = Punctuated::<LitStr, Token![,]>::parse_terminated(&content)?
+                    .into_iter()
+                    .map(|s| s.value())
+                    .collect();
 
                 aliases = Some(values);
 
@@ -257,24 +228,6 @@ impl Parse for VariantAttrs {
                 }
 
                 rename = Some(value.value());
-
-                continue;
-            }
-
-            if lookahead.peek(keywords::parse_with) {
-                let input_parse_with: keywords::parse_with = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: syn::Path = input.parse()?;
-
-                if parse_with.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_parse_with,
-                        "duplicate `parse_with` attribute",
-                    ));
-                }
-
-                parse_with = Some(value);
 
                 continue;
             }
@@ -300,8 +253,7 @@ impl Parse for VariantAttrs {
             // If we found unknown attribute, then we need to return error
             return Err(syn::Error::new(
                 input.span(),
-                "expected `description`, `hidden`, `aliases`, `rename`, `parse_with` or `prefix` \
-                 attribute",
+                "expected `description`, `hidden`, `aliases`, `rename` or `prefix` attribute",
             ));
         }
 
@@ -310,7 +262,6 @@ impl Parse for VariantAttrs {
             hidden: hidden.is_some(),
             aliases: aliases.unwrap_or_default(),
             rename,
-            parse_with,
             prefix,
         })
     }
@@ -411,11 +362,6 @@ fn expand_variant(
         }
     };
 
-    let parse_with_path = variant_attrs
-        .parse_with
-        .as_ref()
-        .or(attrs.parse_with.as_ref());
-
     let prefix = variant_attrs.prefix.or(attrs.prefix);
     let prefix_check = if let Some(prefix) = prefix {
         quote_spanned! { variant.span() =>
@@ -430,84 +376,70 @@ fn expand_variant(
         TokenStream::new()
     };
 
-    let body = if let Some(path) = parse_with_path {
-        quote_spanned! { variant.span() =>
-            let __args_str = __command.args.join(" ");
-            #path(&__args_str).map_err(|err| Error::new(format!(
-                concat!("Failed to parse arguments for `", #name, "` command: {}"),
-                err,
-            )))
-        }
-    } else {
-        let fields = fields_of(&variant.fields);
-        let field_count = fields.len();
+    let fields = fields_of(&variant.fields);
+    let field_count = fields.len();
 
-        let variant_ident = &variant.ident;
+    let variant_ident = &variant.ident;
 
-        let args_binding = if fields.is_empty() {
-            Vec::new()
-        } else {
-            vec![quote_spanned! { variant.span() =>
-                let mut __args = __command.args.iter();
-            }]
-        };
-
-        let parsed_fields = fields.iter().enumerate().map(|(index, field)| {
-            let local_ident = format_ident!("__field{index}");
-            let field_ty = &field.ty;
-            let ty_name = field_ty.to_token_stream().to_string();
-
-            quote_spanned! { field.ty.span() =>
-                let #local_ident: #field_ty = __args.next()
-                    .ok_or_else(|| Error::new(format!(
-                        concat!(
-                            "Not enough arguments for `", #name, "` command: expected ",
-                            #field_count, ", got {}",
-                        ),
-                        __command.args.len(),
-                    )))?
-                    .parse()
-                    .map_err(|err| Error::new(format!(
-                        concat!("Failed to parse `", #ty_name, "` for `", #name, "` command: {}"),
-                        err,
-                    )))?;
-            }
-        });
-
-        let construct = match &variant.fields {
-            Fields::Unit => quote_spanned! { variant.span() => Ok(Self::#variant_ident) },
-            Fields::Unnamed(_) => {
-                let local_idents = fields
-                    .iter()
-                    .enumerate()
-                    .map(|(index, _)| format_ident!("__field{index}"));
-                quote_spanned! { variant.span() => Ok(Self::#variant_ident(#(#local_idents),*)) }
-            }
-            Fields::Named(_) => {
-                let field_bindings = fields.iter().enumerate().map(|(index, field)| {
-                    let field_ident = &field.ident;
-                    let local_ident = format_ident!("__field{index}");
-                    quote_spanned! { field.ident.span() => #field_ident: #local_ident }
-                });
-                quote_spanned! { variant.span() => Ok(Self::#variant_ident { #(#field_bindings),* }) }
-            }
-        };
-
-        quote_spanned! { variant.span() =>
-            #(#args_binding)*
-            #(#parsed_fields)*
-            #construct
-        }
-    };
-
-    let field_tys = if parse_with_path.is_some() {
+    let args_binding = if fields.is_empty() {
         Vec::new()
     } else {
-        fields_of(&variant.fields)
-            .iter()
-            .map(|field| field.ty.clone())
-            .collect()
+        vec![quote_spanned! { variant.span() =>
+            let mut __args = __command.args.iter();
+        }]
     };
+
+    let parsed_fields = fields.iter().enumerate().map(|(index, field)| {
+        let local_ident = format_ident!("__field{index}");
+        let field_ty = &field.ty;
+        let ty_name = field_ty.to_token_stream().to_string();
+
+        quote_spanned! { field.ty.span() =>
+            let #local_ident: #field_ty = __args.next()
+                .ok_or_else(|| Error::new(format!(
+                    concat!(
+                        "Not enough arguments for `", #name, "` command: expected ",
+                        #field_count, ", got {}",
+                    ),
+                    __command.args.len(),
+                )))?
+                .parse()
+                .map_err(|err| Error::new(format!(
+                    concat!("Failed to parse `", #ty_name, "` for `", #name, "` command: {}"),
+                    err,
+                )))?;
+        }
+    });
+
+    let construct = match &variant.fields {
+        Fields::Unit => quote_spanned! { variant.span() => Ok(Self::#variant_ident) },
+        Fields::Unnamed(_) => {
+            let local_idents = fields
+                .iter()
+                .enumerate()
+                .map(|(index, _)| format_ident!("__field{index}"));
+            quote_spanned! { variant.span() => Ok(Self::#variant_ident(#(#local_idents),*)) }
+        }
+        Fields::Named(_) => {
+            let field_bindings = fields.iter().enumerate().map(|(index, field)| {
+                let field_ident = &field.ident;
+                let local_ident = format_ident!("__field{index}");
+                quote_spanned! { field.ident.span() => #field_ident: #local_ident }
+            });
+            quote_spanned! { variant.span() => Ok(Self::#variant_ident { #(#field_bindings),* }) }
+        }
+    };
+
+    let body = quote_spanned! { variant.span() =>
+        #(#args_binding)*
+        #(#parsed_fields)*
+        #construct
+    };
+
+    let field_tys = fields
+        .iter()
+        .map(|field| field.ty.clone())
+        .collect::<Vec<_>>();
 
     let match_pattern = if match_names.len() == 1 {
         let name = &match_names[0];
@@ -555,7 +487,6 @@ fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
         Ok(Some(attrs)) => attrs,
         Ok(None) => CommandAttrs {
             rename_rule: RenameRule::Lower,
-            parse_with: None,
             prefix: None,
         },
         Err(err) => {
@@ -609,12 +540,14 @@ fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
             type Error = ::telers::errors::ExtractionError;
 
             #[inline]
-            fn extract(request: &::telers::Request<__C>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+            fn extract(request: &::telers::Request<__C>) -> impl ::std::future::Future<Output = ::std::result::Result<Self, Self::Error>> + Send {
                 use ::telers::errors::ExtractionError as Error;
 
-                let res = (|| -> Result<Self, Error> {
-                    let __command = request.context
-                        .get::<::telers::filters::CommandObject>("command")
+                let __command = request.context
+                    .get::<::telers::filters::CommandObject>("command");
+
+                async move {
+                    let __command = __command
                         .ok_or_else(|| Error::new(
                             "No `command` in context: the `Command` filter must be used to parse the command. \
                              You didn't forget to add it to the handler?",
@@ -625,9 +558,7 @@ fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
                         #(#extractor_arms)*
                         _ => Err(Error::new(format!("Unknown command `{}`", __command.command))),
                     }
-                })();
-
-                async move { res }
+                }
             }
         }
     };

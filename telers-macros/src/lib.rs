@@ -313,10 +313,6 @@ pub fn derive_callback_data(item: TokenStream) -> TokenStream {
 /// This macro supports the following attributes:
 /// * `#[command(rename_rule = "...")]` (enum-level) - the rule used to convert variant names into command names. \
 ///   Supported rules: `lowercase` (default), `snake_case`, `pascal_case`, `camel_case`.
-/// * `#[command(parse_with = "path::to::fn")]` (enum-level) - a function used to parse the whole command \
-///   into a variant instead of per-field [`FromStr`] parsing. \
-///   The function must have the signature `fn(&str) -> Result<Self, impl Display>` and receives all \
-///   command arguments joined with spaces.
 /// * `#[command(prefix = '!')]` (enum-level) - the command prefix required by the generated extractor. \
 ///   When set, the extractor reports an unknown command if the prefix differs.
 /// * `#[command(description = "...")]` (variant-level, optional) - the description of the command. \
@@ -326,8 +322,7 @@ pub fn derive_callback_data(item: TokenStream) -> TokenStream {
 /// * `#[command(aliases = ["a", "b"])]` (variant-level, optional) - extra names the variant matches.
 /// * `#[command(rename = "custom_name")]` (variant-level, optional) - an explicit command name \
 ///   overriding the `rename_rule` for that variant.
-/// * `#[command(parse_with = "...")]` and `#[command(prefix = '!')]` (variant-level) - \
-///   per-variant overrides of the enum-level values.
+/// * `#[command(prefix = '!')]` (variant-level) - a per-variant override of the enum-level value.
 ///
 /// Besides the `Extractor` implementation, the macro generates:
 /// * `descriptions()` - descriptions in the format `/command - description`, separated by newlines.
@@ -372,7 +367,6 @@ pub fn derive_callback_data(item: TokenStream) -> TokenStream {
 #[proc_macro_derive(Command, attributes(command))]
 pub fn derive_command(item: TokenStream) -> TokenStream {
     expand_with(item, command::expand)
-}
 }
 
 fn expand_with<F, I, K>(input: TokenStream, f: F) -> TokenStream
