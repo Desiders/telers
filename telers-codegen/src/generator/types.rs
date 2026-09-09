@@ -1415,6 +1415,8 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
         //! [`crate::methods::SendMessage`] to the chat of the message, `message.reply(text)` also as a reply to it,
         //! and `callback_query.answer()` creates [`crate::methods::AnswerCallbackQuery`].
         //! Optional fields are set with the builders of the method, as usual.
+        //! The text and the caption of a message are rendered back to HTML or `MarkdownV2` with their entities
+        //! by the shortcuts of [`crate::types::MessageRenderers`].
         //!
         //! # Examples
         //! ```rust

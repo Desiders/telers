@@ -3,7 +3,9 @@ use crate::{
         helpers::{format_attr_description, sanitize_field_name},
         types::{helper_field_accessor_expr, helper_method_return_type},
     },
-    parser::api::{NormalizedField, NormalizedMethod, NormalizedSchema, TypeKindInField},
+    parser::api::{
+        NormalizedField, NormalizedMethod, NormalizedSchema, NormalizedType, TypeKindInField,
+    },
 };
 
 use proc_macro2::TokenStream;
@@ -371,6 +373,67 @@ fn tokenize_reply_helpers(access: &FieldAccess<'_>) -> TokenStream {
     }
 }
 
+/// Fields of the message the renderers are built from, the required methods of the trait
+const RENDERER_FIELDS: &[&str] = &["text", "entities", "caption", "caption_entities"];
+
+/// Field of any subtype of the message, to describe a field that not every subtype has
+#[must_use]
+fn subtype_field<'a>(
+    schema: &'a NormalizedSchema,
+    type_quote: &NormalizedType,
+    name: &str,
+) -> &'a NormalizedField {
+    type_quote
+        .subtypes
+        .iter()
+        .find_map(|subtype| {
+            schema
+                .types
+                .get(&subtype.ty_name)
+                .expect("Message subtype must exist in schema")
+                .fields
+                .iter()
+                .find(|field| field.name == name)
+        })
+        .unwrap_or_else(|| panic!("`{name}` field must exist in a subtype of message"))
+}
+
+/// Tokenizes the accessors of the renderer fields for a subtype:
+/// a subtype without the field returns `None`, a required field is wrapped in `Some`
+#[must_use]
+fn tokenize_subtype_renderer_accessors(
+    schema: &NormalizedSchema,
+    type_quote: &NormalizedType,
+    fields: &[NormalizedField],
+) -> TokenStream {
+    let access = FieldAccess {
+        fields,
+        by_accessors: false,
+    };
+
+    RENDERER_FIELDS
+        .iter()
+        .map(|name| {
+            let ident = sanitize_field_name(name);
+            let return_ty =
+                helper_method_return_type(&subtype_field(schema, type_quote, name).r#type, false);
+            let value = match fields.iter().find(|field| field.name == *name) {
+                Some(field) if field.required => {
+                    let value = access.expr(name);
+                    quote! { Some(#value) }
+                }
+                Some(_) => access.expr(name),
+                None => quote! { None },
+            };
+            quote! {
+                fn #ident(&self) -> #return_ty {
+                    #value
+                }
+            }
+        })
+        .collect()
+}
+
 #[allow(clippy::too_many_lines)]
 #[must_use]
 pub fn tokenize_message_to_methods(schema: &NormalizedSchema) -> TokenStream {
@@ -453,6 +516,39 @@ pub fn tokenize_message_to_methods(schema: &NormalizedSchema) -> TokenStream {
         .map(|shortcut| tokenize_shortcut(shortcut, &trait_access))
         .collect::<Vec<_>>();
     let reply_helpers = tokenize_reply_helpers(&trait_access);
+    let renderer_required_methods = RENDERER_FIELDS.iter().map(|name| {
+        let ident = sanitize_field_name(name);
+        let return_ty =
+            helper_method_return_type(&subtype_field(schema, type_quote, name).r#type, false);
+        let doc = format_attr_description(&format!("Helper method for field `{name}`."));
+        quote! {
+            #[doc = #doc]
+            #[must_use]
+            fn #ident(&self) -> #return_ty;
+        }
+    });
+    let type_renderer_accessors = RENDERER_FIELDS.iter().map(|name| {
+        let ident = sanitize_field_name(name);
+        let return_ty =
+            helper_method_return_type(&subtype_field(schema, type_quote, name).r#type, false);
+        quote! {
+            fn #ident(&self) -> #return_ty {
+                self.#ident()
+            }
+        }
+    });
+    let subtype_renderer_accessors = type_quote
+        .subtypes
+        .iter()
+        .map(|subtype| {
+            let fields = &schema
+                .types
+                .get(&subtype.ty_name)
+                .expect("Message subtype must exist in schema")
+                .fields;
+            tokenize_subtype_renderer_accessors(schema, type_quote, fields)
+        })
+        .collect::<Vec<_>>();
 
     quote! {
         use crate::types::{EphemeralMessageParameters, ReplyParameters, #type_name, #( #subtype_names ),*};
@@ -483,35 +579,53 @@ pub fn tokenize_message_to_methods(schema: &NormalizedSchema) -> TokenStream {
             }
         )*
 
-        impl #type_name {
+        /// Renderers of the text and the caption of the message with their entities
+        /// as HTML or `MarkdownV2` strings, see [`Renderer`].
+        ///
+        /// It's implemented for [`Message`] and its subtypes.
+        /// The required methods are the fields of the message the renderers are built from.
+        /// # Notes
+        /// The trait must be in scope to call the renderers: `use telers::types::MessageRenderers as _;`
+        pub trait MessageRenderers {
+            #( #renderer_required_methods )*
             /// Renders the message text and its entities as an HTML string, if the message has text.
             #[must_use]
-            pub fn html_text(&self) -> Option<String> {
+            fn html_text(&self) -> Option<String> {
                 self.text().map(|text| {
                     Renderer::new(text, self.entities().unwrap_or(&[])).as_html()
                 })
             }
             /// Renders the message text and its entities as a `MarkdownV2` string, if the message has text.
             #[must_use]
-            pub fn markdown_text(&self) -> Option<String> {
+            fn markdown_text(&self) -> Option<String> {
                 self.text().map(|text| {
                     Renderer::new(text, self.entities().unwrap_or(&[])).as_markdown()
                 })
             }
             /// Renders the message caption and its entities as an HTML string, if the message has a caption.
             #[must_use]
-            pub fn html_caption(&self) -> Option<String> {
+            fn html_caption(&self) -> Option<String> {
                 self.caption().map(|caption| {
                     Renderer::new(caption, self.caption_entities().unwrap_or(&[])).as_html()
                 })
             }
             /// Renders the message caption and its entities as a `MarkdownV2` string, if the message has a caption.
             #[must_use]
-            pub fn markdown_caption(&self) -> Option<String> {
+            fn markdown_caption(&self) -> Option<String> {
                 self.caption().map(|caption| {
                     Renderer::new(caption, self.caption_entities().unwrap_or(&[])).as_markdown()
                 })
             }
         }
+
+        impl MessageRenderers for #type_name {
+            #( #type_renderer_accessors )*
+        }
+
+        #(
+            impl MessageRenderers for #subtype_names {
+                #subtype_renderer_accessors
+            }
+        )*
     }
 }

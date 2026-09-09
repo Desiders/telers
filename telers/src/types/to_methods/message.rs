@@ -3029,33 +3029,1409 @@ impl MessageShortcuts for MessageUnknown {
         self.from.as_deref()
     }
 }
-impl Message {
+/// Renderers of the text and the caption of the message with their entities
+/// as HTML or `MarkdownV2` strings, see [`Renderer`].
+///
+/// It's implemented for [`Message`] and its subtypes.
+/// The required methods are the fields of the message the renderers are built from.
+/// # Notes
+/// The trait must be in scope to call the renderers: `use telers::types::MessageRenderers as _;`
+pub trait MessageRenderers {
+    /// Helper method for field `text`.
+    #[must_use]
+    fn text(&self) -> Option<&str>;
+    /// Helper method for field `entities`.
+    #[must_use]
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]>;
+    /// Helper method for field `caption`.
+    #[must_use]
+    fn caption(&self) -> Option<&str>;
+    /// Helper method for field `caption_entities`.
+    #[must_use]
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]>;
     /// Renders the message text and its entities as an HTML string, if the message has text.
     #[must_use]
-    pub fn html_text(&self) -> Option<String> {
+    fn html_text(&self) -> Option<String> {
         self.text()
             .map(|text| Renderer::new(text, self.entities().unwrap_or(&[])).as_html())
     }
-
     /// Renders the message text and its entities as a `MarkdownV2` string, if the message has text.
     #[must_use]
-    pub fn markdown_text(&self) -> Option<String> {
+    fn markdown_text(&self) -> Option<String> {
         self.text()
             .map(|text| Renderer::new(text, self.entities().unwrap_or(&[])).as_markdown())
     }
-
     /// Renders the message caption and its entities as an HTML string, if the message has a caption.
     #[must_use]
-    pub fn html_caption(&self) -> Option<String> {
+    fn html_caption(&self) -> Option<String> {
         self.caption()
             .map(|caption| Renderer::new(caption, self.caption_entities().unwrap_or(&[])).as_html())
     }
-
     /// Renders the message caption and its entities as a `MarkdownV2` string, if the message has a caption.
     #[must_use]
-    pub fn markdown_caption(&self) -> Option<String> {
+    fn markdown_caption(&self) -> Option<String> {
         self.caption().map(|caption| {
             Renderer::new(caption, self.caption_entities().unwrap_or(&[])).as_markdown()
         })
+    }
+}
+impl MessageRenderers for Message {
+    fn text(&self) -> Option<&str> {
+        self.text()
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities()
+    }
+}
+impl MessageRenderers for MessageAnimation {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageLivePhoto {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageVenue {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageAudio {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageBoostAdded {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageChannelChatCreated {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageChatBackgroundSet {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageChatOwnerChanged {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageChatOwnerLeft {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageChatShared {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageChecklist {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageChecklistTasksAdded {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageChecklistTasksDone {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageCommunityChatAdded {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageCommunityChatJoined {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageCommunityChatRemoved {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageConnectedWebsite {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageContact {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageDeleteChatPhoto {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageDice {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageDirectMessagePriceChanged {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageDocument {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageForumTopicClosed {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageForumTopicCreated {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageForumTopicEdited {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageForumTopicReopened {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageGame {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageGeneralForumTopicHidden {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageGeneralForumTopicUnhidden {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageGift {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageGiftUpgradeSent {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageGiveaway {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageGiveawayCompleted {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageGiveawayCreated {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageGiveawayWinners {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageGroupChatCreated {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageInvoice {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageLeftChatMember {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageLocation {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageManagedBotCreated {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageMessageAutoDeleteTimerChanged {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageMigrateFromChatId {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageMigrateToChatId {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageNewChatMembers {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageNewChatPhoto {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageNewChatTitle {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessagePaidMedia {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessagePaidMessagePriceChanged {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessagePassportData {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessagePhoto {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessagePinnedMessage {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessagePoll {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessagePollOptionAdded {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessagePollOptionDeleted {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageProximityAlertTriggered {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageRefundedPayment {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageRichMessage {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageSticker {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageStory {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageSuccessfulPayment {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageSuggestedPostApprovalFailed {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageSuggestedPostApproved {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageSuggestedPostDeclined {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageSuggestedPostPaid {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageSuggestedPostRefunded {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageSupergroupChatCreated {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageText {
+    fn text(&self) -> Option<&str> {
+        Some(self.text.as_ref())
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageUniqueGift {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageUsersShared {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageVideo {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageVideoChatEnded {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageVideoChatParticipantsInvited {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageVideoChatScheduled {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageVideoChatStarted {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageVideoNote {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageVoice {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageWebAppData {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageWriteAccessAllowed {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageUnknown {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
     }
 }

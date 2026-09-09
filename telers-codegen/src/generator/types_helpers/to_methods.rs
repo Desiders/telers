@@ -27,6 +27,6 @@ pub fn tokenize_to_methods_mod(type_names: &[&str]) -> TokenStream {
 
     quote! {
         #( #mods_quote )*
-        pub use message::MessageShortcuts;
+        pub use message::{MessageRenderers, MessageShortcuts};
     }
 }

@@ -16,7 +16,7 @@ If you send a message with no text, it replies with a short hint instead.
 
 The single handler extracts `Bot` and `Message` and uses the rendering API three ways:
 
-1. **`message.html_text()`** — a helper method on `Message` (generated alongside `copy_to` etc.) that renders the text and its entities to HTML, returning `None` when the message has no text. The result is sent **without** a parse mode, so the produced `<b>…</b>` markup is visible as plain text.
+1. **`message.html_text()`** — a method of the `MessageRenderers` trait, implemented for `Message` and its subtypes, that renders the text and its entities to HTML, returning `None` when the message has no text. The result is sent **without** a parse mode, so the produced `<b>…</b>` markup is visible as plain text.
 2. **`message.markdown_text()`** — the same helper for MarkdownV2.
 3. **`Renderer` directly** — `Renderer::new(text, entities).as_html()`, the lower-level type that works on any text + entity slice rather than a whole `Message`. The output is re-sent with `.parse_mode(ParseMode::HTML)` to show it reproduces the original formatting.
 

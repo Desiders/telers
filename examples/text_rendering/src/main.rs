@@ -2,7 +2,7 @@ use telers::{
     enums::UpdateType,
     event::telegram::{Handler, HandlerResult},
     methods::SendMessage,
-    types::Message,
+    types::{Message, MessageRenderers as _},
     Bot, Dispatcher, Router,
 };
 
