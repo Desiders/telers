@@ -1,3 +1,4 @@
+pub mod callback_query;
 pub mod message;
 
 use crate::parser::api::NormalizedSchema;
@@ -8,10 +9,13 @@ use quote::{format_ident, quote};
 #[allow(clippy::missing_panics_doc)]
 #[must_use]
 pub fn tokenize_to_methods_files(schema: &NormalizedSchema) -> Vec<(&'static str, TokenStream)> {
-    vec![(
-        "message",
-        message::tokenize_message_to_methods(schema.types.get("Message").unwrap()),
-    )]
+    vec![
+        (
+            "callback_query",
+            callback_query::tokenize_callback_query_to_methods(),
+        ),
+        ("message", message::tokenize_message_to_methods(schema)),
+    ]
 }
 
 #[must_use]
@@ -23,5 +27,6 @@ pub fn tokenize_to_methods_mod(type_names: &[&str]) -> TokenStream {
 
     quote! {
         #( #mods_quote )*
+        pub use message::MessageShortcuts;
     }
 }

@@ -4,7 +4,7 @@ use telers::{
     event::telegram::{Handler, HandlerResult},
     filters::MessageType,
     methods::{GetManagedBotToken, SendMessage},
-    types::{ManagedBotUpdated, Message, MessageManagedBotCreated},
+    types::{ManagedBotUpdated, Message, MessageManagedBotCreated, MessageShortcuts as _},
     utils::shutdown_signal,
     Bot, Dispatcher, DispatcherBuilder, Extension, Router,
 };
@@ -20,8 +20,7 @@ async fn managed_bot_created_handler(
 }
 
 async fn echo_handler(bot: Bot, message: Message) -> HandlerResult<()> {
-    bot.send(message.to_copy_message(message.chat().id()))
-        .await?;
+    bot.send(message.copy_to(message.chat().id())).await?;
     Ok(())
 }
 

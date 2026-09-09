@@ -8,7 +8,7 @@ When a user sends any message, the bot copies it straight back into the same cha
 
 ## How it works
 
-`echo_handler(bot: Bot, message: Message)` builds the reply with the `Message::to_copy_message(chat_id)` convenience method (which produces a `CopyMessage` targeting the same chat) and dispatches it with `bot.send(...)`.
+`echo_handler(bot: Bot, message: Message)` builds the reply with the `copy_to(chat_id)` shortcut of the `MessageShortcuts` trait (which produces a `CopyMessage` targeting the same chat) and dispatches it with `bot.send(...)`.
 
 `main` reads the token via `Bot::from_env`, creates a `Router` named `"main"` registering the handler on its `on_message` observer, and builds a `Dispatcher` from `router.configure_default()` with `allowed_update(UpdateType::Message)`. The bot then runs with `run_polling()`, logging on stop.
 

@@ -15,7 +15,7 @@ Demonstrates telers' support for *managed bots* (bots managed by your main bot),
 The main `Router` named `main` registers two `on_message` handlers and one `on_managed_bot` handler:
 
 - `managed_bot_created_handler` is filtered with `MessageType::one(enums::MessageType::ManagedBotCreated)` and answers via `SendMessage`.
-- `echo_handler` copies the incoming `Message` back with `message.to_copy_message(...)`.
+- `echo_handler` copies the incoming `Message` back with `message.copy_to(...)`.
 - `managed_bot` runs on the managed-bot observer. It calls the `GetManagedBotToken` method to obtain the new bot's token, builds a fresh `Bot`, and uses a `DispatcherBuilder` (shared through an `Extension`) to construct a new `Dispatcher` for it.
 
 The new dispatcher is launched with `tokio::spawn` so the main dispatcher keeps polling. A shared `Arc<Notify>` (also passed via `Extension`) drives graceful shutdown: `shutdown_signal()` triggers `notify_waiters()`, and every dispatcher runs under `with_graceful_shutdown`, so the managed-bot dispatchers stop when the main bot stops. `resolve_used_update_types()` configures `allowed_updates` automatically.

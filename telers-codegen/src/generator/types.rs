@@ -782,7 +782,10 @@ fn builder_impl_for_type(type_quote: &NormalizedType, ctx: &TypeDocContext<'_>) 
 }
 
 #[must_use]
-fn helper_method_return_type(field_ty: &TypeKindInField, fully_required: bool) -> TokenStream {
+pub(crate) fn helper_method_return_type(
+    field_ty: &TypeKindInField,
+    fully_required: bool,
+) -> TokenStream {
     match field_ty {
         TypeKindInField::Array(inner) if fully_required => quote! { &[#inner] },
         TypeKindInField::Array(inner) => quote! { Option<&[#inner]> },
@@ -795,30 +798,31 @@ fn helper_method_return_type(field_ty: &TypeKindInField, fully_required: bool) -
     }
 }
 
+/// Expression to read the field of `receiver` the way the helper accessor of the enum returns it
 #[must_use]
-fn helper_field_accessor_expr(field: &NormalizedField) -> TokenStream {
+pub(crate) fn helper_field_accessor_expr(receiver: &Ident, field: &NormalizedField) -> TokenStream {
     let field_ident = sanitize_field_name(&field.name);
     let field_ty = &field.r#type;
     let is_required = field.required;
 
     if matches!(field_ty, TypeKindInField::Array(_)) {
         if is_required {
-            quote! { val.#field_ident.as_ref() }
+            quote! { #receiver.#field_ident.as_ref() }
         } else {
-            quote! { val.#field_ident.as_deref() }
+            quote! { #receiver.#field_ident.as_deref() }
         }
     } else if field_ty.is_copy() {
-        quote! { val.#field_ident }
+        quote! { #receiver.#field_ident }
     } else if field.is_recursive || field.is_boxed || matches!(field_ty, TypeKindInField::String) {
         if is_required {
-            quote! { val.#field_ident.as_ref() }
+            quote! { #receiver.#field_ident.as_ref() }
         } else {
-            quote! { val.#field_ident.as_deref() }
+            quote! { #receiver.#field_ident.as_deref() }
         }
     } else if is_required {
-        quote! { &val.#field_ident }
+        quote! { &#receiver.#field_ident }
     } else {
-        quote! { val.#field_ident.as_ref() }
+        quote! { #receiver.#field_ident.as_ref() }
     }
 }
 
@@ -1043,7 +1047,7 @@ fn get_helper_impls_for_type(
 
             let body = match field {
                 HelperFieldSource::Direct(field) => {
-                    let body = helper_field_accessor_expr(field);
+                    let body = helper_field_accessor_expr(&format_ident!("val"), field);
                     if field.required && !is_required_for_all {
                         quote! { Some(#body) }
                     } else {
@@ -1406,6 +1410,12 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
         //! split subtypes. In these cases, use generated helper methods like `message.chat()`
         //! and `message.text()` instead of field access like `message.chat`.
         //!
+        //! Messages, their subtypes and callback queries also have shortcuts that create methods for them
+        //! with the fields filled from the object, for example `message.answer(text)` creates
+        //! [`crate::methods::SendMessage`] to the chat of the message, `message.reply(text)` also as a reply to it,
+        //! and `callback_query.answer()` creates [`crate::methods::AnswerCallbackQuery`].
+        //! Optional fields are set with the builders of the method, as usual.
+        //!
         //! # Examples
         //! ```rust
         //! use telers::types::{ChatIdKind, InlineKeyboardButton, InlineKeyboardMarkup};
@@ -1441,6 +1451,7 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
         pub(crate) mod non_telegram;
         pub(crate) mod to_methods;
         pub use non_telegram::*;
+        pub use to_methods::*;
         #( #mods_quote )*
         #( #uses_quote )*
     }

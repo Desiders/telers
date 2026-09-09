@@ -4,13 +4,12 @@ use telers::{
     event::telegram::{Handler, HandlerResult},
     methods::SendMessage,
     middlewares::inner::{Strategy, Throttling},
-    types::{Chat, Message},
+    types::{Chat, Message, MessageShortcuts as _},
     Bot, Dispatcher, Router,
 };
 
 async fn echo_handler(bot: Bot, message: Message) -> HandlerResult<()> {
-    bot.send(message.to_copy_message(message.chat().id()))
-        .await?;
+    bot.send(message.copy_to(message.chat().id())).await?;
     Ok(())
 }
 

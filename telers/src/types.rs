@@ -11,6 +11,12 @@
 //! split subtypes. In these cases, use generated helper methods like `message.chat()`
 //! and `message.text()` instead of field access like `message.chat`.
 //!
+//! Messages, their subtypes and callback queries also have shortcuts that create methods for them
+//! with the fields filled from the object, for example `message.answer(text)` creates
+//! [`crate::methods::SendMessage`] to the chat of the message, `message.reply(text)` also as a reply to it,
+//! and `callback_query.answer()` creates [`crate::methods::AnswerCallbackQuery`].
+//! Optional fields are set with the builders of the method, as usual.
+//!
 //! # Examples
 //! ```rust
 //! use telers::types::{ChatIdKind, InlineKeyboardButton, InlineKeyboardMarkup};
@@ -43,6 +49,7 @@
 pub(crate) mod non_telegram;
 pub(crate) mod to_methods;
 pub use non_telegram::*;
+pub use to_methods::*;
 pub mod accepted_gift_types;
 pub mod affiliate_info;
 pub mod animation;
