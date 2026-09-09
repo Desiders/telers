@@ -259,6 +259,7 @@ fn tokenize_struct_type_methods(type_quote: &NormalizedType) -> TokenStream {
                 quote! {
                     #[doc = #doc]
                     #[must_use]
+                    #[inline]
                     pub fn #method_name(self) -> SmartFilterPath<#target_ty> {
                         self.map(|value| #access)
                     }
@@ -271,6 +272,7 @@ fn tokenize_struct_type_methods(type_quote: &NormalizedType) -> TokenStream {
                 quote! {
                     #[doc = #doc]
                     #[must_use]
+                    #[inline]
                     pub fn #method_name(self) -> SmartFilterPath<#target_ty> {
                         self.and_then(|value| #access)
                     }
@@ -306,6 +308,7 @@ fn tokenize_enum_type_methods(
                 quote! {
                     #[doc = #doc]
                     #[must_use]
+                    #[inline]
                     pub fn #method_ident(self) -> SmartFilterPath<#target_ty> {
                         self.map(|value| value.#method_ident())
                     }
@@ -318,6 +321,7 @@ fn tokenize_enum_type_methods(
                 quote! {
                     #[doc = #doc]
                     #[must_use]
+                    #[inline]
                     pub fn #method_ident(self) -> SmartFilterPath<#target_ty> {
                         self.and_then(|value| value.#method_ident())
                     }
@@ -351,6 +355,7 @@ pub fn tokenize_smart_filter(schema: &NormalizedSchema) -> TokenStream {
             quote! {
                 #[doc = #doc]
                 #[must_use]
+                #[inline]
                 pub fn #method_ident() -> SmartFilterPath<#target_ty> {
                     Self::update().#method_ident()
                 }
