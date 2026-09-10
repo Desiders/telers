@@ -1,38 +1,26 @@
-use crate::{attrs_parsing::parse_attr, stream::trim_chars};
+use crate::{
+    attrs_parsing::{parse_attr, set_once},
+    extractor::{extractor_generics, tokenize_extractor_impl},
+};
 
 use proc_macro2::TokenStream;
 use quote::{quote_spanned, ToTokens};
-use syn::{
-    parse::{Parse, ParseStream},
-    parse_quote,
-    punctuated::Punctuated,
-    Attribute, Ident, ImplGenerics, Item, ItemEnum, ItemStruct, LitStr, Token, Type, TypeGenerics,
-    WhereClause,
-};
+use syn::{parse_quote, Attribute, Data, DeriveInput, LitStr, Type};
 
-mod keywords {
-    syn::custom_keyword!(key);
-    syn::custom_keyword!(into);
-    syn::custom_keyword!(from);
-    syn::custom_keyword!(description);
-}
-
-/// All context attributes
+/// `#[context(...)]` attributes
 /// # Fields
-/// * `key` - key of context (required)
-/// * `into` - type into which we need to convert context value (optional)
-/// * `from` - type from which we need to convert context value (optional)
-/// * `description` - description of type in context (optional)
+/// * `key` - key of the value in the context (required)
+/// * `into` - type the value is converted into, the `Extractor` is implemented for it (optional)
+/// * `from` - type of the value in the context which is converted into the type (optional)
+/// * `description` - description of the type, it's a part of the extraction error (optional)
 /// # Examples
 /// ```not_rust
 /// #[context(key = "type", into = TypeWrapper)]
 /// struct Type;
 ///
-/// #[context(key = "type", from = Type)] // you no need to specify `into` field if you specify `from` field and vice versa. Just example
+/// #[context(key = "type", from = Type)]
 /// struct TypeWrapper(Type);
 /// ```
-/// # Notes
-/// If any unknown attribute is found, then we return error
 struct FromContextAttrs {
     key: LitStr,
     into: Option<Type>,
@@ -40,417 +28,124 @@ struct FromContextAttrs {
     description: Option<LitStr>,
 }
 
-/// Parse `#[context(...)]` attributes
-/// # Examples
-/// ```not_rust
-/// #[context(key = "a", into = Wrapper)]
-/// ```
-impl Parse for FromContextAttrs {
-    fn parse(input: ParseStream) -> Result<Self, syn::Error> {
-        let mut key = None;
-        let mut into = None;
-        let mut from = None;
-        let mut description = None;
-
-        while !input.is_empty() {
-            let lookahead = input.lookahead1();
-
-            // If we found `,` token, then we need to skip it and continue parsing
-            if lookahead.peek(Token![,]) {
-                input.parse::<Token![,]>()?;
-
-                continue;
+impl FromContextAttrs {
+    /// Parses `#[context(key = "a", into = Wrapper)]`, `None` if the item has no such attribute
+    fn parse(attrs: &[Attribute]) -> syn::Result<Option<Self>> {
+        let (mut key, mut into, mut from, mut description) = (None, None, None, None);
+        let Some(attr) = parse_attr("context", attrs, |meta| {
+            if meta.path.is_ident("key") {
+                let val = meta.value()?.parse()?;
+                set_once(&mut key, &meta.path, val)
+            } else if meta.path.is_ident("into") {
+                let val = meta.value()?.parse()?;
+                set_once(&mut into, &meta.path, val)
+            } else if meta.path.is_ident("from") {
+                let val = meta.value()?.parse()?;
+                set_once(&mut from, &meta.path, val)
+            } else if meta.path.is_ident("description") {
+                let val = meta.value()?.parse()?;
+                set_once(&mut description, &meta.path, val)
+            } else {
+                Err(meta.error("expected `key`, `into`, `from` or `description` attribute"))
             }
+        })?
+        else {
+            return Ok(None);
+        };
 
-            if lookahead.peek(keywords::key) {
-                let input_key: keywords::key = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: LitStr = input.parse()?;
-
-                if key.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_key,
-                        "duplicate `key` attribute",
-                    ));
-                }
-
-                key = Some(value);
-
-                // If we found `key` attribute, then we need to skip it and continue parsing
-                continue;
-            }
-
-            if lookahead.peek(keywords::into) {
-                let input_into: keywords::into = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: Type = input.parse()?;
-
-                if into.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_into,
-                        "duplicate `into` attribute",
-                    ));
-                }
-
-                into = Some(value);
-
-                // If we found `into` attribute, then we need to skip it and continue parsing
-                continue;
-            }
-
-            if lookahead.peek(keywords::from) {
-                let input_from: keywords::from = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: Type = input.parse()?;
-
-                if from.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_from,
-                        "duplicate `from` attribute",
-                    ));
-                }
-
-                from = Some(value);
-
-                // If we found `from` attribute, then we need to skip it and continue parsing
-                continue;
-            }
-
-            if lookahead.peek(keywords::description) {
-                let input_description: keywords::description = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: LitStr = input.parse()?;
-
-                if description.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_description,
-                        "duplicate `description` attribute",
-                    ));
-                }
-
-                description = Some(value);
-
-                // If we found `description` attribute, then we need to skip it and continue parsing
-                continue;
-            }
-
-            // If we found unknown attribute, then we need to return error
-            return Err(syn::Error::new(
-                input.span(),
-                "expected `key`, `into`, `from` or `description` attribute",
+        let key = key.ok_or_else(|| syn::Error::new_spanned(attr, "missing `key` attribute"))?;
+        if into.is_some() && from.is_some() {
+            return Err(syn::Error::new_spanned(
+                attr,
+                "you can't use `into` and `from` attributes at the same time",
             ));
         }
 
-        let key = key.ok_or_else(|| syn::Error::new(input.span(), "missing `key` attribute"))?;
-
-        Ok(Self {
+        Ok(Some(Self {
             key,
             into,
             from,
             description,
-        })
+        }))
     }
 }
 
+/// Implements `Extractor` for the type, or for the `into` type if it's set,
+/// which gets the value from the context by the key and converts it
 /// # Notes
-/// Currently, we support only default client type, but in future we will support custom client types
-enum Client {
-    Default(Type),
-}
-
-impl Client {
-    // # Notes
-    // Currently, we support only default client type, but in future we will support custom client types
-    #[allow(clippy::unnecessary_wraps, clippy::needless_pass_by_value)]
-    fn parse(_attrs: &[Attribute]) -> Result<Self, syn::Error> {
-        // We use `__` prefix here to avoid name conflicts
-        let path = parse_quote! { __C };
-
-        Ok(Self::Default(path))
-    }
-
-    /// ```not_rust
-    /// impl<T> A for B {}
-    ///      ^ this type
-    /// ```
-    #[inline]
-    const fn impl_generic(&self) -> &Type {
-        match self {
-            Self::Default(inner) => inner,
-        }
-    }
-
-    /// ```not_rust
-    /// impl<T> A<T> for B {}
-    ///           ^ this type
-    /// ```
-    #[inline]
-    const fn ty_generic(&self) -> &Type {
-        match self {
-            Self::Default(inner) => inner,
-        }
-    }
-}
-
-impl ToTokens for Client {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        match self {
-            Self::Default(inner) => inner.to_tokens(tokens),
-        }
-    }
-}
-
-/// Implement `Extractor` trait for `ident` or `into` type.
-/// # Arguments
-/// * `ident` - type for which we need to implement `Extractor` trait if `into` field is empty
-/// * `ident_impl_generics` - impl generics of `ident` type
-/// * `ident_ty_generics` - type generics of `ident` type
-/// * `ident_where_clause` - where clause of `ident` type
-/// * `client` - client type
-/// * `context_attrs` - context attributes. \
-///   If `into` field is not empty, then we need to implement the trait for `into` type and require `Into<Self>` trait for `ident` type. \
-///   If `from` field is not empty, then we need to implement the trait for `ident` type and require `From<Self>` trait for `into` type.
-/// # Notes
-/// * Currently we can implement `Extractor` trait for types that implement `Into<Self>` or `From<Self>` traits only with the same generics.
-#[allow(clippy::too_many_lines)]
-fn impl_from_event_and_context(
-    ident: &Ident,
-    ident_impl_generics: &ImplGenerics<'_>,
-    ident_ty_generics: &TypeGenerics<'_>,
-    ident_where_clause: Option<&WhereClause>,
-    client: &Client,
-    context_attrs: &FromContextAttrs,
-) -> TokenStream {
-    let mut impl_generics_punctuated = Punctuated::<Type, Token![,]>::new();
-    let mut ty_generics_punctuated = Punctuated::<Type, Token![,]>::new();
-    let mut where_clause_punctuated = Punctuated::<Type, Token![,]>::new();
-
-    // If impl generics is not empty, then we need to remove first token (usually it is `<`)
-    // and last token (usually it is `>`), because we need to add our generic type to it.
-    // Example: `<T, E>, OUR_GENERIC` => `T, E, OUR_GENERIC`. (check `trim_chars` tests for more examples)
-    // I don't know how to do it better.
-    if !ident_impl_generics.to_token_stream().is_empty() {
-        // Stream without `<` and `>` chars as last and first tokens
-        let stream = trim_chars(ident_impl_generics.to_token_stream(), Some('<'), Some('>'));
-        // Stream without `,` char as last token
-        let stream = trim_chars(stream, None, Some(','));
-
-        impl_generics_punctuated.push(Type::Verbatim(stream));
-    }
-
-    impl_generics_punctuated.push(client.impl_generic().clone());
-    ty_generics_punctuated.push(Type::Verbatim(ident_ty_generics.into_token_stream()));
-
-    // Splice only the *predicates* of the type's `where` clause: `WhereClause::to_tokens` would
-    // also emit its `where` keyword, and the impl templates below already contain a literal `where`
-    // (which would expand to an unparsable `where where ...`).
-    // Each predicate is pushed with a trailing comma so that the extra bound the templates append
-    // after `#where_clause_punctuated` stays separated from them.
-    if let Some(where_clause) = ident_where_clause {
-        for predicate in &where_clause.predicates {
-            where_clause_punctuated.push_value(Type::Verbatim(predicate.to_token_stream()));
-            where_clause_punctuated.push_punct(<Token![,]>::default());
-        }
-    }
-
-    let client_ty_generic = client.ty_generic().clone();
-
-    // Be aware that `context_key` is `LitStr`, so we need to use `value` method to get `String` instead of using `to_string` method
-    let key = context_attrs.key.value();
-    let key_str = key.as_str();
-
-    let description = context_attrs.description.as_ref().map(LitStr::value);
-    let description_str = description.as_deref().unwrap_or("no description");
-
-    // If `into` field is not empty, then we need to implement the trait for `into` type and require `Into<Self>` trait for `ident` type
-    if let Some(ref into) = context_attrs.into {
-        return quote_spanned! { ident.span() =>
-            #[automatically_derived]
-            impl <#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #into #ty_generics_punctuated
-            where
-                #where_clause_punctuated
-                // `Into<#ident #ty_generics_punctuated>` is required to be able to convert context value to `into` type
-                #ident #ty_generics_punctuated: ::std::clone::Clone + ::std::convert::Into<Self> + Send + 'static
-            {
-                type Error = ::telers::errors::ExtractionError;
-
-                #[inline]
-                fn extract(request: &::telers::Request<#client_ty_generic>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
-                    use ::telers::errors::ExtractionError as Error;
-
-                    let res = match request.context.get::<#ident #ty_generics_punctuated>(#key_str) {
-                        Some(value) => Ok((*value).clone().into()),
-                        None => Err(Error::new(concat!(
-                            "No found data in context by key `", #key_str, "` or value has wrong type expected `", stringify!(#ident), "`. ",
-                            "You didn't forget to add type to context? ",
-                            "Type description: ", #description_str,
-                        ))),
-                    };
-                    async move { res }
-                }
-            }
-        };
-    }
-
-    // If `from` field is not empty, then we need to implement the trait for `ident` type and require `From<Self>` trait for `into` type
-    if let Some(ref from) = context_attrs.from {
-        return quote_spanned! { ident.span() =>
-            #[automatically_derived]
-            impl <#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
-            where
-                #where_clause_punctuated
-                // `Into<#from #ty_generics_punctuated>` is required to be able to convert context value to `ident` type
-                #from #ty_generics_punctuated: ::std::clone::Clone + ::std::convert::Into<Self> + Send + 'static
-            {
-                type Error = ::telers::errors::ExtractionError;
-
-                #[inline]
-                fn extract(request: &::telers::Request<#client_ty_generic>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
-                    use ::telers::errors::ExtractionError as Error;
-
-                    let res = match request.context.get::<#from #ty_generics_punctuated>(#key_str) {
-                        Some(value) => Ok((*value).clone().into()),
-                        None => Err(Error::new(concat!(
-                            "No found data in context by key `", #key_str, "` or value has wrong type expected `", stringify!(#from), "`. ",
-                            "You didn't forget to add type to context? ",
-                            "Type description: ", #description_str,
-                        ))),
-                    };
-                    async move { res }
-                }
-            }
-        };
-    }
-
-    quote_spanned! { ident.span() =>
-        #[automatically_derived]
-        impl <#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
-        where
-            #where_clause_punctuated
-            #ident #ty_generics_punctuated: ::std::clone::Clone + Send + 'static
-        {
-            type Error = ::telers::errors::ExtractionError;
-
-            #[inline]
-            fn extract(request: &::telers::Request<#client_ty_generic>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
-                use ::telers::errors::ExtractionError as Error;
-
-                let res = match request.context.get::<#ident #ty_generics_punctuated>(#key_str) {
-                    Some(value) => Ok((*value).clone()),
-                    None => Err(Error::new(concat!(
-                        "No found data in context by key `", #key_str, "` or value has wrong type expected `", stringify!(#ident), "`. ",
-                        "You didn't forget to add type to context? ",
-                        "Type description: ", #description_str,
-                    ))),
-                };
-                async move { res }
-            }
-        }
-    }
-}
-
-fn expand_struct(
-    ItemStruct {
+/// The converted type must have the same generics as the type
+pub(crate) fn expand(input: DeriveInput) -> syn::Result<TokenStream> {
+    let DeriveInput {
         attrs,
         ident,
         generics,
+        data,
         ..
-    }: &ItemStruct,
-) -> Result<TokenStream, syn::Error> {
-    let client = match Client::parse(attrs) {
-        Ok(client) => client,
-        Err(err) => {
-            return Err(syn::Error::new_spanned(
-                ident,
-                format!("failed to parse attributes: {err}"),
-            ))
-        }
-    };
-
-    let context_attrs = match parse_attr("context", attrs) {
-        Ok(Some(attrs)) => attrs,
-        Ok(None) => {
-            return Err(syn::Error::new_spanned(
-                ident,
-                "missing `#[context(...)]` attribute",
-            ))
-        }
-        Err(err) => {
-            return Err(syn::Error::new_spanned(
-                ident,
-                format!("failed to parse `#[context(...)]` attributes: {err}"),
-            ))
-        }
-    };
-
-    let (ident_impl_generics, ident_ty_generics, ident_where_clause) = generics.split_for_impl();
-
-    Ok(impl_from_event_and_context(
-        ident,
-        &ident_impl_generics,
-        &ident_ty_generics,
-        ident_where_clause,
-        &client,
-        &context_attrs,
-    ))
-}
-
-fn expand_enum(
-    ItemEnum {
-        attrs,
-        ident,
-        generics,
-        ..
-    }: &ItemEnum,
-) -> Result<TokenStream, syn::Error> {
-    let client = match Client::parse(attrs) {
-        Ok(client) => client,
-        Err(err) => {
-            return Err(syn::Error::new_spanned(
-                ident,
-                format!("failed to parse attributes: {err}"),
-            ))
-        }
-    };
-
-    let context_attrs = match parse_attr("context", attrs) {
-        Ok(Some(attrs)) => attrs,
-        Ok(None) => {
-            return Err(syn::Error::new_spanned(
-                ident,
-                "missing `#[context(...)]` attribute",
-            ))
-        }
-        Err(err) => {
-            return Err(syn::Error::new_spanned(
-                ident,
-                format!("failed to parse `#[context(...)]` attributes: {err}"),
-            ))
-        }
-    };
-
-    let (ident_impl_generics, ident_ty_generics, ident_where_clause) = generics.split_for_impl();
-
-    Ok(impl_from_event_and_context(
-        ident,
-        &ident_impl_generics,
-        &ident_ty_generics,
-        ident_where_clause,
-        &client,
-        &context_attrs,
-    ))
-}
-
-pub(crate) fn expand(item: Item) -> Result<TokenStream, syn::Error> {
-    use Item::{Enum, Struct};
-
-    match item {
-        Struct(item) => expand_struct(&item),
-        Enum(item) => expand_enum(&item),
-        _ => Err(syn::Error::new_spanned(item, "expected `struct` or `enum`")),
+    } = input;
+    if let Data::Union(_) = data {
+        return Err(syn::Error::new_spanned(
+            ident,
+            "expected `struct` or `enum`",
+        ));
     }
+    let attrs = FromContextAttrs::parse(&attrs)?
+        .ok_or_else(|| syn::Error::new_spanned(&ident, "missing `#[context(...)]` attribute"))?;
+
+    let (_, ty_generics, _) = generics.split_for_impl();
+    // The value in the context is `source_ty`, the impl is for the type it's converted into,
+    // both are the type itself if there is no conversion
+    let self_ty = attrs.into.as_ref().map_or_else(
+        || quote_spanned! { ident.span() => #ident #ty_generics },
+        |into| quote_spanned! { ident.span() => #into #ty_generics },
+    );
+    let (source_ty, expected) = match &attrs.from {
+        Some(from) => (
+            quote_spanned! { ident.span() => #from #ty_generics },
+            from.to_token_stream().to_string(),
+        ),
+        None => (
+            quote_spanned! { ident.span() => #ident #ty_generics },
+            ident.to_string(),
+        ),
+    };
+    let converts = attrs.into.is_some() || attrs.from.is_some();
+    let conversion = converts.then(|| quote_spanned! { ident.span() => .into() });
+    let into_bound =
+        converts.then(|| quote_spanned! { ident.span() => + ::std::convert::Into<Self> });
+
+    let key = &attrs.key;
+    let description = attrs
+        .description
+        .as_ref()
+        .map_or_else(|| "no description".to_owned(), LitStr::value);
+    let msg = format!(
+        "No found data in context by key `{}` or value has wrong type expected `{expected}`. You \
+         didn't forget to add type to context? Type description: {description}",
+        key.value(),
+    );
+
+    let body = quote_spanned! { ident.span() =>
+        let res = match request.context.get::<#source_ty>(#key) {
+            ::std::option::Option::Some(value) => ::std::result::Result::Ok((*value).clone() #conversion),
+            ::std::option::Option::None => ::std::result::Result::Err(
+                ::telers::errors::ExtractionError::new(#msg),
+            ),
+        };
+        async move { res }
+    };
+    let generics = extractor_generics(
+        &generics,
+        [parse_quote! {
+            #source_ty: ::std::clone::Clone #into_bound + ::std::marker::Send + 'static
+        }],
+    );
+    let error = quote_spanned! { ident.span() => ::telers::errors::ExtractionError };
+
+    Ok(tokenize_extractor_impl(
+        ident.span(),
+        &self_ty,
+        &generics,
+        &error,
+        &body,
+    ))
 }

@@ -1,23 +1,16 @@
-﻿use crate::{attrs_parsing::parse_attr, stream::trim_chars};
-
-use proc_macro2::TokenStream;
-use quote::{quote_spanned, ToTokens};
-use syn::{
-    parse::{Parse, ParseStream},
-    parse_quote,
-    punctuated::Punctuated,
-    Attribute, Ident, Item, ItemStruct, LitChar, LitStr, Token, Type,
+use crate::{
+    attrs_parsing::{parse_attr, set_once},
+    extractor::{extractor_generics, tokenize_extractor_impl},
 };
 
-mod keywords {
-    syn::custom_keyword!(prefix);
-    syn::custom_keyword!(separator);
-}
+use proc_macro2::TokenStream;
+use quote::quote_spanned;
+use syn::{parse_quote, Attribute, Data, DeriveInput, Fields, LitChar, LitStr};
 
-/// All callback data attributes
+/// `#[callback_data(...)]` attributes
 /// # Fields
-/// * `prefix` - prefix of callback data (required)
-/// * `separator` - separator of callback data values (optional, `:` by default)
+/// * `prefix` - prefix of the callback data (required)
+/// * `separator` - separator of the callback data values (optional, `:` by default)
 /// # Examples
 /// ```not_rust
 /// #[callback_data(prefix = "language")]
@@ -26,246 +19,91 @@ mod keywords {
 /// #[callback_data(prefix = "language", separator = '|')]
 /// struct Language2;
 /// ```
-/// # Notes
-/// If any unknown attribute is found, then we return error
 struct CallbackDataAttrs {
     prefix: LitStr,
     separator: Option<LitChar>,
 }
 
-/// Parse `#[callback_data(...)]` attributes
-/// # Examples
-/// ```not_rust
-/// #[callback_data(prefix = "a", separator = '|')]
-/// ```
-impl Parse for CallbackDataAttrs {
-    fn parse(input: ParseStream) -> Result<Self, syn::Error> {
-        let mut prefix = None;
-        let mut separator = None;
-
-        while !input.is_empty() {
-            let lookahead = input.lookahead1();
-
-            // If we found `,` token, then we need to skip it and continue parsing
-            if lookahead.peek(Token![,]) {
-                input.parse::<Token![,]>()?;
-
-                continue;
+impl CallbackDataAttrs {
+    /// Parses `#[callback_data(prefix = "a", separator = '|')]`, `None` if the item has no such attribute
+    fn parse(attrs: &[Attribute]) -> syn::Result<Option<Self>> {
+        let (mut prefix, mut separator) = (None, None);
+        let Some(attr) = parse_attr("callback_data", attrs, |meta| {
+            if meta.path.is_ident("prefix") {
+                let val = meta.value()?.parse()?;
+                set_once(&mut prefix, &meta.path, val)
+            } else if meta.path.is_ident("separator") {
+                let val = meta.value()?.parse()?;
+                set_once(&mut separator, &meta.path, val)
+            } else {
+                Err(meta.error("expected `prefix` or `separator` attribute"))
             }
-
-            if lookahead.peek(keywords::prefix) {
-                let input_prefix: keywords::prefix = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: LitStr = input.parse()?;
-
-                if prefix.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_prefix,
-                        "duplicate `prefix` attribute",
-                    ));
-                }
-
-                prefix = Some(value);
-
-                // If we found `prefix` attribute, then we need to skip it and continue parsing
-                continue;
-            }
-
-            if lookahead.peek(keywords::separator) {
-                let input_separator: keywords::separator = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: LitChar = input.parse()?;
-
-                if separator.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_separator,
-                        "duplicate `separator` attribute",
-                    ));
-                }
-
-                separator = Some(value);
-
-                // If we found `separator` attribute, then we need to skip it and continue parsing
-                continue;
-            }
-
-            // If we found unknown attribute, then we need to return error
-            return Err(syn::Error::new(
-                input.span(),
-                "expected `prefix` or `separator` attribute",
-            ));
-        }
+        })?
+        else {
+            return Ok(None);
+        };
 
         let prefix =
-            prefix.ok_or_else(|| syn::Error::new(input.span(), "missing `prefix` attribute"))?;
+            prefix.ok_or_else(|| syn::Error::new_spanned(attr, "missing `prefix` attribute"))?;
 
-        Ok(Self {
+        Ok(Some(Self {
             prefix,
             separator,
-        })
+        }))
     }
 }
 
-/// # Notes
-/// Currently, we support only default client type, but in future we will support custom client types
-enum Client {
-    Default(Type),
-}
-
-impl Client {
-    // # Notes
-    // Currently, we support only default client type, but in future we will support custom client types
-    #[allow(clippy::unnecessary_wraps, clippy::needless_pass_by_value)]
-    fn parse(_attrs: &[Attribute]) -> Result<Self, syn::Error> {
-        // We use `__` prefix here to avoid name conflicts
-        let path = parse_quote! { __C };
-
-        Ok(Self::Default(path))
-    }
-
-    /// ```not_rust
-    /// impl<T> A for B {}
-    ///      ^ this type
-    /// ```
-    #[inline]
-    const fn impl_generic(&self) -> &Type {
-        match self {
-            Self::Default(inner) => inner,
-        }
-    }
-
-    /// ```not_rust
-    /// impl<T> A<T> for B {}
-    ///           ^ this type
-    /// ```
-    #[inline]
-    const fn ty_generic(&self) -> &Type {
-        match self {
-            Self::Default(inner) => inner,
-        }
-    }
-}
-
-impl ToTokens for Client {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        match self {
-            Self::Default(inner) => inner.to_tokens(tokens),
-        }
-    }
-}
-
-/// Expand `#[derive(CallbackData)]` for the struct:
-/// generate `pack` and `unpack` methods, `CallbackData` implementation
-/// and `Extractor` implementation to extract the unpacked data from context.
+/// Implements `CallbackData` for the struct with `pack` and `unpack` of its fields
+/// and `Extractor`, which gets the unpacked data from the context
 /// # Errors
-/// If the item is not a struct or `#[callback_data(...)]` attributes are invalid
-#[allow(clippy::too_many_lines)]
-pub(crate) fn expand(item: Item) -> Result<TokenStream, syn::Error> {
-    let item = match item {
-        Item::Struct(item) => item,
-        _ => {
-            return Err(syn::Error::new_spanned(
-                item,
-                "`CallbackData` can be derived only for `struct`",
-            ))
-        }
-    };
-
-    let ItemStruct {
+/// If the item is not a struct with named fields or `#[callback_data(...)]` attributes are invalid
+pub(crate) fn expand(input: DeriveInput) -> syn::Result<TokenStream> {
+    let DeriveInput {
         attrs,
         ident,
         generics,
-        fields,
+        data,
         ..
-    } = &item;
-
-    let callback_data_attrs: CallbackDataAttrs = match parse_attr("callback_data", attrs) {
-        Ok(Some(attrs)) => attrs,
-        Ok(None) => {
-            return Err(syn::Error::new_spanned(
-                ident,
-                "missing `#[callback_data(...)]` attribute",
-            ))
-        }
-        Err(err) => {
-            return Err(syn::Error::new_spanned(
-                ident,
-                format!("failed to parse `#[callback_data(...)]` attributes: {err}"),
-            ))
-        }
-    };
-
-    let client = Client::parse(attrs)?;
-
-    let prefix = &callback_data_attrs.prefix;
-    // `:` by default, check `DEFAULT_SEPARATOR` in `telers` crate
-    let separator = callback_data_attrs
-        .separator
-        .as_ref()
-        .map(LitChar::value)
-        .unwrap_or(':');
-    if fields.is_empty() {
+    } = input;
+    let Data::Struct(data) = &data else {
         return Err(syn::Error::new_spanned(
-            ident,
+            &ident,
+            "`CallbackData` can be derived only for `struct`",
+        ));
+    };
+    let Fields::Named(fields) = &data.fields else {
+        return Err(syn::Error::new_spanned(
+            &ident,
+            "`CallbackData` can't be derived for structs without named fields",
+        ));
+    };
+    if fields.named.is_empty() {
+        return Err(syn::Error::new_spanned(
+            &ident,
             "`CallbackData` can't be derived for structs without fields",
         ));
     }
+    let attrs = CallbackDataAttrs::parse(&attrs)?.ok_or_else(|| {
+        syn::Error::new_spanned(&ident, "missing `#[callback_data(...)]` attribute")
+    })?;
+
+    let prefix = &attrs.prefix;
+    // `:` by default, check `DEFAULT_SEPARATOR` in `telers` crate
+    let separator = attrs.separator.as_ref().map_or(':', LitChar::value);
 
     let field_idents = fields
+        .named
         .iter()
-        .map(|field| {
-            field.ident.clone().ok_or_else(|| {
-                syn::Error::new_spanned(
-                    field,
-                    "`CallbackData` can't be derived for structs without named fields",
-                )
-            })
-        })
-        .collect::<Result<Vec<_>, _>>()?;
-
-    let field_tys = fields.iter().map(|field| &field.ty);
-    let field_names = field_idents.iter().map(Ident::to_string);
+        .map(|field| field.ident.as_ref().expect("named fields are always named"))
+        .collect::<Vec<_>>();
+    let field_tys = fields.named.iter().map(|field| &field.ty);
+    let field_names = field_idents.iter().map(ToString::to_string);
     let field_count = field_idents.len();
 
-    let (ident_impl_generics, ident_ty_generics, ident_where_clause) = generics.split_for_impl();
-
-    let mut impl_generics_punctuated = Punctuated::<Type, Token![,]>::new();
-    let mut ty_generics_punctuated = Punctuated::<Type, Token![,]>::new();
-    let mut where_clause_punctuated = Punctuated::<Type, Token![,]>::new();
-
-    // If impl generics is not empty, then we need to remove first token (usually it is `<`)
-    // and last token (usually it is `>`), because we need to add our generic type to it.
-    // Example: `<T, E>, OUR_GENERIC` => `T, E, OUR_GENERIC`. (check `trim_chars` tests for more examples)
-    if !ident_impl_generics.to_token_stream().is_empty() {
-        let stream = trim_chars(ident_impl_generics.to_token_stream(), Some('<'), Some('>'));
-        let stream = trim_chars(stream, None, Some(','));
-
-        impl_generics_punctuated.push(Type::Verbatim(stream));
-    }
-
-    impl_generics_punctuated.push(client.impl_generic().clone());
-    ty_generics_punctuated.push(Type::Verbatim(
-        ident_ty_generics.clone().into_token_stream(),
-    ));
-
-    // Splice only the *predicates* of the type's `where` clause: `WhereClause::to_tokens` would
-    // also emit its `where` keyword, and the impl templates below already contain a literal `where`
-    // (which would expand to an unparsable `where where ...`).
-    if let Some(where_clause) = ident_where_clause {
-        for predicate in &where_clause.predicates {
-            where_clause_punctuated.push_value(Type::Verbatim(predicate.to_token_stream()));
-            where_clause_punctuated.push_punct(<Token![,]>::default());
-        }
-    }
-
-    let client_ty_generic = client.ty_generic().clone();
-
-    Ok(quote_spanned! { ident.span() =>
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
+    let callback_data_impl = quote_spanned! { ident.span() =>
         #[automatically_derived]
-        impl #ident_impl_generics ::telers::utils::callback_data::CallbackData for #ident #ident_ty_generics #ident_where_clause
-        {
+        impl #impl_generics ::telers::utils::callback_data::CallbackData for #ident #ty_generics #where_clause {
             const PREFIX: &'static str = #prefix;
             const SEPARATOR: char = #separator;
 
@@ -279,7 +117,7 @@ pub(crate) fn expand(item: Item) -> Result<TokenStream, syn::Error> {
                 ::telers::utils::callback_data::pack_values(
                     Self::PREFIX,
                     Self::SEPARATOR,
-                    vec![
+                    ::std::vec![
                         #(::telers::utils::callback_data::CallbackDataValue::encode(&self.#field_idents),)*
                     ],
                 )
@@ -308,28 +146,33 @@ pub(crate) fn expand(item: Item) -> Result<TokenStream, syn::Error> {
                 })
             }
         }
+    };
 
-        #[automatically_derived]
-        impl<#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
-        where
-            #where_clause_punctuated
-            #ident #ty_generics_punctuated: ::std::clone::Clone + Send + 'static,
-        {
-            type Error = ::telers::errors::ExtractionError;
+    let self_ty = quote_spanned! { ident.span() => #ident #ty_generics };
+    let msg = format!(
+        "No found data in context by key `callback_data` or value has wrong type expected \
+         `{ident}`. You didn't forget to add the `CallbackData` filter to the handler?"
+    );
+    let body = quote_spanned! { ident.span() =>
+        let res = match request.context.get::<#self_ty>("callback_data") {
+            ::std::option::Option::Some(value) => ::std::result::Result::Ok((*value).clone()),
+            ::std::option::Option::None => ::std::result::Result::Err(
+                ::telers::errors::ExtractionError::new(#msg),
+            ),
+        };
+        async move { res }
+    };
+    let generics = extractor_generics(
+        &generics,
+        [parse_quote! {
+            #self_ty: ::std::clone::Clone + ::std::marker::Send + 'static
+        }],
+    );
+    let error = quote_spanned! { ident.span() => ::telers::errors::ExtractionError };
+    let extractor_impl = tokenize_extractor_impl(ident.span(), &self_ty, &generics, &error, &body);
 
-            #[inline]
-            fn extract(request: &::telers::Request<#client_ty_generic>) -> impl ::std::future::Future<Output = ::std::result::Result<Self, Self::Error>> + Send {
-                use ::telers::errors::ExtractionError as Error;
-
-                let res = match request.context.get::<#ident #ty_generics_punctuated>("callback_data") {
-                    ::std::option::Option::Some(value) => ::std::result::Result::Ok((*value).clone()),
-                    ::std::option::Option::None => ::std::result::Result::Err(Error::new(concat!(
-                        "No found data in context by key `callback_data` or value has wrong type expected `", stringify!(#ident), "`. ",
-                        "You didn't forget to add the `CallbackData` filter to the handler?",
-                    ))),
-                };
-                async move { res }
-            }
-        }
+    Ok(quote_spanned! { ident.span() =>
+        #callback_data_impl
+        #extractor_impl
     })
 }

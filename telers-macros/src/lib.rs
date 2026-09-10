@@ -1,30 +1,25 @@
-/// This crate contains macros used by `telers` crate
-///
-/// # Macros
-///
-/// ## `FromContext`
-///
-/// Derive an implementation of `Extractor` for the given type.
-/// This macro will generate an implementation of `Extractor` for the whole given type.
-/// It will use the key attribute by which this type will be extracted from context.
-pub(crate) mod attrs_parsing;
-pub(crate) mod stream;
+//! This crate contains the derive macros of the `telers` crate: [`FromContext`], [`FromEvent`], [`CallbackData`] and [`Command`].
+//!
+//! All of them implement `Extractor`, so the derived types can be used as handler arguments.
 
+mod attrs_parsing;
 mod callback_data;
 mod command;
+mod extractor;
 mod from_context;
 mod from_event;
 
 use proc_macro::TokenStream;
-use quote::{quote, ToTokens};
-use syn::parse::Parse;
+use quote::ToTokens;
+use syn::DeriveInput;
 
 /// Derive an implementation of `Extractor` for the given type.
 ///
 /// This macro supports the following attributes:
 /// * `#[context(key = "...")]` - the key by which the type will be extracted from context.
 /// * `#[context(into = "...")]` - the type into which the type will be converted.
-/// * `#[context(from = "...")]` - the type from which the type will be converted.
+/// * `#[context(from = "...")]` - the type from which the type will be converted. \
+///   `into` and `from` can't be used at the same time.
 /// * `#[context(description = "...")]` - the description of the type in context. \
 ///   This attribute is used only for documentation purposes and perhaps for debugging.
 ///
@@ -374,22 +369,17 @@ pub fn derive_command(item: TokenStream) -> TokenStream {
     expand_with(item, command::expand)
 }
 
-fn expand_with<F, I, K>(input: TokenStream, f: F) -> TokenStream
+/// Parses the input of the derive macro and expands it with `f`,
+/// the error of any of the steps is emitted as a compile error
+fn expand_with<F, T>(input: TokenStream, f: F) -> TokenStream
 where
-    F: FnOnce(I) -> syn::Result<K>,
-    I: Parse,
-    K: ToTokens,
-{
-    expand(syn::parse(input).and_then(f))
-}
-
-fn expand<T>(result: syn::Result<T>) -> TokenStream
-where
+    F: FnOnce(DeriveInput) -> syn::Result<T>,
     T: ToTokens,
 {
-    match result {
+    match syn::parse(input).and_then(f) {
         Ok(tokens) => {
-            let tokens = (quote! { #tokens }).into();
+            let tokens = tokens.into_token_stream().into();
+            // Prints the generated code for debugging of the macros
             if std::env::var_os("MACROS_DEBUG").is_some() {
                 eprintln!("{tokens}");
             }

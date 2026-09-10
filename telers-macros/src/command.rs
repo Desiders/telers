@@ -1,37 +1,29 @@
-use crate::attrs_parsing::parse_attr;
+use crate::{
+    attrs_parsing::{parse_attr, set_once},
+    extractor::{extractor_generics, tokenize_extractor_impl},
+};
 
 use heck::ToSnakeCase;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote_spanned};
 use std::collections::HashSet;
 use syn::{
-    parse::{Parse, ParseStream},
-    punctuated::Punctuated,
-    spanned::Spanned,
-    Data, DeriveInput, Fields, Ident, Item, LitChar, LitStr, Token,
+    parse_quote, punctuated::Punctuated, spanned::Spanned, Attribute, Data, DeriveInput, Fields,
+    Ident, LitChar, LitStr, Token,
 };
 
-mod keywords {
-    syn::custom_keyword!(rename_rule);
-    syn::custom_keyword!(description);
-    syn::custom_keyword!(hidden);
-    syn::custom_keyword!(aliases);
-    syn::custom_keyword!(rename);
-    syn::custom_keyword!(prefix);
-    syn::custom_keyword!(split);
-}
-
 /// Rename rule for command names
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Default)]
 enum RenameRule {
     /// `UserName` -> `username`
+    #[default]
     Lower,
     /// `UserName` -> `user_name`
     SnakeCase,
 }
 
 impl RenameRule {
-    fn parse(value: &LitStr) -> Result<Self, syn::Error> {
+    fn parse(value: &LitStr) -> syn::Result<Self> {
         match value.value().as_str() {
             "lowercase" => Ok(Self::Lower),
             "snake_case" => Ok(Self::SnakeCase),
@@ -51,91 +43,34 @@ impl RenameRule {
 }
 
 /// Enum-level `#[command(...)]` attributes
+#[derive(Default)]
 struct CommandAttrs {
     rename_rule: RenameRule,
     prefix: Option<char>,
     split: Option<char>,
 }
 
-impl Parse for CommandAttrs {
-    fn parse(input: ParseStream) -> Result<Self, syn::Error> {
-        let mut rename_rule = None;
-        let mut prefix = None;
-        let mut split = None;
-
-        while !input.is_empty() {
-            let lookahead = input.lookahead1();
-
-            if lookahead.peek(Token![,]) {
-                input.parse::<Token![,]>()?;
-
-                continue;
+impl CommandAttrs {
+    /// Parses `#[command(rename_rule = "snake_case", prefix = '!')]`, the defaults if the enum has no such attribute
+    fn parse(attrs: &[Attribute]) -> syn::Result<Self> {
+        let (mut rename_rule, mut prefix, mut split) = (None, None, None);
+        parse_attr("command", attrs, |meta| {
+            if meta.path.is_ident("rename_rule") {
+                let val = RenameRule::parse(&meta.value()?.parse()?)?;
+                set_once(&mut rename_rule, &meta.path, val)
+            } else if meta.path.is_ident("prefix") {
+                let val = meta.value()?.parse::<LitChar>()?.value();
+                set_once(&mut prefix, &meta.path, val)
+            } else if meta.path.is_ident("split") {
+                let val = meta.value()?.parse::<LitChar>()?.value();
+                set_once(&mut split, &meta.path, val)
+            } else {
+                Err(meta.error("expected `rename_rule`, `prefix` or `split` attribute"))
             }
-
-            if lookahead.peek(keywords::rename_rule) {
-                let input_rename_rule: keywords::rename_rule = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: LitStr = input.parse()?;
-                let rule = RenameRule::parse(&value)?;
-
-                if rename_rule.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_rename_rule,
-                        "duplicate `rename_rule` attribute",
-                    ));
-                }
-
-                rename_rule = Some(rule);
-
-                continue;
-            }
-
-            if lookahead.peek(keywords::prefix) {
-                let input_prefix: keywords::prefix = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: LitChar = input.parse()?;
-
-                if prefix.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_prefix,
-                        "duplicate `prefix` attribute",
-                    ));
-                }
-
-                prefix = Some(value.value());
-
-                continue;
-            }
-
-            if lookahead.peek(keywords::split) {
-                let input_split: keywords::split = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: LitChar = input.parse()?;
-
-                if split.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_split,
-                        "duplicate `split` attribute",
-                    ));
-                }
-
-                split = Some(value.value());
-
-                continue;
-            }
-
-            // If we found unknown attribute, then we need to return error
-            return Err(syn::Error::new(
-                input.span(),
-                "expected `rename_rule`, `prefix` or `split` attribute",
-            ));
-        }
+        })?;
 
         Ok(Self {
-            rename_rule: rename_rule.unwrap_or(RenameRule::Lower),
+            rename_rule: rename_rule.unwrap_or_default(),
             prefix,
             split,
         })
@@ -153,144 +88,42 @@ struct VariantAttrs {
     split: Option<char>,
 }
 
-#[allow(clippy::too_many_lines)]
-impl Parse for VariantAttrs {
-    fn parse(input: ParseStream) -> Result<Self, syn::Error> {
-        let mut description = None;
-        let mut hidden = None;
-        let mut aliases = None;
-        let mut rename = None;
-        let mut prefix = None;
-        let mut split = None;
-
-        while !input.is_empty() {
-            let lookahead = input.lookahead1();
-
-            if lookahead.peek(Token![,]) {
-                input.parse::<Token![,]>()?;
-
-                continue;
-            }
-
-            if lookahead.peek(keywords::description) {
-                let input_description: keywords::description = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: LitStr = input.parse()?;
-
-                if description.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_description,
-                        "duplicate `description` attribute",
-                    ));
-                }
-
-                description = Some(value.value());
-
-                continue;
-            }
-
-            if lookahead.peek(keywords::hidden) {
-                let input_hidden: keywords::hidden = input.parse()?;
-
-                if hidden.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_hidden,
-                        "duplicate `hidden` attribute",
-                    ));
-                }
-
-                hidden = Some(());
-
-                continue;
-            }
-
-            if lookahead.peek(keywords::aliases) {
-                let input_aliases: keywords::aliases = input.parse()?;
-
-                if aliases.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_aliases,
-                        "duplicate `aliases` attribute",
-                    ));
-                }
-
-                input.parse::<Token![=]>()?;
-
+impl VariantAttrs {
+    /// Parses `#[command(description = "...", hidden, aliases = ["a"])]`, the defaults if the variant has no such attribute
+    fn parse(attrs: &[Attribute]) -> syn::Result<Self> {
+        let (mut description, mut hidden, mut aliases, mut rename, mut prefix, mut split) =
+            (None, None, None, None, None, None);
+        parse_attr("command", attrs, |meta| {
+            if meta.path.is_ident("description") {
+                let val = meta.value()?.parse::<LitStr>()?.value();
+                set_once(&mut description, &meta.path, val)
+            } else if meta.path.is_ident("hidden") {
+                set_once(&mut hidden, &meta.path, ())
+            } else if meta.path.is_ident("aliases") {
+                let input = meta.value()?;
                 let content;
                 syn::bracketed!(content in input);
-
-                let values = Punctuated::<LitStr, Token![,]>::parse_terminated(&content)?
+                let val = Punctuated::<LitStr, Token![,]>::parse_terminated(&content)?
                     .into_iter()
-                    .map(|s| s.value())
+                    .map(|alias| alias.value())
                     .collect();
-
-                aliases = Some(values);
-
-                continue;
+                set_once(&mut aliases, &meta.path, val)
+            } else if meta.path.is_ident("rename") {
+                let val = meta.value()?.parse::<LitStr>()?.value();
+                set_once(&mut rename, &meta.path, val)
+            } else if meta.path.is_ident("prefix") {
+                let val = meta.value()?.parse::<LitChar>()?.value();
+                set_once(&mut prefix, &meta.path, val)
+            } else if meta.path.is_ident("split") {
+                let val = meta.value()?.parse::<LitChar>()?.value();
+                set_once(&mut split, &meta.path, val)
+            } else {
+                Err(meta.error(
+                    "expected `description`, `hidden`, `aliases`, `rename`, `prefix` or `split` \
+                     attribute",
+                ))
             }
-
-            if lookahead.peek(keywords::rename) {
-                let input_rename: keywords::rename = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: LitStr = input.parse()?;
-
-                if rename.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_rename,
-                        "duplicate `rename` attribute",
-                    ));
-                }
-
-                rename = Some(value.value());
-
-                continue;
-            }
-
-            if lookahead.peek(keywords::prefix) {
-                let input_prefix: keywords::prefix = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: LitChar = input.parse()?;
-
-                if prefix.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_prefix,
-                        "duplicate `prefix` attribute",
-                    ));
-                }
-
-                prefix = Some(value.value());
-
-                continue;
-            }
-
-            if lookahead.peek(keywords::split) {
-                let input_split: keywords::split = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: LitChar = input.parse()?;
-
-                if split.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_split,
-                        "duplicate `split` attribute",
-                    ));
-                }
-
-                split = Some(value.value());
-
-                continue;
-            }
-
-            // If we found unknown attribute, then we need to return error
-            return Err(syn::Error::new(
-                input.span(),
-                "expected `description`, `hidden`, `aliases`, `rename`, `prefix` or `split` \
-                 attribute",
-            ));
-        }
+        })?;
 
         Ok(Self {
             description,
@@ -311,21 +144,8 @@ struct VariantCodegen {
     match_names: Vec<(char, String)>,
 }
 
-#[allow(clippy::too_many_lines)]
-fn expand_variant(
-    attrs: &CommandAttrs,
-    variant: &syn::Variant,
-) -> Result<VariantCodegen, syn::Error> {
-    let variant_attrs = match parse_attr("command", &variant.attrs) {
-        Ok(Some(attrs)) => attrs,
-        Ok(None) => VariantAttrs::default(),
-        Err(err) => {
-            return Err(syn::Error::new_spanned(
-                &variant.ident,
-                format!("failed to parse `#[command(...)]` attributes: {err}"),
-            ))
-        }
-    };
+fn expand_variant(attrs: &CommandAttrs, variant: &syn::Variant) -> syn::Result<VariantCodegen> {
+    let variant_attrs = VariantAttrs::parse(&variant.attrs)?;
 
     let name = variant_attrs
         .rename
@@ -430,8 +250,7 @@ fn expand_variant(
     })
 }
 
-#[allow(clippy::too_many_lines)]
-fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
+fn expand_enum(item: DeriveInput) -> syn::Result<TokenStream> {
     let DeriveInput {
         ident,
         generics,
@@ -447,23 +266,13 @@ fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
         ));
     }
 
-    let command_attrs = match parse_attr("command", &attrs) {
-        Ok(Some(attrs)) => attrs,
-        Ok(None) => CommandAttrs {
-            rename_rule: RenameRule::Lower,
-            prefix: None,
-            split: None,
-        },
-        Err(err) => {
-            return Err(syn::Error::new_spanned(
-                &ident,
-                format!("failed to parse `#[command(...)]` attributes: {err}"),
-            ))
-        }
-    };
+    let command_attrs = CommandAttrs::parse(&attrs)?;
 
     let Data::Enum(data) = data else {
-        unreachable!("`expand` checks that item is an enum")
+        return Err(syn::Error::new_spanned(
+            &ident,
+            "expected `enum` with `Command` derive",
+        ));
     };
 
     let mut extractor_arms = Vec::new();
@@ -488,42 +297,34 @@ fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
         bot_commands_entries.push(codegen.bot_commands_entry);
     }
 
-    let extractor_impl_generics = quote_spanned! { ident.span() =>
-        impl<__C> ::telers::Extractor<__C> for #ident
-    };
+    let body = quote_spanned! { ident.span() =>
+        use ::telers::errors::ExtractionError as Error;
 
-    let extractor_impl = quote_spanned! { ident.span() =>
-        #[automatically_derived]
-        #extractor_impl_generics
-        where
-            #ident: Send + 'static,
-        {
-            type Error = ::telers::errors::ExtractionError;
+        let __command = request.context
+            .get::<::telers::filters::CommandObject>("command");
 
-            #[inline]
-            fn extract(request: &::telers::Request<__C>) -> impl ::std::future::Future<Output = ::std::result::Result<Self, Self::Error>> + Send {
-                use ::telers::errors::ExtractionError as Error;
-
-                let __command = request.context
-                    .get::<::telers::filters::CommandObject>("command");
-
-                async move {
-                    let __command = __command
-                        .ok_or_else(|| Error::new(
-                            "No `command` in context: the `Command` filter must be used to parse the command. \
-                             You didn't forget to add it to the handler?",
-                        ))?;
-                    match (__command.prefix, __command.command.to_lowercase().as_str()) {
-                        #(#extractor_arms)*
-                        _ => Err(Error::new(format!(
-                            "Unknown command `{}{}`",
-                            __command.prefix, __command.command
-                        ))),
-                    }
-                }
+        async move {
+            let __command = __command
+                .ok_or_else(|| Error::new(
+                    "No `command` in context: the `Command` filter must be used to parse the command. \
+                     You didn't forget to add it to the handler?",
+                ))?;
+            match (__command.prefix, __command.command.to_lowercase().as_str()) {
+                #(#extractor_arms)*
+                _ => ::std::result::Result::Err(Error::new(format!(
+                    "Unknown command `{}{}`",
+                    __command.prefix, __command.command
+                ))),
             }
         }
     };
+    let self_ty = quote_spanned! { ident.span() => #ident };
+    let generics = extractor_generics(
+        &generics,
+        [parse_quote! { #ident: ::std::marker::Send + 'static }],
+    );
+    let error = quote_spanned! { ident.span() => ::telers::errors::ExtractionError };
+    let extractor_impl = tokenize_extractor_impl(ident.span(), &self_ty, &generics, &error, &body);
 
     let helpers_impl = quote_spanned! { ident.span() =>
         impl #ident {
@@ -554,13 +355,6 @@ fn expand_enum(item: DeriveInput) -> Result<TokenStream, syn::Error> {
     })
 }
 
-pub(crate) fn expand(item: Item) -> Result<TokenStream, syn::Error> {
-    let Item::Enum(item) = item else {
-        return Err(syn::Error::new_spanned(
-            item,
-            "expected `enum` with `Command` derive",
-        ));
-    };
-
-    expand_enum(DeriveInput::from(item))
+pub(crate) fn expand(input: DeriveInput) -> syn::Result<TokenStream> {
+    expand_enum(input)
 }

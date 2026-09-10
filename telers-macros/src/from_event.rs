@@ -1,550 +1,162 @@
-use crate::{attrs_parsing::parse_attr, stream::trim_chars};
+use crate::{
+    attrs_parsing::{parse_attr, set_once},
+    extractor::{extractor_generics, tokenize_extractor_impl},
+};
 
 use proc_macro2::TokenStream;
 use quote::{quote_spanned, ToTokens};
-use syn::{
-    parse::{Parse, ParseStream},
-    parse_quote,
-    punctuated::Punctuated,
-    Attribute, Ident, ImplGenerics, Item, ItemEnum, ItemStruct, LitStr, Path, Token, Type,
-    TypeGenerics, WhereClause,
-};
+use syn::{meta::ParseNestedMeta, parse_quote, Attribute, Data, DeriveInput, LitStr, Path, Type};
 
-mod keywords {
-    syn::custom_keyword!(from);
-    syn::custom_keyword!(try_from);
-    syn::custom_keyword!(description);
-    syn::custom_keyword!(error);
-}
-
-/// # Notes
-/// Currently, we support only `Update` type
-#[derive(Debug)]
-enum TypeKind {
-    Update,
-}
-
-/// Parse attribute value in `#[event(from = ...)]` or `#[event(try_from = ...)]` attributes
-/// # Examples
-/// ```not_rusts
-/// #[event(from = Update)]
-/// struct Type;
-///
-/// #[event(try_from = Update)]
-/// struct AnotherType;
-/// ```
-impl Parse for TypeKind {
-    fn parse(input: ParseStream) -> Result<Self, syn::Error> {
-        let lookahead = input.lookahead1();
-
-        // Check if we found `Path` type
-        if lookahead.peek(Ident) {
-            let path: Path = input.parse()?;
-
-            match path.segments.len() {
-                1 => {
-                    let segment = path.segments.first().unwrap();
-
-                    match segment.ident.to_string().as_str() {
-                        "Update" => return Ok(Self::Update),
-                        _ => {
-                            return Err(syn::Error::new_spanned(
-                                segment,
-                                "unknown type, expected `Update`",
-                            ))
-                        }
-                    }
-                }
-                _ => {
-                    return Err(syn::Error::new_spanned(
-                        path,
-                        "unknown type, expected `Update`",
-                    ))
-                }
-            }
-        }
-
-        Err(syn::Error::new(input.span(), "expected `Update` type"))
-    }
-}
-
-#[derive(Debug)]
+/// Conversion of the event into the type
 enum ConvertKind {
-    From(TypeKind),
-    TryFrom(TypeKind),
+    /// `From<Update>`
+    From,
+    /// `TryFrom<Update>` with the error type of the conversion
+    TryFrom { error: Box<Type> },
 }
 
-/// All event attributes
+/// `#[event(...)]` attributes
 /// # Fields
-/// * `from` - type from which we need to convert event value (optional; required if `try_from` field is empty)
-/// * `try_from` - type from which we need to convert event value (optional; required if `from` field is empty)
-/// * `error` - type of error (optional) for `try_from`. \
-///   If it's empty, then we use `ConvertToTypeError` type as error type. \
-///   If it's not empty, then we use this type as error type.
-/// * `description` - description of type (optional)
+/// * `from` / `try_from` - `Update`, the type from which the type is converted (one of them is required)
+/// * `error` - error type of the conversion for `try_from` (optional, `ConvertToTypeError` by default)
+/// * `description` - description of the type, accepted for documentation only (optional)
 /// # Examples
 /// ```not_rust
 /// #[event(from = Update)]
 /// struct Type;
 ///
-/// #[event(try_from = Update)]
+/// #[event(try_from = Update, error = Infallible)]
 /// struct AnotherType;
 /// ```
-/// # Notes
-/// If any unknown attribute is found, then we return error
-///
-/// If `try_from` is empty and `error` is not empty, then we return error
 struct FromEventAttrs {
     convert_kind: ConvertKind,
-    error: Option<ExtractionError>,
-    _description: Option<LitStr>,
 }
 
-/// Parse `#[event(...)]` attributes
-/// # Examples
-/// ```not_rust
-/// #[event(from = Update)]
-/// ```
-impl Parse for FromEventAttrs {
-    #[allow(clippy::too_many_lines)]
-    fn parse(input: ParseStream) -> Result<Self, syn::Error> {
-        let mut convert_kind = None;
-        let mut error = None;
-        let mut description = None;
-
-        while !input.is_empty() {
-            let lookahead = input.lookahead1();
-
-            // If we found `,` token, then we need to skip it and continue parsing
-            if lookahead.peek(Token![,]) {
-                input.parse::<Token![,]>()?;
-
-                continue;
+impl FromEventAttrs {
+    /// Parses `#[event(from = Update)]`, `None` if the item has no such attribute
+    fn parse(attrs: &[Attribute]) -> syn::Result<Option<Self>> {
+        let (mut from, mut try_from, mut error) = (None, None, None);
+        let Some(attr) = parse_attr("event", attrs, |meta| {
+            if meta.path.is_ident("from") {
+                parse_event_type(&meta)?;
+                set_once(&mut from, &meta.path, ())
+            } else if meta.path.is_ident("try_from") {
+                parse_event_type(&meta)?;
+                set_once(&mut try_from, &meta.path, ())
+            } else if meta.path.is_ident("error") {
+                let val = meta.value()?.parse()?;
+                set_once(&mut error, &meta.path, val)
+            } else if meta.path.is_ident("description") {
+                meta.value()?.parse::<LitStr>()?;
+                Ok(())
+            } else {
+                Err(meta.error("expected `from`, `try_from`, `error` or `description` attribute"))
             }
+        })?
+        else {
+            return Ok(None);
+        };
 
-            if lookahead.peek(keywords::from) {
-                let input_from: keywords::from = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: TypeKind = input.parse()?;
-
-                match convert_kind {
-                    Some(ConvertKind::From(_)) => {
-                        return Err(syn::Error::new_spanned(
-                            input_from,
-                            "duplicate `from` attribute",
-                        ))
-                    }
-                    Some(ConvertKind::TryFrom(_)) => {
-                        return Err(syn::Error::new_spanned(
-                            input_from,
-                            "you can't use `from` and `try_from` attributes at the same time",
-                        ))
-                    }
-                    None => {}
-                }
-
-                convert_kind = Some(ConvertKind::From(value));
-
-                // If we found `from` attribute, then we need to skip it and continue parsing
-                continue;
-            }
-
-            if lookahead.peek(keywords::try_from) {
-                let input_try_from: keywords::try_from = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: TypeKind = input.parse()?;
-
-                match convert_kind {
-                    Some(ConvertKind::From(_)) => {
-                        return Err(syn::Error::new_spanned(
-                            input_try_from,
-                            "you can't use `from` and `try_from` attributes at the same time",
-                        ))
-                    }
-                    Some(ConvertKind::TryFrom(_)) => {
-                        return Err(syn::Error::new_spanned(
-                            input_try_from,
-                            "duplicate `try_from` attribute",
-                        ))
-                    }
-                    None => {}
-                }
-
-                convert_kind = Some(ConvertKind::TryFrom(value));
-
-                // If we found `try_from` attribute, then we need to skip it and continue parsing
-                continue;
-            }
-
-            if lookahead.peek(keywords::error) {
-                let input_error: keywords::error = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: ExtractionError = input.parse()?;
-
-                if error.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_error,
-                        "duplicate `error` attribute",
-                    ));
-                }
-
-                error = Some(value);
-
-                // If we found `error` attribute, then we need to skip it and continue parsing
-                continue;
-            }
-
-            if lookahead.peek(keywords::description) {
-                let input_description: keywords::description = input.parse()?;
-                input.parse::<Token![=]>()?;
-
-                let value: LitStr = input.parse()?;
-
-                if description.is_some() {
-                    return Err(syn::Error::new_spanned(
-                        input_description,
-                        "duplicate `description` attribute",
-                    ));
-                }
-
-                description = Some(value);
-
-                // If we found `description` attribute, then we need to skip it and continue parsing
-                continue;
-            }
-
-            // If we found unknown attribute, then we need to return error
-            return Err(syn::Error::new(
-                input.span(),
-                "expected `from`, `try_from` or `description` attribute",
-            ));
-        }
-
-        let convert_kind = convert_kind.ok_or_else(|| {
-            syn::Error::new(input.span(), "missing `from` or `try_from` attribute")
-        })?;
-
-        if let ConvertKind::From(_) = convert_kind {
-            // We don't need to check `error` attribute if `from` attribute is not empty
-            if error.is_some() {
-                return Err(syn::Error::new(
-                    input.span(),
-                    "you can't use `error` attribute with `from` attribute",
+        let convert_kind = match (from, try_from) {
+            (Some(()), Some(())) => {
+                return Err(syn::Error::new_spanned(
+                    attr,
+                    "you can't use `from` and `try_from` attributes at the same time",
                 ));
             }
-        } else {
-            // Use default error type if `error` attribute is empty and `try_from` attribute is not empty
-            if error.is_none() {
-                error = Some(ExtractionError::default());
+            (Some(()), None) => {
+                if error.is_some() {
+                    return Err(syn::Error::new_spanned(
+                        attr,
+                        "you can't use `error` attribute with `from` attribute",
+                    ));
+                }
+                ConvertKind::From
             }
-        }
+            (None, Some(())) => ConvertKind::TryFrom {
+                error: error
+                    .unwrap_or_else(|| parse_quote! { ::telers::errors::ConvertToTypeError }),
+            },
+            (None, None) => {
+                return Err(syn::Error::new_spanned(
+                    attr,
+                    "missing `from` or `try_from` attribute",
+                ));
+            }
+        };
 
-        Ok(Self {
+        Ok(Some(Self {
             convert_kind,
-            error,
-            _description: description,
-        })
+        }))
     }
 }
 
-/// # Notes
-/// Currently, we support only default client type, but in future we will support custom client types
-enum Client {
-    Default(Type),
-}
-
-impl Client {
-    // # Notes
-    // Currently, we support only default client type, but in future we will support custom client types
-    #[allow(clippy::unnecessary_wraps, clippy::needless_pass_by_value)]
-    fn parse(_attrs: &[Attribute]) -> Result<Self, syn::Error> {
-        // We use `__` prefix here to avoid name conflicts
-        let path = parse_quote! { __C };
-
-        Ok(Self::Default(path))
-    }
-
-    /// ```not_rust
-    /// impl<T> A for B {}
-    ///      ^ this type
-    /// ```
-    #[inline]
-    const fn impl_generic(&self) -> &Type {
-        match self {
-            Self::Default(inner) => inner,
-        }
-    }
-
-    /// ```not_rust
-    /// impl<T> A<T> for B {}
-    ///           ^ this type
-    /// ```
-    #[inline]
-    const fn ty_generic(&self) -> &Type {
-        match self {
-            Self::Default(inner) => inner,
-        }
-    }
-}
-
-impl ToTokens for Client {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        match self {
-            Self::Default(inner) => inner.to_tokens(tokens),
-        }
-    }
-}
-
-enum ExtractionError {
-    Default(Type),
-    Custom(Type),
-}
-
-impl ExtractionError {
-    /// ```not_rust
-    /// impl<T> A<T> for B {}
-    ///           ^ this type
-    /// ```
-    fn ty_generic(&self) -> &Type {
-        match self {
-            Self::Default(inner) | Self::Custom(inner) => inner,
-        }
-    }
-}
-
-impl Default for ExtractionError {
-    fn default() -> Self {
-        Self::Default(parse_quote! { ::telers::errors::ConvertToTypeError })
-    }
-}
-
-impl Parse for ExtractionError {
-    fn parse(input: ParseStream) -> Result<Self, syn::Error> {
-        let lookahead = input.lookahead1();
-
-        if lookahead.peek(Ident) {
-            let input_type: Type = input.parse()?;
-
-            if let Type::Path(_) = input_type {
-                return Ok(Self::Custom(input_type));
-            }
-        }
-
-        Err(syn::Error::new(
-            input.span(),
-            "expected type or path to type",
+/// Parses the type of the event in `from = ...` or `try_from = ...`, only `Update` is supported
+fn parse_event_type(meta: &ParseNestedMeta<'_>) -> syn::Result<()> {
+    let path: Path = meta.value()?.parse()?;
+    if path.is_ident("Update") {
+        Ok(())
+    } else {
+        Err(syn::Error::new_spanned(
+            path,
+            "unknown type, expected `Update`",
         ))
     }
 }
 
-impl ToTokens for ExtractionError {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        match self {
-            Self::Default(inner) | Self::Custom(inner) => inner.to_tokens(tokens),
-        }
-    }
-}
-
-/// Implement `Extractor` trait for `ident` type.
-/// # Arguments
-/// * `ident` - type for which we need to implement `Extractor` trait
-/// * `ident_impl_generics` - impl generics of `ident` type
-/// * `ident_ty_generics` - type generics of `ident` type
-/// * `ident_where_clause` - where clause of `ident` type
-/// * `client` - client type
-/// * `event_attrs` - event attributes
-#[allow(clippy::too_many_lines)]
-fn impl_from_event_and_context(
-    ident: &Ident,
-    ident_impl_generics: &ImplGenerics<'_>,
-    ident_ty_generics: &TypeGenerics<'_>,
-    ident_where_clause: Option<&WhereClause>,
-    client: &Client,
-    event_attrs: &FromEventAttrs,
-) -> TokenStream {
-    let mut impl_generics_punctuated = Punctuated::<Type, Token![,]>::new();
-    let mut ty_generics_punctuated = Punctuated::<Type, Token![,]>::new();
-    let mut where_clause_punctuated = Punctuated::<Type, Token![,]>::new();
-
-    // If impl generics is not empty, then we need to remove first token (usually it is `<`)
-    // and last token (usually it is `>`), because we need to add our generic type to it.
-    // Example: `<T, E>, OUR_GENERIC` => `T, E, OUR_GENERIC`. (check `trim_chars` tests for more examples)
-    // I don't know how to do it better.
-    if !ident_impl_generics.to_token_stream().is_empty() {
-        // Stream without `<` and `>` chars as last and first tokens
-        let stream = trim_chars(ident_impl_generics.to_token_stream(), Some('<'), Some('>'));
-        // Stream without `,` char as last token
-        let stream = trim_chars(stream, None, Some(','));
-
-        impl_generics_punctuated.push(Type::Verbatim(stream));
-    }
-
-    impl_generics_punctuated.push(client.impl_generic().clone());
-    ty_generics_punctuated.push(Type::Verbatim(ident_ty_generics.into_token_stream()));
-
-    // Splice only the *predicates* of the type's `where` clause: `WhereClause::to_tokens` would
-    // also emit its `where` keyword, and the impl templates below already contain a literal `where`
-    // (which would expand to an unparsable `where where ...`).
-    // Each predicate is pushed with a trailing comma so that the extra bounds the templates append
-    // after `#where_clause_punctuated` stay separated from them.
-    if let Some(where_clause) = ident_where_clause {
-        for predicate in &where_clause.predicates {
-            where_clause_punctuated.push_value(Type::Verbatim(predicate.to_token_stream()));
-            where_clause_punctuated.push_punct(<Token![,]>::default());
-        }
-    }
-
-    let client_ty_generic = client.ty_generic().clone();
-
-    match &event_attrs.convert_kind {
-        ConvertKind::From(TypeKind::Update) => {
-            quote_spanned! { ident.span() =>
-                #[automatically_derived]
-                impl <#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
-                where
-                    #where_clause_punctuated
-                    #ident #ty_generics_punctuated: Send,
-                    ::telers::types::Update: ::std::convert::Into<Self>
-                {
-                    type Error = ::std::convert::Infallible;
-
-                    #[inline]
-                    fn extract(request: &::telers::Request<#client_ty_generic>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
-                        let val = (*request.update).clone().into();
-                        async move { Ok(val) }
-                    }
-                }
-            }
-        }
-        ConvertKind::TryFrom(TypeKind::Update) => {
-            let error = event_attrs
-                .error
-                .as_ref()
-                .expect("error is empty in `try_from`, but it should be filled automatically");
-            let error_ty = error.ty_generic().clone();
-
-            quote_spanned! { ident.span() =>
-                #[automatically_derived]
-                impl <#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
-                where
-                    #where_clause_punctuated
-                    #ident #ty_generics_punctuated: Send,
-                    ::telers::types::Update: ::std::convert::TryInto<Self>
-                {
-                    type Error = #error_ty;
-
-                    #[inline]
-                    fn extract(request: &::telers::Request<#client_ty_generic>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
-                        let val = ::std::convert::TryFrom::try_from((*request.update).clone());
-                        async move { val }
-                    }
-                }
-            }
-        }
-    }
-}
-
-fn expand_struct(
-    ItemStruct {
+/// Implements `Extractor` for the type, which converts the update of the event into it
+pub(crate) fn expand(input: DeriveInput) -> syn::Result<TokenStream> {
+    let DeriveInput {
         attrs,
         ident,
         generics,
+        data,
         ..
-    }: &ItemStruct,
-) -> Result<TokenStream, syn::Error> {
-    let client = match Client::parse(attrs) {
-        Ok(client) => client,
-        Err(err) => {
-            return Err(syn::Error::new_spanned(
-                ident,
-                format!("failed to parse attributes: {err}"),
-            ))
-        }
-    };
-
-    let event_attrs = match parse_attr("event", attrs) {
-        Ok(Some(attrs)) => attrs,
-        Ok(None) => {
-            return Err(syn::Error::new_spanned(
-                ident,
-                "missing `#[event(...)]` attribute",
-            ))
-        }
-        Err(err) => {
-            return Err(syn::Error::new_spanned(
-                ident,
-                format!("failed to parse `#[event(...)]` attributes: {err}"),
-            ))
-        }
-    };
-
-    let (ident_impl_generics, ident_ty_generics, ident_where_clause) = generics.split_for_impl();
-
-    Ok(impl_from_event_and_context(
-        ident,
-        &ident_impl_generics,
-        &ident_ty_generics,
-        ident_where_clause,
-        &client,
-        &event_attrs,
-    ))
-}
-
-fn expand_enum(
-    ItemEnum {
-        attrs,
-        ident,
-        generics,
-        ..
-    }: &ItemEnum,
-) -> Result<TokenStream, syn::Error> {
-    let client = match Client::parse(attrs) {
-        Ok(client) => client,
-        Err(err) => {
-            return Err(syn::Error::new_spanned(
-                ident,
-                format!("failed to parse attributes: {err}"),
-            ))
-        }
-    };
-
-    let event_attrs = match parse_attr("event", attrs) {
-        Ok(Some(attrs)) => attrs,
-        Ok(None) => {
-            return Err(syn::Error::new_spanned(
-                ident,
-                "missing `#[event(...)]` attribute",
-            ))
-        }
-        Err(err) => {
-            return Err(syn::Error::new_spanned(
-                ident,
-                format!("failed to parse `#[event(...)]` attributes: {err}"),
-            ))
-        }
-    };
-
-    let (ident_impl_generics, ident_ty_generics, ident_where_clause) = generics.split_for_impl();
-
-    Ok(impl_from_event_and_context(
-        ident,
-        &ident_impl_generics,
-        &ident_ty_generics,
-        ident_where_clause,
-        &client,
-        &event_attrs,
-    ))
-}
-
-pub(crate) fn expand(item: Item) -> Result<TokenStream, syn::Error> {
-    use Item::{Enum, Struct};
-
-    match item {
-        Struct(item) => expand_struct(&item),
-        Enum(item) => expand_enum(&item),
-        _ => Err(syn::Error::new_spanned(item, "expected `struct` or `enum`")),
+    } = input;
+    if let Data::Union(_) = data {
+        return Err(syn::Error::new_spanned(
+            ident,
+            "expected `struct` or `enum`",
+        ));
     }
+    let attrs = FromEventAttrs::parse(&attrs)?
+        .ok_or_else(|| syn::Error::new_spanned(&ident, "missing `#[event(...)]` attribute"))?;
+
+    let (_, ty_generics, _) = generics.split_for_impl();
+    let self_ty = quote_spanned! { ident.span() => #ident #ty_generics };
+    let (error, convert_bound, body) = match attrs.convert_kind {
+        ConvertKind::From => (
+            quote_spanned! { ident.span() => ::std::convert::Infallible },
+            parse_quote! { ::telers::types::Update: ::std::convert::Into<Self> },
+            quote_spanned! { ident.span() =>
+                let val = (*request.update).clone().into();
+                async move { ::std::result::Result::Ok(val) }
+            },
+        ),
+        ConvertKind::TryFrom {
+            error,
+        } => (
+            error.into_token_stream(),
+            parse_quote! { ::telers::types::Update: ::std::convert::TryInto<Self> },
+            quote_spanned! { ident.span() =>
+                let val = ::std::convert::TryFrom::try_from((*request.update).clone());
+                async move { val }
+            },
+        ),
+    };
+    let generics = extractor_generics(
+        &generics,
+        [
+            parse_quote! { #self_ty: ::std::marker::Send },
+            convert_bound,
+        ],
+    );
+
+    Ok(tokenize_extractor_impl(
+        ident.span(),
+        &self_ty,
+        &generics,
+        &error,
+        &body,
+    ))
 }
