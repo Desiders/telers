@@ -1,0 +1,221 @@
+error: expected `enum` with `Command` derive
+  --> tests/ui/command_errors.rs:10:8
+   |
+10 | struct E01;
+   |        ^^^
+
+error: expected `enum` with `Command` derive
+  --> tests/ui/command_errors.rs:14:7
+   |
+14 | union E02 {
+   |       ^^^
+
+error: generic commands are not supported
+  --> tests/ui/command_errors.rs:20:9
+   |
+20 | enum E03<T> {
+   |         ^^^
+
+error: generic commands are not supported
+  --> tests/ui/command_errors.rs:26:9
+   |
+26 | enum E04<'a> {
+   |         ^^^^
+
+error: expected one of: `lowercase`, `snake_case`
+  --> tests/ui/command_errors.rs:32:25
+   |
+32 | #[command(rename_rule = "kebab-case")]
+   |                         ^^^^^^^^^^^^
+
+error: expected string literal
+  --> tests/ui/command_errors.rs:39:25
+   |
+39 | #[command(rename_rule = snake_case)]
+   |                         ^^^^^^^^^^
+
+error: duplicate `rename_rule` attribute
+  --> tests/ui/command_errors.rs:46:38
+   |
+46 | #[command(rename_rule = "lowercase", rename_rule = "snake_case")]
+   |                                      ^^^^^^^^^^^
+
+error: duplicate `prefix` attribute
+  --> tests/ui/command_errors.rs:53:25
+   |
+53 | #[command(prefix = '/', prefix = '!')]
+   |                         ^^^^^^
+
+error: duplicate `split` attribute
+  --> tests/ui/command_errors.rs:60:24
+   |
+60 | #[command(split = ',', split = ';')]
+   |                        ^^^^^
+
+error: duplicate `command` attribute
+  --> tests/ui/command_errors.rs:68:1
+   |
+68 | #[command(split = ',')]
+   | ^^^^^^^^^^^^^^^^^^^^^^^
+
+error: expected `rename_rule`, `prefix` or `split` attribute
+  --> tests/ui/command_errors.rs:75:11
+   |
+75 | #[command(unknown = "a")]
+   |           ^^^^^^^
+
+error: expected `rename_rule`, `prefix` or `split` attribute
+  --> tests/ui/command_errors.rs:82:11
+   |
+82 | #[command(description = "a")]
+   |           ^^^^^^^^^^^
+
+error: expected `rename_rule`, `prefix` or `split` attribute
+  --> tests/ui/command_errors.rs:89:11
+   |
+89 | #[command(hidden)]
+   |           ^^^^^^
+
+error: expected attribute arguments in parentheses: #[command(...)]
+  --> tests/ui/command_errors.rs:96:3
+   |
+96 | #[command]
+   |   ^^^^^^^
+
+error: expected `description`, `hidden`, `aliases`, `rename`, `prefix` or `split` attribute
+   --> tests/ui/command_errors.rs:104:15
+    |
+104 |     #[command(unknown = "a")]
+    |               ^^^^^^^
+
+error: expected `description`, `hidden`, `aliases`, `rename`, `prefix` or `split` attribute
+   --> tests/ui/command_errors.rs:111:15
+    |
+111 |     #[command(rename_rule = "snake_case")]
+    |               ^^^^^^^^^^^
+
+error: expected attribute arguments in parentheses: #[command(...)]
+   --> tests/ui/command_errors.rs:118:7
+    |
+118 |     #[command]
+    |       ^^^^^^^
+
+error: duplicate `command` attribute
+   --> tests/ui/command_errors.rs:126:5
+    |
+126 |     #[command(hidden)]
+    |     ^^^^^^^^^^^^^^^^^^
+
+error: duplicate `description` attribute
+   --> tests/ui/command_errors.rs:133:34
+    |
+133 |     #[command(description = "a", description = "b")]
+    |                                  ^^^^^^^^^^^
+
+error: duplicate `hidden` attribute
+   --> tests/ui/command_errors.rs:140:23
+    |
+140 |     #[command(hidden, hidden)]
+    |                       ^^^^^^
+
+error: duplicate `aliases` attribute
+   --> tests/ui/command_errors.rs:147:32
+    |
+147 |     #[command(aliases = ["a"], aliases = ["b"])]
+    |                                ^^^^^^^
+
+error: duplicate `rename` attribute
+   --> tests/ui/command_errors.rs:154:29
+    |
+154 |     #[command(rename = "a", rename = "b")]
+    |                             ^^^^^^
+
+error: duplicate `prefix` attribute
+   --> tests/ui/command_errors.rs:161:29
+    |
+161 |     #[command(prefix = '!', prefix = '?')]
+    |                             ^^^^^^
+
+error: duplicate `split` attribute
+   --> tests/ui/command_errors.rs:168:28
+    |
+168 |     #[command(split = ',', split = ';')]
+    |                            ^^^^^
+
+error: expected `,`
+   --> tests/ui/command_errors.rs:175:22
+    |
+175 |     #[command(hidden = true)]
+    |                      ^
+
+error: expected string literal
+   --> tests/ui/command_errors.rs:182:29
+    |
+182 |     #[command(description = 1)]
+    |                             ^
+
+error: expected `=`
+   --> tests/ui/command_errors.rs:189:21
+    |
+189 |     #[command(rename)]
+    |                     ^
+
+error: expected character literal
+   --> tests/ui/command_errors.rs:195:20
+    |
+195 | #[command(prefix = "/")]
+    |                    ^^^
+
+error: expected character literal
+   --> tests/ui/command_errors.rs:203:24
+    |
+203 |     #[command(prefix = "!")]
+    |                        ^^^
+
+error: expected character literal
+   --> tests/ui/command_errors.rs:209:19
+    |
+209 | #[command(split = ",")]
+    |                   ^^^
+
+error: expected square brackets
+   --> tests/ui/command_errors.rs:217:25
+    |
+217 |     #[command(aliases = "a")]
+    |                         ^^^
+
+error: expected string literal
+   --> tests/ui/command_errors.rs:224:31
+    |
+224 |     #[command(aliases = ["a", 1])]
+    |                               ^
+
+error: duplicate command name `/help`
+   --> tests/ui/command_errors.rs:233:5
+    |
+233 |     Help,
+    |     ^^^^
+
+error: duplicate command name `/start`
+   --> tests/ui/command_errors.rs:241:5
+    |
+241 |     Start,
+    |     ^^^^^
+
+error: duplicate command name `/start`
+   --> tests/ui/command_errors.rs:248:5
+    |
+248 |     StArt,
+    |     ^^^^^
+
+error: duplicate command name `/go`
+   --> tests/ui/command_errors.rs:257:5
+    |
+257 |     Begin,
+    |     ^^^^^
+
+error: duplicate command name `/start`
+   --> tests/ui/command_errors.rs:264:5
+    |
+264 |     Start,
+    |     ^^^^^

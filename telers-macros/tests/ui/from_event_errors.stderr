@@ -1,0 +1,113 @@
+error: missing `#[event(...)]` attribute
+  --> tests/ui/from_event_errors.rs:10:8
+   |
+10 | struct E01;
+   |        ^^^
+
+error: expected attribute arguments in parentheses: #[event(...)]
+  --> tests/ui/from_event_errors.rs:14:3
+   |
+14 | #[event]
+   |   ^^^^^
+
+error: missing `from` or `try_from` attribute
+  --> tests/ui/from_event_errors.rs:19:1
+   |
+19 | #[event()]
+   | ^^^^^^^^^^
+
+error: missing `from` or `try_from` attribute
+  --> tests/ui/from_event_errors.rs:24:1
+   |
+24 | #[event(description = "no conversion")]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: you can't use `from` and `try_from` attributes at the same time
+  --> tests/ui/from_event_errors.rs:29:1
+   |
+29 | #[event(from = Update, try_from = Update)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: you can't use `error` attribute with `from` attribute
+  --> tests/ui/from_event_errors.rs:34:1
+   |
+34 | #[event(from = Update, error = Infallible)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: unknown type, expected `Update`
+  --> tests/ui/from_event_errors.rs:39:16
+   |
+39 | #[event(from = Message)]
+   |                ^^^^^^^
+
+error: unknown type, expected `Update`
+  --> tests/ui/from_event_errors.rs:44:20
+   |
+44 | #[event(try_from = Message)]
+   |                    ^^^^^^^
+
+error: unknown type, expected `Update`
+  --> tests/ui/from_event_errors.rs:49:16
+   |
+49 | #[event(from = telers::types::Update)]
+   |                ^^^^^^^^^^^^^^^^^^^^^
+
+error: expected `from`, `try_from`, `error` or `description` attribute
+  --> tests/ui/from_event_errors.rs:54:24
+   |
+54 | #[event(from = Update, unknown = "b")]
+   |                        ^^^^^^^
+
+error: duplicate `from` attribute
+  --> tests/ui/from_event_errors.rs:59:24
+   |
+59 | #[event(from = Update, from = Update)]
+   |                        ^^^^
+
+error: duplicate `try_from` attribute
+  --> tests/ui/from_event_errors.rs:64:28
+   |
+64 | #[event(try_from = Update, try_from = Update)]
+   |                            ^^^^^^^^
+
+error: duplicate `error` attribute
+  --> tests/ui/from_event_errors.rs:69:48
+   |
+69 | #[event(try_from = Update, error = Infallible, error = Infallible)]
+   |                                                ^^^^^
+
+error: duplicate `description` attribute
+  --> tests/ui/from_event_errors.rs:74:43
+   |
+74 | #[event(from = Update, description = "a", description = "b")]
+   |                                           ^^^^^^^^^^^
+
+error: expected `=`
+  --> tests/ui/from_event_errors.rs:79:13
+   |
+79 | #[event(from)]
+   |             ^
+
+error: expected identifier
+  --> tests/ui/from_event_errors.rs:84:16
+   |
+84 | #[event(from = "Update")]
+   |                ^^^^^^^^
+
+error: expected string literal
+  --> tests/ui/from_event_errors.rs:89:38
+   |
+89 | #[event(from = Update, description = 1)]
+   |                                      ^
+
+error: expected `,`
+  --> tests/ui/from_event_errors.rs:94:27
+   |
+94 | #[event(try_from = Update error = Infallible)]
+   |                           ^^^^^
+
+error: expected `struct` or `enum`
+   --> tests/ui/from_event_errors.rs:100:7
+    |
+100 | union E19 {
+    |       ^^^

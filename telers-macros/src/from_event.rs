@@ -35,7 +35,7 @@ struct FromEventAttrs {
 impl FromEventAttrs {
     /// Parses `#[event(from = Update)]`, `None` if the item has no such attribute
     fn parse(attrs: &[Attribute]) -> syn::Result<Option<Self>> {
-        let (mut from, mut try_from, mut error) = (None, None, None);
+        let (mut from, mut try_from, mut error, mut description) = (None, None, None, None);
         let Some(attr) = parse_attr("event", attrs, |meta| {
             if meta.path.is_ident("from") {
                 parse_event_type(&meta)?;
@@ -47,8 +47,8 @@ impl FromEventAttrs {
                 let val = meta.value()?.parse()?;
                 set_once(&mut error, &meta.path, val)
             } else if meta.path.is_ident("description") {
-                meta.value()?.parse::<LitStr>()?;
-                Ok(())
+                let val = meta.value()?.parse::<LitStr>()?;
+                set_once(&mut description, &meta.path, val)
             } else {
                 Err(meta.error("expected `from`, `try_from`, `error` or `description` attribute"))
             }

@@ -1,0 +1,107 @@
+error: missing `#[context(...)]` attribute
+  --> tests/ui/from_context_errors.rs:16:8
+   |
+16 | struct E01;
+   |        ^^^
+
+error: expected attribute arguments in parentheses: #[context(...)]
+  --> tests/ui/from_context_errors.rs:20:3
+   |
+20 | #[context]
+   |   ^^^^^^^
+
+error: missing `key` attribute
+  --> tests/ui/from_context_errors.rs:25:1
+   |
+25 | #[context()]
+   | ^^^^^^^^^^^^
+
+error: missing `key` attribute
+  --> tests/ui/from_context_errors.rs:30:1
+   |
+30 | #[context(into = Wrapper, description = "no key")]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: duplicate `context` attribute
+  --> tests/ui/from_context_errors.rs:36:1
+   |
+36 | #[context(key = "b")]
+   | ^^^^^^^^^^^^^^^^^^^^^
+
+error: duplicate `key` attribute
+  --> tests/ui/from_context_errors.rs:41:22
+   |
+41 | #[context(key = "a", key = "b")]
+   |                      ^^^
+
+error: duplicate `into` attribute
+  --> tests/ui/from_context_errors.rs:46:38
+   |
+46 | #[context(key = "a", into = Wrapper, into = Wrapper)]
+   |                                      ^^^^
+
+error: duplicate `from` attribute
+  --> tests/ui/from_context_errors.rs:51:37
+   |
+51 | #[context(key = "a", from = Source, from = Source)]
+   |                                     ^^^^
+
+error: duplicate `description` attribute
+  --> tests/ui/from_context_errors.rs:56:41
+   |
+56 | #[context(key = "a", description = "a", description = "b")]
+   |                                         ^^^^^^^^^^^
+
+error: you can't use `into` and `from` attributes at the same time
+  --> tests/ui/from_context_errors.rs:61:1
+   |
+61 | #[context(key = "a", into = Wrapper, from = Source)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: expected `key`, `into`, `from` or `description` attribute
+  --> tests/ui/from_context_errors.rs:66:22
+   |
+66 | #[context(key = "a", unknown = "b")]
+   |                      ^^^^^^^
+
+error: expected `=`
+  --> tests/ui/from_context_errors.rs:71:14
+   |
+71 | #[context(key)]
+   |              ^
+
+error: expected string literal
+  --> tests/ui/from_context_errors.rs:76:17
+   |
+76 | #[context(key = 1)]
+   |                 ^
+
+error: expected string literal
+  --> tests/ui/from_context_errors.rs:81:17
+   |
+81 | #[context(key = a)]
+   |                 ^
+
+error: expected string literal
+  --> tests/ui/from_context_errors.rs:86:36
+   |
+86 | #[context(key = "a", description = 1)]
+   |                                    ^
+
+error: expected `,`
+  --> tests/ui/from_context_errors.rs:91:21
+   |
+91 | #[context(key = "a" into = Wrapper)]
+   |                     ^^^^
+
+error: unexpected token in nested attribute, expected ident
+  --> tests/ui/from_context_errors.rs:96:21
+   |
+96 | #[context(key = "a",, into = Wrapper)]
+   |                     ^
+
+error: expected `struct` or `enum`
+   --> tests/ui/from_context_errors.rs:102:7
+    |
+102 | union E18 {
+    |       ^^^

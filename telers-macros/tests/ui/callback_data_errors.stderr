@@ -1,0 +1,101 @@
+error: `CallbackData` can be derived only for `struct`
+  --> tests/ui/callback_data_errors.rs:11:6
+   |
+11 | enum E01 {
+   |      ^^^
+
+error: `CallbackData` can't be derived for structs without named fields
+  --> tests/ui/callback_data_errors.rs:18:8
+   |
+18 | struct E02(String);
+   |        ^^^
+
+error: `CallbackData` can't be derived for structs without named fields
+  --> tests/ui/callback_data_errors.rs:23:8
+   |
+23 | struct E03;
+   |        ^^^
+
+error: `CallbackData` can't be derived for structs without fields
+  --> tests/ui/callback_data_errors.rs:28:8
+   |
+28 | struct E04 {}
+   |        ^^^
+
+error: missing `#[callback_data(...)]` attribute
+  --> tests/ui/callback_data_errors.rs:32:8
+   |
+32 | struct E05 {
+   |        ^^^
+
+error: expected attribute arguments in parentheses: #[callback_data(...)]
+  --> tests/ui/callback_data_errors.rs:38:3
+   |
+38 | #[callback_data]
+   |   ^^^^^^^^^^^^^
+
+error: missing `prefix` attribute
+  --> tests/ui/callback_data_errors.rs:45:1
+   |
+45 | #[callback_data()]
+   | ^^^^^^^^^^^^^^^^^^
+
+error: missing `prefix` attribute
+  --> tests/ui/callback_data_errors.rs:52:1
+   |
+52 | #[callback_data(separator = '|')]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: duplicate `callback_data` attribute
+  --> tests/ui/callback_data_errors.rs:60:1
+   |
+60 | #[callback_data(separator = '|')]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: duplicate `prefix` attribute
+  --> tests/ui/callback_data_errors.rs:67:31
+   |
+67 | #[callback_data(prefix = "a", prefix = "b")]
+   |                               ^^^^^^
+
+error: duplicate `separator` attribute
+  --> tests/ui/callback_data_errors.rs:74:48
+   |
+74 | #[callback_data(prefix = "a", separator = '|', separator = ';')]
+   |                                                ^^^^^^^^^
+
+error: expected `prefix` or `separator` attribute
+  --> tests/ui/callback_data_errors.rs:81:31
+   |
+81 | #[callback_data(prefix = "a", unknown = "b")]
+   |                               ^^^^^^^
+
+error: expected `=`
+  --> tests/ui/callback_data_errors.rs:88:23
+   |
+88 | #[callback_data(prefix)]
+   |                       ^
+
+error: expected string literal
+  --> tests/ui/callback_data_errors.rs:95:26
+   |
+95 | #[callback_data(prefix = 1)]
+   |                          ^
+
+error: expected character literal
+   --> tests/ui/callback_data_errors.rs:102:43
+    |
+102 | #[callback_data(prefix = "a", separator = ":")]
+    |                                           ^^^
+
+error: expected character literal
+   --> tests/ui/callback_data_errors.rs:109:43
+    |
+109 | #[callback_data(prefix = "a", separator = 1)]
+    |                                           ^
+
+error: expected `,`
+   --> tests/ui/callback_data_errors.rs:116:30
+    |
+116 | #[callback_data(prefix = "a" separator = '|')]
+    |                              ^^^^^^^^^

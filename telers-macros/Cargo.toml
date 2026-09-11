@@ -27,3 +27,4 @@ syn = "2.0"
 [dev-dependencies]
 # This dependency is not necessarily the latest version
 telers = { path = "../telers", features = ["default"] }
+trybuild = "1.0"
