@@ -138,7 +138,10 @@ impl VariantAttrs {
 
 /// Code generated for a single command variant
 struct VariantCodegen {
-    extractor_arm: TokenStream,
+    /// Arm of the parsing of the command with the name of the variant into it
+    parse_arm: TokenStream,
+    /// Arm of the conversion of the variant into its kind
+    kind_arm: TokenStream,
     descriptions_entry: TokenStream,
     bot_commands_entry: TokenStream,
     match_names: Vec<(char, String)>,
@@ -200,11 +203,15 @@ fn expand_variant(attrs: &CommandAttrs, variant: &syn::Variant) -> syn::Result<V
         let (#(#local_idents,)*) = ::telers::utils::command_args::parse_args::<(#(#field_tys,)*)>(__cursor)
     };
 
-    let construct = match fields {
-        Fields::Unit => quote_spanned! { variant.span() => Self::#variant_ident },
-        Fields::Unnamed(_) => {
-            quote_spanned! { variant.span() => Self::#variant_ident(#(#local_idents),*) }
-        }
+    let (construct, kind_pattern) = match fields {
+        Fields::Unit => (
+            quote_spanned! { variant.span() => Self::#variant_ident },
+            quote_spanned! { variant.span() => #variant_ident },
+        ),
+        Fields::Unnamed(_) => (
+            quote_spanned! { variant.span() => Self::#variant_ident(#(#local_idents),*) },
+            quote_spanned! { variant.span() => #variant_ident(..) },
+        ),
         Fields::Named(_) => {
             let field_bindings = fields
                 .iter()
@@ -213,8 +220,14 @@ fn expand_variant(attrs: &CommandAttrs, variant: &syn::Variant) -> syn::Result<V
                     let field_ident = field.ident.as_ref().expect("named fields are always named");
                     quote_spanned! { field_ident.span() => #field_ident: #local_ident }
                 });
-            quote_spanned! { variant.span() => Self::#variant_ident { #(#field_bindings),* } }
+            (
+                quote_spanned! { variant.span() => Self::#variant_ident { #(#field_bindings),* } },
+                quote_spanned! { variant.span() => #variant_ident { .. } },
+            )
         }
+    };
+    let kind_arm = quote_spanned! { variant.span() =>
+        #kind_pattern => Self::#variant_ident,
     };
 
     let split = match variant_attrs.split.or(attrs.split) {
@@ -236,22 +249,96 @@ fn expand_variant(attrs: &CommandAttrs, variant: &syn::Variant) -> syn::Result<V
         .iter()
         .map(|(prefix, name)| quote_spanned! { variant.span() => (#prefix, #name) });
 
-    let extractor_arm = quote_spanned! { variant.span() =>
+    let parse_arm = quote_spanned! { variant.span() =>
         #(#match_patterns)|* => {
             #body
         }
     };
 
     Ok(VariantCodegen {
-        extractor_arm,
+        parse_arm,
+        kind_arm,
         descriptions_entry,
         bot_commands_entry,
         match_names,
     })
 }
 
+/// Kind of the command, `<Enum>Type` with a variant for each command without its arguments,
+/// with the conversion of the enum into it and the `CommandKind` and `Commands` trait impls,
+/// which link the enums, give the kind by the name and parse the command with its arguments
+fn expand_kind(
+    vis: &syn::Visibility,
+    ident: &Ident,
+    variants: &[(&Ident, VariantCodegen)],
+) -> TokenStream {
+    let kind_ident = format_ident!("{ident}Type");
+    let variant_idents = variants.iter().map(|(variant_ident, _)| variant_ident);
+    let kind_arms = variants.iter().map(|(_, codegen)| &codegen.kind_arm);
+    let parse_arms = variants.iter().map(|(_, codegen)| &codegen.parse_arm);
+    let kind_by_name_arms = variants.iter().flat_map(|(variant_ident, codegen)| {
+        let kind_ident = &kind_ident;
+        codegen.match_names.iter().map(move |(prefix, name)| {
+            quote_spanned! { variant_ident.span() =>
+                (#prefix, #name) => ::std::option::Option::Some(#kind_ident::#variant_ident),
+            }
+        })
+    });
+    let kind_doc =
+        format!(" Kind of the command of [`{ident}`], the variant without its arguments");
+
+    quote_spanned! { ident.span() =>
+        #[doc = #kind_doc]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+        #vis enum #kind_ident {
+            #(#variant_idents,)*
+        }
+
+        #[automatically_derived]
+        impl ::std::convert::From<&#ident> for #kind_ident {
+            fn from(val: &#ident) -> Self {
+                match *val {
+                    #(#ident::#kind_arms)*
+                }
+            }
+        }
+
+        #[automatically_derived]
+        impl ::telers::utils::command_args::CommandKind for #kind_ident {
+            type Commands = #ident;
+        }
+
+        #[automatically_derived]
+        impl ::telers::utils::command_args::Commands for #ident {
+            type Kind = #kind_ident;
+
+            fn kind(prefix: char, name: &str) -> ::std::option::Option<Self::Kind> {
+                match (prefix, name) {
+                    #(#kind_by_name_arms)*
+                    _ => ::std::option::Option::None,
+                }
+            }
+
+            fn parse(
+                __command: &::telers::filters::CommandObject,
+            ) -> ::std::result::Result<Self, ::telers::errors::ExtractionError> {
+                use ::telers::errors::ExtractionError as Error;
+
+                match (__command.prefix, __command.command.to_lowercase().as_str()) {
+                    #(#parse_arms)*
+                    _ => ::std::result::Result::Err(Error::new(format!(
+                        "Unknown command `{}{}`",
+                        __command.prefix, __command.command
+                    ))),
+                }
+            }
+        }
+    }
+}
+
 fn expand_enum(item: DeriveInput) -> syn::Result<TokenStream> {
     let DeriveInput {
+        vis,
         ident,
         generics,
         attrs,
@@ -275,48 +362,42 @@ fn expand_enum(item: DeriveInput) -> syn::Result<TokenStream> {
         ));
     };
 
-    let mut extractor_arms = Vec::new();
-    let mut descriptions_entries = Vec::new();
-    let mut bot_commands_entries = Vec::new();
-
+    let mut codegens = Vec::new();
     let mut seen_names = HashSet::new();
     for variant in &data.variants {
         let codegen = expand_variant(&command_attrs, variant)?;
 
-        for name in codegen.match_names {
-            if let Some((prefix, name)) = seen_names.replace(name) {
+        for name in &codegen.match_names {
+            if let Some((prefix, name)) = seen_names.replace(name.clone()) {
                 return Err(syn::Error::new_spanned(
                     &variant.ident,
                     format!("duplicate command name `{prefix}{name}`"),
                 ));
             }
         }
-
-        extractor_arms.push(codegen.extractor_arm);
-        descriptions_entries.push(codegen.descriptions_entry);
-        bot_commands_entries.push(codegen.bot_commands_entry);
+        codegens.push((&variant.ident, codegen));
     }
+    let descriptions_entries = codegens
+        .iter()
+        .map(|(_, codegen)| &codegen.descriptions_entry);
+    let bot_commands_entries = codegens
+        .iter()
+        .map(|(_, codegen)| &codegen.bot_commands_entry);
+    let kind = expand_kind(&vis, &ident, &codegens);
 
     let body = quote_spanned! { ident.span() =>
-        use ::telers::errors::ExtractionError as Error;
-
-        let __command = request.context
-            .get::<::telers::filters::CommandObject>("command");
-
-        async move {
-            let __command = __command
-                .ok_or_else(|| Error::new(
+        // The `Command` filter keeps the parsed command when it parses the arguments
+        let res = match request.context.get::<Self>("parsed_command") {
+            ::std::option::Option::Some(command) => ::std::result::Result::Ok(command.clone()),
+            ::std::option::Option::None => request.context
+                .get::<::telers::filters::CommandObject>("command")
+                .ok_or_else(|| ::telers::errors::ExtractionError::new(
                     "No `command` in context: the `Command` filter must be used to parse the command. \
                      You didn't forget to add it to the handler?",
-                ))?;
-            match (__command.prefix, __command.command.to_lowercase().as_str()) {
-                #(#extractor_arms)*
-                _ => ::std::result::Result::Err(Error::new(format!(
-                    "Unknown command `{}{}`",
-                    __command.prefix, __command.command
-                ))),
-            }
-        }
+                ))
+                .and_then(<Self as ::telers::utils::command_args::Commands>::parse),
+        };
+        async move { res }
     };
     let self_ty = quote_spanned! { ident.span() => #ident };
     let generics = extractor_generics(
@@ -351,6 +432,7 @@ fn expand_enum(item: DeriveInput) -> syn::Result<TokenStream> {
 
     Ok(quote_spanned! { ident.span() =>
         #extractor_impl
+        #kind
         #helpers_impl
     })
 }

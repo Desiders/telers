@@ -2,7 +2,7 @@ use telers::{
     enums::UpdateType,
     errors::EventError,
     event::telegram::{Handler, HandlerResult},
-    filters::{command::Command as CommandFilter, CommandObject, ErrorType},
+    filters::{Command as CommandFilter, ErrorType},
     methods::{SendMessage, SetMyCommands},
     types::Message,
     utils::command_args::{ArgsCursor, CommandArg, CommandArgsError},
@@ -61,12 +61,7 @@ async fn help_handler(bot: Bot, message: Message) -> HandlerResult<()> {
     Ok(())
 }
 
-async fn username_handler(
-    bot: Bot,
-    message: Message,
-    command: Commands,
-    _command_object: CommandObject,
-) -> HandlerResult<()> {
+async fn username_handler(bot: Bot, message: Message, command: Commands) -> HandlerResult<()> {
     let text = match command {
         Commands::Username(username) => format!("Your username is {username}"),
         Commands::UsernameAndAge {
@@ -75,7 +70,7 @@ async fn username_handler(
         } => {
             format!("Your username is {username}, age is {age}")
         }
-        Commands::Help | Commands::Settings(_) => return Ok(()),
+        _ => return Ok(()),
     };
 
     bot.send(SendMessage::new(message.chat().id(), text))
@@ -121,16 +116,19 @@ async fn main() {
 
     let router = Router::new("main")
         .on_message(|observer| {
-            observer.register(Handler::new(help_handler).filter(CommandFilter::one("help")))
+            observer
+                .register(Handler::new(help_handler).filter(CommandFilter::one(CommandsType::Help)))
+        })
+        .on_message(|observer| {
+            observer.register(Handler::new(username_handler).filter(CommandFilter::many([
+                CommandsType::Username,
+                CommandsType::UsernameAndAge,
+            ])))
         })
         .on_message(|observer| {
             observer.register(
-                Handler::new(username_handler)
-                    .filter(CommandFilter::many(["username", "username_and_age"])),
+                Handler::new(settings_handler).filter(CommandFilter::one(CommandsType::Settings)),
             )
-        })
-        .on_message(|observer| {
-            observer.register(Handler::new(settings_handler).filter(CommandFilter::one("settings")))
         })
         .on_error(|observer| {
             observer.register(

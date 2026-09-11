@@ -5,7 +5,7 @@ use telers::{
     context::Context,
     filters::CommandObject,
     types::{ChatPrivate, MessageText, Update, UpdateMessage},
-    utils::command_args::Rest,
+    utils::command_args::{Commands as _, Rest},
     Bot, Extensions, Extractor, Request,
 };
 use telers_macros::Command;
@@ -19,7 +19,7 @@ use std::{
 
 // 1. Defaults: lowercase names, the `/` prefix and whitespace-separated arguments;
 // unit, tuple and named variants
-#[derive(Debug, PartialEq, Command)]
+#[derive(Clone, Debug, PartialEq, Command)]
 enum P01 {
     Start,
     Echo(String),
@@ -27,7 +27,7 @@ enum P01 {
 }
 
 // 2. `snake_case` names with descriptions
-#[derive(Debug, PartialEq, Command)]
+#[derive(Clone, Debug, PartialEq, Command)]
 #[command(rename_rule = "snake_case")]
 enum P02 {
     #[command(description = "help")]
@@ -37,7 +37,7 @@ enum P02 {
 }
 
 // 3. Enum-level prefix with a variant-level override
-#[derive(Debug, PartialEq, Command)]
+#[derive(Clone, Debug, PartialEq, Command)]
 #[command(prefix = '!')]
 enum P03 {
     Start,
@@ -46,7 +46,7 @@ enum P03 {
 }
 
 // 4. Enum-level split with a variant-level override and every kind of argument
-#[derive(Debug, PartialEq, Command)]
+#[derive(Clone, Debug, PartialEq, Command)]
 #[command(split = ',')]
 enum P04 {
     Add(i64, i64),
@@ -57,7 +57,7 @@ enum P04 {
 }
 
 // 5. `rename`, `aliases` and `hidden`
-#[derive(Debug, PartialEq, Command)]
+#[derive(Clone, Debug, PartialEq, Command)]
 enum P05 {
     #[command(rename = "go", aliases = ["begin", "run"], description = "start")]
     Start,
@@ -68,7 +68,7 @@ enum P05 {
 }
 
 // 6. Everything at both levels with trailing commas
-#[derive(Debug, PartialEq, Command)]
+#[derive(Clone, Debug, PartialEq, Command)]
 #[command(rename_rule = "snake_case", prefix = '!', split = ';',)]
 enum P06 {
     #[command(description = "pair", prefix = '/', split = ',', rename = "pair-of", aliases = ["p"],)]
@@ -80,7 +80,7 @@ enum P06 {
 }
 
 // 7. Enum without variants
-#[derive(Debug, PartialEq, Command)]
+#[derive(Clone, Debug, PartialEq, Command)]
 enum P07 {}
 
 fn request_with_command(command: Option<&str>) -> Request {
@@ -126,6 +126,8 @@ fn main() {
         P01::Echo("hello".to_owned())
     );
     assert_eq!(extract::<P01>("/add 1 2").unwrap(), P01::Add { a: 1, b: 2 });
+    assert_eq!(P01Type::from(&P01::Add { a: 1, b: 2 }), P01Type::Add);
+    assert_eq!(P01Type::from(&P01::Start), P01Type::Start);
     assert_eq!(P01::descriptions(), "/start\n/echo\n/add");
     assert_eq!(
         bot_commands::<P01>(P01::bot_commands()),
@@ -170,6 +172,14 @@ fn main() {
     assert_eq!(extract::<P05>("/secret").unwrap(), P05::Secret);
     assert_eq!(extract::<P05>("/hidden").unwrap(), P05::Hidden);
     assert_eq!(extract::<P05>("/h").unwrap(), P05::Hidden);
+    for name in ["go", "begin", "run"] {
+        assert_eq!(P05::kind('/', name), Some(P05Type::Start), "{name}");
+    }
+    assert_eq!(P05::kind('/', "secret"), Some(P05Type::Secret));
+    assert_eq!(P05::kind('/', "h"), Some(P05Type::Hidden));
+    assert_eq!(P05::kind('/', "start"), None);
+    assert_eq!(P05::kind('!', "go"), None);
+    assert_eq!(P05Type::from(&P05::Secret), P05Type::Secret);
     assert_eq!(P05::descriptions(), "/go - start");
     assert_eq!(
         bot_commands::<P05>(P05::bot_commands()),
@@ -182,6 +192,13 @@ fn main() {
     assert!(extract::<P06>("!pair-of 1,2").is_err());
     assert_eq!(extract::<P06>("!sum_all 1;2;3").unwrap(), P06::SumAll(vec![1, 2, 3]));
     assert_eq!(extract::<P06>("!secret_one").unwrap(), P06::SecretOne);
+    assert_eq!(P06::kind('/', "pair-of"), Some(P06Type::PairOf));
+    assert_eq!(P06::kind('/', "p"), Some(P06Type::PairOf));
+    assert_eq!(P06::kind('!', "sum_all"), Some(P06Type::SumAll));
+    assert_eq!(P06::kind('!', "secret_one"), Some(P06Type::SecretOne));
+    assert_eq!(P06::kind('!', "pair-of"), None);
+    assert_eq!(P06Type::from(&P06::PairOf(1, 2)), P06Type::PairOf);
+    assert_eq!(P06Type::from(&P06::SumAll(vec![])), P06Type::SumAll);
     assert_eq!(P06::descriptions(), "/pair-of - pair\n!sum_all - sum");
     assert_eq!(
         bot_commands::<P06>(P06::bot_commands()),
@@ -189,11 +206,38 @@ fn main() {
     );
 
     // 7
+    assert_eq!(P07::kind('/', "start"), None);
     assert_eq!(P07::descriptions(), "");
     assert!(P07::bot_commands().is_empty());
     assert!(extract::<P07>("/start").is_err());
 
-    // 8. Errors: unknown command, no command in the context, wrong arguments
+    // 8. Parsing through the `Commands` trait, the same as the extraction
+    let command = CommandObject::extract("/add 1,2").unwrap();
+    assert_eq!(P04::parse(&command).unwrap(), P04::Add(1, 2));
+    let command = CommandObject::extract("/add 1").unwrap();
+    assert!(P04::parse(&command).is_err());
+    let command = CommandObject::extract("/nothing").unwrap();
+    assert!(P04::parse(&command).is_err());
+
+    // 9. The parsed command kept in the context by the filter is extracted as is
+    let mut context = Context::new();
+    context.insert("parsed_command", P01::Echo("stored".to_owned()));
+    let request: Request = Request {
+        bot: Bot::default(),
+        update: Arc::new(Update::Message(UpdateMessage::new(
+            0,
+            MessageText::new(0, 0, ChatPrivate::new(0), ""),
+        ))),
+        context,
+        extensions: Extensions::default(),
+    };
+    let mut fut = pin!(P01::extract(&request));
+    let Poll::Ready(res) = fut.as_mut().poll(&mut TaskContext::from_waker(Waker::noop())) else {
+        panic!("the extraction must be immediate");
+    };
+    assert_eq!(res.unwrap(), P01::Echo("stored".to_owned()));
+
+    // 10. Errors: unknown command, no command in the context, wrong arguments
     let err = extract::<P01>("/nothing").unwrap_err().to_string();
     assert!(err.contains("Unknown command `/nothing`"), "{err}");
     let request = request_with_command(None);

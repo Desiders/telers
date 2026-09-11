@@ -327,8 +327,16 @@ pub fn derive_callback_data(item: TokenStream) -> TokenStream {
 ///   separated by newlines.
 /// * `bot_commands()` - commands in the format required by the `setMyCommands` Telegram API method. \
 ///   Only commands with the `/` prefix are included, because the method supports no other prefix.
+/// * `<Enum>Type` - the kind of the command, an enum with a variant for each command without its arguments, \
+///   with `From<&Enum>` for it. It implements [`CommandKind`], so the kinds can be passed to the [`Command`] filter \
+///   instead of texts: `Command::one(EnumType::Variant)`, `Command::many([...])`.
+/// * the [`Commands`] trait implementation, which gives the kind of a command by its name and parses \
+///   the command with its arguments, so the [`Command`] filter matches the messages against all the commands \
+///   with `Command::all::<Enum>()` and checks the arguments too with its `parse_args` flag.
 ///
 /// # Notes
+/// * The enum must implement [`Clone`]: the [`Command`] filter keeps the parsed command in the context \
+///   when it parses the arguments, and the extraction takes it from there.
 /// * The [`Command`] filter must be used together with the derived enum,
 ///   because the macro reads the [`CommandObject`] from the context.
 /// * Extra arguments are an error: use `Option<T>`, `Vec<T>` or `Rest` fields to take them.
@@ -337,7 +345,7 @@ pub fn derive_callback_data(item: TokenStream) -> TokenStream {
 /// ```rust
 /// use telers_macros::Command;
 ///
-/// #[derive(Command)]
+/// #[derive(Clone, Command)]
 /// #[command(rename_rule = "snake_case")]
 /// enum Commands {
 ///     #[command(description = "display this text")]
@@ -362,6 +370,8 @@ pub fn derive_callback_data(item: TokenStream) -> TokenStream {
 ///
 /// [`CommandObject`]: telers::filters::CommandObject
 /// [`Command`]: telers::filters::Command
+/// [`Commands`]: telers::utils::command_args::Commands
+/// [`CommandKind`]: telers::utils::command_args::CommandKind
 /// [`CommandArg`]: telers::utils::command_args::CommandArg
 /// [`ExtractionError`]: telers::errors::ExtractionError
 #[proc_macro_derive(Command, attributes(command))]

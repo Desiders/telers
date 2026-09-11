@@ -32,6 +32,9 @@
 //!   for example, text, [`BotCommand`] (just alias to text of command) or [`Regex`].
 //!   You can create a filter with `new` method with transferring all necessary data at once, or use [`CommandBuilder`] to create a filter step by step.
 //!   Instead of [`CommandBuilder`] you can use [`Command`] `one`, `one_with_prefix`, `many`, `many_with_prefix` methods.
+//!   The commands of an enum with the [`Command`](telers::Command) derive are matched by their kinds passed to the same
+//!   methods (`Command::one(EnumType::Variant)`), or all of them with `Command::all::<Enum>()`;
+//!   with `parse_args` of the builder their arguments are checked by the filter too.
 //! * [`ErrorType`] and [`ErrorMessage`]:
 //!   Filters for the `error` observer, see the [`router module`] for how errors are handled.
 //!   [`ErrorType`] checks that the error can be downcast to the specified type

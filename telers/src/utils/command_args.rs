@@ -19,6 +19,12 @@
 //! Implement [`CommandArg`] for your types to use them as fields of commands,
 //! or use the [`command_arg_via_from_str`](crate::command_arg_via_from_str) macro
 //! if the type implements [`FromStr`](std::str::FromStr).
+//!
+//! [`Commands`] and [`CommandKind`] are implemented by the [`Command`](crate::Command) derive
+//! for the enum of the commands and its kinds, so the [`Command`](crate::filters::Command) filter
+//! matches the messages against them.
+
+use crate::{errors::ExtractionError, filters::CommandObject};
 
 use std::{
     fmt::{Debug, Display},
@@ -128,6 +134,35 @@ impl CommandArgsError {
             }
         }
     }
+}
+
+/// Commands of a bot, implemented by the [`Command`](crate::Command) derive,
+/// so the [`Command`](crate::filters::Command) filter checks a message against all of them
+/// with [`Command::all`](crate::filters::Command::all)
+/// # Notes
+/// The enum must be [`Clone`], because the filter keeps the parsed command in the context
+/// for the extraction in the handler when it parses the arguments
+pub trait Commands: Clone + Send + Sync + 'static {
+    /// Kind of the command, the variant of the enum without its arguments, one for each command
+    type Kind: CommandKind<Commands = Self>;
+
+    /// Kind of the command by its prefix and lowercase name, an alias of the command too,
+    /// `None` if it isn't one of the commands
+    fn kind(prefix: char, name: &str) -> Option<Self::Kind>;
+
+    /// Parses the command with its arguments into the enum
+    /// # Errors
+    /// - If the command isn't one of the commands
+    /// - If the arguments can't be parsed into the fields of the command
+    fn parse(command: &CommandObject) -> Result<Self, ExtractionError>;
+}
+
+/// Kind of a command of [`Commands`], implemented by the [`Command`](crate::Command) derive
+/// for the generated `<Enum>Type` enum, so the [`Command`](crate::filters::Command) filter
+/// checks a message against the commands of the kinds
+pub trait CommandKind: Copy + Debug + PartialEq + Send + Sync + 'static {
+    /// Commands the kind belongs to
+    type Commands: Commands<Kind = Self>;
 }
 
 /// Parses a single field of a command from its arguments.
