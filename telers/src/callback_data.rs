@@ -3,7 +3,7 @@
 //! The easiest way to implement [`CallbackData`] for your types is to use the derive macro:
 //!
 //! ```rust
-//! use telers::utils::callback_data::CallbackData;
+//! use telers::callback_data::CallbackData;
 //!
 //! #[derive(telers::CallbackData, Clone)]
 //! #[callback_data(prefix = "language")]

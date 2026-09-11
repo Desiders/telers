@@ -49,6 +49,8 @@
 //! - [`extractor`] — extracting handler arguments from events and the [`Context`]
 //! - [`fsm`] — finite state machine (conversations) with pluggable storage
 //! - [`types`] and [`methods`] — generated Telegram Bot API objects and requests
+//! - [`callback_data`] — packing of structured data into callback data strings with the [`CallbackData`] derive
+//! - [`command`] — commands of a bot as enums with the [`Command`] derive and typed arguments
 //! - [`utils`] — text formatting and rendering helpers, and more
 //!
 //! More examples can be found in the [examples directory].
@@ -66,7 +68,9 @@ pub(crate) mod any;
 #[macro_use]
 pub(crate) mod macros;
 
+pub mod callback_data;
 pub mod client;
+pub mod command;
 pub mod context;
 pub mod dispatcher;
 pub mod either;
@@ -100,7 +104,5 @@ pub use fsm::Context as FSMContext;
 pub use request::Request;
 pub use router::{Configured as RouterConfigured, Router};
 
-pub use utils::{
-    callback_data::{CallbackDataError, CallbackDataValue},
-    command_args::{CommandArg, CommandArgsError},
-};
+pub use callback_data::{CallbackDataError, CallbackDataValue};
+pub use command::{CommandArg, CommandArgsError};

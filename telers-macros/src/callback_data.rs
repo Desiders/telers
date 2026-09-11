@@ -103,7 +103,7 @@ pub(crate) fn expand(input: DeriveInput) -> syn::Result<TokenStream> {
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
     let callback_data_impl = quote_spanned! { ident.span() =>
         #[automatically_derived]
-        impl #impl_generics ::telers::utils::callback_data::CallbackData for #ident #ty_generics #where_clause {
+        impl #impl_generics ::telers::callback_data::CallbackData for #ident #ty_generics #where_clause {
             const PREFIX: &'static str = #prefix;
             const SEPARATOR: char = #separator;
 
@@ -111,14 +111,14 @@ pub(crate) fn expand(input: DeriveInput) -> syn::Result<TokenStream> {
             ///
             /// # Errors
             /// - If a value contains the separator character
-            /// - If the resulting string is longer than [`MAX_CALLBACK_LENGTH`](::telers::utils::callback_data::MAX_CALLBACK_LENGTH) bytes
+            /// - If the resulting string is longer than [`MAX_CALLBACK_LENGTH`](::telers::callback_data::MAX_CALLBACK_LENGTH) bytes
             #[inline]
-            fn pack(&self) -> ::std::result::Result<::std::string::String, ::telers::utils::callback_data::CallbackDataError> {
-                ::telers::utils::callback_data::pack_values(
+            fn pack(&self) -> ::std::result::Result<::std::string::String, ::telers::callback_data::CallbackDataError> {
+                ::telers::callback_data::pack_values(
                     Self::PREFIX,
                     Self::SEPARATOR,
                     ::std::vec![
-                        #(::telers::utils::callback_data::CallbackDataValue::encode(&self.#field_idents),)*
+                        #(::telers::callback_data::CallbackDataValue::encode(&self.#field_idents),)*
                     ],
                 )
             }
@@ -130,12 +130,12 @@ pub(crate) fn expand(input: DeriveInput) -> syn::Result<TokenStream> {
             /// - If the number of values doesn't match the number of fields
             /// - If a value can't be parsed to the field type
             #[inline]
-            fn unpack(value: &str) -> ::std::result::Result<Self, ::telers::utils::callback_data::CallbackDataError> {
-                let values = ::telers::utils::callback_data::unpack_values(value, Self::PREFIX, Self::SEPARATOR, #field_count)?;
+            fn unpack(value: &str) -> ::std::result::Result<Self, ::telers::callback_data::CallbackDataError> {
+                let values = ::telers::callback_data::unpack_values(value, Self::PREFIX, Self::SEPARATOR, #field_count)?;
                 let mut values = values.into_vec().into_iter();
 
                 #(
-                    let #field_idents = <#field_tys as ::telers::utils::callback_data::CallbackDataValue>::decode(
+                    let #field_idents = <#field_tys as ::telers::callback_data::CallbackDataValue>::decode(
                         values.next().unwrap_or_default(),
                         #field_names,
                     )?;

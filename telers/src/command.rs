@@ -1,4 +1,4 @@
-//! Helpers for parsing the arguments of a command into typed fields.
+//! Commands of a bot declared with the [`Command`](crate::Command) derive and the parsing of their arguments.
 //!
 //! [`CommandArg`] parses a field of a command from an [`ArgsCursor`], so a field can take any
 //! number of arguments: one (numbers, strings, `bool`, `char`, IP addresses), none or one
@@ -7,7 +7,7 @@
 //! all the arguments of a command into one, checking that none are left:
 //!
 //! ```rust
-//! use telers::utils::command_args::{parse_args, ArgsCursor, Rest, SplitType};
+//! use telers::command::{parse_args, ArgsCursor, Rest, SplitType};
 //!
 //! let cursor = ArgsCursor::new("@username 30 spam in the chat", SplitType::Whitespace);
 //! let (username, minutes, reason) = parse_args::<(String, Option<u32>, Rest)>(cursor).unwrap();
@@ -279,23 +279,23 @@ impl<'a> ArgsCursor<'a> {
 /// telers::command_arg_via_from_str!(UserId);
 /// ```
 ///
-/// [`CommandArg`]: crate::utils::command_args::CommandArg
+/// [`CommandArg`]: crate::command::CommandArg
 /// [`FromStr`]: std::str::FromStr
 #[macro_export]
 macro_rules! command_arg_via_from_str {
     ($($ty:ty),* $(,)?) => {
         $(
-            impl $crate::utils::command_args::CommandArg for $ty {
+            impl $crate::command::CommandArg for $ty {
                 #[inline]
                 fn parse_arg(
-                    cursor: &mut $crate::utils::command_args::ArgsCursor<'_>,
-                ) -> ::std::result::Result<Self, $crate::utils::command_args::CommandArgsError> {
+                    cursor: &mut $crate::command::ArgsCursor<'_>,
+                ) -> ::std::result::Result<Self, $crate::command::CommandArgsError> {
                     let value = cursor.next_arg().ok_or(
-                        $crate::utils::command_args::CommandArgsError::Missing { index: 0 },
+                        $crate::command::CommandArgsError::Missing { index: 0 },
                     )?;
 
                     value.parse::<Self>().map_err(|err| {
-                        $crate::utils::command_args::CommandArgsError::InvalidValue {
+                        $crate::command::CommandArgsError::InvalidValue {
                             index: 0,
                             value: value.into(),
                             source: ::std::sync::Arc::new(err.into()),

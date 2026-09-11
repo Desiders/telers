@@ -258,8 +258,7 @@ pub fn derive_from_event(item: TokenStream) -> TokenStream {
 ///
 /// ```rust
 /// use telers::{
-///     filters::CallbackData as CallbackDataFilter, utils::callback_data::CallbackData as _,
-///     CallbackData,
+///     callback_data::CallbackData as _, filters::CallbackData as CallbackDataFilter, CallbackData,
 /// };
 ///
 /// #[derive(CallbackData, Clone)]
@@ -370,9 +369,9 @@ pub fn derive_callback_data(item: TokenStream) -> TokenStream {
 ///
 /// [`CommandObject`]: telers::filters::CommandObject
 /// [`Command`]: telers::filters::Command
-/// [`Commands`]: telers::utils::command_args::Commands
-/// [`CommandKind`]: telers::utils::command_args::CommandKind
-/// [`CommandArg`]: telers::utils::command_args::CommandArg
+/// [`Commands`]: telers::command::Commands
+/// [`CommandKind`]: telers::command::CommandKind
+/// [`CommandArg`]: telers::command::CommandArg
 /// [`ExtractionError`]: telers::errors::ExtractionError
 #[proc_macro_derive(Command, attributes(command))]
 pub fn derive_command(item: TokenStream) -> TokenStream {

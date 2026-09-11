@@ -1,10 +1,10 @@
 use telers::{
+    callback_data::{CallbackData as _, CallbackDataError},
     enums::UpdateType,
     event::telegram::{Handler, HandlerResult},
     filters::{CallbackData as CallbackDataFilter, CommandStart},
     methods::{AnswerCallbackQuery, EditMessageText, SendMessage},
     types::{CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message},
-    utils::callback_data::{CallbackData as _, CallbackDataError},
     Bot, CallbackData, Dispatcher, Router,
 };
 

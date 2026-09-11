@@ -1,11 +1,11 @@
 use super::{Filter, FilterResult};
 use crate::{
     client::{Bot, Session},
+    command::{CommandKind, Commands},
     context::Context,
     errors::SessionErrorKind,
     methods::GetMe,
     types::BotCommand,
-    utils::command_args::{CommandKind, Commands},
     FromContext, Request,
 };
 

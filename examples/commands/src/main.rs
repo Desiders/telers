@@ -1,11 +1,11 @@
 use telers::{
+    command::{ArgsCursor, CommandArg, CommandArgsError},
     enums::UpdateType,
     errors::EventError,
     event::telegram::{Handler, HandlerResult},
     filters::{Command as CommandFilter, ErrorType},
     methods::{SendMessage, SetMyCommands},
     types::Message,
-    utils::command_args::{ArgsCursor, CommandArg, CommandArgsError},
     Bot, Command, Dispatcher, Router,
 };
 

@@ -200,7 +200,7 @@ fn expand_variant(attrs: &CommandAttrs, variant: &syn::Variant) -> syn::Result<V
     let field_tys = fields.iter().map(|field| &field.ty);
 
     let args_binding = quote_spanned! { variant.span() =>
-        let (#(#local_idents,)*) = ::telers::utils::command_args::parse_args::<(#(#field_tys,)*)>(__cursor)
+        let (#(#local_idents,)*) = ::telers::command::parse_args::<(#(#field_tys,)*)>(__cursor)
     };
 
     let (construct, kind_pattern) = match fields {
@@ -232,15 +232,15 @@ fn expand_variant(attrs: &CommandAttrs, variant: &syn::Variant) -> syn::Result<V
 
     let split = match variant_attrs.split.or(attrs.split) {
         None | Some(' ') => quote_spanned! { variant.span() =>
-            ::telers::utils::command_args::SplitType::Whitespace
+            ::telers::command::SplitType::Whitespace
         },
         Some(split) => quote_spanned! { variant.span() =>
-            ::telers::utils::command_args::SplitType::Char(#split)
+            ::telers::command::SplitType::Char(#split)
         },
     };
 
     let body = quote_spanned! { variant.span() =>
-        let __cursor = ::telers::utils::command_args::ArgsCursor::new(&__command.raw_args, #split);
+        let __cursor = ::telers::command::ArgsCursor::new(&__command.raw_args, #split);
         #args_binding.map_err(|err| Error::new_with_source(err.describe(#name, &[#(stringify!(#field_idents)),*]), err))?;
         ::std::result::Result::Ok(#construct)
     };
@@ -290,6 +290,7 @@ fn expand_kind(
     quote_spanned! { ident.span() =>
         #[doc = #kind_doc]
         #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+        #[allow(dead_code)]
         #vis enum #kind_ident {
             #(#variant_idents,)*
         }
@@ -304,12 +305,12 @@ fn expand_kind(
         }
 
         #[automatically_derived]
-        impl ::telers::utils::command_args::CommandKind for #kind_ident {
+        impl ::telers::command::CommandKind for #kind_ident {
             type Commands = #ident;
         }
 
         #[automatically_derived]
-        impl ::telers::utils::command_args::Commands for #ident {
+        impl ::telers::command::Commands for #ident {
             type Kind = #kind_ident;
 
             fn kind(prefix: char, name: &str) -> ::std::option::Option<Self::Kind> {
@@ -395,7 +396,7 @@ fn expand_enum(item: DeriveInput) -> syn::Result<TokenStream> {
                     "No `command` in context: the `Command` filter must be used to parse the command. \
                      You didn't forget to add it to the handler?",
                 ))
-                .and_then(<Self as ::telers::utils::command_args::Commands>::parse),
+                .and_then(<Self as ::telers::command::Commands>::parse),
         };
         async move { res }
     };
@@ -408,6 +409,7 @@ fn expand_enum(item: DeriveInput) -> syn::Result<TokenStream> {
     let extractor_impl = tokenize_extractor_impl(ident.span(), &self_ty, &generics, &error, &body);
 
     let helpers_impl = quote_spanned! { ident.span() =>
+        #[allow(dead_code)]
         impl #ident {
             /// Returns the descriptions of the commands in the format `/command - description` (with the prefix of the command), separated by newlines
             #[must_use]

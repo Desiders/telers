@@ -6,7 +6,7 @@
 //! but it can also be a wrapper for any another error.
 
 use super::{DownloadErrorKind, SessionErrorKind, TelegramErrorKind};
-use crate::utils::callback_data::CallbackDataError;
+use crate::callback_data::CallbackDataError;
 
 use anyhow;
 use std::{

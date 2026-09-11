@@ -4,7 +4,7 @@ use telers::{
     client::Reqwest,
     context::Context,
     types::{ChatPrivate, MessageText, Update, UpdateMessage},
-    utils::callback_data::{CallbackData as _, CallbackDataValue},
+    callback_data::{CallbackData as _, CallbackDataValue},
     Bot, Extensions, Extractor, Request,
 };
 use telers_macros::CallbackData;

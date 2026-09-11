@@ -5,7 +5,7 @@ use telers::{
     context::Context,
     filters::CommandObject,
     types::{ChatPrivate, MessageText, Update, UpdateMessage},
-    utils::command_args::{Commands as _, Rest},
+    command::{Commands as _, Rest},
     Bot, Extensions, Extractor, Request,
 };
 use telers_macros::Command;
