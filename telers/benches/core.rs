@@ -1,14 +1,14 @@
-use criterion::measurement::Measurement;
-use criterion::{criterion_group, criterion_main, BenchmarkGroup, Criterion};
+use criterion::{
+    criterion_group, criterion_main, measurement::Measurement, BenchmarkGroup, Criterion,
+};
 use std::{convert::Infallible, hint::black_box, sync::Arc};
 use telers::{
     client::{
         session::{ClientResponse, ClientStreamResponse, Session},
         telegram::APIServer,
     },
-    event::telegram::Handler,
-    event::EventReturn,
     errors::EventErrorKind,
+    event::{telegram::Handler, EventReturn},
     types::{ChatPrivate, Message, MessageText, Update, UpdateMessage, User},
     Bot, Dispatcher, Filter, Request, Router, RouterConfigured,
 };
@@ -55,19 +55,15 @@ impl Session for MockSession {
 }
 
 fn finish_handler() -> Handler<MockSession> {
-    Handler::new(
-        |_bot: Bot<MockSession>, _message: Message| async {
-            Ok::<_, Infallible>(EventReturn::Finish)
-        },
-    )
+    Handler::new(|_bot: Bot<MockSession>, _message: Message| async {
+        Ok::<_, Infallible>(EventReturn::Finish)
+    })
 }
 
 fn skip_handler() -> Handler<MockSession> {
-    Handler::new(
-        |_bot: Bot<MockSession>, _message: Message| async {
-            Ok::<_, Infallible>(EventReturn::Skip)
-        },
-    )
+    Handler::new(|_bot: Bot<MockSession>, _message: Message| async {
+        Ok::<_, Infallible>(EventReturn::Skip)
+    })
 }
 
 fn passing_filter() -> impl Filter<MockSession> {
@@ -126,9 +122,8 @@ fn baseline(c: &mut Criterion) {
     let runtime = runtime();
     let mut group = c.benchmark_group("dispatcher/baseline");
 
-    let router = Router::new("benchmark").on_message(|observer| {
-        observer.register(finish_handler())
-    });
+    let router =
+        Router::new("benchmark").on_message(|observer| observer.register(finish_handler()));
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
         .build();
@@ -158,14 +153,7 @@ fn middleware(c: &mut Criterion) {
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
         .build();
-    benchmark_dispatcher(
-        &mut group,
-        &runtime,
-        "outer",
-        dispatcher,
-        &bot,
-        &update,
-    );
+    benchmark_dispatcher(&mut group, &runtime, "outer", dispatcher, &bot, &update);
 
     let router = Router::new("inner_middleware").on_message(|observer| {
         observer
@@ -179,14 +167,7 @@ fn middleware(c: &mut Criterion) {
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
         .build();
-    benchmark_dispatcher(
-        &mut group,
-        &runtime,
-        "inner",
-        dispatcher,
-        &bot,
-        &update,
-    );
+    benchmark_dispatcher(&mut group, &runtime, "inner", dispatcher, &bot, &update);
     group.finish();
 }
 
@@ -195,21 +176,15 @@ fn filters(c: &mut Criterion) {
     let runtime = runtime();
     let mut group = c.benchmark_group("dispatcher/filters");
     let router = Router::new("many_filters").on_message(|observer| {
-        let handler =
-            (0..8).fold(finish_handler(), |handler, _| handler.filter(passing_filter()));
+        let handler = (0..8).fold(finish_handler(), |handler, _| {
+            handler.filter(passing_filter())
+        });
         observer.register(handler)
     });
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
         .build();
-    benchmark_dispatcher(
-        &mut group,
-        &runtime,
-        "8_passing",
-        dispatcher,
-        &bot,
-        &update,
-    );
+    benchmark_dispatcher(&mut group, &runtime, "8_passing", dispatcher, &bot, &update);
     group.finish();
 }
 
