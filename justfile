@@ -8,6 +8,10 @@ help:
 test:
     cargo test --lib --tests --all --all-features -- --nocapture
 
+# Run the Criterion benchmarks (opt-in; not part of the normal test/build flow)
+bench:
+    cargo bench -p telers
+
 # Run the clippy linter
 clippy:
     cargo clippy --all --all-features -- -W clippy::pedantic
