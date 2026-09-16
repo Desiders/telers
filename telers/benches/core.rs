@@ -1,5 +1,5 @@
-use criterion::{criterion_group, criterion_main, BenchmarkGroup, Criterion};
 use criterion::measurement::Measurement;
+use criterion::{criterion_group, criterion_main, BenchmarkGroup, Criterion};
 use std::{convert::Infallible, hint::black_box, sync::Arc};
 use telers::{
     client::{
@@ -195,7 +195,8 @@ fn filters(c: &mut Criterion) {
     let runtime = runtime();
     let mut group = c.benchmark_group("dispatcher/filters");
     let router = Router::new("many_filters").on_message(|observer| {
-        let handler = (0..8).fold(finish_handler(), |handler, _| handler.filter(passing_filter()));
+        let handler =
+            (0..8).fold(finish_handler(), |handler, _| handler.filter(passing_filter()));
         observer.register(handler)
     });
     let dispatcher = Dispatcher::builder()
@@ -258,5 +259,12 @@ fn routers(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(propagation_benches, baseline, middleware, filters, handlers, routers);
+criterion_group!(
+    propagation_benches,
+    baseline,
+    middleware,
+    filters,
+    handlers,
+    routers,
+);
 criterion_main!(propagation_benches);
