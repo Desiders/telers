@@ -1,6 +1,6 @@
 [package]
 name = "telers-macros"
-version = "1.0.0-beta.1"
+version = "1.0.0-beta.2"
 edition = "2021"
 description = "Macros for telers"
 repository = "https://github.com/Desiders/telers"
