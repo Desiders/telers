@@ -21,7 +21,22 @@ rustls-tls = ["reqwest/rustls"]
 # The `std` feature enables support for Rust's standard library.
 # By default, some dependencies support both `std` and `no_std` environments.
 # Usually, a higher MSRV is required for `no_std`.
-std = ["thiserror/std", "anyhow/std", "strum/std", "serde/std", "serde_json/std"]
+std = [
+    "thiserror/std",
+    "anyhow/std",
+    "base64/std",
+    "bytes/std",
+    "futures-util/std",
+    "regex/std",
+    "strum/std",
+    "serde/std",
+    "serde_json/std",
+    "serde_with/std",
+    "subtle?/std",
+    "tracing/std",
+    "url?/std",
+    "uuid/std",
+]
 
 # Include all possible features
 full = ["storages", "default-signal"]
