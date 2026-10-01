@@ -1,13 +1,15 @@
-use serde::{Deserialize, Serialize};
 /// This object describes the access settings of a bot.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botaccesssettings>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct BotAccessSettings {
     /// `true`, if only selected users can access the bot. The bot's owner can always access it.
     pub is_access_restricted: bool,
     /// The list of other users who have access to the bot if the access is restricted
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub added_users: Option<Box<[crate::types::User]>>,
 }
 impl BotAccessSettings {

@@ -1,14 +1,16 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to remove webhook integration if you decide to switch back to [`crate::methods::GetUpdates`]. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#deletewebhook>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct DeleteWebhook {
     /// Pass `true` to drop all pending updates
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub drop_pending_updates: Option<bool>,
 }
 impl DeleteWebhook {

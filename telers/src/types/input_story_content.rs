@@ -1,11 +1,13 @@
-use serde::{Deserialize, Serialize};
 /// This object describes the content of a story to post. Currently, it can be one of
 /// - [`crate::types::InputStoryContentPhoto`]
 /// - [`crate::types::InputStoryContentVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputstorycontent>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(tag = "type", rename_all = "snake_case"))]
+#[cfg_attr(feature = "deser", deser(tag = "type", rename_all = "snake_case"))]
 pub enum InputStoryContent {
     Photo(crate::types::InputStoryContentPhoto),
     Video(crate::types::InputStoryContentVideo),

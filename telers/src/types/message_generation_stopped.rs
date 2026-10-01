@@ -1,13 +1,15 @@
-use serde::{Deserialize, Serialize};
 /// This object describes an update about a user stopping message generation.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#messagegenerationstopped>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct MessageGenerationStopped {
     /// Chat in which the message is generated
     pub chat: Box<crate::types::Chat>,
     /// Unique identifier of the message thread in which the message is generated
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub message_thread_id: Option<i64>,
     /// Unique identifier of the message draft which was stopped
     pub draft_id: i64,

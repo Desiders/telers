@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to get information about custom emoji stickers by their identifiers. Returns an Array of Sticker objects.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getcustomemojistickers>
 /// # Returns
 /// - `Box<[crate::types::Sticker]>`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetCustomEmojiStickers {
     /// A JSON-serialized list of custom emoji identifiers. At most 200 custom emoji identifiers can be specified.
     pub custom_emoji_ids: Box<[Box<str>]>,

@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes the paid media added to a message.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#paidmediainfo>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PaidMediaInfo {
     /// The number of Telegram Stars that must be paid to buy access to the media
     pub star_count: i64,

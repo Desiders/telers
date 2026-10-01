@@ -524,13 +524,7 @@ pub fn tokenize_method(
         api_method_names: known_api_method_names,
     };
 
-    let import_quotes: Vec<_> = [
-        Some(quote! { use crate::client::Bot; }),
-        Some(quote! { use serde::Serialize; }),
-    ]
-    .into_iter()
-    .flatten()
-    .collect();
+    let import_quotes = [quote! { use crate::client::Bot; }];
 
     let method_name = format_ident!("{}", method_quote.name);
     let mut doc_lines = format_description(&method_quote.description, &method_quote.href);

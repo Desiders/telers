@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// This object represents one result of an inline query. Telegram clients currently support results of the following 20 types:
 /// - [`crate::types::InlineQueryResultCachedAudio`]
 /// - [`crate::types::InlineQueryResultCachedDocument`]
@@ -24,8 +23,11 @@ use serde::{Deserialize, Serialize};
 /// Note: All URLs passed in inline query results will be available to end users and therefore must be assumed to be public.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(tag = "type", rename_all = "snake_case"))]
+#[cfg_attr(feature = "deser", deser(tag = "type", rename_all = "snake_case"))]
 pub enum InlineQueryResult {
     Audio(crate::types::InlineQueryResultAudioKind),
     Document(crate::types::InlineQueryResultDocumentKind),

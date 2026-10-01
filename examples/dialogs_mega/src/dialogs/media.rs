@@ -5,7 +5,7 @@
 //! image (for example an SVG placeholder), so swap in your own public image URL
 //! or a `file_id` your bot owns when adapting this example.
 
-use serde_json::json;
+use telers::serialization::json;
 use telers_dialog::{
     widgets::{
         format_text, keyboard, media, text, Button, ButtonAction, DynamicMedia, InlineKeyboard,

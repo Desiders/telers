@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Represents a join request sent to a chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatjoinrequest>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatJoinRequest {
     /// Chat to which the request was sent
     pub chat: Box<crate::types::Chat>,
@@ -13,13 +14,16 @@ pub struct ChatJoinRequest {
     /// Date the request was sent in Unix time
     pub date: i64,
     /// Bio of the user
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub bio: Option<Box<str>>,
     /// Chat invite link that was used by the user to send the join request
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub invite_link: Option<crate::types::ChatInviteLink>,
     /// Identifier of the join request query; for bots assigned to process join requests only. If present, then the bot must call [`crate::methods::SendChatJoinRequestWebApp`] or directly call [`crate::methods::AnswerChatJoinRequestQuery`] within 10 seconds.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub query_id: Option<Box<str>>,
 }
 impl ChatJoinRequest {

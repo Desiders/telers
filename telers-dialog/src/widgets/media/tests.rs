@@ -1,6 +1,6 @@
 //! Tests for media widgets.
 
-use serde_json::{json, Value};
+use telers::serialization::json;
 
 use super::{
     DynamicMedia, Media, MediaAttachment, MediaContentType, MediaId, MediaScroll, MultiMedia,
@@ -10,7 +10,7 @@ use crate::entities::{Context, DataMap};
 
 #[tokio::test]
 async fn static_media_renders_photo_url() {
-    let ctx = Context::new("", "state", serde_json::Value::Null);
+    let ctx = Context::new("", "state", telers::serialization::Value::default());
     let data = DataMap::new();
 
     let media = StaticMedia::builder(MediaContentType::Photo)
@@ -30,7 +30,7 @@ async fn static_media_renders_photo_url() {
 
 #[tokio::test]
 async fn static_media_renders_video_with_caption() {
-    let ctx = Context::new("", "state", serde_json::Value::Null);
+    let ctx = Context::new("", "state", telers::serialization::Value::default());
     let data = DataMap::new();
 
     let media = StaticMedia::builder(MediaContentType::Video)
@@ -50,7 +50,7 @@ async fn static_media_renders_video_with_caption() {
 
 #[tokio::test]
 async fn static_media_returns_none_without_source() {
-    let ctx = Context::new("", "state", serde_json::Value::Null);
+    let ctx = Context::new("", "state", telers::serialization::Value::default());
     let data = DataMap::new();
 
     let media = StaticMedia::builder(MediaContentType::Photo).build();
@@ -61,7 +61,7 @@ async fn static_media_returns_none_without_source() {
 
 #[tokio::test]
 async fn dynamic_media_reads_url_from_field() {
-    let ctx = Context::new("", "state", serde_json::Value::Null);
+    let ctx = Context::new("", "state", telers::serialization::Value::default());
     let mut data = DataMap::new();
     data.insert("image_url".into(), json!("https://example.com/dynamic.jpg"));
 
@@ -79,7 +79,7 @@ async fn dynamic_media_reads_url_from_field() {
 
 #[tokio::test]
 async fn dynamic_media_returns_none_when_field_missing() {
-    let ctx = Context::new("", "state", serde_json::Value::Null);
+    let ctx = Context::new("", "state", telers::serialization::Value::default());
     let data = DataMap::new();
 
     let media = DynamicMedia::from_url_field(MediaContentType::Photo, "missing_field");
@@ -90,7 +90,7 @@ async fn dynamic_media_returns_none_when_field_missing() {
 
 #[tokio::test]
 async fn dynamic_media_from_field_parses_known_content_type() {
-    let ctx = Context::new("", "state", serde_json::Value::Null);
+    let ctx = Context::new("", "state", telers::serialization::Value::default());
     let mut data = DataMap::new();
     data.insert(
         "media".into(),
@@ -106,7 +106,7 @@ async fn dynamic_media_from_field_parses_known_content_type() {
 
 #[tokio::test]
 async fn dynamic_media_from_field_skips_unknown_content_type() {
-    let ctx = Context::new("", "state", serde_json::Value::Null);
+    let ctx = Context::new("", "state", telers::serialization::Value::default());
     let mut data = DataMap::new();
     data.insert(
         "media".into(),
@@ -120,16 +120,18 @@ async fn dynamic_media_from_field_skips_unknown_content_type() {
 
 #[tokio::test]
 async fn dynamic_media_with_custom_selector() {
-    let ctx = Context::new("", "state", serde_json::Value::Null);
+    let ctx = Context::new("", "state", telers::serialization::Value::default());
     let mut data = DataMap::new();
     data.insert("video_id".into(), json!("ABC123"));
 
     let media = DynamicMedia::builder(|data: &DataMap| {
-        data.get("video_id").and_then(Value::as_str).map(|id| {
-            MediaAttachment::builder(MediaContentType::Video)
-                .file_id(MediaId::new(id.to_string()))
-                .build()
-        })
+        data.get("video_id")
+            .and_then(|value| value.as_str())
+            .map(|id| {
+                MediaAttachment::builder(MediaContentType::Video)
+                    .file_id(MediaId::new(id.to_string()))
+                    .build()
+            })
     })
     .build();
 
@@ -144,7 +146,7 @@ async fn dynamic_media_with_custom_selector() {
 
 #[tokio::test]
 async fn media_scroll_renders_current_page() {
-    let mut ctx = Context::new("", "state", serde_json::Value::Null);
+    let mut ctx = Context::new("", "state", telers::serialization::Value::default());
     let mut data = DataMap::new();
     data.insert(
         "images".into(),
@@ -167,7 +169,7 @@ async fn media_scroll_renders_current_page() {
 
 #[tokio::test]
 async fn media_scroll_handles_empty_items() {
-    let ctx = Context::new("", "state", serde_json::Value::Null);
+    let ctx = Context::new("", "state", telers::serialization::Value::default());
     let mut data = DataMap::new();
     data.insert("images".into(), json!([]));
 
@@ -179,7 +181,7 @@ async fn media_scroll_handles_empty_items() {
 
 #[tokio::test]
 async fn media_scroll_clamps_page_to_bounds() {
-    let mut ctx = Context::new("", "state", serde_json::Value::Null);
+    let mut ctx = Context::new("", "state", telers::serialization::Value::default());
     let mut data = DataMap::new();
     data.insert("images".into(), json!(["https://example.com/only.jpg"]));
 
@@ -245,7 +247,7 @@ async fn media_attachment_builder_methods() {
 
 #[tokio::test]
 async fn dynamic_media_bon_builder_renders_attachment() {
-    let ctx = Context::new("", "state", serde_json::Value::Null);
+    let ctx = Context::new("", "state", telers::serialization::Value::default());
     let mut data = DataMap::new();
     data.insert("image_url".into(), json!("https://example.com/builder.jpg"));
 
@@ -271,7 +273,7 @@ async fn dynamic_media_bon_builder_renders_attachment() {
 
 #[tokio::test]
 async fn media_scroll_bon_builder_renders_current_page() {
-    let mut ctx = Context::new("", "state", serde_json::Value::Null);
+    let mut ctx = Context::new("", "state", telers::serialization::Value::default());
     let mut data = DataMap::new();
     data.insert("images".into(), json!(["one", "two", "three"]));
     ctx.widget_data.insert("gallery".into(), json!(2));
@@ -279,7 +281,7 @@ async fn media_scroll_bon_builder_renders_current_page() {
     let media = MediaScroll::builder("gallery")
         .items_getter(|data: &DataMap| {
             data.get("images")
-                .and_then(|value| value.as_array())
+                .and_then(|value| telers::serialization::as_array(value))
                 .into_iter()
                 .flatten()
                 .filter_map(|value| value.as_str().map(ToOwned::to_owned))
@@ -299,7 +301,7 @@ async fn media_scroll_bon_builder_renders_current_page() {
 
 #[tokio::test]
 async fn multi_media_bon_builder_returns_first_rendered_attachment() {
-    let ctx = Context::new("", "state", serde_json::Value::Null);
+    let ctx = Context::new("", "state", telers::serialization::Value::default());
     let data = DataMap::new();
 
     let media = MultiMedia::builder()

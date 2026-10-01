@@ -1,18 +1,21 @@
-use serde::{Deserialize, Serialize};
 /// Represents the content of a contact message to be sent as the result of an inline query.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputcontactmessagecontent>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputContactMessageContent {
     /// Contact's phone number
     pub phone_number: Box<str>,
     /// Contact's first name
     pub first_name: Box<str>,
     /// Contact's last name
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub last_name: Option<Box<str>>,
     /// Additional data about the contact in the form of a `vCard`, 0-2048 bytes
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub vcard: Option<Box<str>>,
 }
 impl InputContactMessageContent {

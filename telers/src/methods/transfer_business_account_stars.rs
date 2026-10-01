@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Transfers Telegram Stars from the business account balance to the bot's balance. Requires the `can_transfer_stars` business bot right. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transferbusinessaccountstars>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct TransferBusinessAccountStars {
     /// Unique identifier of the business connection
     pub business_connection_id: Box<str>,

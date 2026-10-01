@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Contains a list of Telegram Star transactions.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#startransactions>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct StarTransactions {
     /// The list of transactions
     pub transactions: Box<[crate::types::StarTransaction]>,

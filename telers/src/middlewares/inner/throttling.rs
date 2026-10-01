@@ -39,7 +39,7 @@ type OnThrottledCallback<Client> =
 ///
 /// Peer IDs are resolved from the request context (`event_user`, `event_chat`,
 /// `event_message_thread_id`, `event_business_connection_id`) populated by
-/// [`UserContextMiddleware`], which is included in the default middleware config.
+/// [`UserContext`], which is included in the default middleware config.
 /// Updates without a user and a chat are passed through without throttling.
 /// The strategy controls which peer IDs form the throttling key, e.g. [`Strategy::Chat`]
 /// throttles per chat, [`Strategy::UserInThread`] per user and thread pair.
@@ -48,7 +48,7 @@ type OnThrottledCallback<Client> =
 /// Timestamps of expired keys are pruned when a new key is inserted, so the memory usage is
 /// bounded by the number of keys inserted since the last prune.
 ///
-/// [`UserContextMiddleware`]: crate::middlewares::outer::UserContextMiddleware
+/// [`UserContext`]: crate::middlewares::outer::UserContext
 pub struct Throttling<Client = Reqwest> {
     strategy: Strategy,
     rate: Duration,

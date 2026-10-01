@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// A custom emoji.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richtextcustomemoji>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct RichTextCustomEmoji {
     /// Unique identifier of the custom emoji. Use [`crate::methods::GetCustomEmojiStickers`] to get full information about the sticker.
     pub custom_emoji_id: Box<str>,

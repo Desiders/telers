@@ -1,26 +1,31 @@
-use serde::{Deserialize, Serialize};
 /// This object represents an incoming callback query from a callback button in an inline keyboard. If the button that originated the query was attached to a message sent by the bot, the field message will be present. If the button was attached to a message sent via the bot (in inline mode), the field `inline_message_id` will be present. Exactly one of the fields data or `game_short_name` will be present.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#callbackquery>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct CallbackQuery {
     /// Unique identifier for this query
     pub id: Box<str>,
     /// Sender
     pub from: Box<crate::types::User>,
     /// Message sent by the bot with the callback button that originated the query
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub message: Option<Box<crate::types::MaybeInaccessibleMessage>>,
     /// Identifier of the message sent via the bot in inline mode, that originated the query
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub inline_message_id: Option<Box<str>>,
     /// Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent. Useful for high scores in games.
     pub chat_instance: Box<str>,
     /// Data associated with the callback button. Be aware that the message originated the query can contain no callback buttons with this data.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub data: Option<Box<str>>,
     /// Short name of a Game to be returned, serves as the unique identifier for the game
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub game_short_name: Option<Box<str>>,
 }
 impl CallbackQuery {

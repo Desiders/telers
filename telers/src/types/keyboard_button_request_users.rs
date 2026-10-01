@@ -1,28 +1,35 @@
-use serde::{Deserialize, Serialize};
 /// This object defines the criteria used to request suitable users. Information about the selected users will be shared with the bot when the corresponding button is pressed. More about requesting users: <https://core.telegram.org/bots/features#chat-and-user-selection>
 /// # Documentation
 /// <https://core.telegram.org/bots/api#keyboardbuttonrequestusers>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct KeyboardButtonRequestUsers {
     /// Signed 32-bit identifier of the request that will be received back in the [`crate::types::UsersShared`] object. Must be unique within the message.
     pub request_id: i64,
     /// Pass `true` to request bots, pass `false` to request regular users. If not specified, no additional restrictions are applied.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub user_is_bot: Option<bool>,
     /// Pass `true` to request premium users, pass `false` to request non-premium users. If not specified, no additional restrictions are applied.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub user_is_premium: Option<bool>,
     /// The maximum number of users to be selected; 1-10. Defaults to 1.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub max_quantity: Option<u8>,
     /// Pass `true` to request the users' first and last names
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub request_name: Option<bool>,
     /// Pass `true` to request the users' usernames
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub request_username: Option<bool>,
     /// Pass `true` to request the users' photos
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub request_photo: Option<bool>,
 }
 impl KeyboardButtonRequestUsers {

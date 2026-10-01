@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object is received when messages are deleted from a connected business account.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#businessmessagesdeleted>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct BusinessMessagesDeleted {
     /// Unique identifier of the business connection
     pub business_connection_id: Box<str>,

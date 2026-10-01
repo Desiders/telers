@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes the price of a suggested post.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#suggestedpostprice>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct SuggestedPostPrice {
     /// Currency in which the post will be paid. Currently, must be one of `XTR` for Telegram Stars or `TON` for TON grams.
     pub currency: Box<str>,

@@ -1,4 +1,4 @@
-﻿use telers::{
+use telers::{
     client::Reqwest,
     context::Context,
     filters::CommandObject,

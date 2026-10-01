@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to revoke the current token of a managed bot and generate a new one. Returns the new token as String on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#replacemanagedbottoken>
 /// # Returns
 /// - `Box<str>`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct ReplaceManagedBotToken {
     /// User identifier of the managed bot whose token will be replaced
     pub user_id: i64,

@@ -1,31 +1,37 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to set the score of the specified user in a game message. On success, if the message is not an inline message, the Message is returned, otherwise `true` is returned. Returns an error, if the new score is not greater than the user's current score in the chat and force is `false`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setgamescore>
 /// # Returns
 /// - `crate::types::Message`
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SetGameScore {
     /// User identifier
     pub user_id: i64,
     /// New score, must be non-negative
     pub score: i64,
     /// Pass `true` if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub force: Option<bool>,
     /// Pass `true` if the game message should not be automatically edited to include the current scoreboard
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub disable_edit_message: Option<bool>,
     /// Required if `inline_message_id` is not specified. Unique identifier for the target chat.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub chat_id: Option<i64>,
     /// Required if `inline_message_id` is not specified. Identifier of the sent message.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub message_id: Option<i64>,
     /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub inline_message_id: Option<Box<str>>,
 }
 impl SetGameScore {

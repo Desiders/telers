@@ -1,15 +1,17 @@
-use serde::{Deserialize, Serialize};
 /// Describes a story area pointing to a location. Currently, a story can have up to 10 location areas.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#storyareatypelocation>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct StoryAreaTypeLocation {
     /// Location latitude in degrees
     pub latitude: f64,
     /// Location longitude in degrees
     pub longitude: f64,
     /// Address of the location
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub address: Option<crate::types::LocationAddress>,
 }
 impl StoryAreaTypeLocation {

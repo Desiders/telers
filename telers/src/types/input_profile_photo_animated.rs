@@ -1,13 +1,15 @@
-use serde::{Deserialize, Serialize};
 /// An animated profile photo in the MPEG4 format.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputprofilephotoanimated>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputProfilePhotoAnimated {
     /// The animated profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass `attach://<file_attach_name>` if the photo was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     pub animation: crate::types::InputFile,
     /// Timestamp in seconds of the frame that will be used as the static profile photo. Defaults to 0.0.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub main_frame_timestamp: Option<f64>,
 }
 impl InputProfilePhotoAnimated {

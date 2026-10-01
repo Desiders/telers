@@ -1,10 +1,11 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a/an date time message entity.
 /// # Notes
 /// This object represents a message entity from original field `date_time`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#messageentity>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct MessageEntityDateTime {
     /// Offset in UTF-16 code units to the start of the entity
     pub offset: i64,
@@ -13,7 +14,8 @@ pub struct MessageEntityDateTime {
     /// For `date_time` only, the Unix time associated with the entity
     pub unix_time: i64,
     /// For `date_time` only, the string that defines the formatting of the date and time. See date-time entity formatting for more details.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub date_time_format: Option<Box<str>>,
 }
 impl MessageEntityDateTime {

@@ -8,13 +8,13 @@ use crate::{
     registry::DialogRegistry,
     widgets::{media::MediaId, ButtonAction, ClickContext},
 };
-use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, mem};
 use telers::{
     client::Session,
     enums::ReplyMarkupType,
     fsm::Storage,
     methods::AnswerCallbackQuery,
+    serialization::{Deserialize, Serialize},
     types::{CallbackQuery, MaybeInaccessibleMessage, Message},
     Bot,
 };
@@ -848,7 +848,7 @@ impl<S: Storage> DialogManager<S> {
         value: Data,
     ) -> Result<(), DialogError> {
         let key = key.into();
-        debug!(key = %key, value = %value, "Set dialog value");
+        debug!(key = %key, value = ?value, "Set dialog value");
         let mut storage = self.load_storage().await?;
         let stack = storage.current_stack_mut();
         let id = stack
@@ -875,7 +875,7 @@ impl<S: Storage> DialogManager<S> {
         value: Data,
     ) -> Result<(), DialogError> {
         let key = key.into();
-        debug!(key = %key, value = %value, "Set widget value");
+        debug!(key = %key, value = ?value, "Set widget value");
         let mut storage = self.load_storage().await?;
         let stack = storage.current_stack_mut();
         let id = stack
@@ -1082,7 +1082,6 @@ mod tests {
         widgets::{fn_text, input, text, ButtonAction, MessageInput, MessageInputContext},
         window, DialogError, DialogRegistry, IntoDialog, IntoWindow, StackAccessValidator,
     };
-    use serde_json::{json, Value};
     use std::sync::{
         atomic::{AtomicUsize, Ordering},
         Arc,
@@ -1091,6 +1090,7 @@ mod tests {
         client::Reqwest,
         enums::ReplyMarkupType,
         fsm::{Context as FSMContext, MemoryStorage, StorageKey},
+        serialization::{json, Value},
         types::{ChatPrivate, Message, MessageText, User},
         Bot, Context as RuntimeContext,
     };
@@ -1248,7 +1248,7 @@ mod tests {
         prime_last_message(&manager, 50).await;
 
         let _ = manager
-            .start(&bot, "first", Value::Null, StartMode::Normal)
+            .start(&bot, "first", Value::default(), StartMode::Normal)
             .await
             .expect("start first");
         assert_eq!(
@@ -1347,11 +1347,11 @@ mod tests {
         prime_last_message(&manager, 70).await;
 
         let _ = manager
-            .start(&bot, "before", Value::Null, StartMode::Normal)
+            .start(&bot, "before", Value::default(), StartMode::Normal)
             .await
             .expect("start before");
         let _ = manager
-            .start(&bot, "locked", Value::Null, StartMode::Normal)
+            .start(&bot, "locked", Value::default(), StartMode::Normal)
             .await
             .expect("start locked");
 
@@ -1363,7 +1363,7 @@ mod tests {
         );
 
         let err = manager
-            .start(&bot, "other", Value::Null, StartMode::Normal)
+            .start(&bot, "other", Value::default(), StartMode::Normal)
             .await
             .expect_err("exclusive dialog must block other dialogs");
         assert!(matches!(err, DialogError::ExclusiveDialogActive));
@@ -1388,7 +1388,7 @@ mod tests {
             manager_for_event(fsm.clone(), registry.clone(), message_event("/start"));
         prime_last_message(&start_manager, 75).await;
         let _ = start_manager
-            .start(&bot, "ask_name", Value::Null, StartMode::Normal)
+            .start(&bot, "ask_name", Value::default(), StartMode::Normal)
             .await
             .expect("start ask_name");
 
@@ -1424,11 +1424,11 @@ mod tests {
         prime_last_message(&manager, 80).await;
 
         let _ = manager
-            .start(&bot, "root", Value::Null, StartMode::Normal)
+            .start(&bot, "root", Value::default(), StartMode::Normal)
             .await
             .expect("start root");
         let _ = manager
-            .start(&bot, "child", Value::Null, StartMode::Normal)
+            .start(&bot, "child", Value::default(), StartMode::Normal)
             .await
             .expect("start child");
         assert_eq!(root_renders.load(Ordering::SeqCst), 1);
@@ -1481,7 +1481,7 @@ mod tests {
         prime_last_message(&manager, 85).await;
 
         let _ = manager
-            .start(&bot, "parent", Value::Null, StartMode::Normal)
+            .start(&bot, "parent", Value::default(), StartMode::Normal)
             .await
             .unwrap();
         let _ = manager
@@ -1522,7 +1522,7 @@ mod tests {
         prime_last_message(&manager, 90).await;
 
         let _ = manager
-            .start(&bot, "only", Value::Null, StartMode::Normal)
+            .start(&bot, "only", Value::default(), StartMode::Normal)
             .await
             .expect("start only");
         assert_eq!(only_renders.load(Ordering::SeqCst), 1);
@@ -1614,7 +1614,7 @@ mod tests {
         stack.last_message_id = Some(42);
         stack.last_text = Some("summary".into());
         stack.last_reply_markup_type = Some(ReplyMarkupType::InlineKeyboardMarkup);
-        stack.last_reply_markup = Some(serde_json::json!({
+        stack.last_reply_markup = Some(telers::serialization::json!({
             "inline_keyboard": [[{"text": "Close", "callback_data": "td:intent:done"}]]
         }));
 
@@ -1676,7 +1676,7 @@ mod tests {
             user_ids: vec![999], // not the test user
             custom: None,
         };
-        let mut ctx = Context::new("", "state", Value::Null);
+        let mut ctx = Context::new("", "state", Value::default());
         ctx.access_settings = Some(settings);
         assert!(manager
             .check_access(&Stack::new(), Some(&ctx), event_ctx)
@@ -1692,7 +1692,7 @@ mod tests {
             user_ids: vec![999],
             custom: None,
         };
-        let mut ctx = Context::new("", "state", Value::Null);
+        let mut ctx = Context::new("", "state", Value::default());
         ctx.access_settings = Some(settings);
         let err = manager
             .check_access(&Stack::new(), Some(&ctx), event_ctx)
@@ -1709,7 +1709,7 @@ mod tests {
             user_ids: vec![TEST_USER_ID],
             custom: None,
         };
-        let mut ctx = Context::new("", "state", Value::Null);
+        let mut ctx = Context::new("", "state", Value::default());
         ctx.access_settings = Some(settings);
         assert!(manager
             .check_access(&Stack::new(), Some(&ctx), event_ctx)
@@ -1725,7 +1725,7 @@ mod tests {
             user_ids: vec![],
             custom: None,
         };
-        let mut ctx = Context::new("", "state", Value::Null);
+        let mut ctx = Context::new("", "state", Value::default());
         ctx.access_settings = Some(settings);
         assert!(manager
             .check_access(&Stack::new(), Some(&ctx), event_ctx)
@@ -1757,7 +1757,7 @@ mod tests {
             manager_for_event(fsm.clone(), registry.clone(), message_event("/start"));
         prime_last_message(&private_manager, 100).await;
         let ctx = private_manager
-            .start(&bot, "ask", Value::Null, StartMode::Normal)
+            .start(&bot, "ask", Value::default(), StartMode::Normal)
             .await
             .expect("start ask");
 

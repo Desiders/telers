@@ -1,12 +1,14 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a message about the completion of a giveaway with public winners.
 /// Currently, it can be one of
 /// - [`crate::types::GiveawayWinnersPremium`]
 /// - [`crate::types::GiveawayWinnersStar`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#giveawaywinners>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(untagged)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(untagged))]
+#[cfg_attr(feature = "deser", deser(untagged))]
 pub enum GiveawayWinners {
     Premium(crate::types::GiveawayWinnersPremium),
     Star(crate::types::GiveawayWinnersStar),

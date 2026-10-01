@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to reply to a received guest message. On success, a [`crate::types::SentGuestMessage`] object is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#answerguestquery>
 /// # Returns
 /// - `crate::types::SentGuestMessage`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct AnswerGuestQuery {
     /// Unique identifier for the query to be answered
     pub guest_query_id: Box<str>,

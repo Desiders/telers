@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// A section heading, corresponding to the HTML tags <`h1`>, <`h2`>, <`h3`>, <`h4`>, <`h5`>, or <`h6`>.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputrichblocksectionheading>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputRichBlockSectionHeading {
     /// Text of the block
     pub text: Box<crate::types::RichText>,

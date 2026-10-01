@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes the position of a clickable area within a story.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#storyareaposition>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct StoryAreaPosition {
     /// The abscissa of the area's center, as a percentage of the media width
     pub x_percentage: f64,

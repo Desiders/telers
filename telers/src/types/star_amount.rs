@@ -1,13 +1,15 @@
-use serde::{Deserialize, Serialize};
 /// Describes an amount of Telegram Stars.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#staramount>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct StarAmount {
     /// Integer amount of Telegram Stars, rounded to 0; can be negative
     pub amount: i64,
     /// The number of 1/1000000000 shares of Telegram Stars; from -999999999 to 999999999; can be negative if and only if amount is non-positive
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub nanostar_amount: Option<i32>,
 }
 impl StarAmount {

@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Represents a reaction added to a message along with the number of times it was added.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#reactioncount>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ReactionCount {
     /// Type of the reaction
     pub r#type: crate::types::ReactionType,

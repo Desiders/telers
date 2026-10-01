@@ -1,19 +1,23 @@
-use serde::{Deserialize, Serialize};
 /// The boost was obtained by the creation of a Telegram Premium or a Telegram Star giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription for Telegram Premium giveaways and `prize_star_count` / 500 times for one year for Telegram Star giveaways.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatboostsourcegiveaway>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatBoostSourceGiveaway {
     /// Identifier of a message in the chat with the giveaway; the message could have been deleted already. May be 0 if the message isn't sent yet.
     pub giveaway_message_id: i64,
     /// User that won the prize in the giveaway if any; for Telegram Premium giveaways only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub user: Option<Box<crate::types::User>>,
     /// The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub prize_star_count: Option<i64>,
     /// `true`, if the giveaway was completed, but there was no user to win the prize
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_unclaimed: Option<bool>,
 }
 impl ChatBoostSourceGiveaway {

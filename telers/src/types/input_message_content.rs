@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// This object represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following types:
 /// - [`crate::types::InputTextMessageContent`]
 /// - [`crate::types::InputRichMessageContent`]
@@ -8,8 +7,11 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::InputInvoiceMessageContent`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmessagecontent>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(untagged)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(untagged))]
+#[cfg_attr(feature = "deser", deser(untagged))]
 pub enum InputMessageContent {
     InputInvoiceMessageContent(crate::types::InputInvoiceMessageContent),
     InputVenueMessageContent(crate::types::InputVenueMessageContent),

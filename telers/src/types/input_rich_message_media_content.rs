@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// This object represents the media content of a rich message to be sent.
 /// Currently, it can be one of
 /// - [`crate::types::InputMediaAnimation`]
@@ -9,8 +8,11 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::InputMediaVoiceNote`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputrichmessagemedia>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(tag = "type", rename_all = "snake_case"))]
+#[cfg_attr(feature = "deser", deser(tag = "type", rename_all = "snake_case"))]
 pub enum InputRichMessageMediaContent {
     Animation(crate::types::InputMediaAnimation),
     Audio(crate::types::InputMediaAudio),

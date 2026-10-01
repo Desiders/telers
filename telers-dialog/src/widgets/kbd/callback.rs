@@ -43,10 +43,10 @@ pub(crate) fn parse_callback_data<'a>(
 mod tests {
     use super::{format_callback_data, parse_callback_data};
     use crate::entities::Context;
-    use serde_json::Value;
+    use telers::serialization::Value;
 
     fn ctx() -> Context {
-        Context::new("", "state", Value::Null)
+        Context::new("", "state", Value::default())
     }
 
     #[test]

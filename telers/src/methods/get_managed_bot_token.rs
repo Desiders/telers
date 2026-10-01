@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to get the token of a managed bot. Returns the token as String on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getmanagedbottoken>
 /// # Returns
 /// - `Box<str>`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetManagedBotToken {
     /// User identifier of the managed bot whose token will be returned
     pub user_id: i64,

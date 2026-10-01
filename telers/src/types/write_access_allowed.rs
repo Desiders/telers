@@ -1,17 +1,21 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a service message about a user allowing a bot to write messages after adding it to the attachment menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#writeaccessallowed>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct WriteAccessAllowed {
     /// `true`, if the access was granted after the user accepted an explicit request from a Web App sent by the method `requestWriteAccess`
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub from_request: Option<bool>,
     /// Name of the Web App, if the access was granted when the Web App was launched from a link
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub web_app_name: Option<Box<str>>,
     /// `true`, if the access was granted when the bot was added to the attachment or side menu
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub from_attachment_menu: Option<bool>,
 }
 impl WriteAccessAllowed {

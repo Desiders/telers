@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// This object contains full information about a chat.
 /// Currently, it can be one of
 /// - [`crate::types::ChatFullInfoChannel`]
@@ -7,15 +6,19 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::ChatFullInfoSupergroup`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatfullinfo>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(tag = "type", rename_all = "snake_case"))]
+#[cfg_attr(feature = "deser", deser(tag = "type", rename_all = "snake_case"))]
 pub enum ChatFullInfo {
     Private(crate::types::ChatFullInfoPrivate),
     Group(crate::types::ChatFullInfoGroup),
     Supergroup(crate::types::ChatFullInfoSupergroup),
     Channel(crate::types::ChatFullInfoChannel),
     /// Content unknown to this version of the library
-    #[serde(untagged)]
+    #[cfg_attr(not(feature = "deser"), serde(untagged))]
+    #[cfg_attr(feature = "deser", deser(untagged))]
     Unknown(crate::types::ChatFullInfoUnknown),
 }
 impl ChatFullInfo {

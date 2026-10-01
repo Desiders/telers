@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Returns the list of gifts that can be sent by the bot to users and channel chats. Requires no parameters. Returns a Gifts object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getavailablegifts>
 /// # Returns
 /// - `crate::types::Gifts`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetAvailableGifts {}
 impl GetAvailableGifts {
     /// Creates a new `GetAvailableGifts`.

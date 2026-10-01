@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// A method to get the current Telegram Stars balance of the bot. Requires no parameters. On success, returns a [`crate::types::StarAmount`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getmystarbalance>
 /// # Returns
 /// - `crate::types::StarAmount`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetMyStarBalance {}
 impl GetMyStarBalance {
     /// Creates a new `GetMyStarBalance`.

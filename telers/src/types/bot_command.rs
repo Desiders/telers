@@ -1,15 +1,17 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a bot command.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommand>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct BotCommand {
     /// Text of the command; 1-32 characters. Can contain only lowercase English letters, digits and underscores.
     pub command: Box<str>,
     /// Description of the command; 1-256 characters
     pub description: Box<str>,
     /// `true`, if the command sends an ephemeral message, which can be seen only by the sender of the message and the bot
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_ephemeral: Option<bool>,
 }
 impl BotCommand {

@@ -1,8 +1,8 @@
 use async_fn_traits::AsyncFn1;
 use async_trait::async_trait;
 use bon::bon;
-use serde_json::Value;
 use std::{borrow::Cow, sync::Arc};
+use telers::serialization::Value;
 
 use super::{
     super::{when::is_allowed, ButtonAction, ClickContext, Keyboard, WhenCondition},

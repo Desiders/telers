@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// An underlined text.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richtextunderline>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct RichTextUnderline {
     /// The text
     pub text: Box<crate::types::RichText>,

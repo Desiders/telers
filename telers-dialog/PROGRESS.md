@@ -1,6 +1,6 @@
 # telers-dialog Progress
 
-Updated: 2026-06-15 (UTC)
+Updated: 2026-10-01 (UTC)
 
 ## Goal
 - Focused Rust dialog framework for `telers`, borrowing `aiogram-dialog` behavior only where useful.
@@ -14,6 +14,7 @@ Updated: 2026-06-15 (UTC)
 - Widgets: text, keyboard, input, link preview, media, pager, stateful select, calendar, request keyboards.
 
 ## Implemented
+- Serialization follows `telers`: default `serde`, or native `deser` when enabled. Stored dialog contexts, stacks, access data, media, markup snapshots, and calendar state use the selected traits and JSON values. MiniJinja receives native values directly with Deser.
 - `DialogRegistry` indexes by state and rejects duplicates.
 - `DialogManager` supports start/switch/next/back/done/result/show plus callback/message handling.
 - Manager and action APIs include single-value (`set_dialog_value`, `set_widget_value`) and batched (`extend_dialog_data`, `extend_widget_data`) helpers, mirrored on `ButtonAction`.
@@ -48,6 +49,7 @@ Updated: 2026-06-15 (UTC)
   - The stack persists the real `last_reply_markup_type` (instead of a derived `last_reply_keyboard` flag), so `ForceReply` / `ReplyKeyboardRemove` messages are no longer misclassified as inline keyboards. Leaving a `ForceReply` window no longer triggers a bogus `editMessageReplyMarkup`.
 
 ## Existing Examples
+- The existing `dialogs_mega` example supports both backends; run native mode with `cargo run -p dialogs_mega --no-default-features --features deser`. No example is missing for the serialization feature.
 - A single combined example crate, `examples/dialogs_mega`, bundles the previous standalone dialog examples into one bot. A root menu (`LaunchMode::Root`) starts each feature dialog and every screen returns to it with `Button::done`. Feature dialogs:
   - text widgets (`FormatText`, `FnText`, `ListText`); template text (default + custom env).
   - scrolling widgets (`ScrollingGroup`, `ScrollingText`, paged `ListText`, `StubScroll`, `sync_scroll`).
@@ -69,8 +71,13 @@ Updated: 2026-06-15 (UTC)
 - Different: explicit `telers` middleware integration, typed Rust actions/builders, smaller widget set, no managed wrapper types.
 
 ## Validation Snapshot
-- `cargo check -p telers-dialog --all-features`: passes.
-- `cargo test -p telers-dialog --all-features`: 157 unit tests pass, 1 doc test passes, 15 doc tests ignored.
-- `cargo check --workspace --all-features`: passes (the sole dialog example crate is `dialogs_mega`).
-- `cargo fmt -p dialogs_mega`: applied.
-- `cargo clippy -p telers-dialog --all-features` and `cargo clippy -p dialogs_mega`: no warnings in either crate (3 pre-existing `map_or` warnings remain in the `telers` lib).
+- Convention review: grouped serialization imports, shortened the Deser README to 16 lines, and corrected private builder links. Generator tests pass (19); model and fixture output is unchanged.
+- `cargo doc -p telers -p telers-dialog --no-deps --all-features --locked`: passes without warnings.
+- `cargo test -p telers-dialog --all-features`: 273 unit tests and 1 doc test pass; 15 doc tests ignored (native Deser, including templates).
+- Serde mode: all 273 dialog unit tests pass with the `template` feature.
+- `cargo check --workspace --all-features --all-targets --locked`: passes with the native backend (one existing unused-field warning in the commands tests).
+- `cargo check -p dialogs_mega --no-default-features --features deser`: passes.
+- Clippy passes for the core, generator, dialogs, and example; existing warnings remain.
+- Serialization regressions: 273 native dialog tests and 124 Serde keyboard tests pass.
+- Direct Serde dependencies are optional; enable `serde` explicitly when disabling defaults without choosing Deser. Backend features must match those selected on `telers`.
+- The existing standalone pager example gap listed above is unrelated to serialization and remains open.

@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Changes the profile photo of the bot. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setmyprofilephoto>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SetMyProfilePhoto {
     /// The new profile photo to set
     pub photo: crate::types::InputProfilePhoto,

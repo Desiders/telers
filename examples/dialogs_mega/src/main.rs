@@ -1,7 +1,6 @@
 mod common;
 mod dialogs;
 
-use serde_json::Value;
 use telers::{
     enums::UpdateType,
     errors::HandlerError,
@@ -9,6 +8,7 @@ use telers::{
     filters::CommandStart,
     fsm::{MemoryStorage, Strategy::UserInChat},
     middlewares::outer::FSMContext as FSMContextMiddleware,
+    serialization::Value,
     Bot, Dispatcher, Router,
 };
 use telers_dialog::{DialogManager, DialogObserverExt, DialogRegistry, StartMode};
@@ -22,7 +22,7 @@ async fn handle_start(bot: Bot, manager: Manager) -> HandlerResult<()> {
         .start(
             &bot,
             common::MAIN_MENU_STATE.to_owned(),
-            Value::Null,
+            Value::default(),
             StartMode::ResetStack,
         )
         .await

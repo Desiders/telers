@@ -2,7 +2,7 @@
 //!
 //! Requires the `template` feature, enabled in this crate's `Cargo.toml`.
 
-use serde_json::json;
+use telers::serialization::json;
 use telers_dialog::{
     widgets::{
         keyboard, text, Button, ButtonAction, InlineKeyboard, TemplateEnvBuilder, TemplateText,

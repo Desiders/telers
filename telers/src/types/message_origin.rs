@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// This object describes the origin of a message. It can be one of
 /// - [`crate::types::MessageOriginUser`]
 /// - [`crate::types::MessageOriginHiddenUser`]
@@ -6,15 +5,19 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::MessageOriginChannel`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#messageorigin>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(tag = "type", rename_all = "snake_case"))]
+#[cfg_attr(feature = "deser", deser(tag = "type", rename_all = "snake_case"))]
 pub enum MessageOrigin {
     User(crate::types::MessageOriginUser),
     HiddenUser(crate::types::MessageOriginHiddenUser),
     Chat(crate::types::MessageOriginChat),
     Channel(crate::types::MessageOriginChannel),
     /// Content unknown to this version of the library
-    #[serde(untagged)]
+    #[cfg_attr(not(feature = "deser"), serde(untagged))]
+    #[cfg_attr(feature = "deser", deser(untagged))]
     Unknown(crate::types::MessageOriginUnknown),
 }
 impl MessageOrigin {

@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
+use crate::serialization::{Deserialize, Serialize};
 use strum_macros::Display;
 
 #[derive(Debug, Display, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
-#[serde(untagged, rename_all = "snake_case")]
+#[cfg_attr(not(feature = "deser"), serde(untagged, rename_all = "snake_case"))]
+#[cfg_attr(feature = "deser", deser(untagged, rename_all = "snake_case"))]
 pub enum ChatIdKind {
     Id(i64),
     Username(Box<str>),

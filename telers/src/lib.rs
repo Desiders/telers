@@ -61,6 +61,7 @@
 
 extern crate self as telers;
 
+pub mod serialization;
 mod serializers;
 
 pub(crate) mod any;

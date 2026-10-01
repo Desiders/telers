@@ -1,5 +1,4 @@
 use crate::types::EncryptedPassportElement;
-use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// Describes documents or other Telegram Passport elements shared with the bot by the user.
 /// Currently, it can be one of
@@ -18,20 +17,9 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::EncryptedPassportElementUtilityBill`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#encryptedpassportelement>
-#[derive(
-    Debug,
-    Display,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-    EnumString,
-    AsRefStr,
-    IntoStaticStr,
-    Deserialize,
-    Serialize,
-)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[cfg_attr(feature = "deser", derive(deser::Deserialize, deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Deserialize, serde::Serialize))]
 pub enum EncryptedPassportElementType {
     #[strum(serialize = "personal_details")]
     PersonalDetails,

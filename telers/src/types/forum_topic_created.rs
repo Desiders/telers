@@ -1,18 +1,21 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a service message about a new forum topic created in the chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#forumtopiccreated>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ForumTopicCreated {
     /// Name of the topic
     pub name: Box<str>,
     /// Color of the topic icon in RGB format
     pub icon_color: i32,
     /// Unique identifier of the custom emoji shown as the topic icon
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub icon_custom_emoji_id: Option<Box<str>>,
     /// `true`, if the name of the topic wasn't specified explicitly by its creator and likely needs to be changed by the bot
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_name_implicit: Option<bool>,
 }
 impl ForumTopicCreated {

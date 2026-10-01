@@ -1,5 +1,4 @@
 use crate::types::StoryAreaType;
-use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// Describes the type of a clickable area on a story. Currently, it can be one of
 /// - [`crate::types::StoryAreaTypeLocation`]
@@ -9,20 +8,9 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::StoryAreaTypeUniqueGift`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#storyareatype>
-#[derive(
-    Debug,
-    Display,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-    EnumString,
-    AsRefStr,
-    IntoStaticStr,
-    Deserialize,
-    Serialize,
-)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[cfg_attr(feature = "deser", derive(deser::Deserialize, deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Deserialize, serde::Serialize))]
 pub enum StoryAreaTypeType {
     #[strum(serialize = "location")]
     Location,

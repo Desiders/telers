@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// Describes documents or other Telegram Passport elements shared with the bot by the user.
 /// Currently, it can be one of
 /// - [`crate::types::EncryptedPassportElementAddress`]
@@ -16,8 +15,11 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::EncryptedPassportElementUtilityBill`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#encryptedpassportelement>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(tag = "type", rename_all = "snake_case"))]
+#[cfg_attr(feature = "deser", deser(tag = "type", rename_all = "snake_case"))]
 pub enum EncryptedPassportElement {
     PersonalDetails(crate::types::EncryptedPassportElementPersonalDetails),
     Passport(crate::types::EncryptedPassportElementPassport),
@@ -33,7 +35,8 @@ pub enum EncryptedPassportElement {
     PhoneNumber(crate::types::EncryptedPassportElementPhoneNumber),
     Email(crate::types::EncryptedPassportElementEmail),
     /// Content unknown to this version of the library
-    #[serde(untagged)]
+    #[cfg_attr(not(feature = "deser"), serde(untagged))]
+    #[cfg_attr(feature = "deser", deser(untagged))]
     Unknown(crate::types::EncryptedPassportElementUnknown),
 }
 impl EncryptedPassportElement {

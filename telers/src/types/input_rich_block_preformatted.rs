@@ -1,13 +1,15 @@
-use serde::{Deserialize, Serialize};
 /// A preformatted text block, corresponding to the nested HTML tags <`pre`> and <`code`>.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputrichblockpreformatted>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputRichBlockPreformatted {
     /// Text of the block
     pub text: Box<crate::types::RichText>,
     /// The programming language of the text
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub language: Option<Box<str>>,
 }
 impl InputRichBlockPreformatted {

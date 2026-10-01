@@ -105,7 +105,7 @@ impl ResultContext {
     /// Get a value from the result data.
     #[inline]
     #[must_use]
-    pub fn result_value(&self, key: &str) -> Option<&serde_json::Value> {
+    pub fn result_value(&self, key: &str) -> Option<&telers::serialization::Value> {
         self.result.get(key)
     }
 }
@@ -114,7 +114,7 @@ impl ResultContext {
 mod tests {
     use super::ResultContext;
     use crate::entities::{ChatEvent, Context, EventContext};
-    use serde_json::json;
+    use telers::serialization::json;
 
     #[test]
     fn result_context_provides_access_to_all_fields() {

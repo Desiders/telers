@@ -1,19 +1,22 @@
-use serde::{de::DeserializeOwned, Serialize};
-use telers::types::*;
+use telers::{
+    serialization::{DeserializeOwned, Serialize},
+    types::*,
+};
 fn must_parse<T: DeserializeOwned>(type_name: &str, value: &serde_json::Value) -> T {
-    serde_json::from_value(value.clone()).unwrap_or_else(|err| {
+    telers::serialization::from_str(&value.to_string()).unwrap_or_else(|err| {
         panic!("failed to deserialize {type_name} from JSON: {err}; json: {value}")
     })
 }
 fn must_to_value<T: Serialize>(type_name: &str, value: &T) -> serde_json::Value {
-    serde_json::to_value(value).unwrap_or_else(|err| {
+    let serialized = telers::serialization::to_string(value).unwrap_or_else(|err| {
         panic!("failed to convert {type_name} to JSON value after deserialize: {err}")
-    })
+    });
+    serde_json::from_str(&serialized).unwrap()
 }
 fn must_roundtrip<T: Serialize + DeserializeOwned>(type_name: &str, value: &T) {
-    let serialized = serde_json::to_string(value)
+    let serialized = telers::serialization::to_string(value)
         .unwrap_or_else(|err| panic!("failed to serialize {type_name} after deserialize: {err}"));
-    serde_json::from_str::<T>(&serialized).unwrap_or_else(|err| {
+    telers::serialization::from_str::<T>(&serialized).unwrap_or_else(|err| {
         panic!("failed roundtrip deserialize {type_name} from JSON: {err}; json: {serialized}")
     });
 }

@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Deletes a story previously posted by the bot on behalf of a managed business account. Requires the `can_manage_stories` business bot right. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#deletestory>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct DeleteStory {
     /// Unique identifier of the business connection
     pub business_connection_id: Box<str>,

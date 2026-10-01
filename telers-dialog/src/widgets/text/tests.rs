@@ -3,7 +3,7 @@ use crate::{
     entities::{Context, DataMap},
     widgets::{Keyboard, NumberedPager},
 };
-use serde_json::json;
+use telers::serialization::json;
 
 #[tokio::test]
 async fn format_text_replaces_known_keys() {

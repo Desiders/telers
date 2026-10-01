@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// This object represents an error in the Telegram Passport element which was submitted that should be resolved by the user. It should be one of:
 /// - [`crate::types::PassportElementErrorDataField`]
 /// - [`crate::types::PassportElementErrorFrontSide`]
@@ -11,8 +10,14 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::PassportElementErrorUnspecified`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerror>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "source", rename_all = "snake_case")]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    not(feature = "deser"),
+    serde(tag = "source", rename_all = "snake_case")
+)]
+#[cfg_attr(feature = "deser", deser(tag = "source", rename_all = "snake_case"))]
 pub enum PassportElementError {
     Data(crate::types::PassportElementErrorDataField),
     FrontSide(crate::types::PassportElementErrorFrontSide),

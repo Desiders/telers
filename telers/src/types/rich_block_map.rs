@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// A block with a map, corresponding to the custom HTML tag `<tg-map>`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richblockmap>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct RichBlockMap {
     /// Location of the center of the map
     pub location: crate::types::Location,
@@ -13,7 +14,8 @@ pub struct RichBlockMap {
     /// Expected height of the map
     pub height: i64,
     /// Caption of the block
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub caption: Option<crate::types::RichBlockCaption>,
 }
 impl RichBlockMap {

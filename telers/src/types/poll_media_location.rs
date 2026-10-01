@@ -1,10 +1,11 @@
-use serde::{Deserialize, Serialize};
 /// Media is a shared location, information about the location
 /// # Notes
 /// This object represents a poll media from original field `location`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#pollmedia>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PollMediaLocation {
     /// Media is a shared location, information about the location
     pub location: crate::types::Location,

@@ -2,7 +2,6 @@
 
 use async_trait::async_trait;
 use bon::bon;
-use serde_json::Value;
 use std::sync::Arc;
 
 use super::{Media, MediaAttachment, MediaContentType, MediaId};
@@ -103,7 +102,7 @@ impl MediaScroll<String> {
 
 fn string_array_from_field(data: &DataMap, field: &str) -> Vec<String> {
     data.get(field)
-        .and_then(Value::as_array)
+        .and_then(telers::serialization::as_array)
         .map(|val| {
             val.iter()
                 .filter_map(|item| item.as_str().map(String::from))

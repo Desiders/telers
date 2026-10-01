@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes a Web App.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#webappinfo>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct WebAppInfo {
     /// An HTTPS URL of a Web App to be opened with additional data as specified in Initializing Web Apps
     pub url: Box<str>,

@@ -1,15 +1,17 @@
-use serde::{Deserialize, Serialize};
 /// Contains the list of gifts received and owned by a user or a chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#ownedgifts>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct OwnedGifts {
     /// The total number of gifts owned by the user or the chat
     pub total_count: i64,
     /// The list of gifts
     pub gifts: Box<[crate::types::OwnedGift]>,
     /// Offset for the next request. If empty, then there are no more results.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub next_offset: Option<Box<str>>,
 }
 impl OwnedGifts {

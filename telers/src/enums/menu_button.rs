@@ -1,5 +1,4 @@
 use crate::types::MenuButton;
-use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes the bot's menu button in a private chat. It should be one of
 /// - [`crate::types::MenuButtonCommands`]
@@ -9,20 +8,9 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// If a menu button other than [`crate::types::MenuButtonDefault`] is set for a private chat, then it is applied in the chat. Otherwise the default menu button is applied. By default, the menu button opens the list of bot commands.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#menubutton>
-#[derive(
-    Debug,
-    Display,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-    EnumString,
-    AsRefStr,
-    IntoStaticStr,
-    Deserialize,
-    Serialize,
-)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[cfg_attr(feature = "deser", derive(deser::Deserialize, deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Deserialize, serde::Serialize))]
 pub enum MenuButtonType {
     #[strum(serialize = "commands")]
     Commands,

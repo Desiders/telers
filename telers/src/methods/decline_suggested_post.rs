@@ -1,18 +1,20 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to decline a suggested post in a direct messages chat. The bot must have the '`can_manage_direct_messages`' administrator right in the corresponding channel chat. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#declinesuggestedpost>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct DeclineSuggestedPost {
     /// Unique identifier for the target direct messages chat
     pub chat_id: i64,
     /// Identifier of a suggested post message to decline
     pub message_id: i64,
     /// Comment for the creator of the suggested post; 0-128 characters
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub comment: Option<Box<str>>,
 }
 impl DeclineSuggestedPost {

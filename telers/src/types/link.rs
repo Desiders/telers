@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Represents an HTTP link.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#link>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct Link {
     /// URL of the link
     pub url: Box<str>,

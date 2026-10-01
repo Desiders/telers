@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Represents a chat member that isn't currently a member of the chat, but may join it themselves.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberleft>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatMemberLeft {
     /// Information about the user
     pub user: Box<crate::types::User>,

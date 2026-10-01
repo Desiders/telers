@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// A bold text.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richtextbold>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct RichTextBold {
     /// The text
     pub text: Box<crate::types::RichText>,

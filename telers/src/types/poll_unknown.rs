@@ -1,11 +1,12 @@
-use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 /// This object represents a Poll unknown to this version of the library.
 /// # Notes
 /// Fields shared by all known variants are parsed as usual; everything else is kept in `extra`, so the object can be inspected and reserialized without data loss.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#poll>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PollUnknown {
     /// Raw `type` value of the variant unknown to this version of the library
     pub r#type: Box<str>,
@@ -14,7 +15,8 @@ pub struct PollUnknown {
     /// Poll question, 1-300 characters
     pub question: Box<str>,
     /// Special entities that appear in the question. Currently, only custom emoji entities are allowed in poll questions
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub question_entities: Option<Box<[crate::types::MessageEntity]>>,
     /// List of poll options
     pub options: Box<[crate::types::PollOption]>,
@@ -29,31 +31,40 @@ pub struct PollUnknown {
     /// `true`, if the poll allows to change the chosen answer options
     pub allows_revoting: bool,
     /// `true` if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
-    #[serde(default)]
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
     pub members_only: bool,
     /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. The country code `FT` is used for users with anonymous numbers. If omitted, then users from any country can participate in the poll.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub country_codes: Option<Box<[Box<str>]>>,
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the explanation
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub explanation_entities: Option<Box<[crate::types::MessageEntity]>>,
     /// Amount of time in seconds the poll will be active after creation
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub open_period: Option<i64>,
     /// Point in time (Unix timestamp) when the poll will be automatically closed
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub close_date: Option<i64>,
     /// Description of the poll; for polls inside the Message object only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub description: Option<Box<str>>,
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the description
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub description_entities: Option<Box<[crate::types::MessageEntity]>>,
     /// Media added to the poll description; for polls inside the Message object only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub media: Option<crate::types::PollMedia>,
-    #[serde(flatten)]
-    pub extra: BTreeMap<Box<str>, serde_json::Value>,
+    #[cfg_attr(not(feature = "deser"), serde(flatten))]
+    #[cfg_attr(feature = "deser", deser(flatten))]
+    pub extra: BTreeMap<Box<str>, crate::serialization::Value>,
 }
 impl PollUnknown {
     /// Creates a new `PollUnknown`.

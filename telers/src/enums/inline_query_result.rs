@@ -1,5 +1,4 @@
 use crate::types::InlineQueryResult;
-use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents one result of an inline query. Telegram clients currently support results of the following 20 types:
 /// - [`crate::types::InlineQueryResultCachedAudio`]
@@ -26,20 +25,9 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// Note: All URLs passed in inline query results will be available to end users and therefore must be assumed to be public.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
-#[derive(
-    Debug,
-    Display,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-    EnumString,
-    AsRefStr,
-    IntoStaticStr,
-    Deserialize,
-    Serialize,
-)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[cfg_attr(feature = "deser", derive(deser::Deserialize, deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Deserialize, serde::Serialize))]
 pub enum InlineQueryResultType {
     #[strum(serialize = "audio")]
     Audio,

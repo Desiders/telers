@@ -1,7 +1,7 @@
 //! Builders for inline and reply keyboards.
 //!
-//! [`KeyboardBuilder`] mirrors aiogram's `KeyboardBuilder`: [`Self::add`]
-//! flows buttons into rows of at most `adjust` columns, and [`Self::row`]
+//! [`KeyboardBuilder`] mirrors aiogram's `KeyboardBuilder`: [`KeyboardBuilder::add`]
+//! flows buttons into rows of at most `adjust` columns, and [`KeyboardBuilder::row`]
 //! appends explicit rows.
 
 use crate::types::{

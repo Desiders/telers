@@ -2,7 +2,7 @@ use bon::bon;
 use std::borrow::Cow;
 
 use super::Text;
-use crate::entities::{Data, DataMap};
+use crate::entities::DataMap;
 use async_trait::async_trait;
 
 /// Render a textual progress bar from a percentage value in `DataMap`.
@@ -54,10 +54,10 @@ impl Text for Progress {
     async fn render_text(&self, data: &DataMap) -> Box<str> {
         let percent = data
             .get(self.field.as_ref())
-            .and_then(|value| match value {
-                Data::Number(value) => value.as_f64(),
-                Data::String(value) => value.parse::<f64>().ok(),
-                _ => None,
+            .and_then(|value| {
+                value
+                    .as_f64()
+                    .or_else(|| value.as_str()?.parse::<f64>().ok())
             })
             .unwrap_or_default()
             .clamp(0.0, 100.0);

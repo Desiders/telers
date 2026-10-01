@@ -264,9 +264,9 @@ mod tests {
             MessageInput, MessageInputContext,
         },
     };
-    use serde_json::Value;
     use telers::{
         client::Reqwest,
+        serialization::Value,
         types::{ChatPrivate, Message, MessageText, User},
         Bot,
     };
@@ -310,7 +310,7 @@ mod tests {
                 ),
             ],
         );
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let data = DataMap::new();
         let event = ChatEvent::Message(test_message("/start"));
         let event_ctx = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
@@ -358,7 +358,7 @@ mod tests {
     #[tokio::test]
     async fn window_with_only_text_renders_without_keyboard() {
         let window = window("state", [text("Just a prompt")]);
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let data = DataMap::new();
         let event = ChatEvent::Message(test_message("/start"));
         let event_ctx = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
@@ -376,7 +376,7 @@ mod tests {
             .parse_mode("HTML")
             .protect_content(true)
             .show_mode(ShowMode::Send);
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let data = DataMap::new();
         let event = ChatEvent::Message(test_message("/start"));
         let event_ctx = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
@@ -392,7 +392,7 @@ mod tests {
     #[tokio::test]
     async fn handle_message_without_input_widget_returns_none() {
         let window = window("state", [text("No input here")]);
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
 
         let action = window.handle_message(&ctx, test_message("anything")).await;
 
@@ -402,9 +402,9 @@ mod tests {
     #[tokio::test]
     async fn process_result_without_handler_returns_none() {
         let window = window("state", [text("Parent")]);
-        let ctx = Context::new("", "state", Value::Null);
-        let start_data = Value::Null;
-        let result = Value::Null;
+        let ctx = Context::new("", "state", Value::default());
+        let start_data = Value::default();
+        let result = Value::default();
         let event = ChatEvent::Message(test_message("/done"));
         let event_ctx = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
         let runtime_context = telers::Context::default();

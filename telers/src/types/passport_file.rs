@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a file uploaded to Telegram Passport. Currently all Telegram Passport files are in JPEG format when decrypted and don't exceed 10MB.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportfile>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PassportFile {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: Box<str>,

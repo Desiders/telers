@@ -1,19 +1,22 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to get a list of profile audios for a user. Returns a [`crate::types::UserProfileAudios`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getuserprofileaudios>
 /// # Returns
 /// - `crate::types::UserProfileAudios`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetUserProfileAudios {
     /// Unique identifier of the target user
     pub user_id: i64,
     /// Sequential number of the first audio to be returned. By default, all audios are returned.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub offset: Option<i64>,
     /// Limits the number of audios to be retrieved. Values between 1-100 are accepted. Defaults to 100.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub limit: Option<u8>,
 }
 impl GetUserProfileAudios {

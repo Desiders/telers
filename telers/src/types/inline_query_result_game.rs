@@ -1,15 +1,17 @@
-use serde::{Deserialize, Serialize};
 /// Represents a Game.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultgame>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InlineQueryResultGame {
     /// Unique identifier for this result, 1-64 bytes
     pub id: Box<str>,
     /// Short name of the game
     pub game_short_name: Box<str>,
     /// Inline keyboard attached to the message
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
 }
 impl InlineQueryResultGame {

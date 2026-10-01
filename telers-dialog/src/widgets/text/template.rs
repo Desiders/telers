@@ -72,7 +72,13 @@ impl TemplateText {
 #[async_trait]
 impl Text for TemplateText {
     async fn render_text(&self, data: &DataMap) -> Box<str> {
+        #[cfg(not(feature = "deser"))]
         let ctx = Value::from_serialize(data);
+        #[cfg(feature = "deser")]
+        let ctx: Value = data
+            .iter()
+            .map(|(key, value)| (key.clone(), template_value(value)))
+            .collect();
         match self.env.render_str(&self.template, ctx) {
             Ok(rendered) => rendered.into_boxed_str(),
             Err(err) => {
@@ -154,15 +160,42 @@ impl TemplateEnvBuilder {
     }
 }
 
+// Convert native values directly; template rendering does not go through Serde.
+#[cfg(feature = "deser")]
+fn template_value(value: &telers::serialization::Value) -> Value {
+    if value.is_null() {
+        Value::from(())
+    } else if let Some(value) = value.as_str() {
+        Value::from(value)
+    } else if let Some(value) = value.as_bool() {
+        Value::from(value)
+    } else if let Some(value) = value.as_i128() {
+        Value::from(value)
+    } else if let Some(value) = value.as_u128() {
+        Value::from(value)
+    } else if let Some(value) = value.as_f64() {
+        Value::from(value)
+    } else if let Some(values) = value.as_seq() {
+        values.iter().map(template_value).collect()
+    } else if let Some(values) = value.as_map() {
+        values
+            .iter()
+            .filter_map(|(key, value)| Some((key.as_str()?.to_owned(), template_value(value))))
+            .collect()
+    } else {
+        Value::UNDEFINED
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::entities::Context;
-    use serde_json::json;
+    use telers::serialization::json;
 
     #[tokio::test]
     async fn renders_simple_variable() {
-        let ctx = Context::new("", "state", serde_json::Value::Null);
+        let ctx = Context::new("", "state", telers::serialization::Value::default());
         let mut data = DataMap::new();
         data.insert("name".into(), json!("Alice"));
 
@@ -174,7 +207,7 @@ mod tests {
 
     #[tokio::test]
     async fn renders_nested_values() {
-        let ctx = Context::new("", "state", serde_json::Value::Null);
+        let ctx = Context::new("", "state", telers::serialization::Value::default());
         let mut data = DataMap::new();
         data.insert(
             "user".into(),
@@ -189,7 +222,7 @@ mod tests {
 
     #[tokio::test]
     async fn renders_with_filters() {
-        let ctx = Context::new("", "state", serde_json::Value::Null);
+        let ctx = Context::new("", "state", telers::serialization::Value::default());
         let mut data = DataMap::new();
         data.insert("name".into(), json!("alice"));
 
@@ -201,7 +234,7 @@ mod tests {
 
     #[tokio::test]
     async fn renders_with_conditionals() {
-        let ctx = Context::new("", "state", serde_json::Value::Null);
+        let ctx = Context::new("", "state", telers::serialization::Value::default());
         let mut data = DataMap::new();
         data.insert("premium".into(), json!(true));
 
@@ -215,7 +248,7 @@ mod tests {
 
     #[tokio::test]
     async fn renders_with_loops() {
-        let ctx = Context::new("", "state", serde_json::Value::Null);
+        let ctx = Context::new("", "state", telers::serialization::Value::default());
         let mut data = DataMap::new();
         data.insert("items".into(), json!(["apple", "banana", "cherry"]));
 
@@ -231,7 +264,7 @@ mod tests {
 
     #[tokio::test]
     async fn falls_back_to_template_on_error() {
-        let ctx = Context::new("", "state", serde_json::Value::Null);
+        let ctx = Context::new("", "state", telers::serialization::Value::default());
         let data = DataMap::new();
 
         let text = TemplateText::builder("Hello, {{ name }").build();
@@ -242,7 +275,7 @@ mod tests {
 
     #[tokio::test]
     async fn uses_default_filter_for_missing_values() {
-        let ctx = Context::new("", "state", serde_json::Value::Null);
+        let ctx = Context::new("", "state", telers::serialization::Value::default());
         let data = DataMap::new();
 
         let text = TemplateText::builder("Count: {{ count | default(0) }}").build();
@@ -253,7 +286,7 @@ mod tests {
 
     #[tokio::test]
     async fn custom_env_with_filter() {
-        let ctx = Context::new("", "state", serde_json::Value::Null);
+        let ctx = Context::new("", "state", telers::serialization::Value::default());
         let mut data = DataMap::new();
         data.insert("price".into(), json!(42.5));
 

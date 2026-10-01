@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// Describes a transaction with a user.
 /// Currently, it can be one of
 /// - [`crate::types::TransactionPartnerUserBusinessAccountTransfer`]
@@ -8,8 +7,17 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::TransactionPartnerUserPremiumPurchase`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transactionpartneruser>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "transaction_type", rename_all = "snake_case")]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    not(feature = "deser"),
+    serde(tag = "transaction_type", rename_all = "snake_case")
+)]
+#[cfg_attr(
+    feature = "deser",
+    deser(tag = "transaction_type", rename_all = "snake_case")
+)]
 pub enum TransactionPartnerUser {
     InvoicePayment(crate::types::TransactionPartnerUserInvoicePayment),
     PaidMediaPayment(crate::types::TransactionPartnerUserPaidMediaPayment),
@@ -17,7 +25,8 @@ pub enum TransactionPartnerUser {
     PremiumPurchase(crate::types::TransactionPartnerUserPremiumPurchase),
     BusinessAccountTransfer(crate::types::TransactionPartnerUserBusinessAccountTransfer),
     /// Content unknown to this version of the library
-    #[serde(untagged)]
+    #[cfg_attr(not(feature = "deser"), serde(untagged))]
+    #[cfg_attr(feature = "deser", deser(untagged))]
     Unknown(crate::types::TransactionPartnerUserUnknown),
 }
 impl TransactionPartnerUser {

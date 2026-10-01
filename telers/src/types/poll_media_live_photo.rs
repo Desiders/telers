@@ -1,10 +1,11 @@
-use serde::{Deserialize, Serialize};
 /// Media is a live photo, information about the live photo
 /// # Notes
 /// This object represents a poll media from original field `live_photo`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#pollmedia>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PollMediaLivePhoto {
     /// Media is a live photo, information about the live photo
     pub live_photo: crate::types::LivePhoto,

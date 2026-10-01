@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to revoke an invite link created by the bot. If the primary link is revoked, a new link is automatically generated. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the revoked invite link as [`crate::types::ChatInviteLink`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#revokechatinvitelink>
 /// # Returns
 /// - `crate::types::ChatInviteLink`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct RevokeChatInviteLink {
     /// Unique identifier of the target chat or username of the target channel in the format @username
     pub chat_id: crate::types::ChatIdKind,

@@ -1,24 +1,29 @@
-use serde::{Deserialize, Serialize};
 /// Describes a checklist to create.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputchecklist>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputChecklist {
     /// Title of the checklist; 1-255 characters after entities parsing
     pub title: Box<str>,
     /// Mode for parsing entities in the title. See formatting options for more details.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub parse_mode: Option<Box<str>>,
     /// List of special entities that appear in the title, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are allowed.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub title_entities: Option<Box<[crate::types::MessageEntity]>>,
     /// List of 1-30 tasks in the checklist
     pub tasks: Box<[crate::types::InputChecklistTask]>,
     /// Pass `true` if other users can add tasks to the checklist
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub others_can_add_tasks: Option<bool>,
     /// Pass `true` if other users can mark tasks as done or not done in the checklist
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub others_can_mark_tasks_as_done: Option<bool>,
 }
 impl InputChecklist {

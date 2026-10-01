@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object contains information about an incoming shipping query.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#shippingquery>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ShippingQuery {
     /// Unique query identifier
     pub id: Box<str>,

@@ -171,7 +171,7 @@ impl ButtonAction {
 mod tests {
     use super::ButtonAction;
     use crate::entities::{DataMap, StartMode};
-    use serde_json::json;
+    use telers::serialization::json;
 
     #[test]
     fn noop_constructs_noop() {

@@ -1,10 +1,11 @@
-use serde::{Deserialize, Serialize};
 /// Media is a general file, information about the file; currently, can't be received in a poll option
 /// # Notes
 /// This object represents a poll media from original field `document`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#pollmedia>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PollMediaDocument {
     /// Media is a general file, information about the file; currently, can't be received in a poll option
     pub document: Box<crate::types::Document>,

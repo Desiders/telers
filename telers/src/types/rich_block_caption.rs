@@ -1,13 +1,15 @@
-use serde::{Deserialize, Serialize};
 /// Caption of a rich formatted block.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richblockcaption>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct RichBlockCaption {
     /// Block caption
     pub text: Box<crate::types::RichText>,
     /// Block credit which corresponds to the HTML tag <`cite`>
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub credit: Option<Box<crate::types::RichText>>,
 }
 impl RichBlockCaption {

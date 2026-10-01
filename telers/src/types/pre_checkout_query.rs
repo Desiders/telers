@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object contains information about an incoming pre-checkout query.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#precheckoutquery>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PreCheckoutQuery {
     /// Unique query identifier
     pub id: Box<str>,
@@ -15,10 +16,12 @@ pub struct PreCheckoutQuery {
     /// Bot-specified invoice payload
     pub invoice_payload: Box<str>,
     /// Identifier of the shipping option chosen by the user
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub shipping_option_id: Option<Box<str>>,
     /// Order information provided by the user
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub order_info: Option<crate::types::OrderInfo>,
 }
 impl PreCheckoutQuery {

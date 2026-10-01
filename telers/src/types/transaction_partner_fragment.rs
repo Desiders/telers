@@ -1,11 +1,13 @@
-use serde::{Deserialize, Serialize};
 /// Describes a withdrawal transaction with Fragment.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transactionpartnerfragment>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct TransactionPartnerFragment {
     /// State of the transaction if the transaction is outgoing
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub withdrawal_state: Option<crate::types::RevenueWithdrawalState>,
 }
 impl TransactionPartnerFragment {

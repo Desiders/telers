@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// An anchor.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richtextanchor>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct RichTextAnchor {
     /// The name of the anchor
     pub name: Box<str>,

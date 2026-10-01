@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Changes the privacy settings pertaining to incoming gifts in a managed business account. Requires the `can_change_gift_settings` business bot right. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setbusinessaccountgiftsettings>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SetBusinessAccountGiftSettings {
     /// Unique identifier of the business connection
     pub business_connection_id: Box<str>,

@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Represents a chat member that has some additional privileges.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberadministrator>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatMemberAdministrator {
     /// Information about the user
     pub user: Box<crate::types::User>,
@@ -31,27 +32,34 @@ pub struct ChatMemberAdministrator {
     /// `true`, if the administrator can delete stories posted by other users
     pub can_delete_stories: bool,
     /// `true`, if the administrator can post messages in the channel, approve suggested posts, or access channel statistics; for channels only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub can_post_messages: Option<bool>,
     /// `true`, if the administrator can edit messages of other users and can pin messages; for channels only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub can_edit_messages: Option<bool>,
     /// `true`, if the user is allowed to pin messages; for groups and supergroups only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub can_pin_messages: Option<bool>,
     /// `true`, if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub can_manage_topics: Option<bool>,
     /// `true`, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub can_manage_direct_messages: Option<bool>,
     /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub can_manage_tags: Option<bool>,
     /// `true`, if the administrator can manage chat welcome messages or directly send them in the case of bots
     pub can_send_welcome_messages: bool,
     /// Custom title for this user
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub custom_title: Option<Box<str>>,
 }
 impl ChatMemberAdministrator {

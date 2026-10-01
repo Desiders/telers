@@ -114,7 +114,11 @@ where
                     return err.into_response();
                 }
             };
-            let update = match serde_json::from_str::<Either<Update, UpdateUnparsed>>(&update_raw) {
+            #[cfg(not(feature = "deser"))]
+            let parsed = serde_json::from_str::<Either<Update, UpdateUnparsed>>(&update_raw);
+            #[cfg(feature = "deser")]
+            let parsed = deser_json::from_str::<Either<Update, UpdateUnparsed>>(&update_raw);
+            let update = match parsed {
                 Ok(Left(update)) => update,
                 Ok(Right(UpdateUnparsed {
                     update_id,

@@ -1,16 +1,18 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to change the mask position of a mask sticker. The sticker must belong to a sticker set that was created by the bot. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setstickermaskposition>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SetStickerMaskPosition {
     /// File identifier of the sticker
     pub sticker: Box<str>,
     /// A JSON-serialized object with the position where the mask should be placed on faces. Omit the parameter to remove the mask position.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub mask_position: Option<crate::types::MaskPosition>,
 }
 impl SetStickerMaskPosition {

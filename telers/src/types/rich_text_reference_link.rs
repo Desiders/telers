@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// A link to a reference.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richtextreferencelink>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct RichTextReferenceLink {
     /// The link text
     pub text: Box<crate::types::RichText>,

@@ -1,8 +1,10 @@
 use async_fn_traits::AsyncFn1;
 use async_trait::async_trait;
-use serde_json::Value;
 use std::{borrow::Cow, fmt::Display, sync::Arc};
-use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
+use telers::{
+    serialization::Value,
+    types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup},
+};
 use tracing::debug;
 
 use super::super::{format_callback_data, parse_callback_data, ButtonAction};
@@ -339,7 +341,7 @@ pub(super) fn handle_pager_callback<'a>(
             "Resolved pager navigation callback"
         );
         let current_action =
-            ButtonAction::set_widget_value(widget_id.to_owned(), Value::Number(page.into()));
+            ButtonAction::set_widget_value(widget_id.to_owned(), Value::from(page));
         Some(match on_page_changed {
             Some(on_page_changed) => ButtonAction::chain([
                 current_action,

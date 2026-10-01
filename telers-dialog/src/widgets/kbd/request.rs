@@ -385,8 +385,7 @@ impl Keyboard for ForceReply {
 
 #[cfg(test)]
 mod tests {
-    use serde_json::Value;
-    use telers::enums::PollType;
+    use telers::{enums::PollType, serialization::Value};
 
     use telers::types::ReplyMarkup;
 
@@ -398,7 +397,7 @@ mod tests {
 
     #[tokio::test]
     async fn request_contact_renders_reply_keyboard_button() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let keyboard = RequestContact::builder("Share phone")
             .resize_keyboard(true)
             .input_field_placeholder("Phone")
@@ -420,7 +419,7 @@ mod tests {
 
     #[tokio::test]
     async fn request_location_renders_reply_keyboard_button() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let keyboard = RequestLocation::builder("Share location")
             .one_time_keyboard(true)
             .build();
@@ -440,7 +439,7 @@ mod tests {
 
     #[tokio::test]
     async fn request_poll_renders_reply_keyboard_button() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let keyboard = RequestPoll::builder("Create quiz")
             .poll_type(PollType::Quiz)
             .selective(true)
@@ -467,7 +466,7 @@ mod tests {
 
     #[tokio::test]
     async fn force_reply_renders_force_reply_markup() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let keyboard = ForceReply::builder()
             .input_field_placeholder("Enter your name")
             .selective(true)

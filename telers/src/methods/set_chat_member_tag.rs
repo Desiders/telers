@@ -1,18 +1,20 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to set a tag for a regular member in a group or a supergroup. The bot must be an administrator in the chat for this to work and must have the `can_manage_tags` administrator right. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setchatmembertag>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SetChatMemberTag {
     /// Unique identifier for the target chat or username of the target supergroup in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier of the target user
     pub user_id: i64,
     /// New tag for the member; 0-16 characters, emoji are not allowed
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub tag: Option<Box<str>>,
 }
 impl SetChatMemberTag {

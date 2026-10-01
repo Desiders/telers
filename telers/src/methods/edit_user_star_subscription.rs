@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Allows the bot to cancel or re-enable extension of a subscription paid in Telegram Stars. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#edituserstarsubscription>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct EditUserStarSubscription {
     /// Identifier of the user whose subscription will be edited
     pub user_id: i64,

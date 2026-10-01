@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes data required for decrypting and authenticating [`crate::types::EncryptedPassportElement`]. See the Telegram Passport Documentation for a complete description of the data decryption and authentication processes.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#encryptedcredentials>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct EncryptedCredentials {
     /// Base64-encoded encrypted JSON-serialized data with unique user's payload, data hashes and secrets required for [`crate::types::EncryptedPassportElement`] decryption and authentication
     pub data: Box<str>,

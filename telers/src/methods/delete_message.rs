@@ -1,5 +1,4 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to delete a message, including service messages, with the following limitations:
 /// - A message can only be deleted if it was sent less than 48 hours ago.
 /// - Service messages about a supergroup, channel, or forum topic creation can't be deleted.
@@ -16,7 +15,9 @@ use serde::Serialize;
 /// <https://core.telegram.org/bots/api#deletemessage>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct DeleteMessage {
     /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     pub chat_id: crate::types::ChatIdKind,

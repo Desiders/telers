@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object contains information about the bot that was created to be managed by the current bot.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#managedbotcreated>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ManagedBotCreated {
     /// Information about the bot. The bot's token can be fetched using the method [`crate::methods::GetManagedBotToken`].
     pub bot: Box<crate::types::User>,

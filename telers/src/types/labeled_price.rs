@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a portion of the price for goods or services.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#labeledprice>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct LabeledPrice {
     /// Portion label
     pub label: Box<str>,

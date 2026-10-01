@@ -1,19 +1,23 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a service message about the completion of a giveaway without public winners.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#giveawaycompleted>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct GiveawayCompleted {
     /// Number of winners in the giveaway
     pub winner_count: i64,
     /// Number of undistributed prizes
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub unclaimed_prize_count: Option<i64>,
     /// Message with the giveaway that was completed, if it wasn't deleted
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub giveaway_message: Option<Box<crate::types::Message>>,
     /// `true`, if the giveaway is a Telegram Star giveaway. Otherwise, currently, the giveaway is a Telegram Premium giveaway.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_star_giveaway: Option<bool>,
 }
 impl GiveawayCompleted {

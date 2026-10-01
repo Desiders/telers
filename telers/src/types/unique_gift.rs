@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object describes a unique gift that was upgraded from a regular gift.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#uniquegift>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct UniqueGift {
     /// Identifier of the regular gift from which the gift was upgraded
     pub gift_id: Box<str>,
@@ -19,19 +20,24 @@ pub struct UniqueGift {
     /// Backdrop of the gift
     pub backdrop: crate::types::UniqueGiftBackdrop,
     /// `true`, if the original regular gift was exclusively purchaseable by Telegram Premium subscribers
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_premium: Option<bool>,
     /// `true`, if the gift was used to craft another gift and isn't available anymore
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_burned: Option<bool>,
     /// `true`, if the gift is assigned from the TON blockchain and can't be resold or transferred in Telegram
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_from_blockchain: Option<bool>,
     /// The color scheme that can be used by the gift's owner for the chat's name, replies to messages and link previews; for business account gifts and gifts that are currently on sale only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub colors: Option<crate::types::UniqueGiftColors>,
     /// Information about the chat that published the gift
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub publisher_chat: Option<Box<crate::types::Chat>>,
 }
 impl UniqueGift {

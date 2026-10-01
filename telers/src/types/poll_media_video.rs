@@ -1,10 +1,11 @@
-use serde::{Deserialize, Serialize};
 /// Media is a video, information about the video
 /// # Notes
 /// This object represents a poll media from original field `video`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#pollmedia>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PollMediaVideo {
     /// Media is a video, information about the video
     pub video: Box<crate::types::Video>,

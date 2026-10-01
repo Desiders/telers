@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object describes a sticker to be added to a sticker set.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputsticker>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputSticker {
     /// The added sticker. Pass a `file_id` as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new file using multipart/form-data under <`file_attach_name`> name. Animated and video stickers can't be uploaded via HTTP URL. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     pub sticker: crate::types::InputFile,
@@ -11,10 +12,12 @@ pub struct InputSticker {
     /// List of 1-20 emoji associated with the sticker
     pub emoji_list: Box<[Box<str>]>,
     /// Position where the mask should be placed on faces. For `mask` stickers only.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub mask_position: Option<crate::types::MaskPosition>,
     /// List of 0-20 search keywords for the sticker with total length of up to 64 characters. For `regular` and `custom_emoji` stickers only.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub keywords: Option<Box<[Box<str>]>>,
 }
 impl InputSticker {

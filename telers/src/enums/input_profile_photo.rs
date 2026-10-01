@@ -1,25 +1,13 @@
 use crate::types::InputProfilePhoto;
-use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes a profile photo to set. Currently, it can be one of
 /// - [`crate::types::InputProfilePhotoStatic`]
 /// - [`crate::types::InputProfilePhotoAnimated`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputprofilephoto>
-#[derive(
-    Debug,
-    Display,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-    EnumString,
-    AsRefStr,
-    IntoStaticStr,
-    Deserialize,
-    Serialize,
-)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[cfg_attr(feature = "deser", derive(deser::Deserialize, deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Deserialize, serde::Serialize))]
 pub enum InputProfilePhotoType {
     #[strum(serialize = "static")]
     Static,

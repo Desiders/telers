@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object contains information about the color scheme for a user's name, message replies and link previews based on a unique gift.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#uniquegiftcolors>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct UniqueGiftColors {
     /// Custom emoji identifier of the unique gift's model
     pub model_custom_emoji_id: Box<str>,

@@ -1,18 +1,20 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to change the access settings of a managed bot. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setmanagedbotaccesssettings>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SetManagedBotAccessSettings {
     /// User identifier of the managed bot whose access settings will be changed
     pub user_id: i64,
     /// Pass `true` if only selected users can access the bot. The bot's owner can always access it.
     pub is_access_restricted: bool,
     /// A JSON-serialized list of up to 10 identifiers of users who will have access to the bot in addition to its owner. Ignored if `is_access_restricted` is `false`.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub added_user_ids: Option<Box<[i64]>>,
 }
 impl SetManagedBotAccessSettings {

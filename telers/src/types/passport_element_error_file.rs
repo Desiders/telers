@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Represents an issue with a document scan. The error is considered resolved when the file with the document scan changes.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerrorfile>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PassportElementErrorFile {
     /// The section of the user's Telegram Passport which has the issue, one of `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`, `temporary_registration`
     pub r#type: Box<str>,

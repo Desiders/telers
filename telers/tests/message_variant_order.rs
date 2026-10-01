@@ -24,7 +24,7 @@ fn venue_message_with_location_parses_as_venue() {
         },
         "location": {"latitude": 1.0, "longitude": 2.0}"#,
     );
-    let message: Message = serde_json::from_str(&json).unwrap();
+    let message: Message = telers::serialization::from_str(&json).unwrap();
     assert!(matches!(message, Message::Venue(_)), "got {message:?}");
 }
 
@@ -36,7 +36,7 @@ fn animation_message_with_document_parses_as_animation() {
         },
         "document": {"file_id": "a", "file_unique_id": "a"}"#,
     );
-    let message: Message = serde_json::from_str(&json).unwrap();
+    let message: Message = telers::serialization::from_str(&json).unwrap();
     assert!(matches!(message, Message::Animation(_)), "got {message:?}");
 }
 
@@ -48,6 +48,6 @@ fn live_photo_message_with_photo_parses_as_live_photo() {
         },
         "photo": [{"file_id": "p", "file_unique_id": "p", "width": 1, "height": 1}]"#,
     );
-    let message: Message = serde_json::from_str(&json).unwrap();
+    let message: Message = telers::serialization::from_str(&json).unwrap();
     assert!(matches!(message, Message::LivePhoto(_)), "got {message:?}");
 }

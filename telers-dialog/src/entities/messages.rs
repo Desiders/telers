@@ -20,13 +20,13 @@ pub struct OldMessage {
     /// Reply markup kind stored for edit/delete decisions.
     pub reply_markup_type: Option<ReplyMarkupType>,
     /// Serialized reply markup snapshot.
-    pub reply_markup_value: Option<serde_json::Value>,
+    pub reply_markup_value: Option<telers::serialization::Value>,
     /// Business connection id used to send the message.
     pub business_connection_id: Option<Box<str>>,
     /// Telegram message type snapshot when available.
     pub message_type: Option<MessageType>,
     /// Serialized link preview options snapshot.
-    pub link_preview_options_value: Option<serde_json::Value>,
+    pub link_preview_options_value: Option<telers::serialization::Value>,
     /// Media file ID from the last message.
     pub media_file_id: Option<Box<str>>,
     /// Media unique ID from the last message.
@@ -48,10 +48,10 @@ impl OldMessage {
         text: Option<impl Into<Box<str>>>,
         has_protected_content: Option<bool>,
         reply_markup_type: Option<ReplyMarkupType>,
-        reply_markup_value: Option<serde_json::Value>,
+        reply_markup_value: Option<telers::serialization::Value>,
         business_connection_id: Option<impl Into<Box<str>>>,
         message_type: Option<MessageType>,
-        link_preview_options_value: Option<serde_json::Value>,
+        link_preview_options_value: Option<telers::serialization::Value>,
     ) -> Self {
         let chat = chat.into();
         Self {
@@ -167,9 +167,9 @@ impl NewMessage {
 mod tests {
     use super::{NewMessage, OldMessage};
     use crate::entities::ShowMode;
-    use serde_json::json;
     use telers::{
         enums::{MessageType, ReplyMarkupType},
+        serialization::json,
         types::ChatPrivate,
     };
 

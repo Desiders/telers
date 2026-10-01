@@ -1,23 +1,29 @@
-use serde::{Deserialize, Serialize};
 /// This object represents an inline button that switches the current user to inline mode in a chosen chat, with an optional default inline query.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#switchinlinequerychosenchat>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct SwitchInlineQueryChosenChat {
     /// The default inline query to be inserted in the input field. If left empty, only the bot's username will be inserted.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub query: Option<Box<str>>,
     /// `true`, if private chats with users can be chosen
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub allow_user_chats: Option<bool>,
     /// `true`, if private chats with bots can be chosen
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub allow_bot_chats: Option<bool>,
     /// `true`, if group and supergroup chats can be chosen
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub allow_group_chats: Option<bool>,
     /// `true`, if channel chats can be chosen
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub allow_channel_chats: Option<bool>,
 }
 impl SwitchInlineQueryChosenChat {

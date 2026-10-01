@@ -1,13 +1,15 @@
-use serde::{Deserialize, Serialize};
 /// A block containing a list of buttons that are shown in one row, corresponding to the custom HTML tag `<tg-button-row>`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richblockbuttons>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct RichBlockButtons {
     /// The buttons
     pub buttons: Box<[crate::types::RichMessageButton]>,
     /// Horizontal alignment of the buttons. Currently, must be one of `left`, `center`, or `right`.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub align: Option<Box<str>>,
 }
 impl RichBlockButtons {

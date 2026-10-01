@@ -1,6 +1,6 @@
 use super::{Error, Storage, StorageKey};
 
-use serde::{de::DeserializeOwned, Serialize};
+use crate::serialization::{DeserializeOwned, Serialize};
 use std::{
     collections::{hash_map::Entry, HashMap},
     sync::Arc,
@@ -168,7 +168,7 @@ impl Storage for Memory {
                 for (value_key, value) in data {
                     new_data.insert(
                         value_key.as_ref().to_owned().into_boxed_str(),
-                        serde_json::to_string(&value)
+                        crate::serialization::to_string(&value)
                             .map_err(|err| {
                                 event!(Level::ERROR, "Failed to serialize value");
 
@@ -197,7 +197,7 @@ impl Storage for Memory {
                 for (value_key, value) in data {
                     new_data.insert(
                         value_key.as_ref().to_owned().into_boxed_str(),
-                        serde_json::to_string(&value)
+                        crate::serialization::to_string(&value)
                             .map_err(|err| {
                                 event!(Level::ERROR, "Failed to serialize value");
 
@@ -241,7 +241,7 @@ impl Storage for Memory {
             Entry::Occupied(mut entry) => {
                 entry.get_mut().data.insert(
                     value_key.as_ref().to_owned().into_boxed_str(),
-                    serde_json::to_string(&value)
+                    crate::serialization::to_string(&value)
                         .map_err(|err| {
                             event!(Level::ERROR, "Failed to serialize value");
 
@@ -258,7 +258,7 @@ impl Storage for Memory {
                     states: vec![],
                     data: HashMap::from_iter(Some((
                         value_key.as_ref().to_owned().into_boxed_str(),
-                        serde_json::to_string(&value)
+                        crate::serialization::to_string(&value)
                             .map_err(|err| {
                                 event!(Level::ERROR, "Failed to serialize value");
 
@@ -299,7 +299,7 @@ impl Storage for Memory {
                 for (value_key, value) in entry_data {
                     data.insert(
                         value_key.as_ref().into(),
-                        serde_json::from_str(value).map_err(|err| {
+                        crate::serialization::from_str(value).map_err(|err| {
                             event!(Level::ERROR, "Failed to deserialize value");
 
                             Error::new(
@@ -339,14 +339,16 @@ impl Storage for Memory {
                 .data
                 .get(value_key.as_ref())
                 .map_or(Ok(None), |value| {
-                    Ok(Some(serde_json::from_str(value).map_err(|err| {
-                        event!(Level::ERROR, "Failed to deserialize value");
+                    Ok(Some(crate::serialization::from_str(value).map_err(
+                        |err| {
+                            event!(Level::ERROR, "Failed to deserialize value");
 
-                        Error::new(
-                            format!("Failed to deserialize value. Storage key: `{key:?}`"),
-                            err,
-                        )
-                    })?))
+                            Error::new(
+                                format!("Failed to deserialize value. Storage key: `{key:?}`"),
+                                err,
+                            )
+                        },
+                    )?))
                 }),
             None => Ok(None),
         }
@@ -370,7 +372,8 @@ impl Storage for Memory {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde::{Deserialize, Serialize};
+    use crate::serialization::{Deserialize, Serialize};
+    #[cfg(not(feature = "deser"))]
     use serde_with::skip_serializing_none;
 
     #[tokio::test]
@@ -551,8 +554,9 @@ mod tests {
             a: Option<String>,
         }
 
-        #[skip_serializing_none]
+        #[cfg_attr(not(feature = "deser"), skip_serializing_none)]
         #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+        #[cfg_attr(feature = "deser", deser(skip_serializing_optionals))]
         struct AOptionSkip {
             a: Option<String>,
         }

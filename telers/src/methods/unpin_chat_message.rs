@@ -1,19 +1,22 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to remove a message from the list of pinned messages in a chat. In private chats and channel direct messages chats, all messages can be unpinned. Conversely, the bot must be an administrator with the '`can_pin_messages`' right or the '`can_edit_messages`' right to unpin messages in groups and channels respectively. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#unpinchatmessage>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct UnpinChatMessage {
     /// Unique identifier of the business connection on behalf of which the message will be unpinned
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub business_connection_id: Option<Box<str>>,
     /// Unique identifier for the target chat or username of the target channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Identifier of the message to unpin. Required if `business_connection_id` is specified. If not specified, the most recent pinned message (by sending date) will be unpinned.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub message_id: Option<i64>,
 }
 impl UnpinChatMessage {

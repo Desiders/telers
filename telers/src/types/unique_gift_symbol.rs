@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object describes the symbol shown on the pattern of a unique gift.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#uniquegiftsymbol>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct UniqueGiftSymbol {
     /// Name of the symbol
     pub name: Box<str>,

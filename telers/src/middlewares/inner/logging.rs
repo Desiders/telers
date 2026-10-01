@@ -87,9 +87,11 @@ where
                         "Middleware returns error. Execution time: {elapsed:.2?}",
                     );
                 }
-                EventErrorKind::Filter(_) => unreachable!(
-                    "Inner middleware processes after filters, so it can't return filter error"
-                ),
+                EventErrorKind::Filter(_) => {
+                    unreachable!(
+                        "Inner middleware processes after filters, so it can't return filter error"
+                    )
+                }
             },
         }
 

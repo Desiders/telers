@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to set the result of an interaction with a Web App and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a [`crate::types::SentWebAppMessage`] object is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#answerwebappquery>
 /// # Returns
 /// - `crate::types::SentWebAppMessage`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct AnswerWebAppQuery {
     /// Unique identifier for the query to be answered
     pub web_app_query_id: Box<str>,

@@ -1,14 +1,16 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to get the current value of the bot's menu button in a private chat, or the default menu button. Returns [`crate::types::MenuButton`] on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getchatmenubutton>
 /// # Returns
 /// - `crate::types::MenuButton`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetChatMenuButton {
     /// Unique identifier for the target private chat. If not specified, the bot's default menu button will be returned.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub chat_id: Option<i64>,
 }
 impl GetChatMenuButton {

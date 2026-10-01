@@ -1,20 +1,25 @@
-use serde::{Deserialize, Serialize};
 /// Cell in a table.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richblocktablecell>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct RichBlockTableCell {
     /// Text in the cell. If omitted, then the cell is invisible.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub text: Option<Box<crate::types::RichText>>,
     /// `true`, if the cell is a header cell
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_header: Option<bool>,
     /// The number of columns the cell spans if it is bigger than 1
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub colspan: Option<i64>,
     /// The number of rows the cell spans if it is bigger than 1
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub rowspan: Option<i64>,
     /// Horizontal cell content alignment. Currently, must be one of `left`, `center`, or `right`.
     pub align: Box<str>,

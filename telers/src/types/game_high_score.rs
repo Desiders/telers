@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object represents one row of the high scores table for a game.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#gamehighscore>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct GameHighScore {
     /// Position in high score table for the game
     pub position: i64,

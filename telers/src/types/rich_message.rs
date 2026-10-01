@@ -1,13 +1,15 @@
-use serde::{Deserialize, Serialize};
 /// Rich formatted message.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richmessage>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct RichMessage {
     /// Content of the message
     pub blocks: Box<[crate::types::RichBlock]>,
     /// `true`, if the rich message must be shown right-to-left
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_rtl: Option<bool>,
 }
 impl RichMessage {

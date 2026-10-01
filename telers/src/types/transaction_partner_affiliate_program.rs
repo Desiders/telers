@@ -1,11 +1,13 @@
-use serde::{Deserialize, Serialize};
 /// Describes the affiliate program that issued the affiliate commission received via this transaction.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transactionpartneraffiliateprogram>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct TransactionPartnerAffiliateProgram {
     /// Information about the bot that sponsored the affiliate program
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub sponsor_user: Option<Box<crate::types::User>>,
     /// The number of Telegram Stars received by the bot for each 1000 Telegram Stars received by the affiliate program sponsor from referred users
     pub commission_per_mille: i64,

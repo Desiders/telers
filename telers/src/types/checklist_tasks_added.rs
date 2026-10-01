@@ -1,11 +1,13 @@
-use serde::{Deserialize, Serialize};
 /// Describes a service message about tasks added to a checklist.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#checklisttasksadded>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChecklistTasksAdded {
     /// Message containing the checklist to which the tasks were added. Note that the Message object in this field will not contain the `reply_to_message` field even if it itself is a reply.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub checklist_message: Option<Box<crate::types::Message>>,
     /// List of tasks added to the checklist
     pub tasks: Box<[crate::types::ChecklistTask]>,

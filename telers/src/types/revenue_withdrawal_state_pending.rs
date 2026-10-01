@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// The withdrawal is in progress.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#revenuewithdrawalstatepending>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct RevenueWithdrawalStatePending {}
 impl RevenueWithdrawalStatePending {
     /// Creates a new `RevenueWithdrawalStatePending`.

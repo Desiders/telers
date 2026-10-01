@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// A text with an email address.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richtextemailaddress>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct RichTextEmailAddress {
     /// The text
     pub text: Box<crate::types::RichText>,

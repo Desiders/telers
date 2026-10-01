@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object describes the model of a unique gift.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#uniquegiftmodel>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct UniqueGiftModel {
     /// Name of the model
     pub name: Box<str>,
@@ -11,7 +12,8 @@ pub struct UniqueGiftModel {
     /// The number of unique gifts that receive this model for every 1000 gift upgrades. Always 0 for crafted gifts.
     pub rarity_per_mille: i64,
     /// Rarity of the model if it is a crafted model. Currently, can be `uncommon`, `rare`, `epic`, or `legendary`.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub rarity: Option<Box<str>>,
 }
 impl UniqueGiftModel {

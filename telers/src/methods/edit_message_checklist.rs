@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to edit a checklist on behalf of a connected business account. On success, the edited Message is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#editmessagechecklist>
 /// # Returns
 /// - `crate::types::Message`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct EditMessageChecklist {
     /// Unique identifier of the business connection on behalf of which the message will be sent
     pub business_connection_id: Box<str>,
@@ -16,7 +17,8 @@ pub struct EditMessageChecklist {
     /// A JSON-serialized object for the new checklist
     pub checklist: crate::types::InputChecklist,
     /// A JSON-serialized object for the new inline keyboard for the message
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
 }
 impl EditMessageChecklist {

@@ -1,5 +1,5 @@
 //! This module contains the [`CallbackData`] filter, which is used to filter
-//! [`CallbackQuery`] updates with callback data that can be unpacked to the given
+//! [`CallbackQuery`](crate::types::CallbackQuery) updates with callback data that can be unpacked to the given
 //! [`CallbackData`](crate::callback_data::CallbackData) type.
 
 use super::{Filter, FilterResult};
@@ -7,7 +7,7 @@ use crate::{callback_data::CallbackData as CallbackDataTrait, Request};
 
 use std::{convert::Infallible, future::Future, marker::PhantomData};
 
-/// Filter for [`CallbackQuery`] updates with callback data that can be unpacked
+/// Filter for [`CallbackQuery`](crate::types::CallbackQuery) updates with callback data that can be unpacked
 /// to the given [`CallbackData`](crate::callback_data::CallbackData) type.
 ///
 /// On success, the unpacked data is placed in the request context,
@@ -29,7 +29,7 @@ use std::{convert::Infallible, future::Future, marker::PhantomData};
 ///     .on_callback_query(|observer| observer.filter(CallbackData::<LanguageSettings>::new()));
 /// ```
 ///
-/// [`CallbackQuery`]: crate::types::CallbackQuery
+/// [`CallbackQuery`](crate::types::CallbackQuery): crate::types::CallbackQuery
 #[derive(Debug, Clone, Copy, Default)]
 pub struct CallbackData<CD> {
     phantom: PhantomData<CD>,

@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to get the list of boosts added to a chat by a user. Requires administrator rights in the chat. Returns a [`crate::types::UserChatBoosts`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getuserchatboosts>
 /// # Returns
 /// - `crate::types::UserChatBoosts`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetUserChatBoosts {
     /// Unique identifier for the chat or username of the channel in the format @username
     pub chat_id: crate::types::ChatIdKind,

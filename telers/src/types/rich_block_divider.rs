@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// A divider, corresponding to the HTML tag <hr/>.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richblockdivider>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct RichBlockDivider {}
 impl RichBlockDivider {
     /// Creates a new `RichBlockDivider`.

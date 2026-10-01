@@ -1,6 +1,7 @@
-use crate::errors::{HandlerError, MiddlewareError};
-
-use serde::{de::DeserializeOwned, Serialize};
+use crate::{
+    errors::{HandlerError, MiddlewareError},
+    serialization::{DeserializeOwned, Serialize},
+};
 use std::{
     borrow::Cow, collections::HashMap, error::Error as StdError, fmt::Debug, future::Future,
 };

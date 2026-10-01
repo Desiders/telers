@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object represents an inline keyboard button that copies specified text to the clipboard.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#copytextbutton>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct CopyTextButton {
     /// The text to be copied to the clipboard; 1-256 characters
     pub text: Box<str>,

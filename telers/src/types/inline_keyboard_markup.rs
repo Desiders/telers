@@ -1,13 +1,15 @@
-use serde::{Deserialize, Serialize};
 /// This object represents an inline keyboard that appears right next to the message it belongs to.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinekeyboardmarkup>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InlineKeyboardMarkup {
     /// Array of button rows, each represented by an Array of [`crate::types::InlineKeyboardButton`] objects
     pub inline_keyboard: Box<[Box<[crate::types::InlineKeyboardButton]>]>,
     /// Pass `true` if the reply interface must be shown to the user, as if they had manually selected the bot's message and tapped 'Reply'. The value of the field can't be changed when the inline keyboard is edited.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub force_reply: Option<bool>,
 }
 impl InlineKeyboardMarkup {

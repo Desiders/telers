@@ -1,17 +1,20 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to change the bot's menu button in a private chat, or the default menu button. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setchatmenubutton>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SetChatMenuButton {
     /// Unique identifier for the target private chat. If not specified, the bot's default menu button will be changed.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub chat_id: Option<i64>,
     /// A JSON-serialized object for the bot's new menu button. Defaults to [`crate::types::MenuButtonDefault`].
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub menu_button: Option<crate::types::MenuButton>,
 }
 impl SetChatMenuButton {

@@ -1,21 +1,24 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Upgrades a given regular gift to a unique gift. Requires the `can_transfer_and_upgrade_gifts` business bot right. Additionally requires the `can_transfer_stars` business bot right if the upgrade is paid. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#upgradegift>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct UpgradeGift {
     /// Unique identifier of the business connection
     pub business_connection_id: Box<str>,
     /// Unique identifier of the regular gift that should be upgraded to a unique one
     pub owned_gift_id: Box<str>,
     /// Pass `true` to keep the original gift text, sender and receiver in the upgraded gift
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub keep_original_details: Option<bool>,
     /// The amount of Telegram Stars that will be paid for the upgrade from the business account balance. If `gift.prepaid_upgrade_star_count` > 0, then pass 0, otherwise, the `can_transfer_stars` business bot right is required and `gift.upgrade_star_count` must be passed.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub star_count: Option<i64>,
 }
 impl UpgradeGift {

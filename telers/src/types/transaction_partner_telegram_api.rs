@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes a transaction with payment for paid broadcasting.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transactionpartnertelegramapi>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct TransactionPartnerTelegramApi {
     /// The number of successful requests that exceeded regular limits and were therefore billed
     pub request_count: i64,

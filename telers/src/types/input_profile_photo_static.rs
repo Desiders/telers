@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// A static profile photo in the .JPG format.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputprofilephotostatic>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputProfilePhotoStatic {
     /// The static profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass `attach://<file_attach_name>` if the photo was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     pub photo: crate::types::InputFile,

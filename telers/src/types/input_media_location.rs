@@ -1,15 +1,17 @@
-use serde::{Deserialize, Serialize};
 /// Represents a location to be sent.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmedialocation>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputMediaLocation {
     /// Latitude of the location
     pub latitude: f64,
     /// Longitude of the location
     pub longitude: f64,
     /// The radius of uncertainty for the location, measured in meters; 0-1500
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub horizontal_accuracy: Option<f64>,
 }
 impl InputMediaLocation {

@@ -8,7 +8,7 @@ use async_trait::async_trait;
 ///
 /// The selector receives the current render data and returns a key. The first
 /// variant whose registered key equals the selector's result is rendered.
-/// When no variant matches, the optional [`default`](CaseBuilder::default)
+/// When no variant matches, the optional `default`
 /// variant renders; otherwise the widget produces an empty string.
 ///
 /// # Example

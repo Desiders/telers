@@ -1,10 +1,11 @@
-use serde::{Deserialize, Serialize};
 /// A request to join the chat has been sent. The bot must have the `can_invite_users` administrator right in the chat to receive these updates.
 /// # Notes
 /// This object represents an update from original update field `chat_join_request`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#update>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct UpdateChatJoinRequest {
     /// The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
     pub update_id: i64,

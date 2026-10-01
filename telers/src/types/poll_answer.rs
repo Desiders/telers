@@ -1,21 +1,25 @@
-use serde::{Deserialize, Serialize};
 /// This object represents an answer of a user in a non-anonymous poll.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#pollanswer>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PollAnswer {
     /// Unique poll identifier
     pub poll_id: Box<str>,
     /// The chat that changed the answer to the poll, if the voter is anonymous
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub voter_chat: Option<Box<crate::types::Chat>>,
     /// The user that changed the answer to the poll, if the voter isn't anonymous
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub user: Option<Box<crate::types::User>>,
     /// 0-based identifiers of chosen answer options. May be empty if the vote was retracted.
     pub option_ids: Box<[i64]>,
     /// Persistent identifiers of the chosen answer options. May be empty if the vote was retracted.
-    #[serde(default)]
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
     pub option_persistent_ids: Box<[Box<str>]>,
 }
 impl PollAnswer {

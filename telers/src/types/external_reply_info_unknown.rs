@@ -1,24 +1,29 @@
-use serde::{Deserialize, Serialize};
 /// Message is a text message or a message with content unknown to the library
 /// # Notes
 /// This object represents an external reply info without a content field; the quoted part of the original message is available in the message's `quote` field.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#externalreplyinfo>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ExternalReplyInfoUnknown {
     /// Origin of the message replied to by the given message
     pub origin: crate::types::MessageOrigin,
     /// Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub chat: Option<Box<crate::types::Chat>>,
     /// Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub message_id: Option<i64>,
     /// Options used for link preview generation for the original message, if it is a text message
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub link_preview_options: Option<crate::types::LinkPreviewOptions>,
     /// `true`, if the message media is covered by a spoiler animation
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub has_media_spoiler: Option<bool>,
 }
 impl ExternalReplyInfoUnknown {

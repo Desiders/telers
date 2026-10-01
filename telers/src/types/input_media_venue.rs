@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Represents a venue to be sent.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmediavenue>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputMediaVenue {
     /// Latitude of the location
     pub latitude: f64,
@@ -13,16 +14,20 @@ pub struct InputMediaVenue {
     /// Address of the venue
     pub address: Box<str>,
     /// Foursquare identifier of the venue
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub foursquare_id: Option<Box<str>>,
     /// Foursquare type of the venue, if known. (For example, `arts_entertainment/default`, `arts_entertainment/aquarium` or `food/icecream`.)
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub foursquare_type: Option<Box<str>>,
     /// Google Places identifier of the venue
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub google_place_id: Option<Box<str>>,
     /// Google Places type of the venue. (See supported types.)
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub google_place_type: Option<Box<str>>,
 }
 impl InputMediaVenue {

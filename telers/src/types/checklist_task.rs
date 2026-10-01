@@ -1,24 +1,29 @@
-use serde::{Deserialize, Serialize};
 /// Describes a task in a checklist.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#checklisttask>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChecklistTask {
     /// Unique identifier of the task
     pub id: i64,
     /// Text of the task
     pub text: Box<str>,
     /// Special entities that appear in the task text
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub text_entities: Option<Box<[crate::types::MessageEntity]>>,
     /// User that completed the task; omitted if the task wasn't completed by a user
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub completed_by_user: Option<Box<crate::types::User>>,
     /// Chat that completed the task; omitted if the task wasn't completed by a chat
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub completed_by_chat: Option<Box<crate::types::Chat>>,
     /// Point in time (Unix timestamp) when the task was completed; 0 if the task wasn't completed
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub completion_date: Option<i64>,
 }
 impl ChecklistTask {

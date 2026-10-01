@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to get custom emoji stickers, which can be used as a forum topic icon by any user. Requires no parameters. Returns an Array of Sticker objects.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getforumtopiciconstickers>
 /// # Returns
 /// - `Box<[crate::types::Sticker]>`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetForumTopicIconStickers {}
 impl GetForumTopicIconStickers {
     /// Creates a new `GetForumTopicIconStickers`.

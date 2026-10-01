@@ -1,19 +1,22 @@
-use serde::{Deserialize, Serialize};
 /// Represents a result of an inline query that was chosen by the user and sent to their chat partner.
 /// Note: It is necessary to enable inline feedback via @`BotFather` in order to receive these objects in updates.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#choseninlineresult>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChosenInlineResult {
     /// The unique identifier for the result that was chosen
     pub result_id: Box<str>,
     /// The user that chose the result
     pub from: Box<crate::types::User>,
     /// Sender location, only for bots that require user location
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub location: Option<crate::types::Location>,
     /// Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. Will be also received in callback queries and can be used to edit the message.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub inline_message_id: Option<Box<str>>,
     /// The query that was used to obtain the result
     pub query: Box<str>,

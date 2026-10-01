@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object represents an animated emoji that displays a random value.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#dice>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct Dice {
     /// Emoji on which the dice throw animation is based
     pub emoji: Box<str>,

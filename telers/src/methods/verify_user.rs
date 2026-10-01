@@ -1,16 +1,18 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Verifies a user on behalf of the organization which is represented by the bot. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#verifyuser>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct VerifyUser {
     /// Unique identifier of the target user
     pub user_id: i64,
     /// Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub custom_description: Option<Box<str>>,
 }
 impl VerifyUser {

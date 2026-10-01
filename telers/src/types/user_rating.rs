@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object describes the rating of a user based on their Telegram Star spendings.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#userrating>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct UserRating {
     /// Current level of the user, indicating their reliability when purchasing digital goods and services. A higher level suggests a more trustworthy customer; a negative level is likely reason for concern.
     pub level: i64,
@@ -11,7 +12,8 @@ pub struct UserRating {
     /// The rating value required to get the current level
     pub current_level_rating: i64,
     /// The rating value required to get to the next level; omitted if the maximum level was reached
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub next_level_rating: Option<i64>,
 }
 impl UserRating {

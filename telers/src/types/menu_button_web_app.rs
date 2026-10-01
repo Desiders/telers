@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Represents a menu button, which launches a Web App.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#menubuttonwebapp>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct MenuButtonWebApp {
     /// Text on the button
     pub text: Box<str>,

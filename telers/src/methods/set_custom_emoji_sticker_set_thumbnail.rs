@@ -1,16 +1,18 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to set the thumbnail of a custom emoji sticker set. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setcustomemojistickersetthumbnail>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SetCustomEmojiStickerSetThumbnail {
     /// Sticker set name
     pub name: Box<str>,
     /// Custom emoji identifier of a sticker from the sticker set; pass an empty string to drop the thumbnail and use the first sticker as the thumbnail
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub custom_emoji_id: Option<Box<str>>,
 }
 impl SetCustomEmojiStickerSetThumbnail {

@@ -1,6 +1,5 @@
 //! `Calendar` date selection (default and customized) and the `TimeSelect` grid.
 
-use serde_json::Value;
 use telers_dialog::{
     entities::DataMap,
     widgets::{
@@ -24,7 +23,7 @@ fn back_nav() -> InlineKeyboard {
 /// Shared readout of the date stored by either calendar window.
 fn selected_date_text(data: &DataMap) -> String {
     data.get("selected_date")
-        .and_then(Value::as_str)
+        .and_then(|value| value.as_str())
         .map_or_else(
             || "Selected date: none yet.".to_owned(),
             |date| format!("Selected date: {date}"),

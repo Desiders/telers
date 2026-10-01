@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object represents an animation file (GIF or H.264/MPEG-4 AVC video without sound).
 /// # Documentation
 /// <https://core.telegram.org/bots/api#animation>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct Animation {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: Box<str>,
@@ -15,16 +16,20 @@ pub struct Animation {
     /// Duration of the video in seconds as defined by the sender
     pub duration: i64,
     /// Animation thumbnail as defined by the sender
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub thumbnail: Option<crate::types::PhotoSize>,
     /// Original animation filename as defined by the sender
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub file_name: Option<Box<str>>,
     /// MIME type of the file as defined by the sender
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub mime_type: Option<Box<str>>,
     /// File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub file_size: Option<i64>,
 }
 impl Animation {

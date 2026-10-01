@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Represents a location to which a chat is connected.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatlocation>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatLocation {
     /// The location to which the supergroup is connected. Can't be a live location.
     pub location: crate::types::Location,

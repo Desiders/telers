@@ -1,12 +1,14 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a message about a scheduled giveaway.
 /// Currently, it can be one of
 /// - [`crate::types::GiveawayPremium`]
 /// - [`crate::types::GiveawayStar`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#giveaway>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(untagged)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(untagged))]
+#[cfg_attr(feature = "deser", deser(untagged))]
 pub enum Giveaway {
     Premium(crate::types::GiveawayPremium),
     Star(crate::types::GiveawayStar),

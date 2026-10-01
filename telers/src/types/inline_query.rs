@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object represents an incoming inline query. When the user sends an empty query, your bot could return some default or trending results.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequery>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InlineQuery {
     /// Unique identifier for this query
     pub id: Box<str>,
@@ -13,10 +14,12 @@ pub struct InlineQuery {
     /// Offset of the results to be returned, can be controlled by the bot
     pub offset: Box<str>,
     /// Type of the chat from which the inline query was sent. Can be either `sender` for a private chat with the inline query sender, `private`, `group`, `supergroup`, or `channel`. The chat type should be always known for requests sent from official clients and most third-party clients, unless the request was sent from a secret chat.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub chat_type: Option<Box<str>>,
     /// Sender location, only for bots that request user location
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub location: Option<crate::types::Location>,
 }
 impl InlineQuery {

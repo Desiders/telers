@@ -1,17 +1,19 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a/an pre message entity.
 /// # Notes
 /// This object represents a message entity from original field `pre`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#messageentity>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct MessageEntityPre {
     /// Offset in UTF-16 code units to the start of the entity
     pub offset: i64,
     /// Length of the entity in UTF-16 code units
     pub length: i64,
     /// For `pre` only, the programming language of the entity text
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub language: Option<Box<str>>,
 }
 impl MessageEntityPre {

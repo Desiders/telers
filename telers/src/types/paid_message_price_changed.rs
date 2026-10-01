@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes a service message about a change in the price of paid messages within a chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#paidmessagepricechanged>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PaidMessagePriceChanged {
     /// The new number of Telegram Stars that must be paid by non-administrator users of the supergroup chat for each sent message
     pub paid_message_star_count: i64,

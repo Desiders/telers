@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Represents an issue in one of the data fields that was provided by the user. The error is considered resolved when the field's value changes.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerrordatafield>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PassportElementErrorDataField {
     /// The section of the user's Telegram Passport which has the error, one of `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport`, `address`
     pub r#type: Box<str>,

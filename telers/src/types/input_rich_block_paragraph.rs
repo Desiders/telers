@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// A text paragraph, corresponding to the HTML tag <`p`>.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputrichblockparagraph>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputRichBlockParagraph {
     /// Text of the block
     pub text: Box<crate::types::RichText>,

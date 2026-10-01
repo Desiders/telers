@@ -1,5 +1,6 @@
 use crate::{
     client::Bot,
+    serialization::{self, Deserialize, DeserializeOwned, Serialize},
     types::{
         InlineQueryResult, InlineQueryResultAudioKind, InlineQueryResultDocumentKind,
         InlineQueryResultGifKind, InlineQueryResultMpeg4GifKind, InlineQueryResultPhotoKind,
@@ -11,7 +12,6 @@ use crate::{
     utils::format_error_report,
 };
 
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use tracing::{event, instrument, Level};
 
 /// This object represents a request to Telegram API
@@ -77,12 +77,18 @@ pub trait TelegramMethod {
     /// # Errors
     /// - If the response cannot be parsed
     #[instrument(name = "build", skip_all)]
-    fn build_response(content: &str) -> Result<Response<Self::Return>, serde_json::Error> {
+    fn build_response(content: &str) -> Result<Response<Self::Return>, serialization::Error> {
         event!(Level::TRACE, %content, "Parsing");
-        let mut deserializer = serde_json::Deserializer::from_str(content);
-        deserializer.disable_recursion_limit();
-        let deserializer = serde_stacker::Deserializer::new(&mut deserializer);
-        let res = Response::<Self::Return>::deserialize(deserializer).inspect_err(|err| {
+        #[cfg(not(feature = "deser"))]
+        let res = {
+            let mut deserializer = serde_json::Deserializer::from_str(content);
+            deserializer.disable_recursion_limit();
+            let deserializer = serde_stacker::Deserializer::new(&mut deserializer);
+            Response::<Self::Return>::deserialize(deserializer)
+        };
+        #[cfg(feature = "deser")]
+        let res = deser_json::from_str::<Response<Self::Return>>(content);
+        let res = res.inspect_err(|err| {
             event!(
                 Level::ERROR,
                 error = %format_error_report(&err),

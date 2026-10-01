@@ -65,9 +65,11 @@ fn render_template(template: &str, data: &DataMap) -> String {
 }
 
 fn render_data_value(value: &Data) -> String {
-    match value {
-        Data::String(value) => value.clone(),
-        Data::Null => String::new(),
-        _ => value.to_string(),
+    if let Some(text) = value.as_str() {
+        text.to_owned()
+    } else if value.is_null() {
+        String::new()
+    } else {
+        telers::serialization::to_string(value).unwrap_or_default()
     }
 }

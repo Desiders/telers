@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// This object represents the scope to which bot commands are applied. Currently, the following 7 scopes are supported:
 /// - [`crate::types::BotCommandScopeDefault`]
 /// - [`crate::types::BotCommandScopeAllPrivateChats`]
@@ -9,8 +8,11 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::BotCommandScopeChatMember`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscope>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(tag = "type", rename_all = "snake_case"))]
+#[cfg_attr(feature = "deser", deser(tag = "type", rename_all = "snake_case"))]
 pub enum BotCommandScope {
     Default(crate::types::BotCommandScopeDefault),
     AllPrivateChats(crate::types::BotCommandScopeAllPrivateChats),

@@ -1,19 +1,23 @@
-use serde::{Deserialize, Serialize};
 /// Describes the physical address of a location.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#locationaddress>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct LocationAddress {
     /// The two-letter ISO 3166-1 alpha-2 country code of the country where the location is located
     pub country_code: Box<str>,
     /// State of the location
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub state: Option<Box<str>>,
     /// City of the location
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub city: Option<Box<str>>,
     /// Street address of the location
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub street: Option<Box<str>>,
 }
 impl LocationAddress {

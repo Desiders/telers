@@ -1,21 +1,25 @@
-use serde::{Deserialize, Serialize};
 /// Describes a checklist.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#checklist>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct Checklist {
     /// Title of the checklist
     pub title: Box<str>,
     /// Special entities that appear in the checklist title
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub title_entities: Option<Box<[crate::types::MessageEntity]>>,
     /// List of tasks in the checklist
     pub tasks: Box<[crate::types::ChecklistTask]>,
     /// `true`, if users other than the creator of the list can add tasks to the list
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub others_can_add_tasks: Option<bool>,
     /// `true`, if users other than the creator of the list can mark tasks as done or not done
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub others_can_mark_tasks_as_done: Option<bool>,
 }
 impl Checklist {

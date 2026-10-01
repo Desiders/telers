@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Removes verification from a user who is currently verified on behalf of the organization represented by the bot. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#removeuserverification>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct RemoveUserVerification {
     /// Unique identifier of the target user
     pub user_id: i64,

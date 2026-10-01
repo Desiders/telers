@@ -1,16 +1,18 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Removes the current profile photo of a managed business account. Requires the `can_edit_profile_photo` business bot right. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#removebusinessaccountprofilephoto>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct RemoveBusinessAccountProfilePhoto {
     /// Unique identifier of the business connection
     pub business_connection_id: Box<str>,
     /// Pass `true` to remove the public photo, which is visible even if the main photo is hidden by the business account's privacy settings. After the main photo is removed, the previous profile photo (if present) becomes the main photo.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_public: Option<bool>,
 }
 impl RemoveBusinessAccountProfilePhoto {

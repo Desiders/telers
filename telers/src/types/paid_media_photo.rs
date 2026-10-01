@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// The paid media is a photo.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#paidmediaphoto>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PaidMediaPhoto {
     /// The photo
     pub photo: Box<[crate::types::PhotoSize]>,

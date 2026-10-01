@@ -1,4 +1,4 @@
-use serde_json::{json, Value};
+use telers::serialization::{json, Value};
 
 use super::{Checkbox, Counter, Multiselect, Radio, TimeSelect, Toggle};
 use crate::{
@@ -16,7 +16,7 @@ async fn store_selected_minute(_click: ClickContext, minute: u8) -> ButtonAction
 
 #[tokio::test]
 async fn radio_renders_checked_and_unchecked_items() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let radio = Radio::builder("color")
         .items_getter(|_data| ["red", "blue", "green"])
         .checked_renderer(|&item, _data| format!("* {item}"))
@@ -36,7 +36,7 @@ async fn radio_renders_checked_and_unchecked_items() {
 
 #[tokio::test]
 async fn radio_renders_selected_item_as_checked() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("color".into(), json!("blue"));
 
     let radio = Radio::builder("color")
@@ -59,7 +59,7 @@ async fn radio_renders_selected_item_as_checked() {
 
 #[tokio::test]
 async fn radio_callback_produces_set_widget_value() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let radio = Radio::builder("color")
         .items_getter(|_data| ["red", "blue"])
         .checked_renderer(|&item, _data| format!("* {item}"))
@@ -81,7 +81,7 @@ async fn radio_callback_produces_set_widget_value() {
 
 #[tokio::test]
 async fn radio_ignores_foreign_intent_callbacks() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let radio = Radio::builder("color")
         .items_getter(|_data| ["red"])
         .checked_renderer(|&item, _data| item.to_owned())
@@ -97,7 +97,7 @@ async fn radio_ignores_foreign_intent_callbacks() {
 
 #[tokio::test]
 async fn radio_allows_header_and_footer_buttons() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let radio = Radio::builder("color")
         .items_getter(|_data| ["red"])
         .checked_renderer(|&item, _data| item.to_owned())
@@ -116,7 +116,7 @@ async fn radio_allows_header_and_footer_buttons() {
 
 #[tokio::test]
 async fn checkbox_renders_unchecked_and_toggles_to_true() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let checkbox = Checkbox::builder("notify")
         .checked_text("[x] Notify me")
         .unchecked_text("[ ] Notify me")
@@ -135,7 +135,7 @@ async fn checkbox_renders_unchecked_and_toggles_to_true() {
 
 #[tokio::test]
 async fn checkbox_renders_checked_and_toggles_to_false() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("notify".into(), json!(true));
     let checkbox = Checkbox::builder("notify")
         .checked_text("[x] Notify me")
@@ -155,7 +155,7 @@ async fn checkbox_renders_checked_and_toggles_to_false() {
 
 #[tokio::test]
 async fn checkbox_callback_updates_widget_value() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let checkbox = Checkbox::builder("notify")
         .checked_text("[x] Notify me")
         .unchecked_text("[ ] Notify me")
@@ -175,7 +175,7 @@ async fn checkbox_callback_updates_widget_value() {
 
 #[tokio::test]
 async fn counter_renders_default_value() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let counter = Counter::builder("qty").default(2.0).build();
 
     let markup = counter
@@ -191,7 +191,7 @@ async fn counter_renders_default_value() {
 
 #[tokio::test]
 async fn counter_can_hide_plus_and_minus_buttons() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let counter = Counter::builder("qty")
         .default(2.0)
         .minus_hidden(true)
@@ -210,7 +210,7 @@ async fn counter_can_hide_plus_and_minus_buttons() {
 
 #[tokio::test]
 async fn counter_with_swapped_or_nan_bounds_does_not_panic() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
 
     // `f64::clamp` panics when `min > max`, so a swapped pair (an easy misconfiguration) used to
     // take down the async render path on the very first render. The bounds are normalized at
@@ -253,7 +253,7 @@ async fn counter_with_swapped_or_nan_bounds_does_not_panic() {
 
 #[tokio::test]
 async fn counter_plus_callback_increments_value() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("qty".into(), json!(2.0));
     let counter = Counter::builder("qty").increment(0.5).build();
 
@@ -271,7 +271,7 @@ async fn counter_plus_callback_increments_value() {
 
 #[tokio::test]
 async fn counter_minus_callback_respects_minimum() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("qty".into(), json!(1.0));
     let counter = Counter::builder("qty").min(1.0).default(1.0).build();
 
@@ -289,7 +289,7 @@ async fn counter_minus_callback_respects_minimum() {
 
 #[tokio::test]
 async fn counter_cycles_when_enabled() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("qty".into(), json!(3.0));
     let counter = Counter::builder("qty")
         .min(1.0)
@@ -311,7 +311,7 @@ async fn counter_cycles_when_enabled() {
 
 #[tokio::test]
 async fn time_select_renders_headers_and_selected_values() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data
         .insert("pickup_time".into(), json!([13, 30]));
     let picker = TimeSelect::builder("pickup_time")
@@ -332,7 +332,7 @@ async fn time_select_renders_headers_and_selected_values() {
 
 #[tokio::test]
 async fn time_select_zero_pads_default_labels() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("pickup_time".into(), json!([0, 5]));
     let picker = TimeSelect::builder("pickup_time").build();
 
@@ -348,7 +348,7 @@ async fn time_select_zero_pads_default_labels() {
 
 #[tokio::test]
 async fn time_select_allows_custom_value_renderers() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("pickup_time".into(), json!([0, 5]));
     let picker = TimeSelect::builder("pickup_time")
         .button_renderer(|value, _data| format!("{value}"))
@@ -367,7 +367,7 @@ async fn time_select_allows_custom_value_renderers() {
 
 #[tokio::test]
 async fn time_select_hour_callback_updates_partial_value() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let picker = TimeSelect::builder("pickup_time").build();
 
     let action = picker
@@ -384,7 +384,7 @@ async fn time_select_hour_callback_updates_partial_value() {
 
 #[tokio::test]
 async fn time_select_hour_callback_runs_click_handler() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let picker = TimeSelect::builder("pickup_time")
         .on_hour_click(store_selected_hour)
         .build();
@@ -411,7 +411,7 @@ async fn time_select_hour_callback_runs_click_handler() {
 
 #[tokio::test]
 async fn time_select_minute_callback_preserves_selected_hour() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data
         .insert("pickup_time".into(), json!([13, null]));
     let picker = TimeSelect::builder("pickup_time")
@@ -432,7 +432,7 @@ async fn time_select_minute_callback_preserves_selected_hour() {
 
 #[tokio::test]
 async fn time_select_minute_callback_runs_click_handler() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data
         .insert("pickup_time".into(), json!([13, null]));
     let picker = TimeSelect::builder("pickup_time")
@@ -462,7 +462,7 @@ async fn time_select_minute_callback_runs_click_handler() {
 
 #[tokio::test]
 async fn toggle_renders_first_item_when_unset() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let toggle = Toggle::builder("theme")
         .items_getter(|_data| ["light", "dark", "sepia"])
         .item_renderer(|&item, _data| format!("Theme: {item}"))
@@ -482,7 +482,7 @@ async fn toggle_renders_first_item_when_unset() {
 
 #[tokio::test]
 async fn toggle_renders_selected_item_and_cycles_to_next() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("theme".into(), json!("dark"));
 
     let toggle = Toggle::builder("theme")
@@ -504,7 +504,7 @@ async fn toggle_renders_selected_item_and_cycles_to_next() {
 
 #[tokio::test]
 async fn toggle_callback_updates_widget_value() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let toggle = Toggle::builder("theme")
         .items_getter(|_data| ["light", "dark"])
         .item_renderer(|&item, _data| item.to_owned())
@@ -525,7 +525,7 @@ async fn toggle_callback_updates_widget_value() {
 
 #[tokio::test]
 async fn multiselect_renders_checked_and_unchecked_items() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("fruits".into(), json!(["apple"]));
 
     let ms = Multiselect::builder("fruits")
@@ -548,7 +548,7 @@ async fn multiselect_renders_checked_and_unchecked_items() {
 
 #[tokio::test]
 async fn multiselect_toggle_checks_unchecked_item() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let ms = Multiselect::builder("fruits")
         .items_getter(|_data| ["apple", "pear"])
         .checked_renderer(|&item, _data| format!("[x] {item}"))
@@ -570,7 +570,7 @@ async fn multiselect_toggle_checks_unchecked_item() {
 
 #[tokio::test]
 async fn multiselect_toggle_unchecks_checked_item() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data
         .insert("fruits".into(), json!(["apple", "pear"]));
 
@@ -595,7 +595,7 @@ async fn multiselect_toggle_unchecks_checked_item() {
 
 #[tokio::test]
 async fn multiselect_respects_max_selected() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data
         .insert("fruits".into(), json!(["apple", "pear"]));
 
@@ -617,7 +617,7 @@ async fn multiselect_respects_max_selected() {
 
 #[tokio::test]
 async fn multiselect_respects_min_selected() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("fruits".into(), json!(["apple"]));
 
     let ms = Multiselect::builder("fruits")

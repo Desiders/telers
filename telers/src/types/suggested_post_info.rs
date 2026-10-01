@@ -1,16 +1,19 @@
-use serde::{Deserialize, Serialize};
 /// Contains information about a suggested post.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#suggestedpostinfo>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct SuggestedPostInfo {
     /// State of the suggested post. Currently, it can be one of `pending`, `approved`, `declined`.
     pub state: Box<str>,
     /// Proposed price of the post. If the field is omitted, then the post is unpaid.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub price: Option<crate::types::SuggestedPostPrice>,
     /// Proposed send date of the post. If the field is omitted, then the post can be published at any time within 30 days at the sole discretion of the user or administrator who approves it.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub send_date: Option<i64>,
 }
 impl SuggestedPostInfo {

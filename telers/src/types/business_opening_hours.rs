@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes the opening hours of a business.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#businessopeninghours>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct BusinessOpeningHours {
     /// Unique name of the time zone for which the opening hours are defined
     pub time_zone_name: Box<str>,

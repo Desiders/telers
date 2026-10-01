@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to create a new sticker set owned by a user. The bot will be able to edit the sticker set thus created. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#createnewstickerset>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct CreateNewStickerSet {
     /// User identifier of created sticker set owner
     pub user_id: i64,
@@ -16,10 +17,12 @@ pub struct CreateNewStickerSet {
     /// A JSON-serialized list of 1-50 initial stickers to be added to the sticker set
     pub stickers: Box<[crate::types::InputSticker]>,
     /// Type of stickers in the set, pass `regular`, `mask`, or `custom_emoji`. By default, a regular sticker set is created.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub sticker_type: Option<Box<str>>,
     /// Pass `true` if stickers in the sticker set must be repainted to the color of text when used in messages, the accent color if used as emoji status, white on chat photos, or another appropriate color based on context; for custom emoji sticker sets only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub needs_repainting: Option<bool>,
 }
 impl CreateNewStickerSet {
