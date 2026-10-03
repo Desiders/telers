@@ -78,23 +78,6 @@ async fn main() {
 
 For more, check out the [crate documentation][docs] and the [examples below][examples].
 
-## Experimental Deser backend
-
-The `deser` feature replaces Serde with [Deser](https://github.com/mitsuhiko/deser)
-for models, requests, responses, webhooks, FSM storage, and WebApp parsing:
-
-```toml
-telers = { version = "1.0.0-beta.9", default-features = false, features = ["deser", "std", "rustls-tls"] }
-```
-
-Serde is the default; Deser takes precedence when both features are enabled.
-With defaults disabled, select either `serde` or `deser`.
-
-Use `telers::serialization` for the selected traits, JSON values, and functions.
-Custom data types must implement Deser traits when enabled (add `deser` with its
-`derive` feature for custom derives). Also enable `telers-dialog/deser` when using
-dialogs.
-
 ## Examples
  - [Echo bot][examples/echo_bot]. This example shows how to create an echo bot.
  - [Context][examples/context]. This example shows how to use context to save data.
