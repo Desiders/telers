@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc.
 /// Currently, it can be one of
 /// - [`crate::types::MessageEntityBlockquote`]
@@ -23,8 +22,11 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::MessageEntityUrl`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#messageentity>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(tag = "type", rename_all = "snake_case"))]
+#[cfg_attr(feature = "deser", deser(tag = "type", rename_all = "snake_case"))]
 pub enum MessageEntity {
     Mention(crate::types::MessageEntityMention),
     Hashtag(crate::types::MessageEntityHashtag),
@@ -47,7 +49,8 @@ pub enum MessageEntity {
     CustomEmoji(crate::types::MessageEntityCustomEmoji),
     DateTime(crate::types::MessageEntityDateTime),
     /// Content unknown to this version of the library
-    #[serde(untagged)]
+    #[cfg_attr(not(feature = "deser"), serde(untagged))]
+    #[cfg_attr(feature = "deser", deser(untagged))]
     Unknown(crate::types::MessageEntityUnknown),
 }
 impl MessageEntity {

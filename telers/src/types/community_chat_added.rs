@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes a service message about a chat or a bot being added to a community.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#communitychatadded>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct CommunityChatAdded {
     /// The new community to which the chat or the bot belongs
     pub community: crate::types::Community,

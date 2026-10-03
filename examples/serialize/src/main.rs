@@ -10,7 +10,7 @@ use telers::{
 
 async fn serialize_handler(bot: Bot, update: Update) -> HandlerResult<()> {
     if let Some(chat) = update.chat() {
-        match serde_json::to_string_pretty(&update) {
+        match telers::serialization::to_string_pretty(&update) {
             Ok(text) => {
                 bot.send(
                     SendMessage::new(chat.id(), html_pre_language(html_quote(text), "json"))

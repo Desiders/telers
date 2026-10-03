@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to process a received chat join request query. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#answerchatjoinrequestquery>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct AnswerChatJoinRequestQuery {
     /// Unique identifier of the join request query
     pub chat_join_request_query_id: Box<str>,

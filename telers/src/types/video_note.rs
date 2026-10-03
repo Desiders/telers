@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a video message.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#videonote>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct VideoNote {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: Box<str>,
@@ -13,10 +14,12 @@ pub struct VideoNote {
     /// Duration of the video in seconds as defined by the sender
     pub duration: i64,
     /// Video thumbnail
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub thumbnail: Option<crate::types::PhotoSize>,
     /// File size in bytes
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub file_size: Option<i64>,
 }
 impl VideoNote {

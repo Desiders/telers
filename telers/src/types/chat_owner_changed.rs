@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes a service message about an ownership change in the chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatownerchanged>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatOwnerChanged {
     /// The new owner of the chat
     pub new_owner: Box<crate::types::User>,

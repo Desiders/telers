@@ -1,21 +1,24 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// If you sent an invoice requesting a shipping address and the parameter `is_flexible` was specified, the Bot API will send an Update with a `shipping_query` field to the bot. Use this method to reply to shipping queries. On success, `true` is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#answershippingquery>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct AnswerShippingQuery {
     /// Unique identifier for the query to be answered
     pub shipping_query_id: Box<str>,
     /// Pass `true` if delivery to the specified address is possible and `false` if there are any problems (for example, if delivery to the specified address is not possible)
     pub ok: bool,
     /// Required if ok is `true`. A JSON-serialized Array of available shipping options.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub shipping_options: Option<Box<[crate::types::ShippingOption]>>,
     /// Required if ok is `false`. Error message in human readable form that explains why it is impossible to complete the order (e.g. `Sorry, delivery to your desired address is unavailable`). Telegram will display this message to the user.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub error_message: Option<Box<str>>,
 }
 impl AnswerShippingQuery {

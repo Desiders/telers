@@ -1,18 +1,21 @@
-use serde::{Deserialize, Serialize};
 /// Describes a task to add to a checklist.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputchecklisttask>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputChecklistTask {
     /// Unique identifier of the task; must be positive and unique among all task identifiers currently present in the checklist
     pub id: i64,
     /// Text of the task; 1-100 characters after entities parsing
     pub text: Box<str>,
     /// Mode for parsing entities in the text. See formatting options for more details.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub parse_mode: Option<Box<str>>,
     /// List of special entities that appear in the text, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are allowed.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub text_entities: Option<Box<[crate::types::MessageEntity]>>,
 }
 impl InputChecklistTask {

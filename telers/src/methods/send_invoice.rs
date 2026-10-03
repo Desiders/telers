@@ -1,19 +1,22 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to send invoices. On success, the sent Message is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sendinvoice>
 /// # Returns
 /// - `crate::types::Message`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SendInvoice {
     /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub message_thread_id: Option<i64>,
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub direct_messages_topic_id: Option<i64>,
     /// Product name, 1-32 characters
     pub title: Box<str>,
@@ -22,77 +25,100 @@ pub struct SendInvoice {
     /// Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
     pub payload: Box<str>,
     /// Payment provider token, obtained via @`BotFather`. Pass an empty string for payments in Telegram Stars.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub provider_token: Option<Box<str>>,
     /// Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR` for payments in Telegram Stars.
     pub currency: Box<str>,
     /// Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
     pub prices: Box<[crate::types::LabeledPrice]>,
     /// The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass `max_tip_amount` = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub max_tip_amount: Option<i64>,
     /// A JSON-serialized Array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub suggested_tip_amounts: Option<Box<[i64]>>,
     /// Unique deep-linking parameter. If left empty, forwarded copies of the sent message will have a Pay button, allowing multiple users to pay directly from the forwarded message, using the same invoice. If non-empty, forwarded copies of the sent message will have a URL button with a deep link to the bot (instead of a Pay button), with the value used as the start parameter.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub start_parameter: Option<Box<str>>,
     /// JSON-serialized data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub provider_data: Option<Box<str>>,
     /// URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service. People like it better when they see what they are paying for.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub photo_url: Option<Box<str>>,
     /// Photo size in bytes
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub photo_size: Option<i64>,
     /// Photo width
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub photo_width: Option<i64>,
     /// Photo height
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub photo_height: Option<i64>,
     /// Pass `true` if you require the user's full name to complete the order. Ignored for payments in Telegram Stars.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub need_name: Option<bool>,
     /// Pass `true` if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub need_phone_number: Option<bool>,
     /// Pass `true` if you require the user's email address to complete the order. Ignored for payments in Telegram Stars.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub need_email: Option<bool>,
     /// Pass `true` if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub need_shipping_address: Option<bool>,
     /// Pass `true` if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub send_phone_number_to_provider: Option<bool>,
     /// Pass `true` if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub send_email_to_provider: Option<bool>,
     /// Pass `true` if the final price depends on the shipping method. Ignored for payments in Telegram Stars.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_flexible: Option<bool>,
     /// Sends the message silently. Users will receive a notification with no sound.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub disable_notification: Option<bool>,
     /// Protects the contents of the sent message from forwarding and saving
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub protect_content: Option<bool>,
     /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub allow_paid_broadcast: Option<bool>,
     /// Unique identifier of the message effect to be added to the message; for private chats only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub message_effect_id: Option<Box<str>>,
     /// A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub suggested_post_parameters: Option<crate::types::SuggestedPostParameters>,
     /// Description of the message to reply to
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub reply_parameters: Option<crate::types::ReplyParameters>,
     /// A JSON-serialized object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
 }
 impl SendInvoice {

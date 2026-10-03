@@ -2,7 +2,6 @@
 //! transitions, and `Button::on_click` for an async handler that validates
 //! dialog data before deciding what to do.
 
-use serde_json::Value;
 use telers_dialog::{
     entities::DataMap,
     widgets::{fn_text, keyboard, Button, ButtonAction, InlineKeyboard},
@@ -14,7 +13,9 @@ use crate::common::main_menu_button;
 pub const STATE: &str = "actions_cart";
 
 fn value<'a>(data: &'a DataMap, key: &str, fallback: &'a str) -> &'a str {
-    data.get(key).and_then(Value::as_str).unwrap_or(fallback)
+    data.get(key)
+        .and_then(|value| value.as_str())
+        .unwrap_or(fallback)
 }
 
 #[allow(clippy::too_many_lines)]

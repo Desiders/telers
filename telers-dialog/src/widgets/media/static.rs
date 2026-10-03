@@ -35,12 +35,8 @@ pub struct StaticMedia {
 impl StaticMedia {
     /// Create a static media widget for the given content type.
     ///
-    /// At least one of [`url`], [`file_id`], or [`path`] must be set, otherwise
+    /// At least one of `url`, `file_id`, or `path` must be set, otherwise
     /// rendering returns `None`.
-    ///
-    /// [`url`]: StaticMediaBuilder::url
-    /// [`file_id`]: StaticMediaBuilder::file_id
-    /// [`path`]: StaticMediaBuilder::path
     #[builder]
     #[must_use]
     pub fn new(

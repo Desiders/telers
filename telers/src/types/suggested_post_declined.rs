@@ -1,14 +1,17 @@
-use serde::{Deserialize, Serialize};
 /// Describes a service message about the rejection of a suggested post.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#suggestedpostdeclined>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct SuggestedPostDeclined {
     /// Message containing the suggested post. Note that the Message object in this field will not contain the `reply_to_message` field even if it itself is a reply.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub suggested_post_message: Option<Box<crate::types::Message>>,
     /// Comment with which the post was declined
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub comment: Option<Box<str>>,
 }
 impl SuggestedPostDeclined {

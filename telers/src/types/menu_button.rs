@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// This object describes the bot's menu button in a private chat. It should be one of
 /// - [`crate::types::MenuButtonCommands`]
 /// - [`crate::types::MenuButtonWebApp`]
@@ -7,14 +6,18 @@ use serde::{Deserialize, Serialize};
 /// If a menu button other than [`crate::types::MenuButtonDefault`] is set for a private chat, then it is applied in the chat. Otherwise the default menu button is applied. By default, the menu button opens the list of bot commands.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#menubutton>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(tag = "type", rename_all = "snake_case"))]
+#[cfg_attr(feature = "deser", deser(tag = "type", rename_all = "snake_case"))]
 pub enum MenuButton {
     Commands(crate::types::MenuButtonCommands),
     WebApp(crate::types::MenuButtonWebApp),
     Default(crate::types::MenuButtonDefault),
     /// Content unknown to this version of the library
-    #[serde(untagged)]
+    #[cfg_attr(not(feature = "deser"), serde(untagged))]
+    #[cfg_attr(feature = "deser", deser(untagged))]
     Unknown(crate::types::MenuButtonUnknown),
 }
 impl MenuButton {

@@ -1,5 +1,7 @@
-use serde::{Deserialize, Serialize};
-use telers::enums::{MessageType, ReplyMarkupType};
+use telers::{
+    enums::{MessageType, ReplyMarkupType},
+    serialization::{Deserialize, Serialize},
+};
 
 use crate::entities::{AccessSettings, Context, Data};
 
@@ -22,12 +24,13 @@ pub struct Stack {
     /// Persisted so a transition can tell a `ForceReply`/`ReplyKeyboardRemove`
     /// message apart from an inline-keyboard one (the raw `last_reply_markup`
     /// value alone cannot distinguish them).
-    #[serde(default)]
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
     pub last_reply_markup_type: Option<ReplyMarkupType>,
     /// Serialized reply markup snapshot.
-    pub last_reply_markup: Option<serde_json::Value>,
+    pub last_reply_markup: Option<telers::serialization::Value>,
     /// Serialized link preview options snapshot.
-    pub last_link_preview_options: Option<serde_json::Value>,
+    pub last_link_preview_options: Option<telers::serialization::Value>,
     /// Last known media file id, when tracked.
     pub last_media_id: Option<String>,
     /// Last known media unique id, when tracked.
@@ -102,7 +105,7 @@ impl Stack {
 #[cfg(test)]
 mod tests {
     use super::{Stack, DEFAULT_STACK_ID};
-    use serde_json::Value;
+    use telers::serialization::Value;
 
     #[test]
     fn new_is_empty_with_default_id() {
@@ -122,7 +125,7 @@ mod tests {
     fn push_returns_context_and_tracks_intent() {
         let mut stack = Stack::new();
 
-        let ctx = stack.push("a", Value::Null);
+        let ctx = stack.push("a", Value::default());
 
         assert_eq!(ctx.state, "a");
         assert!(!stack.is_empty());
@@ -133,7 +136,7 @@ mod tests {
     fn push_propagates_stack_id_to_context() {
         let mut stack = Stack::new();
 
-        let ctx = stack.push("a", Value::Null);
+        let ctx = stack.push("a", Value::default());
 
         assert_eq!(ctx.stack_id, DEFAULT_STACK_ID);
     }
@@ -142,8 +145,8 @@ mod tests {
     fn pop_returns_most_recent_intent() {
         let mut stack = Stack::new();
 
-        let first = stack.push("a", Value::Null);
-        let second = stack.push("b", Value::Null);
+        let first = stack.push("a", Value::default());
+        let second = stack.push("b", Value::default());
 
         assert_eq!(stack.pop(), Some(second.id.clone()));
         assert_eq!(stack.last_intent_id(), Some(first.id.as_str()));
@@ -160,9 +163,9 @@ mod tests {
     fn push_pop_behaves_as_lifo() {
         let mut stack = Stack::new();
 
-        let a = stack.push("a", Value::Null);
-        let b = stack.push("b", Value::Null);
-        let c = stack.push("c", Value::Null);
+        let a = stack.push("a", Value::default());
+        let b = stack.push("b", Value::default());
+        let c = stack.push("c", Value::default());
 
         assert_eq!(stack.pop(), Some(c.id));
         assert_eq!(stack.pop(), Some(b.id));
@@ -180,7 +183,7 @@ mod tests {
         stack.last_message_id = Some(5);
         stack.last_text = Some("t".into());
         stack.last_reply_markup_type = Some(ReplyMarkupType::InlineKeyboardMarkup);
-        stack.last_reply_markup = Some(serde_json::json!({}));
+        stack.last_reply_markup = Some(telers::serialization::json!({}));
         stack.last_media_id = Some("file".into());
         stack.last_income_media_group_id = Some("group".into());
         stack.has_protected_content = Some(true);

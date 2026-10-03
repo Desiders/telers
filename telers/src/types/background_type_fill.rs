@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// The background is automatically filled based on the selected colors.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#backgroundtypefill>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct BackgroundTypeFill {
     /// The background fill
     pub fill: crate::types::BackgroundFill,

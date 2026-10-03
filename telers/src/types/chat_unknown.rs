@@ -1,21 +1,24 @@
-use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 /// This object represents a Chat unknown to this version of the library.
 /// # Notes
 /// Fields shared by all known variants are parsed as usual; everything else is kept in `extra`, so the object can be inspected and reserialized without data loss.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chat>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatUnknown {
     /// Raw `type` value of the variant unknown to this version of the library
     pub r#type: Box<str>,
     /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     pub id: i64,
     /// `true`, if the chat is the direct messages chat of a channel
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_direct_messages: Option<bool>,
-    #[serde(flatten)]
-    pub extra: BTreeMap<Box<str>, serde_json::Value>,
+    #[cfg_attr(not(feature = "deser"), serde(flatten))]
+    #[cfg_attr(feature = "deser", deser(flatten))]
+    pub extra: BTreeMap<Box<str>, crate::serialization::Value>,
 }
 impl ChatUnknown {
     /// Creates a new `ChatUnknown`.

@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object describes the types of gifts that can be gifted to a user or a chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#acceptedgifttypes>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct AcceptedGiftTypes {
     /// `true`, if unlimited regular gifts are accepted
     pub unlimited_gifts: bool,

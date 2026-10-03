@@ -1,10 +1,11 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a/an cashtag message entity.
 /// # Notes
 /// This object represents a message entity from original field `cashtag`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#messageentity>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct MessageEntityCashtag {
     /// Offset in UTF-16 code units to the start of the entity
     pub offset: i64,

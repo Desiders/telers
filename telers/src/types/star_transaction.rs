@@ -1,12 +1,14 @@
-use serde::{Deserialize, Serialize};
 /// Describes a Telegram Star transaction. Note that if the buyer initiates a chargeback with the payment provider from whom they acquired Stars (e.g., Apple, Google) following this transaction, the refunded Stars will be deducted from the bot's balance. This is outside of Telegram's control.
 /// Currently, it can be one of
 /// - [`crate::types::StarTransactionIncoming`]
 /// - [`crate::types::StarTransactionOutgoing`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#startransaction>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(untagged)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(untagged))]
+#[cfg_attr(feature = "deser", deser(untagged))]
 pub enum StarTransaction {
     Incoming(crate::types::StarTransactionIncoming),
     Outgoing(crate::types::StarTransactionOutgoing),

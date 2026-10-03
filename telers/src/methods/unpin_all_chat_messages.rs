@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to clear the list of pinned messages in a chat. In private chats and channel direct messages chats, no additional rights are required to unpin all pinned messages. Conversely, the bot must be an administrator with the '`can_pin_messages`' right or the '`can_edit_messages`' right to unpin all pinned messages in groups and channels respectively. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#unpinallchatmessages>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct UnpinAllChatMessages {
     /// Unique identifier for the target chat or username of the target channel in the format @username
     pub chat_id: crate::types::ChatIdKind,

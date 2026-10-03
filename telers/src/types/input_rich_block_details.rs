@@ -1,15 +1,17 @@
-use serde::{Deserialize, Serialize};
 /// An expandable block for details disclosure, corresponding to the HTML tag <`details`>.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputrichblockdetails>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputRichBlockDetails {
     /// Always shown summary of the block
     pub summary: Box<crate::types::RichText>,
     /// Content of the block
     pub blocks: Box<[crate::types::InputRichBlock]>,
     /// Pass `true` if the content of the block is visible by default
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_open: Option<bool>,
 }
 impl InputRichBlockDetails {

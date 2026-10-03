@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to set a custom title for an administrator in a supergroup promoted by the bot. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setchatadministratorcustomtitle>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SetChatAdministratorCustomTitle {
     /// Unique identifier for the target chat or username of the target supergroup in the format @username
     pub chat_id: crate::types::ChatIdKind,

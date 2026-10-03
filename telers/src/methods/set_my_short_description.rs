@@ -1,17 +1,20 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to change the bot's short description, which is shown on the bot's profile page and is sent together with the link when users share the bot. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setmyshortdescription>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SetMyShortDescription {
     /// New short description for the bot; 0-120 characters. Pass an empty string to remove the dedicated short description for the given language.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub short_description: Option<Box<str>>,
     /// A two-letter ISO 639-1 language code. If empty, the short description will be applied to all users for whose language there is no dedicated short description.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub language_code: Option<Box<str>>,
 }
 impl SetMyShortDescription {

@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Refunds a successful payment in Telegram Stars. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#refundstarpayment>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct RefundStarPayment {
     /// Identifier of the user whose payment will be refunded
     pub user_id: i64,

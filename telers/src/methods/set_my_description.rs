@@ -1,17 +1,20 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to change the bot's description, which is shown in the chat with the bot if the chat is empty. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setmydescription>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SetMyDescription {
     /// New bot description; 0-512 characters. Pass an empty string to remove the dedicated description for the given language.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub description: Option<Box<str>>,
     /// A two-letter ISO 639-1 language code. If empty, the description will be applied to all users for whose language there is no dedicated description.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub language_code: Option<Box<str>>,
 }
 impl SetMyDescription {

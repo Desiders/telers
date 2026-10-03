@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use telers::serialization::{Deserialize, Serialize};
 
 use super::{ChatEvent, Context, EventContext, Stack};
 
@@ -8,7 +8,7 @@ pub struct AccessSettings {
     /// Allowed user ids for non-private chats. Empty means unrestricted.
     pub user_ids: Vec<i64>,
     /// Application-specific access payload available to custom validators.
-    pub custom: Option<serde_json::Value>,
+    pub custom: Option<telers::serialization::Value>,
 }
 
 /// Strategy object used to decide whether an event may interact with a stack.
@@ -57,9 +57,9 @@ impl StackAccessValidator for DefaultAccessValidator {
 mod tests {
     use super::{AccessSettings, DefaultAccessValidator, StackAccessValidator};
     use crate::entities::{ChatEvent, Context, EventContext, Stack};
-    use serde_json::Value;
     use telers::{
         client::Reqwest,
+        serialization::Value,
         types::{ChatGroup, ChatPrivate, MessageText, User},
         Bot,
     };
@@ -164,7 +164,7 @@ mod tests {
             user_ids: vec![999],
             custom: None,
         });
-        let mut ctx = Context::new("", "s", Value::Null);
+        let mut ctx = Context::new("", "s", Value::default());
         ctx.access_settings = Some(AccessSettings {
             user_ids: vec![7],
             custom: None,
@@ -181,7 +181,7 @@ mod tests {
             user_ids: vec![7],
             custom: None,
         });
-        let mut ctx = Context::new("", "s", Value::Null);
+        let mut ctx = Context::new("", "s", Value::default());
         ctx.access_settings = Some(AccessSettings {
             user_ids: vec![999],
             custom: None,

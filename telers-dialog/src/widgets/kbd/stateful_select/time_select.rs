@@ -1,9 +1,11 @@
 use async_fn_traits::AsyncFn2;
 use async_trait::async_trait;
 use bon::bon;
-use serde_json::json;
 use std::{borrow::Cow, fmt::Display, sync::Arc};
-use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
+use telers::{
+    serialization::json,
+    types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup},
+};
 use tracing::debug;
 
 use super::super::{
@@ -24,10 +26,9 @@ type TimeSelectClickHandler =
 /// The widget renders a header row, a grid of selectable hours (24-hour),
 /// another header row, and a grid of minutes stepped by `minute_precision`.
 /// The selected hour or minute is written back as a JSON `[hour, minute]`
-/// array under `widget_id`; missing values stay `null`. Optional
-/// [`on_hour_click`](TimeSelectBuilder::on_hour_click) and
-/// [`on_minute_click`](TimeSelectBuilder::on_minute_click) handlers run after
-/// the state mutation and their action is chained onto the update.
+/// array under `widget_id`; missing values stay `null`. Optional `on_hour_click`
+/// and `on_minute_click` handlers run after the state mutation and their action
+/// is chained onto the update.
 pub struct TimeSelect<WidgetId> {
     id: WidgetId,
     hour_header: Cow<'static, str>,

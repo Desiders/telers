@@ -124,10 +124,8 @@ impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id
 {
     /// Build a [`Select`] widget.
     ///
-    /// At least one of [`action`](SelectBuilder::action) or
-    /// [`on_click`](SelectBuilder::on_click) must be provided; `on_click`
-    /// wins when both are set. Header and footer rows render around the
-    /// dynamic item buttons.
+    /// At least one of `action` or `on_click` must be provided; `on_click` wins
+    /// when both are set. Header and footer rows render around the dynamic item buttons.
     ///
     /// # Panics
     /// Builds will panic at runtime if neither `action` nor `on_click` is supplied.

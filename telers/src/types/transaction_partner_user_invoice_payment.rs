@@ -1,21 +1,25 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a/an invoice payment transaction partner user.
 /// # Notes
 /// This object represents a transaction partner user from original field `invoice_payment`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transactionpartneruser>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct TransactionPartnerUserInvoicePayment {
     /// Information about the user
     pub user: Box<crate::types::User>,
     /// Information about the affiliate that received a commission via this transaction. Can be available only for `invoice_payment` and `paid_media_payment` transactions.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub affiliate: Option<crate::types::AffiliateInfo>,
     /// Bot-specified invoice payload. Can be available only for `invoice_payment` transactions.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub invoice_payload: Option<Box<str>>,
     /// The duration of the paid subscription. Can be available only for `invoice_payment` transactions.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub subscription_period: Option<i64>,
 }
 impl TransactionPartnerUserInvoicePayment {

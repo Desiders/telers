@@ -1,48 +1,61 @@
-use serde::{Deserialize, Serialize};
 /// Describes a regular gift owned by a user or a chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#ownedgiftregular>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct OwnedGiftRegular {
     /// Information about the regular gift
     pub gift: Box<crate::types::Gift>,
     /// Unique identifier of the gift for the bot; for gifts received on behalf of business accounts only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub owned_gift_id: Option<Box<str>>,
     /// Sender of the gift if it is a known user
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub sender_user: Option<Box<crate::types::User>>,
     /// Date the gift was sent in Unix time
     pub send_date: i64,
     /// Text of the message that was added to the gift
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub text: Option<Box<str>>,
     /// Special entities that appear in the text
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub entities: Option<Box<[crate::types::MessageEntity]>>,
     /// `true`, if the sender and gift text are shown only to the gift receiver; otherwise, everyone will be able to see them
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_private: Option<bool>,
     /// `true`, if the gift is displayed on the account's profile page; for gifts received on behalf of business accounts only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_saved: Option<bool>,
     /// `true`, if the gift can be upgraded to a unique gift; for gifts received on behalf of business accounts only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub can_be_upgraded: Option<bool>,
     /// `true`, if the gift was refunded and isn't available anymore
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub was_refunded: Option<bool>,
     /// Number of Telegram Stars that can be claimed by the receiver instead of the gift; omitted if the gift cannot be converted to Telegram Stars; for gifts received on behalf of business accounts only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub convert_star_count: Option<i64>,
     /// Number of Telegram Stars that were paid for the ability to upgrade the gift
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub prepaid_upgrade_star_count: Option<i64>,
     /// `true`, if the gift's upgrade was purchased after the gift was sent; for gifts received on behalf of business accounts only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_upgrade_separate: Option<bool>,
     /// Unique number reserved for this gift when upgraded. See the number field in [`crate::types::UniqueGift`].
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub unique_gift_number: Option<i64>,
 }
 impl OwnedGiftRegular {

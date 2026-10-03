@@ -1,11 +1,12 @@
-use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 /// This object represents a Sticker unknown to this version of the library.
 /// # Notes
 /// Fields shared by all known variants are parsed as usual; everything else is kept in `extra`, so the object can be inspected and reserialized without data loss.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sticker>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct StickerUnknown {
     /// Raw `type` value of the variant unknown to this version of the library
     pub r#type: Box<str>,
@@ -22,22 +23,28 @@ pub struct StickerUnknown {
     /// `true`, if the sticker is a video sticker
     pub is_video: bool,
     /// Sticker thumbnail in the .WEBP or .JPG format
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub thumbnail: Option<crate::types::PhotoSize>,
     /// Emoji associated with the sticker
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub emoji: Option<Box<str>>,
     /// Name of the sticker set to which the sticker belongs
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub set_name: Option<Box<str>>,
     /// `true`, if the sticker must be repainted to a text color in messages, the color of the Telegram Premium badge in emoji status, white color on chat photos, or another appropriate color in other places
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub needs_repainting: Option<bool>,
     /// File size in bytes
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub file_size: Option<i64>,
-    #[serde(flatten)]
-    pub extra: BTreeMap<Box<str>, serde_json::Value>,
+    #[cfg_attr(not(feature = "deser"), serde(flatten))]
+    #[cfg_attr(feature = "deser", deser(flatten))]
+    pub extra: BTreeMap<Box<str>, crate::serialization::Value>,
 }
 impl StickerUnknown {
     /// Creates a new `StickerUnknown`.

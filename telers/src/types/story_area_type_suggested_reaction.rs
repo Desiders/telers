@@ -1,16 +1,19 @@
-use serde::{Deserialize, Serialize};
 /// Describes a story area pointing to a suggested reaction. Currently, a story can have up to 5 suggested reaction areas.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#storyareatypesuggestedreaction>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct StoryAreaTypeSuggestedReaction {
     /// Type of the reaction
     pub reaction_type: crate::types::ReactionType,
     /// Pass `true` if the reaction area has a dark background
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_dark: Option<bool>,
     /// Pass `true` if reaction area corner is flipped
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_flipped: Option<bool>,
 }
 impl StoryAreaTypeSuggestedReaction {

@@ -3,7 +3,6 @@ use crate::{
     errors::DialogError,
     widgets::media::{MediaAttachment, MediaContentType},
 };
-use serde::Serialize;
 use telers::{
     client::Session,
     enums::{MessageType, ReplyMarkupType},
@@ -11,6 +10,7 @@ use telers::{
         DeleteMessage, EditMessageCaption, EditMessageMedia, EditMessageReplyMarkup,
         EditMessageText, SendAnimation, SendAudio, SendDocument, SendMessage, SendPhoto, SendVideo,
     },
+    serialization::Serialize,
     types::{
         InputFile, InputMedia, InputMediaAnimation, InputMediaAudio, InputMediaDocument,
         InputMediaPhoto, InputMediaVideo, Message, ReplyKeyboardRemove, ReplyMarkup,
@@ -670,11 +670,11 @@ impl MessageManager {
     }
 }
 
-fn serialize_option<T>(value: Option<&T>) -> Option<serde_json::Value>
+fn serialize_option<T>(value: Option<&T>) -> Option<telers::serialization::Value>
 where
     T: Serialize,
 {
-    value.and_then(|value| serde_json::to_value(value).ok())
+    value.and_then(|value| telers::serialization::to_value(value).ok())
 }
 
 #[cfg(test)]

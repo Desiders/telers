@@ -1,6 +1,5 @@
 //! Text widgets: static text, `FormatText`, `FnText`, and `ListText`.
 
-use serde_json::Value;
 use telers_dialog::{
     entities::DataMap,
     widgets::{
@@ -49,7 +48,7 @@ pub fn dialog() -> impl Dialog {
                 fn_text(|data: &DataMap| {
                     let cafe = data
                         .get("cafe_name")
-                        .and_then(Value::as_str)
+                        .and_then(|value| value.as_str())
                         .unwrap_or("the cafe");
                     format!("Computed line: {cafe} is running three weekend offers.\n")
                 }),

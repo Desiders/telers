@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// This object describes the source of a transaction, or its recipient for outgoing transactions. Currently, it can be one of
 /// - [`crate::types::TransactionPartnerUser`]
 /// - [`crate::types::TransactionPartnerChat`]
@@ -9,8 +8,11 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::TransactionPartnerOther`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transactionpartner>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(tag = "type", rename_all = "snake_case"))]
+#[cfg_attr(feature = "deser", deser(tag = "type", rename_all = "snake_case"))]
 pub enum TransactionPartner {
     User(crate::types::TransactionPartnerUser),
     Chat(crate::types::TransactionPartnerChat),
@@ -20,7 +22,8 @@ pub enum TransactionPartner {
     TelegramApi(crate::types::TransactionPartnerTelegramApi),
     Other(crate::types::TransactionPartnerOther),
     /// Content unknown to this version of the library
-    #[serde(untagged)]
+    #[cfg_attr(not(feature = "deser"), serde(untagged))]
+    #[cfg_attr(feature = "deser", deser(untagged))]
     Unknown(crate::types::TransactionPartnerUnknown),
 }
 impl TransactionPartner {

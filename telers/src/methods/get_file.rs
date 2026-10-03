@@ -1,12 +1,13 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to get basic information about a file and prepare it for downloading. For the moment, bots can download files of up to 20MB in size. On success, a File object is returned. The file can then be downloaded via the link `https://api.telegram.org/file/bot<token>/<file_path>`, where <`file_path`> is taken from the response. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling [`crate::methods::GetFile`] again.
 /// Note: This function may not preserve the original file name and MIME type. You should save the file's MIME type and name (if available) when the File object is received.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getfile>
 /// # Returns
 /// - `crate::types::File`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetFile {
     /// File identifier to get information about
     pub file_id: Box<str>,

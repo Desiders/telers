@@ -1,21 +1,24 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to add a message to the list of pinned messages in a chat. In private chats and channel direct messages chats, all non-service messages can be pinned. Conversely, the bot must be an administrator with the '`can_pin_messages`' right or the '`can_edit_messages`' right to pin messages in groups and channels respectively. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#pinchatmessage>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct PinChatMessage {
     /// Unique identifier of the business connection on behalf of which the message will be pinned
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub business_connection_id: Option<Box<str>>,
     /// Unique identifier for the target chat or username of the target channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Identifier of a message to pin
     pub message_id: i64,
     /// Pass `true` if it is not necessary to send a notification to all chat members about the new pinned message. Notifications are always disabled in channels and private chats.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub disable_notification: Option<bool>,
 }
 impl PinChatMessage {

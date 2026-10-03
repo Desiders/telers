@@ -1,16 +1,18 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to create a subscription invite link for a channel chat. The bot must have the `can_invite_users` administrator rights. The link can be edited using the method [`crate::methods::EditChatSubscriptionInviteLink`] or revoked using the method [`crate::methods::RevokeChatInviteLink`]. Returns the new invite link as a [`crate::types::ChatInviteLink`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#createchatsubscriptioninvitelink>
 /// # Returns
 /// - `crate::types::ChatInviteLink`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct CreateChatSubscriptionInviteLink {
     /// Unique identifier for the target channel chat or username of the target channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Invite link name; 0-32 characters
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub name: Option<Box<str>>,
     /// The number of seconds the subscription will be active for before the next payment. Currently, it must always be 2592000 (30 days).
     pub subscription_period: i64,

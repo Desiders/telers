@@ -1,23 +1,26 @@
-use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 /// This object represents a [`crate::types::StarTransaction`] unknown to this version of the library.
 /// # Notes
 /// Fields shared by all known variants are parsed as usual; everything else is kept in `extra`, so the object can be inspected and reserialized without data loss.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#startransaction>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct StarTransactionUnknown {
     /// Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`crate::types::SuccessfulPayment`].`telegram_payment_charge_id` for successful incoming payments from users.
     pub id: Box<str>,
     /// Integer amount of Telegram Stars transferred by the transaction
     pub amount: i64,
     /// The number of 1/1000000000 shares of Telegram Stars transferred by the transaction; from 0 to 999999999
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub nanostar_amount: Option<u32>,
     /// Date the transaction was created in Unix time
     pub date: i64,
-    #[serde(flatten)]
-    pub extra: BTreeMap<Box<str>, serde_json::Value>,
+    #[cfg_attr(not(feature = "deser"), serde(flatten))]
+    #[cfg_attr(feature = "deser", deser(flatten))]
+    pub extra: BTreeMap<Box<str>, crate::serialization::Value>,
 }
 impl StarTransactionUnknown {
     /// Creates a new `StarTransactionUnknown`.

@@ -1,11 +1,12 @@
-use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 /// This object represents a [`crate::types::GiveawayWinners`] unknown to this version of the library.
 /// # Notes
 /// Fields shared by all known variants are parsed as usual; everything else is kept in `extra`, so the object can be inspected and reserialized without data loss.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#giveawaywinners>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct GiveawayWinnersUnknown {
     /// The chat that created the giveaway
     pub chat: Box<crate::types::Chat>,
@@ -18,22 +19,28 @@ pub struct GiveawayWinnersUnknown {
     /// List of up to 100 winners of the giveaway
     pub winners: Box<[crate::types::User]>,
     /// The number of other chats the user had to join in order to be eligible for the giveaway
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub additional_chat_count: Option<i64>,
     /// Number of undistributed prizes
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub unclaimed_prize_count: Option<i64>,
     /// `true`, if only users who had joined the chats after the giveaway started were eligible to win
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub only_new_members: Option<bool>,
     /// `true`, if the giveaway was canceled because the payment for it was refunded
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub was_refunded: Option<bool>,
     /// Description of additional giveaway prize
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub prize_description: Option<Box<str>>,
-    #[serde(flatten)]
-    pub extra: BTreeMap<Box<str>, serde_json::Value>,
+    #[cfg_attr(not(feature = "deser"), serde(flatten))]
+    #[cfg_attr(feature = "deser", deser(flatten))]
+    pub extra: BTreeMap<Box<str>, crate::serialization::Value>,
 }
 impl GiveawayWinnersUnknown {
     /// Creates a new `GiveawayWinnersUnknown`.

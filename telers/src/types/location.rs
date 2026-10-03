@@ -1,24 +1,29 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a point on the map.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#location>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct Location {
     /// Latitude as defined by the sender
     pub latitude: f64,
     /// Longitude as defined by the sender
     pub longitude: f64,
     /// The radius of uncertainty for the location, measured in meters; 0-1500
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub horizontal_accuracy: Option<f64>,
     /// Time relative to the message sending date, during which the location can be updated; in seconds. For active live locations only.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub live_period: Option<i64>,
     /// The direction in which user is moving, in degrees; 1-360. For active live locations only.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub heading: Option<u16>,
     /// The maximum distance for proximity alerts about approaching another chat member, in meters. For sent live locations only.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub proximity_alert_radius: Option<i64>,
 }
 impl Location {

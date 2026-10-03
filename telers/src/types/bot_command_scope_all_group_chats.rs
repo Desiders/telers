@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Represents the scope of bot commands, covering all group and supergroup chats.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscopeallgroupchats>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct BotCommandScopeAllGroupChats {}
 impl BotCommandScopeAllGroupChats {
     /// Creates a new `BotCommandScopeAllGroupChats`.

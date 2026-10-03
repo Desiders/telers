@@ -1,14 +1,16 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to get the current default administrator rights of the bot. Returns [`crate::types::ChatAdministratorRights`] on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getmydefaultadministratorrights>
 /// # Returns
 /// - `crate::types::ChatAdministratorRights`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetMyDefaultAdministratorRights {
     /// Pass `true` to get default administrator rights of the bot in channels. Otherwise, default administrator rights of the bot for groups and supergroups will be returned.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub for_channels: Option<bool>,
 }
 impl GetMyDefaultAdministratorRights {

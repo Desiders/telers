@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Represents the scope of bot commands, covering a specific chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscopechat>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct BotCommandScopeChat {
     /// Unique identifier for the target chat or username of the target supergroup in the format @username. Channel direct messages chats and channel chats aren't supported.
     pub chat_id: crate::types::ChatIdKind,

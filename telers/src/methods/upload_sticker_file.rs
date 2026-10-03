@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to upload a file with a sticker for later use in the [`crate::methods::CreateNewStickerSet`], [`crate::methods::AddStickerToSet`], or [`crate::methods::ReplaceStickerInSet`] methods (the file can be used multiple times). Returns the uploaded File on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#uploadstickerfile>
 /// # Returns
 /// - `crate::types::File`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct UploadStickerFile {
     /// User identifier of sticker file owner
     pub user_id: i64,

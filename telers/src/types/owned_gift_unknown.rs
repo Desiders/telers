@@ -1,27 +1,32 @@
-use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 /// This object represents a [`crate::types::OwnedGift`] unknown to this version of the library.
 /// # Notes
 /// Fields shared by all known variants are parsed as usual; everything else is kept in `extra`, so the object can be inspected and reserialized without data loss.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#ownedgift>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct OwnedGiftUnknown {
     /// Raw `type` value of the variant unknown to this version of the library
     pub r#type: Box<str>,
     /// Unique identifier of the gift for the bot; for gifts received on behalf of business accounts only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub owned_gift_id: Option<Box<str>>,
     /// Sender of the gift if it is a known user
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub sender_user: Option<Box<crate::types::User>>,
     /// Date the gift was sent in Unix time
     pub send_date: i64,
     /// `true`, if the gift is displayed on the account's profile page; for gifts received on behalf of business accounts only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_saved: Option<bool>,
-    #[serde(flatten)]
-    pub extra: BTreeMap<Box<str>, serde_json::Value>,
+    #[cfg_attr(not(feature = "deser"), serde(flatten))]
+    #[cfg_attr(feature = "deser", deser(flatten))]
+    pub extra: BTreeMap<Box<str>, crate::serialization::Value>,
 }
 impl OwnedGiftUnknown {
     /// Creates a new `OwnedGiftUnknown`.

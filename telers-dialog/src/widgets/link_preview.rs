@@ -31,7 +31,8 @@ pub trait LinkPreviewWidget: Send + Sync + 'static {
             Bot,
         };
 
-        let ctx = crate::entities::Context::new("", "state", serde_json::Value::Null);
+        let ctx =
+            crate::entities::Context::new("", "state", telers::serialization::Value::default());
         let event = ChatEvent::Message(
             MessageText::new(1, 1, ChatPrivate::new(10), "/test")
                 .from(User::new(10, false, "tester"))
@@ -46,7 +47,7 @@ pub trait LinkPreviewWidget: Send + Sync + 'static {
 /// Configurable link-preview widget.
 ///
 /// All flags default to `false`, matching Telegram's default behaviour. Set
-/// [`url`](LinkPreviewBuilder::url) to render a preview for a URL computed
+/// `url` to render a preview for a URL computed
 /// from dialog data (the value is rendered as text), or leave it unset to let
 /// Telegram pick the URL from the message text.
 ///

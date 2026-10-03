@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes the connection of the bot with a business account.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#businessconnection>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct BusinessConnection {
     /// Unique identifier of the business connection
     pub id: Box<str>,
@@ -13,7 +14,8 @@ pub struct BusinessConnection {
     /// Date the connection was established in Unix time
     pub date: i64,
     /// Rights of the business bot
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub rights: Option<crate::types::BusinessBotRights>,
     /// `true`, if the connection is active
     pub is_enabled: bool,

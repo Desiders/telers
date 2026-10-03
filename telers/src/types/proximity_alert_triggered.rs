@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object represents the content of a service message, sent whenever a user in the chat triggers a proximity alert set by another user.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#proximityalerttriggered>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ProximityAlertTriggered {
     /// User that triggered the alert
     pub traveler: Box<crate::types::User>,

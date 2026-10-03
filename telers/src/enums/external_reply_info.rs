@@ -1,5 +1,4 @@
 use crate::types::ExternalReplyInfo;
-use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object contains information about a message that is being replied to, which may come from another chat or forum topic.
 /// Currently, it can be one of
@@ -27,20 +26,9 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::ExternalReplyInfoVoice`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#externalreplyinfo>
-#[derive(
-    Debug,
-    Display,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-    EnumString,
-    AsRefStr,
-    IntoStaticStr,
-    Deserialize,
-    Serialize,
-)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[cfg_attr(feature = "deser", derive(deser::Deserialize, deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Deserialize, serde::Serialize))]
 pub enum ExternalReplyInfoType {
     #[strum(serialize = "animation")]
     Animation,

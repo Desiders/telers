@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// This object represents the content of a poll option to be sent. It should be one of
 /// - [`crate::types::InputMediaAnimation`]
 /// - [`crate::types::InputMediaLink`]
@@ -10,8 +9,11 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::InputMediaVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputpolloptionmedia>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(tag = "type", rename_all = "snake_case"))]
+#[cfg_attr(feature = "deser", deser(tag = "type", rename_all = "snake_case"))]
 pub enum InputPollOptionMedia {
     Animation(crate::types::InputMediaAnimation),
     Link(crate::types::InputMediaLink),

@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object represents the bot's description.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botdescription>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct BotDescription {
     /// The bot's description
     pub description: Box<str>,

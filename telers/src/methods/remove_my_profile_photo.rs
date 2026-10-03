@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Removes the profile photo of the bot. Requires no parameters. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#removemyprofilephoto>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct RemoveMyProfilePhoto {}
 impl RemoveMyProfilePhoto {
     /// Creates a new `RemoveMyProfilePhoto`.

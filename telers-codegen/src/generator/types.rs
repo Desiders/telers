@@ -166,7 +166,7 @@ fn tokenize_type_definition(type_quote: &NormalizedType, ctx: &TypeDocContext<'_
         let extra_field = if type_quote.has_extra_fields {
             quote! {
                 #[serde(flatten)]
-                pub extra: BTreeMap<Box<str>, serde_json::Value>,
+                pub extra: BTreeMap<Box<str>, crate::serialization::Value>,
             }
         } else {
             quote! {}
@@ -1366,7 +1366,6 @@ pub fn tokenize_type(
     if type_quote.has_extra_fields && type_quote.subtypes.is_empty() {
         import_quotes.push(quote! { use std::collections::BTreeMap; });
     }
-    import_quotes.push(quote! { use serde::{Serialize, Deserialize}; });
 
     let type_impls = get_impls_for_types(type_quote, schema);
     let subtype_impls = get_from_impls_for_subtypes(type_quote);

@@ -1,11 +1,13 @@
-use serde::{Deserialize, Serialize};
 /// This object describes a message that can be inaccessible to the bot. It can be one of
 /// - Message
 /// - [`crate::types::InaccessibleMessage`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#maybeinaccessiblemessage>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(untagged)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(untagged))]
+#[cfg_attr(feature = "deser", deser(untagged))]
 pub enum MaybeInaccessibleMessage {
     InaccessibleMessage(crate::types::InaccessibleMessage),
     Message(crate::types::Message),

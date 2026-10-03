@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to delete a sticker set that was created by the bot. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#deletestickerset>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct DeleteStickerSet {
     /// Sticker set name
     pub name: Box<str>,

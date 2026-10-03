@@ -1,5 +1,4 @@
 use crate::types::BackgroundType;
-use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes the type of a background. Currently, it can be one of
 /// - [`crate::types::BackgroundTypeFill`]
@@ -8,20 +7,9 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::BackgroundTypeChatTheme`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#backgroundtype>
-#[derive(
-    Debug,
-    Display,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-    EnumString,
-    AsRefStr,
-    IntoStaticStr,
-    Deserialize,
-    Serialize,
-)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[cfg_attr(feature = "deser", derive(deser::Deserialize, deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Deserialize, serde::Serialize))]
 pub enum BackgroundTypeType {
     #[strum(serialize = "fill")]
     Fill,

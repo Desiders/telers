@@ -10,7 +10,9 @@ all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
-default = ["native-tls"]
+default = ["native-tls", "serde"]
+serde = ["telers/serde", "dep:serde"]
+deser = ["telers/deser", "dep:deser"]
 native-tls = ["telers/default-tls"]
 rustls-tls = ["telers/rustls-tls"]
 template = ["dep:minijinja"]
@@ -19,9 +21,9 @@ template = ["dep:minijinja"]
 async-trait = "0.1"
 async_fn_traits = "0.1.1"
 bon = "3.9"
+deser = { version = "=0.9.1", features = ["derive"], optional = true }
 minijinja = { version = "2.0", optional = true }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"], optional = true }
 telers = { path = "../telers", version = ">=1.0.0-beta.1, <1.0.0", default-features = false, features = ["std"] }
 thiserror = "2.0"
 time = { version = "0.3", features = ["macros"] }

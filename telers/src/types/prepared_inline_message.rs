@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes an inline message to be sent by a user of a Mini App.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#preparedinlinemessage>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PreparedInlineMessage {
     /// Unique identifier of the prepared message
     pub id: Box<str>,

@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object contains basic information about a successful payment. Note that if the buyer initiates a chargeback with the relevant payment provider following this transaction, the funds may be debited from your balance. This is outside of Telegram's control.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#successfulpayment>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct SuccessfulPayment {
     /// Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram Stars
     pub currency: Box<str>,
@@ -11,19 +12,24 @@ pub struct SuccessfulPayment {
     /// Bot-specified invoice payload
     pub invoice_payload: Box<str>,
     /// Expiration date of the subscription, in Unix time; for recurring payments only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub subscription_expiration_date: Option<i64>,
     /// `true`, if the payment is a recurring payment for a subscription
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_recurring: Option<bool>,
     /// `true`, if the payment is the first payment for a subscription
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_first_recurring: Option<bool>,
     /// Identifier of the shipping option chosen by the user
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub shipping_option_id: Option<Box<str>>,
     /// Order information provided by the user
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub order_info: Option<crate::types::OrderInfo>,
     /// Telegram payment identifier
     pub telegram_payment_charge_id: Box<str>,

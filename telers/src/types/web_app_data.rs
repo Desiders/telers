@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes data sent from a Web App to the bot.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#webappdata>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct WebAppData {
     /// The data. Be aware that a bad client can send arbitrary data in this field.
     pub data: Box<str>,

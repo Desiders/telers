@@ -1,21 +1,24 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to remove a reaction from a message in a group or a supergroup chat. The bot must have the '`can_delete_messages`' administrator right in the chat. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#deletemessagereaction>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct DeleteMessageReaction {
     /// Unique identifier for the target chat or username of the target supergroup in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Identifier of the target message
     pub message_id: i64,
     /// Identifier of the user whose reaction will be removed, if the reaction was added by a user
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub user_id: Option<i64>,
     /// Identifier of the chat whose reaction will be removed, if the reaction was added by a chat
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub actor_chat_id: Option<i64>,
 }
 impl DeleteMessageReaction {

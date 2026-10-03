@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object contains information about a paid media purchase.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#paidmediapurchased>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PaidMediaPurchased {
     /// User who purchased the media
     pub from: Box<crate::types::User>,

@@ -1,13 +1,15 @@
-use serde::{Deserialize, Serialize};
 /// A block quotation, corresponding to the HTML tag <`blockquote`>.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputrichblockblockquotation>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputRichBlockBlockQuotation {
     /// Content of the block
     pub blocks: Box<[crate::types::InputRichBlock]>,
     /// Credit of the block
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub credit: Option<Box<crate::types::RichText>>,
 }
 impl InputRichBlockBlockQuotation {

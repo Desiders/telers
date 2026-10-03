@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to get up-to-date information about the chat. Returns a [`crate::types::ChatFullInfo`] object on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getchat>
 /// # Returns
 /// - `crate::types::ChatFullInfo`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetChat {
     /// Unique identifier for the target chat or username of the target supergroup or channel in the format @username
     pub chat_id: crate::types::ChatIdKind,

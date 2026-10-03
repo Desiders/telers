@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object represents the audios displayed on a user's profile.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#userprofileaudios>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct UserProfileAudios {
     /// Total number of profile audios for the target user
     pub total_count: i64,

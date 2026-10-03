@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to get information about the connection of the bot with a business account. Returns a [`crate::types::BusinessConnection`] object on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getbusinessconnection>
 /// # Returns
 /// - `crate::types::BusinessConnection`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetBusinessConnection {
     /// Unique identifier of the business connection
     pub business_connection_id: Box<str>,

@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Gifts a Telegram Premium subscription to the given user. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#giftpremiumsubscription>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GiftPremiumSubscription {
     /// Unique identifier of the target user who will receive a Telegram Premium subscription
     pub user_id: i64,
@@ -14,13 +15,16 @@ pub struct GiftPremiumSubscription {
     /// Number of Telegram Stars to pay for the Telegram Premium subscription; must be 1000 for 3 months, 1500 for 6 months, and 2500 for 12 months
     pub star_count: i64,
     /// Text that will be shown along with the service message about the subscription; 0-128 characters
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub text: Option<Box<str>>,
     /// Mode for parsing entities in the text. See formatting options for more details. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub text_parse_mode: Option<Box<str>>,
     /// A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of `text_parse_mode`. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub text_entities: Option<Box<[crate::types::MessageEntity]>>,
 }
 impl GiftPremiumSubscription {

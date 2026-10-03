@@ -9,11 +9,11 @@ use crate::{
     client::{telegram::APIServer, Bot},
     errors::{SessionErrorKind, TelegramErrorKind},
     methods::{Response, TelegramMethod},
+    serialization::DeserializeOwned,
 };
 
 use bytes::Bytes;
 use futures_util::Stream;
-use serde::de::DeserializeOwned;
 use std::{
     fmt::{self, Debug, Display, Formatter},
     future::Future,

@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// A footer, corresponding to the HTML tag <`footer`>.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputrichblockfooter>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputRichBlockFooter {
     /// Text of the block
     pub text: Box<crate::types::RichText>,

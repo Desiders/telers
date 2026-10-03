@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object represents changes in the status of a chat member.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberupdated>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatMemberUpdated {
     /// Chat the user belongs to
     pub chat: Box<crate::types::Chat>,
@@ -15,13 +16,16 @@ pub struct ChatMemberUpdated {
     /// New information about the chat member
     pub new_chat_member: crate::types::ChatMember,
     /// Chat invite link, which was used by the user to join the chat; for joining by invite link events only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub invite_link: Option<crate::types::ChatInviteLink>,
     /// `true`, if the user joined the chat after sending a direct join request without using an invite link and being approved by an administrator
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub via_join_request: Option<bool>,
     /// `true`, if the user joined the chat via a chat folder invite link
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub via_chat_folder_invite_link: Option<bool>,
 }
 impl ChatMemberUpdated {

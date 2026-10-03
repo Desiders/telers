@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// The background is filled using the selected color.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#backgroundfillsolid>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct BackgroundFillSolid {
     /// The color of the background fill in the RGB24 format
     pub color: i32,

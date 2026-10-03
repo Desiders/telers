@@ -1,17 +1,20 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to get the current list of the bot's commands for the given scope and user language. Returns an Array of [`crate::types::BotCommand`] objects. If commands aren't set, an empty list is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getmycommands>
 /// # Returns
 /// - `Box<[crate::types::BotCommand]>`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetMyCommands {
     /// A JSON-serialized object, describing scope of users. Defaults to [`crate::types::BotCommandScopeDefault`].
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub scope: Option<crate::types::BotCommandScope>,
     /// A two-letter ISO 639-1 language code or an empty string
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub language_code: Option<Box<str>>,
 }
 impl GetMyCommands {

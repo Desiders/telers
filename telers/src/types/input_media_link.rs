@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Represents an HTTP link to be sent.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmedialink>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputMediaLink {
     /// HTTP URL of the link
     pub url: Box<str>,

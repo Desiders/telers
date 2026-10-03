@@ -1,29 +1,35 @@
-use serde::{Deserialize, Serialize};
 /// This object contains information about one answer option in a poll.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#polloption>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PollOption {
     /// Unique identifier of the option, persistent on option addition and deletion
     pub persistent_id: Box<str>,
     /// Option text, 1-100 characters
     pub text: Box<str>,
     /// Special entities that appear in the option text. Currently, only custom emoji entities are allowed in poll option texts
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub text_entities: Option<Box<[crate::types::MessageEntity]>>,
     /// Media added to the poll option
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub media: Option<crate::types::PollMedia>,
     /// Number of users who voted for this option; may be 0 if unknown
     pub voter_count: i64,
     /// User who added the option; omitted if the option wasn't added by a user after poll creation
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub added_by_user: Option<Box<crate::types::User>>,
     /// Chat that added the option; omitted if the option wasn't added by a chat after poll creation
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub added_by_chat: Option<Box<crate::types::Chat>>,
     /// Point in time (Unix timestamp) when the option was added; omitted if the option existed in the original poll
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub addition_date: Option<i64>,
 }
 impl PollOption {

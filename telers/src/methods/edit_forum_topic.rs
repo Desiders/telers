@@ -1,21 +1,24 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to edit name and icon of a topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the `can_manage_topics` administrator rights, unless it is the creator of the topic. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#editforumtopic>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct EditForumTopic {
     /// Unique identifier for the target chat or username of the target supergroup in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier for the target message thread of the forum topic
     pub message_thread_id: i64,
     /// New topic name, 0-128 characters. If not specified or empty, the current name of the topic will be kept.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub name: Option<Box<str>>,
     /// New unique identifier of the custom emoji shown as the topic icon. Use [`crate::methods::GetForumTopicIconStickers`] to get all allowed custom emoji identifiers. Pass an empty string to remove the icon. If not specified, the current icon will be kept.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub icon_custom_emoji_id: Option<Box<str>>,
 }
 impl EditForumTopic {

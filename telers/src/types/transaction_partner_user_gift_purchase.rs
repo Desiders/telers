@@ -1,10 +1,11 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a/an gift purchase transaction partner user.
 /// # Notes
 /// This object represents a transaction partner user from original field `gift_purchase`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transactionpartneruser>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct TransactionPartnerUserGiftPurchase {
     /// Information about the user
     pub user: Box<crate::types::User>,

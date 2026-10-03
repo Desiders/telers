@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a block in a rich formatted message. Currently, it can be any of the following types:
 /// - [`crate::types::RichBlockParagraph`]
 /// - [`crate::types::RichBlockSectionHeading`]
@@ -26,8 +25,11 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::RichBlockThinking`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richblock>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(tag = "type", rename_all = "snake_case"))]
+#[cfg_attr(feature = "deser", deser(tag = "type", rename_all = "snake_case"))]
 pub enum RichBlock {
     Paragraph(crate::types::RichBlockParagraph),
     Heading(crate::types::RichBlockSectionHeading),
@@ -54,7 +56,8 @@ pub enum RichBlock {
     VoiceNote(crate::types::RichBlockVoiceNote),
     Thinking(crate::types::RichBlockThinking),
     /// Content unknown to this version of the library
-    #[serde(untagged)]
+    #[cfg_attr(not(feature = "deser"), serde(untagged))]
+    #[cfg_attr(feature = "deser", deser(untagged))]
     Unknown(crate::types::RichBlockUnknown),
 }
 impl RichBlock {

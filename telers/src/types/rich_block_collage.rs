@@ -1,13 +1,15 @@
-use serde::{Deserialize, Serialize};
 /// A collage, corresponding to the custom HTML tag `<tg-collage>`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richblockcollage>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct RichBlockCollage {
     /// Elements of the collage
     pub blocks: Box<[crate::types::RichBlock]>,
     /// Caption of the block
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub caption: Option<crate::types::RichBlockCaption>,
 }
 impl RichBlockCollage {

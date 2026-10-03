@@ -2,9 +2,8 @@
 
 use async_trait::async_trait;
 use bon::bon;
-use serde::Deserialize;
-use serde_json::Value;
 use std::{borrow::Cow, sync::Arc};
+use telers::serialization::{self, Deserialize};
 use tracing::warn;
 
 use super::{Media, MediaAttachment, MediaContentType, MediaId};
@@ -41,7 +40,7 @@ impl DynamicMedia {
         let field = field.into();
         Self::builder(move |data| {
             data.get(&field)
-                .and_then(|val| MediaAttachmentData::deserialize(val).ok())
+                .and_then(|val| serialization::from_value::<MediaAttachmentData>(val.clone()).ok())
                 .and_then(MediaAttachmentData::into_attachment)
         })
         .build()
@@ -52,11 +51,13 @@ impl DynamicMedia {
     pub fn from_url_field(content_type: MediaContentType, field: impl Into<String>) -> Self {
         let field = field.into();
         Self::builder(move |data| {
-            data.get(&field).and_then(Value::as_str).map(|url| {
-                MediaAttachment::builder(content_type)
-                    .url(url.to_owned())
-                    .build()
-            })
+            data.get(&field)
+                .and_then(|value| value.as_str())
+                .map(|url| {
+                    MediaAttachment::builder(content_type)
+                        .url(url.to_owned())
+                        .build()
+                })
         })
         .build()
     }
@@ -66,7 +67,7 @@ impl DynamicMedia {
     pub fn from_file_id_field(content_type: MediaContentType, field: impl Into<String>) -> Self {
         let field = field.into();
         Self::builder(move |data| {
-            data.get(&field).and_then(Value::as_str).map(|id| {
+            data.get(&field).and_then(|value| value.as_str()).map(|id| {
                 MediaAttachment::builder(content_type)
                     .file_id(MediaId::new(id.to_owned()))
                     .build()
@@ -86,33 +87,47 @@ impl Media for DynamicMedia {
 #[derive(Deserialize)]
 struct MediaAttachmentData {
     content_type: String,
-    #[serde(default)]
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
     url: Option<String>,
-    #[serde(default)]
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
     file_id: Option<String>,
-    #[serde(default)]
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
     file_unique_id: Option<String>,
-    #[serde(default)]
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
     path: Option<String>,
-    #[serde(default)]
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
     caption: Option<String>,
-    #[serde(default)]
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
     parse_mode: Option<String>,
-    #[serde(default)]
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
     show_caption_above_media: Option<bool>,
-    #[serde(default)]
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
     has_spoiler: Option<bool>,
-    #[serde(default)]
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
     width: Option<i64>,
-    #[serde(default)]
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
     height: Option<i64>,
-    #[serde(default)]
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
     duration: Option<i64>,
-    #[serde(default)]
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
     performer: Option<String>,
-    #[serde(default)]
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
     title: Option<String>,
-    #[serde(default)]
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
     supports_streaming: Option<bool>,
 }
 

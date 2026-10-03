@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object contains information about the creation, token update, or owner update of a bot that is managed by the current bot.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#managedbotupdated>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ManagedBotUpdated {
     /// User that created the bot
     pub user: Box<crate::types::User>,

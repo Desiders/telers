@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Removes verification from a chat that is currently verified on behalf of the organization represented by the bot. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#removechatverification>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct RemoveChatVerification {
     /// Unique identifier for the target chat or username of the target bot or channel in the format @username
     pub chat_id: crate::types::ChatIdKind,

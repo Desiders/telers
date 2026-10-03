@@ -1,22 +1,26 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of [`crate::types::GameHighScore`] objects.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getgamehighscores>
 /// # Returns
 /// - `Box<[crate::types::GameHighScore]>`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetGameHighScores {
     /// Target user id
     pub user_id: i64,
     /// Required if `inline_message_id` is not specified. Unique identifier for the target chat.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub chat_id: Option<i64>,
     /// Required if `inline_message_id` is not specified. Identifier of the sent message.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub message_id: Option<i64>,
     /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub inline_message_id: Option<Box<str>>,
 }
 impl GetGameHighScores {

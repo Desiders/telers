@@ -1,13 +1,15 @@
-use serde::{Deserialize, Serialize};
 /// Describes a transaction with a chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transactionpartnerchat>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct TransactionPartnerChat {
     /// Information about the chat
     pub chat: Box<crate::types::Chat>,
     /// The gift sent to the chat by the bot
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub gift: Option<Box<crate::types::Gift>>,
 }
 impl TransactionPartnerChat {

@@ -31,6 +31,7 @@ use super::base::{ClientResponse, ClientStreamResponse, Session, DEFAULT_TIMEOUT
 use crate::{
     client::{telegram, Bot},
     methods::TelegramMethod,
+    serialization::Serialize,
     serializers::reqwest::{Error as SerializerError, MultipartSerializer},
     types::InputFile,
     utils::format_error_report,
@@ -42,7 +43,6 @@ use reqwest::{
     Body, Client, ClientBuilder, Proxy,
 };
 use secrecy::ExposeSecret as _;
-use serde::Serialize;
 use std::{borrow::Cow, time::Duration};
 use tracing::{event, field, instrument, Level, Span};
 
@@ -101,15 +101,13 @@ impl Reqwest {
         data: Data,
         files: Option<Vec<InputFile>>,
     ) -> Result<Form, SerializerError> {
-        let mut form = data
-            .serialize(MultipartSerializer::new())
-            .inspect_err(|err| {
-                event!(
-                    Level::ERROR,
-                    error = format_error_report(&err),
-                    "Cannot build a form"
-                );
-            })?;
+        let mut form = MultipartSerializer::build(&data).inspect_err(|err| {
+            event!(
+                Level::ERROR,
+                error = format_error_report(&err),
+                "Cannot build a form"
+            );
+        })?;
 
         let Some(files) = files else {
             return Ok(form);
@@ -307,5 +305,36 @@ impl Session for Reqwest {
             .map_err(anyhow::Error::from);
 
         Ok(ClientStreamResponse::new(status_code, Box::pin(content)))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::methods::SendPhoto;
+
+    #[tokio::test]
+    async fn multipart_upload_keeps_attachment_reference_and_file_bytes() {
+        let file = InputFile::buffered_with_name(&b"photo bytes"[..], "photo.jpg");
+        let reference = file.str_to_file().to_owned();
+        let client = Reqwest::default();
+        let bot = Bot::with_client("123:token", client.clone());
+        let request = SendPhoto::new(123_i64, file)
+            .caption("caption")
+            .build_request(&bot);
+        let form = client
+            .build_form_data(request.data, request.files)
+            .await
+            .unwrap();
+        let chunks: Vec<_> = form.into_stream().try_collect().await.unwrap();
+        let bytes: Vec<_> = chunks.into_iter().flatten().collect();
+        let body = String::from_utf8(bytes).unwrap();
+        assert!(body.contains(&format!("\r\n\r\n{reference}\r\n")));
+        assert!(body.contains(&format!(
+            "name=\"{}\"",
+            reference.trim_start_matches("attach://")
+        )));
+        assert!(body.contains("filename=\"photo.jpg\""));
+        assert!(body.contains("\r\n\r\nphoto bytes\r\n"));
     }
 }

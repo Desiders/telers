@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Posts a story on behalf of a managed business account. Requires the `can_manage_stories` business bot right. Returns Story on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#poststory>
 /// # Returns
 /// - `crate::types::Story`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct PostStory {
     /// Unique identifier of the business connection
     pub business_connection_id: Box<str>,
@@ -14,22 +15,28 @@ pub struct PostStory {
     /// Period after which the story is moved to the archive, in seconds; must be one of 6 * 3600, 12 * 3600, 86400, or 2 * 86400
     pub active_period: i64,
     /// Caption of the story, 0-2048 characters after entities parsing
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub caption: Option<Box<str>>,
     /// Mode for parsing entities in the story caption. See formatting options for more details.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub parse_mode: Option<Box<str>>,
     /// A JSON-serialized list of special entities that appear in the caption, which can be specified instead of `parse_mode`
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub caption_entities: Option<Box<[crate::types::MessageEntity]>>,
     /// A JSON-serialized list of clickable areas to be shown on the story
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub areas: Option<Box<[crate::types::StoryArea]>>,
     /// Pass `true` to keep the story accessible after it expires
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub post_to_chat_page: Option<bool>,
     /// Pass `true` if the content of the story must be protected from forwarding and screenshotting
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub protect_content: Option<bool>,
 }
 impl PostStory {

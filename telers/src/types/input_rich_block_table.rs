@@ -1,22 +1,27 @@
-use serde::{Deserialize, Serialize};
 /// A table, corresponding to the HTML tag <`table`>.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputrichblocktable>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputRichBlockTable {
     /// Cells of the table
     pub cells: Box<[Box<[crate::types::RichBlockTableCell]>]>,
     /// Pass `true` if the table has borders
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_bordered: Option<bool>,
     /// Pass `true` if the table is striped
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_striped: Option<bool>,
     /// Pass `true` if table cells must have smaller indents
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_compact: Option<bool>,
     /// Caption of the table
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub caption: Option<Box<crate::types::RichText>>,
 }
 impl InputRichBlockTable {

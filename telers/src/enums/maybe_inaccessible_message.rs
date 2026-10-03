@@ -1,25 +1,13 @@
 use crate::types::MaybeInaccessibleMessage;
-use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes a message that can be inaccessible to the bot. It can be one of
 /// - Message
 /// - [`crate::types::InaccessibleMessage`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#maybeinaccessiblemessage>
-#[derive(
-    Debug,
-    Display,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-    EnumString,
-    AsRefStr,
-    IntoStaticStr,
-    Deserialize,
-    Serialize,
-)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[cfg_attr(feature = "deser", derive(deser::Deserialize, deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Deserialize, serde::Serialize))]
 pub enum MaybeInaccessibleMessageType {
     #[strum(serialize = "inaccessible_message")]
     InaccessibleMessage,

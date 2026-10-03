@@ -1,10 +1,11 @@
-use serde::{Deserialize, Serialize};
 /// Media is a venue, information about the venue
 /// # Notes
 /// This object represents a poll media from original field `venue`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#pollmedia>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PollMediaVenue {
     /// Media is a venue, information about the venue
     pub venue: Box<crate::types::Venue>,

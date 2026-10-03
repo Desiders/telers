@@ -1,5 +1,4 @@
 use crate::types::RichBlock;
-use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents a block in a rich formatted message. Currently, it can be any of the following types:
 /// - [`crate::types::RichBlockParagraph`]
@@ -28,20 +27,9 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::RichBlockThinking`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richblock>
-#[derive(
-    Debug,
-    Display,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-    EnumString,
-    AsRefStr,
-    IntoStaticStr,
-    Deserialize,
-    Serialize,
-)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[cfg_attr(feature = "deser", derive(deser::Deserialize, deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Deserialize, serde::Serialize))]
 pub enum RichBlockType {
     #[strum(serialize = "paragraph")]
     Paragraph,

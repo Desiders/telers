@@ -1,16 +1,19 @@
-use serde::{Deserialize, Serialize};
 /// This object defines the parameters for the creation of a managed bot. Information about the created bot will be shared with the bot using the update `managed_bot` and a Message with the field `managed_bot_created`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#keyboardbuttonrequestmanagedbot>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct KeyboardButtonRequestManagedBot {
     /// Signed 32-bit identifier of the request. Must be unique within the message.
     pub request_id: i64,
     /// Suggested name for the bot
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub suggested_name: Option<Box<str>>,
     /// Suggested username for the bot
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub suggested_username: Option<Box<str>>,
 }
 impl KeyboardButtonRequestManagedBot {

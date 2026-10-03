@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a rich formatted text. Currently, it can be either a String for plain text, an Array of [`crate::types::RichText`], or any of the following types:
 /// - [`crate::types::RichTextBold`]
 /// - [`crate::types::RichTextItalic`]
@@ -28,8 +27,11 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::RichTextReferenceLink`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richtext>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(tag = "type", rename_all = "snake_case"))]
+#[cfg_attr(feature = "deser", deser(tag = "type", rename_all = "snake_case"))]
 pub enum RichText {
     Bold(crate::types::RichTextBold),
     Italic(crate::types::RichTextItalic),
@@ -58,13 +60,16 @@ pub enum RichText {
     Reference(crate::types::RichTextReference),
     ReferenceLink(crate::types::RichTextReferenceLink),
     /// Content unknown to this version of the library
-    #[serde(untagged)]
+    #[cfg_attr(not(feature = "deser"), serde(untagged))]
+    #[cfg_attr(feature = "deser", deser(untagged))]
     Unknown(crate::types::RichTextUnknown),
     /// Plain text
-    #[serde(untagged)]
+    #[cfg_attr(not(feature = "deser"), serde(untagged))]
+    #[cfg_attr(feature = "deser", deser(untagged))]
     Plain(Box<str>),
     /// Multiple parts concatenated together
-    #[serde(untagged)]
+    #[cfg_attr(not(feature = "deser"), serde(untagged))]
+    #[cfg_attr(feature = "deser", deser(untagged))]
     Multiple(Box<[crate::types::RichText]>),
 }
 impl RichText {

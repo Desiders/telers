@@ -1,4 +1,4 @@
-use serde_json::{json, Value};
+use telers::serialization::{json, Value};
 
 use super::{
     sync_scroll, sync_scrolls, CurrentPage, FirstPage, LastPage, NextPage, NumberedPager,
@@ -22,7 +22,7 @@ async fn catalog_pages(render_ctx: RenderContext) -> usize {
     let items = render_ctx
         .data
         .get("items")
-        .and_then(Value::as_u64)
+        .and_then(|value| value.as_u64())
         .unwrap_or(0);
     usize::try_from(items.div_ceil(3)).unwrap()
 }
@@ -49,7 +49,7 @@ fn build_inner_keyboard(count: usize) -> InlineKeyboard {
 
 #[tokio::test]
 async fn scrolling_group_shows_first_page_by_default() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let kbd = build_inner_keyboard(10);
     let pager = ScrollingGroup::builder("pager").height(3).kbd(kbd).build();
 
@@ -71,7 +71,7 @@ async fn scrolling_group_shows_first_page_by_default() {
 
 #[tokio::test]
 async fn scrolling_group_shows_correct_page_from_widget_data() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("pager".into(), json!(1));
     let kbd = build_inner_keyboard(10);
     let pager = ScrollingGroup::builder("pager").height(3).kbd(kbd).build();
@@ -91,7 +91,7 @@ async fn scrolling_group_shows_correct_page_from_widget_data() {
 
 #[tokio::test]
 async fn scrolling_group_last_page_shows_remaining_items() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("pager".into(), json!(3));
     let kbd = build_inner_keyboard(10);
     let pager = ScrollingGroup::builder("pager").height(3).kbd(kbd).build();
@@ -108,7 +108,7 @@ async fn scrolling_group_last_page_shows_remaining_items() {
 
 #[tokio::test]
 async fn scrolling_group_pager_callback_sets_widget_value() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let kbd = build_inner_keyboard(10);
     let pager = ScrollingGroup::builder("pager").height(3).kbd(kbd).build();
 
@@ -126,7 +126,7 @@ async fn scrolling_group_pager_callback_sets_widget_value() {
 
 #[tokio::test]
 async fn scrolling_group_delegates_inner_callbacks() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let kbd = build_inner_keyboard(4);
     let pager = ScrollingGroup::builder("pager").height(2).kbd(kbd).build();
 
@@ -140,7 +140,7 @@ async fn scrolling_group_delegates_inner_callbacks() {
 
 #[tokio::test]
 async fn scrolling_group_hides_pager_on_single_page() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let kbd = build_inner_keyboard(2);
     let pager = ScrollingGroup::builder("pager")
         .height(5)
@@ -159,7 +159,7 @@ async fn scrolling_group_hides_pager_on_single_page() {
 
 #[tokio::test]
 async fn scrolling_group_hide_pager_flag_suppresses_navigation() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let kbd = build_inner_keyboard(10);
     let pager = ScrollingGroup::builder("pager")
         .height(3)
@@ -178,7 +178,7 @@ async fn scrolling_group_hide_pager_flag_suppresses_navigation() {
 
 #[tokio::test]
 async fn scrolling_group_clamps_page_beyond_max() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("pager".into(), json!(99));
     let kbd = build_inner_keyboard(5);
     let pager = ScrollingGroup::builder("pager").height(2).kbd(kbd).build();
@@ -194,7 +194,7 @@ async fn scrolling_group_clamps_page_beyond_max() {
 
 #[tokio::test]
 async fn scrolling_group_width_groups_buttons_into_fixed_grid() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let kbd = build_inner_keyboard(5);
     let pager = ScrollingGroup::builder("pager")
         .width(2)
@@ -226,7 +226,7 @@ async fn scrolling_group_width_groups_buttons_into_fixed_grid() {
 
 #[tokio::test]
 async fn scrolling_group_pads_last_page_grid_with_fillers() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("pager".into(), json!(1));
     let kbd = build_inner_keyboard(5);
     let pager = ScrollingGroup::builder("pager")
@@ -261,7 +261,7 @@ async fn scrolling_group_pads_last_page_grid_with_fillers() {
 
 #[tokio::test]
 async fn switch_page_renders_directional_button() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("pager".into(), json!(1));
     let pager = SwitchPage::builder("pager")
         .direction(PageDirection::Next)
@@ -284,7 +284,7 @@ async fn switch_page_renders_directional_button() {
 
 #[tokio::test]
 async fn numbered_pager_renders_current_page_distinctly() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("pager".into(), json!(1));
     let pager = NumberedPager::builder("pager")
         .page_count_getter(four_pages)
@@ -308,7 +308,7 @@ async fn numbered_pager_renders_current_page_distinctly() {
 
 #[tokio::test]
 async fn numbered_pager_callback_sets_page() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let pager = NumberedPager::builder("pager")
         .page_count_getter(two_pages)
         .page_renderer(|page, _data| (page + 1).to_string())
@@ -329,7 +329,7 @@ async fn numbered_pager_callback_sets_page() {
 
 #[tokio::test]
 async fn scrolling_group_sync_scroll_updates_other_widget_page() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let kbd = build_inner_keyboard(10);
     let pager = ScrollingGroup::builder("pager")
         .height(3)
@@ -360,7 +360,7 @@ async fn scrolling_group_sync_scroll_updates_other_widget_page() {
 
 #[tokio::test]
 async fn numbered_pager_sync_scrolls_updates_multiple_widgets() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let pager = NumberedPager::builder("pager")
         .page_count_getter(four_pages)
         .page_renderer(|page, _data| (page + 1).to_string())
@@ -402,7 +402,7 @@ async fn numbered_pager_sync_scrolls_updates_multiple_widgets() {
 
 #[tokio::test]
 async fn on_page_changed_can_use_widget_id_and_previous_page() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("pager".into(), json!(1));
     let pager = NumberedPager::builder("pager")
         .page_count_getter(four_pages)
@@ -449,7 +449,7 @@ async fn on_page_changed_can_use_widget_id_and_previous_page() {
 
 #[tokio::test]
 async fn convenience_pager_wrappers_render_expected_targets() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("pager".into(), json!(1));
     let data = DataMap::new();
 
@@ -515,7 +515,7 @@ async fn convenience_pager_wrappers_render_expected_targets() {
 
 #[tokio::test]
 async fn convenience_pager_wrappers_allow_label_override() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("pager".into(), json!(1));
     let data = DataMap::new();
 
@@ -580,7 +580,7 @@ async fn convenience_pager_wrappers_allow_label_override() {
 
 #[tokio::test]
 async fn stub_scroll_binds_numbered_pager_to_fixed_page_count() {
-    let mut ctx = Context::new("", "state", Value::Null);
+    let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("catalog_page".into(), json!(2));
     let stub = StubScroll::builder("catalog_page").pages(4_usize).build();
     let pager = NumberedPager::builder(stub)
@@ -603,7 +603,7 @@ async fn stub_scroll_binds_numbered_pager_to_fixed_page_count() {
 
 #[tokio::test]
 async fn stub_scroll_reads_page_count_from_data_field() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let mut data = DataMap::new();
     data.insert("page_count".into(), json!(3));
     let stub = StubScroll::builder("catalog_page")
@@ -624,7 +624,7 @@ async fn stub_scroll_reads_page_count_from_data_field() {
 
 #[tokio::test]
 async fn stub_scroll_accepts_dynamic_page_getter() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let mut data = DataMap::new();
     data.insert("items".into(), json!(7));
     let stub = StubScroll::builder("catalog_page")
@@ -643,7 +643,7 @@ async fn stub_scroll_accepts_dynamic_page_getter() {
 
 #[tokio::test]
 async fn stub_scroll_handles_page_callbacks_without_rendering_markup() {
-    let ctx = Context::new("", "state", Value::Null);
+    let ctx = Context::new("", "state", Value::default());
     let stub = StubScroll::builder("catalog_page").pages(4_usize).build();
 
     assert!(stub

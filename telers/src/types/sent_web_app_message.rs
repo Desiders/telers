@@ -1,11 +1,13 @@
-use serde::{Deserialize, Serialize};
 /// Describes an inline message sent by a Web App on behalf of a user.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sentwebappmessage>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct SentWebAppMessage {
     /// Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub inline_message_id: Option<Box<str>>,
 }
 impl SentWebAppMessage {

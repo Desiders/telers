@@ -17,7 +17,7 @@ pub struct DialogUpdateEvent {
     pub user: User,
     pub chat: Chat,
     pub action: DialogAction,
-    pub data: serde_json::Value,
+    pub data: telers::serialization::Value,
     pub intent_id: Option<String>,
     pub stack_id: Option<String>,
     pub thread_id: Option<i64>,

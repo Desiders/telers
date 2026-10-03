@@ -1,10 +1,11 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a `custom_emoji` sticker.
 /// # Notes
 /// This object represents a sticker from original sticker type `custom_emoji`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sticker>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct StickerCustomEmoji {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: Box<str>,
@@ -19,22 +20,28 @@ pub struct StickerCustomEmoji {
     /// `true`, if the sticker is a video sticker
     pub is_video: bool,
     /// Sticker thumbnail in the .WEBP or .JPG format
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub thumbnail: Option<crate::types::PhotoSize>,
     /// Emoji associated with the sticker
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub emoji: Option<Box<str>>,
     /// Name of the sticker set to which the sticker belongs
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub set_name: Option<Box<str>>,
     /// For custom emoji stickers, unique identifier of the custom emoji
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub custom_emoji_id: Option<Box<str>>,
     /// `true`, if the sticker must be repainted to a text color in messages, the color of the Telegram Premium badge in emoji status, white color on chat photos, or another appropriate color in other places
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub needs_repainting: Option<bool>,
     /// File size in bytes
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub file_size: Option<i64>,
 }
 impl StickerCustomEmoji {

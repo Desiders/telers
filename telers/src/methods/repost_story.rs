@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Reposts a story on behalf of a business account from another business account. Both business accounts must be managed by the same bot, and the story on the source account must have been posted (or reposted) by the bot. Requires the `can_manage_stories` business bot right for both business accounts. Returns Story on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#repoststory>
 /// # Returns
 /// - `crate::types::Story`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct RepostStory {
     /// Unique identifier of the business connection
     pub business_connection_id: Box<str>,
@@ -16,10 +17,12 @@ pub struct RepostStory {
     /// Period after which the story is moved to the archive, in seconds; must be one of 6 * 3600, 12 * 3600, 86400, or 2 * 86400
     pub active_period: i64,
     /// Pass `true` to keep the story accessible after it expires
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub post_to_chat_page: Option<bool>,
     /// Pass `true` if the content of the story must be protected from forwarding and screenshotting
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub protect_content: Option<bool>,
 }
 impl RepostStory {

@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Represents an invite link for a chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatinvitelink>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatInviteLink {
     /// The invite link. If the link was created by another chat administrator, then the second part of the link will be replaced with `...`.
     pub invite_link: Box<str>,
@@ -15,22 +16,28 @@ pub struct ChatInviteLink {
     /// `true`, if the link is revoked
     pub is_revoked: bool,
     /// Invite link name
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub name: Option<Box<str>>,
     /// Point in time (Unix timestamp) when the link will expire or has been expired
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub expire_date: Option<i64>,
     /// The maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub member_limit: Option<u32>,
     /// Number of pending join requests created using this link
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub pending_join_request_count: Option<i64>,
     /// The number of seconds the subscription will be active for before the next payment
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub subscription_period: Option<i64>,
     /// The amount of Telegram Stars a user must pay initially and after each subsequent subscription period to be a member of the chat using the link
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub subscription_price: Option<i64>,
 }
 impl ChatInviteLink {

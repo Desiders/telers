@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to get the last messages from the personal chat (i.e., the chat currently added to their profile) of a given user. On success, an Array of Message objects is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getuserpersonalchatmessages>
 /// # Returns
 /// - `Box<[crate::types::Message]>`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetUserPersonalChatMessages {
     /// Unique identifier for the target user
     pub user_id: i64,

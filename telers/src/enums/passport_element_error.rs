@@ -1,5 +1,4 @@
 use crate::types::PassportElementError;
-use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents an error in the Telegram Passport element which was submitted that should be resolved by the user. It should be one of:
 /// - [`crate::types::PassportElementErrorDataField`]
@@ -13,20 +12,9 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::PassportElementErrorUnspecified`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerror>
-#[derive(
-    Debug,
-    Display,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-    EnumString,
-    AsRefStr,
-    IntoStaticStr,
-    Deserialize,
-    Serialize,
-)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[cfg_attr(feature = "deser", derive(deser::Deserialize, deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Deserialize, serde::Serialize))]
 pub enum PassportElementErrorType {
     #[strum(serialize = "data")]
     Data,

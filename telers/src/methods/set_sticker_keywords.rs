@@ -1,16 +1,18 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to change search keywords assigned to a regular or custom emoji sticker. The sticker must belong to a sticker set created by the bot. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setstickerkeywords>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SetStickerKeywords {
     /// File identifier of the sticker
     pub sticker: Box<str>,
     /// A JSON-serialized list of 0-20 search keywords for the sticker with total length of up to 64 characters
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub keywords: Option<Box<[Box<str>]>>,
 }
 impl SetStickerKeywords {

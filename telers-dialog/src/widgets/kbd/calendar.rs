@@ -1,9 +1,10 @@
 use async_trait::async_trait;
 use bon::bon;
-use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
 use std::{borrow::Cow, fmt::Display, future::Future, sync::Arc};
-use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
+use telers::{
+    serialization::{json, Deserialize, Serialize, Value},
+    types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup},
+};
 use time::{Date, Duration, Month, OffsetDateTime, UtcOffset, Weekday};
 use tracing::debug;
 
@@ -320,7 +321,8 @@ where
 
 /// Calendar view currently rendered by [`Calendar`].
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[cfg_attr(not(feature = "deser"), serde(rename_all = "SCREAMING_SNAKE_CASE"))]
+#[cfg_attr(feature = "deser", deser(rename_all = "SCREAMING_SNAKE_CASE"))]
 pub enum CalendarScope {
     /// Day grid for a single month.
     Days,
@@ -508,8 +510,13 @@ impl CalendarState {
     /// Convert state to the JSON representation stored in `widget_data`.
     #[must_use]
     pub fn to_value(&self) -> Value {
+        let scope = match self.current_scope {
+            CalendarScope::Days => "DAYS",
+            CalendarScope::Months => "MONTHS",
+            CalendarScope::Years => "YEARS",
+        };
         json!({
-            "current_scope": self.current_scope,
+            "current_scope": scope,
             "current_offset": self.current_offset.to_string(),
         })
     }
@@ -517,7 +524,7 @@ impl CalendarState {
     /// Decode calendar state from a `widget_data` value.
     #[must_use]
     pub fn from_value(value: &Value) -> Option<Self> {
-        let scope = serde_json::from_value(value.get("current_scope")?.clone()).ok()?;
+        let scope = telers::serialization::from_value(value.get("current_scope")?.clone()).ok()?;
         let offset = parse_date(value.get("current_offset")?.as_str()?)?;
         Some(Self::new(scope, offset))
     }
@@ -1298,7 +1305,7 @@ fn parse_date(value: &str) -> Option<CalendarDate> {
 
 #[cfg(test)]
 mod tests {
-    use serde_json::{json, Value};
+    use telers::serialization::{json, Value};
     use time::Weekday;
 
     use super::{
@@ -1357,7 +1364,7 @@ mod tests {
         if when_ctx
             .data
             .get("starts_on_sunday")
-            .and_then(Value::as_bool)
+            .and_then(|value| value.as_bool())
             .unwrap_or_default()
         {
             CalendarUserConfig::builder()
@@ -1397,7 +1404,7 @@ mod tests {
 
     #[tokio::test]
     async fn calendar_renders_days_by_default() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let calendar = Calendar::builder("calendar").config(test_config()).build();
 
         let markup = calendar
@@ -1417,7 +1424,7 @@ mod tests {
 
     #[tokio::test]
     async fn calendar_header_and_filler_buttons_use_noop_callbacks() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let calendar = Calendar::builder("calendar").config(test_config()).build();
 
         let markup = calendar
@@ -1451,7 +1458,7 @@ mod tests {
 
     #[tokio::test]
     async fn calendar_supports_dynamic_user_config() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let mut data = DataMap::new();
         data.insert("starts_on_sunday".into(), json!(true));
         let calendar = Calendar::builder("calendar")
@@ -1471,7 +1478,7 @@ mod tests {
 
     #[tokio::test]
     async fn calendar_supports_custom_text_renderer() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let calendar = Calendar::builder("calendar")
             .config(test_config())
             .appearance(
@@ -1498,7 +1505,7 @@ mod tests {
 
     #[tokio::test]
     async fn calendar_supports_custom_scope_views() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let calendar = Calendar::builder("calendar")
             .config(test_config())
             .views(CalendarViews::builder().days(custom_days_view).build())
@@ -1521,7 +1528,7 @@ mod tests {
 
     #[tokio::test]
     async fn calendar_hides_pager_row_when_navigation_is_unavailable() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let config = CalendarConfig::builder()
             .today(date(2026, 4, 12))
             .min_date(date(2026, 4, 12))
@@ -1543,7 +1550,7 @@ mod tests {
 
     #[tokio::test]
     async fn calendar_can_start_week_from_sunday() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let config = CalendarConfig::builder()
             .today(date(2026, 4, 12))
             .first_weekday(Weekday::Sunday)
@@ -1562,7 +1569,7 @@ mod tests {
 
     #[tokio::test]
     async fn calendar_renders_month_scope_from_widget_data() {
-        let mut ctx = Context::new("", "state", Value::Null);
+        let mut ctx = Context::new("", "state", Value::default());
         ctx.widget_data.insert(
             "calendar".into(),
             CalendarState::new(CalendarScope::Months, date(2026, 4, 1)).to_value(),
@@ -1582,7 +1589,7 @@ mod tests {
 
     #[tokio::test]
     async fn calendar_renders_year_scope_from_widget_data() {
-        let mut ctx = Context::new("", "state", Value::Null);
+        let mut ctx = Context::new("", "state", Value::default());
         ctx.widget_data.insert(
             "calendar".into(),
             CalendarState::new(CalendarScope::Years, date(2020, 1, 1)).to_value(),
@@ -1602,7 +1609,7 @@ mod tests {
 
     #[tokio::test]
     async fn calendar_navigation_callback_updates_scope() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let calendar = Calendar::builder("calendar").config(test_config()).build();
 
         let action = calendar
@@ -1621,7 +1628,7 @@ mod tests {
 
     #[tokio::test]
     async fn calendar_month_callback_returns_to_days_scope() {
-        let mut ctx = Context::new("", "state", Value::Null);
+        let mut ctx = Context::new("", "state", Value::default());
         ctx.widget_data.insert(
             "calendar".into(),
             CalendarState::new(CalendarScope::Months, date(2026, 4, 1)).to_value(),
@@ -1644,7 +1651,7 @@ mod tests {
 
     #[tokio::test]
     async fn calendar_date_callback_uses_on_click_handler() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let calendar = Calendar::builder("calendar")
             .config(test_config())
             .on_click(store_selected_date)
@@ -1664,7 +1671,7 @@ mod tests {
 
     #[tokio::test]
     async fn calendar_without_on_click_consumes_date_callback() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let calendar = Calendar::builder("calendar").config(test_config()).build();
 
         let action = calendar

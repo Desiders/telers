@@ -1,18 +1,20 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to edit a subscription invite link created by the bot. The bot must have the `can_invite_users` administrator rights. Returns the edited invite link as a [`crate::types::ChatInviteLink`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#editchatsubscriptioninvitelink>
 /// # Returns
 /// - `crate::types::ChatInviteLink`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct EditChatSubscriptionInviteLink {
     /// Unique identifier for the target chat or username of the target channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// The invite link to edit
     pub invite_link: Box<str>,
     /// Invite link name; 0-32 characters
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub name: Option<Box<str>>,
 }
 impl EditChatSubscriptionInviteLink {

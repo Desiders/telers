@@ -1,13 +1,15 @@
-use serde::{Deserialize, Serialize};
 /// A block with a voice note, corresponding to the HTML tag <`audio`>.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputrichblockvoicenote>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputRichBlockVoiceNote {
     /// The voice note. Caption is ignored.
     pub voice_note: crate::types::InputMediaVoiceNote,
     /// Caption of the block
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub caption: Option<crate::types::RichBlockCaption>,
 }
 impl InputRichBlockVoiceNote {

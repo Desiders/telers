@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes Telegram Passport data shared with the bot by the user.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportdata>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PassportData {
     /// Array with information about documents and other Telegram Passport elements that was shared with the bot
     pub data: Box<[crate::types::EncryptedPassportElement]>,

@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a game. Use `BotFather` to create and edit games, their short names will act as unique identifiers.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#game>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct Game {
     /// Title of the game
     pub title: Box<str>,
@@ -11,13 +12,16 @@ pub struct Game {
     /// Photo that will be displayed in the game message in chats
     pub photo: Box<[crate::types::PhotoSize]>,
     /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls [`crate::methods::SetGameScore`], or manually edited using [`crate::methods::EditMessageText`]. 0-4096 characters.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub text: Option<Box<str>>,
     /// Special entities that appear in text, such as usernames, URLs, bot commands, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub text_entities: Option<Box<[crate::types::MessageEntity]>>,
     /// Animation that will be displayed in the game message in chats. Upload via `BotFather`.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub animation: Option<Box<crate::types::Animation>>,
 }
 impl Game {

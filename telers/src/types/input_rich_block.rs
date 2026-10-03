@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a block in a rich formatted message to be sent. Currently, it can be any of the following types:
 /// - [`crate::types::InputRichBlockParagraph`]
 /// - [`crate::types::InputRichBlockSectionHeading`]
@@ -26,8 +25,11 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::InputRichBlockThinking`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputrichblock>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(tag = "type", rename_all = "snake_case"))]
+#[cfg_attr(feature = "deser", deser(tag = "type", rename_all = "snake_case"))]
 pub enum InputRichBlock {
     Paragraph(crate::types::InputRichBlockParagraph),
     Heading(crate::types::InputRichBlockSectionHeading),

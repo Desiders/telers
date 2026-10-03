@@ -1,21 +1,24 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to ban a user in a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the chat on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#banchatmember>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct BanChatMember {
     /// Unique identifier for the target group or username of the target supergroup or channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier of the target user
     pub user_id: i64,
     /// Date when the user will be unbanned; Unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever. Applied for supergroups and channels only.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub until_date: Option<i64>,
     /// Pass `true` to delete all messages from the chat for the user that is being removed. If `false`, the user will be able to see messages in the group that were sent before the user was removed. Always `true` for supergroups and channels.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub revoke_messages: Option<bool>,
 }
 impl BanChatMember {

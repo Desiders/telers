@@ -1,24 +1,12 @@
 use crate::types::InlineQueryResultVoiceKind;
-use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// # Notes
 /// This object represents an inline query result kind as combine of [`crate::types::InlineQueryResultCachedVoice`] and [`crate::types::InlineQueryResultVoice`].
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
-#[derive(
-    Debug,
-    Display,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-    EnumString,
-    AsRefStr,
-    IntoStaticStr,
-    Deserialize,
-    Serialize,
-)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[cfg_attr(feature = "deser", derive(deser::Deserialize, deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Deserialize, serde::Serialize))]
 pub enum InlineQueryResultVoiceKindType {
     #[strum(serialize = "uncached")]
     Uncached,

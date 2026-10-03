@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object contains basic information about a refunded payment.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#refundedpayment>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct RefundedPayment {
     /// Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram Stars. Currently, always `XTR`.
     pub currency: Box<str>,
@@ -13,7 +14,8 @@ pub struct RefundedPayment {
     /// Telegram payment identifier
     pub telegram_payment_charge_id: Box<str>,
     /// Provider payment identifier
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub provider_payment_charge_id: Option<Box<str>>,
 }
 impl RefundedPayment {

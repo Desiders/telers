@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// A superscript text.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richtextsuperscript>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct RichTextSuperscript {
     /// The text
     pub text: Box<crate::types::RichText>,

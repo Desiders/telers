@@ -3,7 +3,7 @@
 //! Each button starts a feature dialog on top of the menu with
 //! [`StartMode::Normal`]; the feature dialogs return here via [`Button::done`].
 
-use serde_json::Value;
+use telers::serialization::Value;
 use telers_dialog::{
     widgets::{keyboard, text, Button, InlineKeyboard},
     window, Dialog, LaunchMode, StartMode,
@@ -19,7 +19,7 @@ use crate::{
 
 /// A menu button that starts the feature dialog owning `state`.
 fn link(id: &'static str, label: impl telers_dialog::widgets::Text, state: &'static str) -> Button {
-    Button::start(id, label, state, Value::Null, StartMode::Normal)
+    Button::start(id, label, state, Value::default(), StartMode::Normal)
 }
 
 pub fn dialog() -> impl Dialog {

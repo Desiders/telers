@@ -1,5 +1,4 @@
 use crate::types::PaidMedia;
-use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes paid media. Currently, it can be one of
 /// - [`crate::types::PaidMediaLivePhoto`]
@@ -8,20 +7,9 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::PaidMediaVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#paidmedia>
-#[derive(
-    Debug,
-    Display,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-    EnumString,
-    AsRefStr,
-    IntoStaticStr,
-    Deserialize,
-    Serialize,
-)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[cfg_attr(feature = "deser", derive(deser::Deserialize, deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Deserialize, serde::Serialize))]
 pub enum PaidMediaType {
     #[strum(serialize = "live_photo")]
     LivePhoto,

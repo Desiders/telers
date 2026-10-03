@@ -1,27 +1,32 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Stores a message that can be sent by a user of a Mini App. Returns a [`crate::types::PreparedInlineMessage`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#savepreparedinlinemessage>
 /// # Returns
 /// - `crate::types::PreparedInlineMessage`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SavePreparedInlineMessage {
     /// Unique identifier of the target user that can use the prepared message
     pub user_id: i64,
     /// A JSON-serialized object describing the message to be sent
     pub result: crate::types::InlineQueryResult,
     /// Pass `true` if the message can be sent to private chats with users
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub allow_user_chats: Option<bool>,
     /// Pass `true` if the message can be sent to private chats with bots
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub allow_bot_chats: Option<bool>,
     /// Pass `true` if the message can be sent to group and supergroup chats
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub allow_group_chats: Option<bool>,
     /// Pass `true` if the message can be sent to channel chats
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub allow_channel_chats: Option<bool>,
 }
 impl SavePreparedInlineMessage {

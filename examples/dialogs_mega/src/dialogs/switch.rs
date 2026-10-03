@@ -1,6 +1,6 @@
 //! Step-by-step input with `Next`/`Back` and a `Case` summary.
 
-use serde_json::json;
+use telers::serialization::json;
 use telers_dialog::{
     entities::DataMap,
     widgets::{keyboard, text, Button, ButtonAction, Case, InlineKeyboard},

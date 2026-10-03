@@ -1,10 +1,11 @@
-use serde::{Deserialize, Serialize};
 /// The HTTP link attached to the poll option
 /// # Notes
 /// This object represents a poll media from original field `link`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#pollmedia>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PollMediaLink {
     /// The HTTP link attached to the poll option
     pub link: crate::types::Link,

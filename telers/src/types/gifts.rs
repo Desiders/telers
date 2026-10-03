@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object represent a list of gifts.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#gifts>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct Gifts {
     /// The list of gifts
     pub gifts: Box<[crate::types::Gift]>,

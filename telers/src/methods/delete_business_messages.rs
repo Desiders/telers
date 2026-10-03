@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Delete messages on behalf of a business account. Requires the `can_delete_sent_messages` business bot right to delete messages sent by the bot itself, or the `can_delete_all_messages` business bot right to delete any message. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#deletebusinessmessages>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct DeleteBusinessMessages {
     /// Unique identifier of the business connection on behalf of which to delete the messages
     pub business_connection_id: Box<str>,

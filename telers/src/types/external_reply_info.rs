@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// This object contains information about a message that is being replied to, which may come from another chat or forum topic.
 /// Currently, it can be one of
 /// - [`crate::types::ExternalReplyInfoAnimation`]
@@ -25,8 +24,11 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::ExternalReplyInfoVoice`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#externalreplyinfo>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(untagged)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(untagged))]
+#[cfg_attr(feature = "deser", deser(untagged))]
 pub enum ExternalReplyInfo {
     Animation(crate::types::ExternalReplyInfoAnimation),
     LivePhoto(crate::types::ExternalReplyInfoLivePhoto),

@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Transfers an owned unique gift to another user. Requires the `can_transfer_and_upgrade_gifts` business bot right. Requires `can_transfer_stars` business bot right if the transfer is paid. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transfergift>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct TransferGift {
     /// Unique identifier of the business connection
     pub business_connection_id: Box<str>,
@@ -14,7 +15,8 @@ pub struct TransferGift {
     /// Unique identifier of the chat which will own the gift. The chat must be active in the last 24 hours.
     pub new_owner_chat_id: i64,
     /// The amount of Telegram Stars that will be paid for the transfer from the business account balance. If positive, then the `can_transfer_stars` business bot right is required.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub star_count: Option<i64>,
 }
 impl TransferGift {

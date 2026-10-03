@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// This object contains information about one member of a chat. Currently, the following 6 types of chat members are supported:
 /// - [`crate::types::ChatMemberOwner`]
 /// - [`crate::types::ChatMemberAdministrator`]
@@ -8,8 +7,14 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::ChatMemberBanned`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmember>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "status", rename_all = "snake_case")]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    not(feature = "deser"),
+    serde(tag = "status", rename_all = "snake_case")
+)]
+#[cfg_attr(feature = "deser", deser(tag = "status", rename_all = "snake_case"))]
 pub enum ChatMember {
     Creator(crate::types::ChatMemberOwner),
     Administrator(crate::types::ChatMemberAdministrator),
@@ -18,7 +23,8 @@ pub enum ChatMember {
     Left(crate::types::ChatMemberLeft),
     Kicked(crate::types::ChatMemberBanned),
     /// Content unknown to this version of the library
-    #[serde(untagged)]
+    #[cfg_attr(not(feature = "deser"), serde(untagged))]
+    #[cfg_attr(feature = "deser", deser(untagged))]
     Unknown(crate::types::ChatMemberUnknown),
 }
 impl ChatMember {

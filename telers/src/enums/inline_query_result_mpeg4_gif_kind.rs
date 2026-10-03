@@ -1,24 +1,12 @@
 use crate::types::InlineQueryResultMpeg4GifKind;
-use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// # Notes
 /// This object represents an inline query result kind as combine of [`crate::types::InlineQueryResultCachedMpeg4Gif`] and [`crate::types::InlineQueryResultMpeg4Gif`].
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
-#[derive(
-    Debug,
-    Display,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-    EnumString,
-    AsRefStr,
-    IntoStaticStr,
-    Deserialize,
-    Serialize,
-)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[cfg_attr(feature = "deser", derive(deser::Deserialize, deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Deserialize, serde::Serialize))]
 pub enum InlineQueryResultMpeg4GifKindType {
     #[strum(serialize = "uncached")]
     Uncached,

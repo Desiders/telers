@@ -294,7 +294,7 @@ where
         );
         Some(ButtonAction::set_widget_value(
             widget_id,
-            serde_json::Value::Array(checked.into_iter().map(serde_json::Value::String).collect()),
+            telers::serialization::json!(checked),
         ))
     }
 }

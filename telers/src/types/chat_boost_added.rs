@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a service message about a user boosting a chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatboostadded>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatBoostAdded {
     /// Number of boosts added by the user
     pub boost_count: i64,

@@ -1,553 +1,307 @@
-//! Default serializer for `reqwest` crate.
-//!
-//! Check [`serializers module`] documentation for more information about serializers.
-//!
-//! [`serializers module`]: telers::serializers
+//! Multipart encoding for Reqwest with the selected serialization backend.
 
-use reqwest::multipart::{Form, Part};
-use serde::{
-    ser::{Error as SerError, Impossible, SerializeSeq, SerializeStruct},
-    Serialize, Serializer,
-};
-use std::{
-    borrow::Cow,
-    cell::RefCell,
-    fmt::{Debug, Display, Error as FmtError, Write},
-};
+use crate::serialization::{Error as JsonError, Serialize};
+use reqwest::multipart::Form;
+use std::{borrow::Cow, fmt::Debug};
+
+#[cfg(feature = "deser")]
+mod deser;
+#[cfg(not(feature = "deser"))]
+mod serde;
+
+#[cfg(feature = "deser")]
+use self::deser as backend;
+#[cfg(not(feature = "deser"))]
+use self::serde as backend;
 
 #[derive(Debug, thiserror::Error)]
 pub(crate) enum Error {
     #[error("Cannot serialize a field, custom error: {0}")]
     Custom(Cow<'static, str>),
     #[error(transparent)]
-    Json(#[from] serde_json::Error),
-    #[error(transparent)]
-    Fmt(#[from] FmtError),
+    Json(#[from] JsonError),
 }
 
 impl Error {
-    fn top_level(val: impl Debug) -> Self {
-        Self::Custom(format!("Cannot serialize a top-level struct: {val:?}").into())
+    fn top_level(value: impl Debug) -> Self {
+        Self::Custom(format!("Cannot serialize a top-level struct: {value:?}").into())
     }
 }
 
-impl SerError for Error {
-    fn custom<T: Display>(msg: T) -> Self {
-        Self::Custom(msg.to_string().into())
-    }
-}
-
-pub(crate) struct MultipartSerializer {
-    form: RefCell<Form>,
-}
-
-struct PartSerializer;
-
-struct JsonPartSerializer {
-    buf: String,
-    state: PartSerializerStructState,
-}
-
-enum PartSerializerStructState {
-    Empty,
-    Rest,
-}
+pub(crate) struct MultipartSerializer;
 
 impl MultipartSerializer {
-    pub(crate) fn new() -> Self {
-        Self {
-            form: RefCell::new(Form::new()),
-        }
-    }
-}
-
-impl Serializer for MultipartSerializer {
-    type Error = Error;
-    type Ok = Form;
-    type SerializeMap = Impossible<Self::Ok, Self::Error>;
-    type SerializeSeq = Impossible<Self::Ok, Self::Error>;
-    type SerializeStruct = Self;
-    type SerializeStructVariant = Impossible<Self::Ok, Self::Error>;
-    type SerializeTuple = Impossible<Self::Ok, Self::Error>;
-    type SerializeTupleStruct = Impossible<Self::Ok, Self::Error>;
-    type SerializeTupleVariant = Impossible<Self::Ok, Self::Error>;
-
-    fn serialize_struct(
-        self,
-        _name: &'static str,
-        _len: usize,
-    ) -> Result<Self::SerializeStruct, Self::Error> {
-        Ok(self)
-    }
-
-    fn serialize_bool(self, val: bool) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level(val))
-    }
-
-    fn serialize_i8(self, val: i8) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level(val))
-    }
-
-    fn serialize_i16(self, val: i16) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level(val))
-    }
-
-    fn serialize_i32(self, val: i32) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level(val))
-    }
-
-    fn serialize_i64(self, val: i64) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level(val))
-    }
-
-    fn serialize_u8(self, val: u8) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level(val))
-    }
-
-    fn serialize_u16(self, val: u16) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level(val))
-    }
-
-    fn serialize_u32(self, val: u32) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level(val))
-    }
-
-    fn serialize_u64(self, val: u64) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level(val))
-    }
-
-    fn serialize_f32(self, val: f32) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level(val))
-    }
-
-    fn serialize_f64(self, val: f64) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level(val))
-    }
-
-    fn serialize_char(self, val: char) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level(val))
-    }
-
-    fn serialize_str(self, val: &str) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level(val))
-    }
-
-    fn serialize_bytes(self, val: &[u8]) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level(val))
-    }
-
-    fn serialize_none(self) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level("none"))
-    }
-
-    fn serialize_some<T>(self, _val: &T) -> Result<Self::Ok, Self::Error>
-    where
-        T: Serialize + ?Sized,
-    {
-        Err(Error::top_level("some: (...)"))
-    }
-
-    fn serialize_unit(self) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level("unit"))
-    }
-
-    fn serialize_unit_struct(self, val: &'static str) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level(format!("unit_struct: {val}")))
-    }
-
-    fn serialize_unit_variant(
-        self,
-        name: &'static str,
-        variant_index: u32,
-        variant: &'static str,
-    ) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level(format!(
-            "unit_variant: name: {name}, variant_index: {variant_index}, variant: {variant}",
-        )))
-    }
-
-    fn serialize_newtype_struct<T>(
-        self,
-        name: &'static str,
-        _value: &T,
-    ) -> Result<Self::Ok, Self::Error>
-    where
-        T: Serialize + ?Sized,
-    {
-        Err(Error::top_level(format!(
-            "newtype_struct: name: {name}, value: (...)"
-        )))
-    }
-
-    fn serialize_newtype_variant<T>(
-        self,
-        name: &'static str,
-        variant_index: u32,
-        variant: &'static str,
-        _value: &T,
-    ) -> Result<Self::Ok, Self::Error>
-    where
-        T: Serialize + ?Sized,
-    {
-        Err(Error::top_level(format!(
-            "newtype_variant: name: {name}, variant_index: {variant_index}, variant: {variant}, \
-             value: (...)"
-        )))
-    }
-
-    fn serialize_seq(self, val: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
-        Err(Error::top_level(val))
-    }
-
-    fn serialize_tuple(self, val: usize) -> Result<Self::SerializeTuple, Self::Error> {
-        Err(Error::top_level(val))
-    }
-
-    fn serialize_tuple_struct(
-        self,
-        name: &'static str,
-        len: usize,
-    ) -> Result<Self::SerializeTupleStruct, Self::Error> {
-        Err(Error::top_level(format!(
-            "tuple_struct: name: {name}, len: {len}"
-        )))
-    }
-
-    fn serialize_tuple_variant(
-        self,
-        name: &'static str,
-        variant_index: u32,
-        variant: &'static str,
-        len: usize,
-    ) -> Result<Self::SerializeTupleVariant, Self::Error> {
-        Err(Error::top_level(format!(
-            "tuple_variant: name: {name}, variant_index: {variant_index}, variant: {variant}, \
-             len: {len}"
-        )))
-    }
-
-    fn serialize_map(self, val: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
-        Err(Error::top_level(val))
-    }
-
-    fn serialize_struct_variant(
-        self,
-        name: &'static str,
-        variant_index: u32,
-        variant: &'static str,
-        len: usize,
-    ) -> Result<Self::SerializeStructVariant, Self::Error> {
-        Err(Error::top_level(format!(
-            "struct_variant: name: {name}, variant_index: {variant_index}, variant: {variant}, \
-             len: {len}"
-        )))
-    }
-}
-
-impl SerializeStruct for MultipartSerializer {
-    type Error = Error;
-    type Ok = Form;
-
-    fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<(), Self::Error>
-    where
-        T: Serialize + ?Sized,
-    {
-        let part = value.serialize(PartSerializer {})?;
-        self.form.replace(self.form.take().part(key, part));
-
-        Ok(())
-    }
-
-    fn end(self) -> Result<Self::Ok, Self::Error> {
-        Ok(self.form.into_inner())
-    }
-}
-
-impl Serializer for PartSerializer {
-    type Error = Error;
-    type Ok = Part;
-    type SerializeMap = Impossible<Self::Ok, Self::Error>;
-    type SerializeSeq = JsonPartSerializer;
-    type SerializeStruct = JsonPartSerializer;
-    type SerializeStructVariant = Impossible<Self::Ok, Self::Error>;
-    type SerializeTuple = Impossible<Self::Ok, Self::Error>;
-    type SerializeTupleStruct = Impossible<Self::Ok, Self::Error>;
-    type SerializeTupleVariant = Impossible<Self::Ok, Self::Error>;
-
-    fn serialize_bool(self, val: bool) -> Result<Self::Ok, Self::Error> {
-        Ok(Part::text(val.to_string()))
-    }
-
-    fn serialize_i8(self, val: i8) -> Result<Self::Ok, Self::Error> {
-        Ok(Part::text(val.to_string()))
-    }
-
-    fn serialize_i16(self, val: i16) -> Result<Self::Ok, Self::Error> {
-        Ok(Part::text(val.to_string()))
-    }
-
-    fn serialize_i32(self, val: i32) -> Result<Self::Ok, Self::Error> {
-        Ok(Part::text(val.to_string()))
-    }
-
-    fn serialize_i64(self, val: i64) -> Result<Self::Ok, Self::Error> {
-        Ok(Part::text(val.to_string()))
-    }
-
-    fn serialize_u8(self, val: u8) -> Result<Self::Ok, Self::Error> {
-        Ok(Part::text(val.to_string()))
-    }
-
-    fn serialize_u16(self, val: u16) -> Result<Self::Ok, Self::Error> {
-        Ok(Part::text(val.to_string()))
-    }
-
-    fn serialize_u32(self, val: u32) -> Result<Self::Ok, Self::Error> {
-        Ok(Part::text(val.to_string()))
-    }
-
-    fn serialize_u64(self, val: u64) -> Result<Self::Ok, Self::Error> {
-        Ok(Part::text(val.to_string()))
-    }
-
-    fn serialize_f32(self, val: f32) -> Result<Self::Ok, Self::Error> {
-        Ok(Part::text(val.to_string()))
-    }
-
-    fn serialize_f64(self, val: f64) -> Result<Self::Ok, Self::Error> {
-        Ok(Part::text(val.to_string()))
-    }
-
-    fn serialize_char(self, val: char) -> Result<Self::Ok, Self::Error> {
-        Ok(Part::text(val.to_string()))
-    }
-
-    fn serialize_str(self, val: &str) -> Result<Self::Ok, Self::Error> {
-        Ok(Part::text(val.to_owned()))
-    }
-
-    fn serialize_bytes(self, val: &[u8]) -> Result<Self::Ok, Self::Error> {
-        Ok(Part::bytes(val.to_owned()))
-    }
-
-    fn serialize_some<T>(self, value: &T) -> Result<Self::Ok, Self::Error>
-    where
-        T: Serialize + ?Sized,
-    {
-        value.serialize(self)
-    }
-
-    fn serialize_unit_variant(
-        self,
-        _name: &'static str,
-        _variant_index: u32,
-        variant: &'static str,
-    ) -> Result<Self::Ok, Self::Error> {
-        Ok(Part::text(variant))
-    }
-
-    fn serialize_struct(
-        self,
-        _name: &'static str,
-        _len: usize,
-    ) -> Result<Self::SerializeStruct, Self::Error> {
-        Ok(JsonPartSerializer {
-            buf: String::new(),
-            state: PartSerializerStructState::Empty,
-        })
-    }
-
-    fn serialize_seq(self, _val: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
-        Ok(JsonPartSerializer {
-            buf: String::new(),
-            state: PartSerializerStructState::Empty,
-        })
-    }
-
-    fn serialize_none(self) -> Result<Self::Ok, Self::Error> {
-        unimplemented!()
-    }
-
-    fn serialize_unit(self) -> Result<Self::Ok, Self::Error> {
-        unimplemented!()
-    }
-
-    fn serialize_unit_struct(self, _val: &'static str) -> Result<Self::Ok, Self::Error> {
-        unimplemented!()
-    }
-
-    fn serialize_newtype_struct<T>(
-        self,
-        _name: &'static str,
-        _value: &T,
-    ) -> Result<Self::Ok, Self::Error>
-    where
-        T: Serialize + ?Sized,
-    {
-        unimplemented!()
-    }
-
-    fn serialize_newtype_variant<T>(
-        self,
-        _name: &'static str,
-        _variant_index: u32,
-        _variant: &'static str,
-        _value: &T,
-    ) -> Result<Self::Ok, Self::Error>
-    where
-        T: Serialize + ?Sized,
-    {
-        unimplemented!()
-    }
-
-    fn serialize_tuple(self, _val: usize) -> Result<Self::SerializeTuple, Self::Error> {
-        unimplemented!()
-    }
-
-    fn serialize_tuple_struct(
-        self,
-        _name: &'static str,
-        _len: usize,
-    ) -> Result<Self::SerializeTupleStruct, Self::Error> {
-        unimplemented!()
-    }
-
-    fn serialize_tuple_variant(
-        self,
-        _name: &'static str,
-        _variant_index: u32,
-        _variant: &'static str,
-        _len: usize,
-    ) -> Result<Self::SerializeTupleVariant, Self::Error> {
-        unimplemented!()
-    }
-
-    fn serialize_map(self, _val: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
-        unimplemented!()
-    }
-
-    fn serialize_struct_variant(
-        self,
-        _name: &'static str,
-        _variant_index: u32,
-        _variant: &'static str,
-        _len: usize,
-    ) -> Result<Self::SerializeStructVariant, Self::Error> {
-        unimplemented!()
-    }
-}
-
-impl JsonPartSerializer {
-    fn finish_object(mut self) -> String {
-        match self.state {
-            PartSerializerStructState::Empty => "{}".to_owned(),
-            PartSerializerStructState::Rest => {
-                self.buf += "}";
-                self.buf
-            }
-        }
-    }
-
-    fn finish_array(mut self) -> String {
-        match self.state {
-            PartSerializerStructState::Empty => "[]".to_owned(),
-            PartSerializerStructState::Rest => {
-                self.buf += "]";
-                self.buf
-            }
-        }
-    }
-}
-
-impl SerializeStruct for JsonPartSerializer {
-    type Error = Error;
-    type Ok = Part;
-
-    fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<(), Self::Error>
-    where
-        T: Serialize + ?Sized,
-    {
-        let value = serde_json::to_string(value)?;
-        match self.state {
-            PartSerializerStructState::Empty => {
-                self.state = PartSerializerStructState::Rest;
-
-                write!(&mut self.buf, "{{\"{key}\":{value}")?;
-            }
-            PartSerializerStructState::Rest => write!(&mut self.buf, ",\"{key}\":{value}")?,
-        }
-
-        Ok(())
-    }
-
-    fn end(self) -> Result<Self::Ok, Self::Error> {
-        Ok(Part::text(self.finish_object()))
-    }
-}
-
-impl SerializeSeq for JsonPartSerializer {
-    type Error = Error;
-    type Ok = Part;
-
-    fn serialize_element<T>(&mut self, value: &T) -> Result<(), Self::Error>
-    where
-        T: Serialize + ?Sized,
-    {
-        let value = serde_json::to_string(value)?;
-        match self.state {
-            PartSerializerStructState::Empty => {
-                self.state = PartSerializerStructState::Rest;
-
-                write!(&mut self.buf, "[{value}")?;
-            }
-            PartSerializerStructState::Rest => write!(&mut self.buf, ",{value}")?,
-        }
-
-        Ok(())
-    }
-
-    fn end(self) -> Result<Self::Ok, Self::Error> {
-        Ok(Part::text(self.finish_array()))
+    pub(crate) fn build(data: &impl Serialize) -> Result<Form, Error> {
+        backend::serialize(data)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{JsonPartSerializer, PartSerializerStructState};
-    use serde::ser::{SerializeSeq, SerializeStruct};
+    use super::MultipartSerializer;
+    use crate::{
+        methods::{SendMediaGroup, SendMessage},
+        serialization::Serialize,
+        types::{
+            InlineKeyboardButton, InlineKeyboardMarkup, InputFile, InputMedia, InputMediaPhoto,
+        },
+    };
+    use futures_util::TryStreamExt;
 
-    fn serializer() -> JsonPartSerializer {
-        JsonPartSerializer {
-            buf: String::new(),
-            state: PartSerializerStructState::Empty,
+    #[derive(Serialize)]
+    struct Field<T> {
+        value: T,
+    }
+
+    #[derive(Serialize)]
+    struct EscapedKey<'a> {
+        #[cfg_attr(not(feature = "deser"), serde(rename = "quote\"\\\n\t\0🚀"))]
+        #[cfg_attr(feature = "deser", deser(rename = "quote\"\\\n\t\0🚀"))]
+        value: &'a str,
+    }
+
+    struct Binary<'a>(&'a [u8]);
+
+    #[derive(Serialize)]
+    struct Newtype<T>(T);
+
+    #[derive(Serialize)]
+    struct Empty {}
+
+    #[cfg(not(feature = "deser"))]
+    impl Serialize for Binary<'_> {
+        fn serialize<S: ::serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+            serializer.serialize_bytes(self.0)
         }
     }
 
-    #[test]
-    fn empty_struct_finishes_as_empty_json_object() {
-        assert_eq!(serializer().finish_object(), "{}");
+    #[cfg(feature = "deser")]
+    impl Serialize for Binary<'_> {
+        fn serialize(
+            &self,
+            _state: &mut ::deser::State,
+        ) -> Result<::deser::ser::Chunk<'_>, ::deser::Error> {
+            Ok(::deser::ser::Chunk::Atom(::deser::Atom::Bytes(
+                self.0.into(),
+            )))
+        }
     }
 
-    #[test]
-    fn empty_seq_finishes_as_empty_json_array() {
-        assert_eq!(serializer().finish_array(), "[]");
+    async fn field_body(value: impl Serialize) -> Vec<u8> {
+        let form = MultipartSerializer::build(&Field {
+            value,
+        })
+        .unwrap();
+        let boundary = form.boundary().to_owned();
+        let chunks: Vec<_> = form.into_stream().try_collect().await.unwrap();
+        let body: Vec<_> = chunks.into_iter().flatten().collect();
+        let start = body
+            .windows(4)
+            .position(|bytes| bytes == b"\r\n\r\n")
+            .unwrap()
+            + 4;
+        body[start..]
+            .strip_suffix(format!("\r\n--{boundary}--\r\n").as_bytes())
+            .unwrap()
+            .to_vec()
     }
 
-    #[test]
-    fn struct_with_fields_finishes_as_json_object() {
-        let mut serializer = serializer();
-        serializer.serialize_field("a", &1).unwrap();
-        serializer.serialize_field("b", &"x").unwrap();
+    #[tokio::test]
+    async fn multipart_preserves_every_unicode_scalar() {
+        let text: String = (0..=0x10ffff).filter_map(char::from_u32).collect();
+        assert_eq!(field_body(&text).await, text.as_bytes());
 
-        assert_eq!(serializer.finish_object(), r#"{"a":1,"b":"x"}"#);
+        let nested = EscapedKey {
+            value: &text,
+        };
+        let expected = format!(
+            "{{{}:{}}}",
+            serde_json::to_string("quote\"\\\n\t\0🚀").unwrap(),
+            serde_json::to_string(&text).unwrap(),
+        );
+        let actual = field_body(nested).await;
+        assert_eq!(actual.len(), expected.len());
+        assert!(actual == expected.as_bytes());
     }
 
-    #[test]
-    fn seq_with_elements_finishes_as_json_array() {
-        let mut serializer = serializer();
-        serializer.serialize_element(&1).unwrap();
-        serializer.serialize_element(&2).unwrap();
+    #[tokio::test]
+    async fn multipart_preserves_scalar_float_format() {
+        for value in [
+            1.0_f64,
+            -0.0,
+            1e-20,
+            1e20,
+            f64::MIN_POSITIVE,
+            f64::MAX,
+            f64::NAN,
+            f64::INFINITY,
+            f64::NEG_INFINITY,
+        ] {
+            assert_eq!(field_body(value).await, value.to_string().as_bytes());
+        }
+        for value in [
+            1.0_f32,
+            -0.0,
+            1e-20,
+            1e20,
+            f32::MIN_POSITIVE,
+            f32::MAX,
+            f32::NAN,
+            f32::INFINITY,
+            f32::NEG_INFINITY,
+        ] {
+            assert_eq!(field_body(value).await, value.to_string().as_bytes());
+        }
+    }
 
-        assert_eq!(serializer.finish_array(), "[1,2]");
+    #[tokio::test]
+    async fn multipart_preserves_nested_float_format() {
+        let values = [
+            1.0_f64,
+            -0.0,
+            1e-20,
+            1e20,
+            f64::MIN_POSITIVE,
+            f64::MAX,
+            f64::NAN,
+            f64::INFINITY,
+            f64::NEG_INFINITY,
+        ];
+        assert_eq!(
+            field_body(values.to_vec()).await,
+            serde_json::to_vec(&values).unwrap()
+        );
+        let values = [
+            1.0_f32,
+            -0.0,
+            1e-20,
+            1e20,
+            f32::MIN_POSITIVE,
+            f32::MAX,
+            f32::NAN,
+            f32::INFINITY,
+            f32::NEG_INFINITY,
+        ];
+        assert_eq!(
+            field_body(values.to_vec()).await,
+            serde_json::to_vec(&values).unwrap()
+        );
+    }
+
+    #[tokio::test]
+    async fn multipart_preserves_every_byte() {
+        let bytes: Vec<_> = (0..=255).collect();
+        assert_eq!(field_body(Binary(&bytes)).await, bytes);
+        assert_eq!(
+            field_body(Field {
+                value: Binary(&bytes)
+            })
+            .await,
+            format!("{{\"value\":{}}}", serde_json::to_string(&bytes).unwrap()).as_bytes(),
+        );
+    }
+
+    #[tokio::test]
+    async fn multipart_preserves_large_integers() {
+        for value in [i128::MIN, i128::MAX] {
+            assert_eq!(field_body(value).await, value.to_string().as_bytes());
+            assert_eq!(
+                field_body(vec![value]).await,
+                format!("[{value}]").as_bytes()
+            );
+        }
+        assert_eq!(
+            field_body(u128::MAX).await,
+            u128::MAX.to_string().as_bytes()
+        );
+        assert_eq!(
+            field_body(vec![u128::MAX]).await,
+            format!("[{}]", u128::MAX).as_bytes()
+        );
+    }
+
+    #[tokio::test]
+    async fn multipart_preserves_compound_fields() {
+        let text = "\"\\\r\n\t\0é🚀e\u{301}";
+        let expected = serde_json::to_string(text).unwrap();
+        let map = std::collections::BTreeMap::from([(text, text)]);
+        assert_eq!(
+            field_body(map).await,
+            format!("{{{expected}:{expected}}}").as_bytes(),
+        );
+        assert_eq!(
+            field_body((text, 42)).await,
+            format!("[{expected},42]").as_bytes()
+        );
+        assert_eq!(field_body(Empty {}).await, b"{}");
+        assert_eq!(field_body(Vec::<String>::new()).await, b"[]");
+        assert_eq!(field_body(None::<String>).await, b"null");
+        assert_eq!(field_body(()).await, b"null");
+        assert_eq!(field_body(Some(text)).await, text.as_bytes());
+        assert_eq!(field_body(Newtype(text)).await, text.as_bytes());
+    }
+
+    #[tokio::test]
+    async fn multipart_accepts_maps_and_forwarded_requests() {
+        let map = std::collections::BTreeMap::from([("value", "\"\\\r\n\t\0é🚀")]);
+        let body = form_body(&map).await;
+        assert!(body.contains("\r\n\r\n\"\\\r\n\t\0é🚀\r\n"));
+        let body = form_body(&Newtype(Some(Field {
+            value: "text",
+        })))
+        .await;
+        assert!(body.contains("name=\"value\""));
+        assert!(body.contains("\r\n\r\ntext\r\n"));
+        assert!(
+            MultipartSerializer::build(&std::collections::BTreeMap::from([(42, "text")])).is_err()
+        );
+        assert!(MultipartSerializer::build(&42).is_err());
+    }
+
+    async fn form_body(data: &impl Serialize) -> String {
+        let chunks: Vec<_> = MultipartSerializer::build(data)
+            .unwrap()
+            .into_stream()
+            .try_collect()
+            .await
+            .unwrap();
+        String::from_utf8(chunks.into_iter().flatten().collect()).unwrap()
+    }
+
+    #[tokio::test]
+    async fn multipart_preserves_scalars_json_and_omits_none() {
+        let request = SendMessage::new(-123_i64, "quotes: \" and newline\n")
+            .disable_notification(false)
+            .reply_markup(InlineKeyboardMarkup::new([[InlineKeyboardButton::new(
+                "open",
+            )
+            .url("https://example.com")]]));
+        let body = form_body(&request).await;
+        assert!(body.contains("\r\n\r\nquotes: \" and newline\n\r\n"));
+        assert!(body.contains("\r\n\r\nfalse\r\n"));
+        assert!(body.contains("\r\n\r\n-123\r\n"));
+        assert!(
+            body.contains(r#"{"inline_keyboard":[[{"text":"open","url":"https://example.com"}]]}"#)
+        );
+        assert!(!body.contains("name=\"parse_mode\""));
+    }
+
+    #[tokio::test]
+    async fn multipart_preserves_nested_files_and_empty_sequences() {
+        let file = InputFile::buffered_with_name(&b"photo"[..], "photo.jpg");
+        let reference = file.str_to_file().to_owned();
+        let request = SendMediaGroup::new(123_i64, [InputMediaPhoto::new(file)]);
+        let body = form_body(&request).await;
+        assert!(body.contains(&format!(r#"[{{"type":"photo","media":"{reference}"}}]"#)));
+
+        let request = SendMediaGroup::new(123_i64, Vec::<InputMedia>::new());
+        let body = form_body(&request).await;
+        assert!(body.contains("name=\"media\""));
+        assert!(body.contains("\r\n\r\n[]\r\n"));
+
+        let fields = std::collections::BTreeMap::from([("media", Vec::<InputMedia>::new())]);
+        let body = form_body(&fields).await;
+        assert!(body.contains("name=\"media\""));
+        assert!(body.contains("\r\n\r\n[]\r\n"));
     }
 }

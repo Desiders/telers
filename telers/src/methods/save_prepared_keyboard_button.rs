@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Stores a keyboard button that can be used by a user within a Mini App. Returns a [`crate::types::PreparedKeyboardButton`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#savepreparedkeyboardbutton>
 /// # Returns
 /// - `crate::types::PreparedKeyboardButton`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SavePreparedKeyboardButton {
     /// Unique identifier of the target user that can use the button
     pub user_id: i64,

@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes a withdrawal transaction to the Telegram Ads platform.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transactionpartnertelegramads>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct TransactionPartnerTelegramAds {}
 impl TransactionPartnerTelegramAds {
     /// Creates a new `TransactionPartnerTelegramAds`.

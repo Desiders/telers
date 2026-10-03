@@ -16,8 +16,7 @@ use async_trait::async_trait;
 ///
 /// # Pagination
 ///
-/// Set [`page_size`](ListTextBuilder::page_size) together with an
-/// [`id`](ListTextBuilder::id) to paginate the list: only the current page's
+/// Set `page_size` together with an `id` to paginate the list: only the current page's
 /// items are rendered, the page is stored in `widget_data[id]`, and the widget
 /// implements [`Scroll`] so it can drive a
 /// [`NumberedPager`](crate::widgets::NumberedPager). Without `page_size` every
@@ -57,8 +56,7 @@ impl<ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr>
 {
     /// Build a list-text widget.
     ///
-    /// Provide [`id`](ListTextBuilder::id) and
-    /// [`page_size`](ListTextBuilder::page_size) to paginate the list; omit them
+    /// Provide `id` and `page_size` to paginate the list; omit them
     /// to render every item.
     #[builder]
     #[must_use]

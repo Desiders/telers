@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to send a checklist on behalf of a connected business account. On success, the sent Message is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sendchecklist>
 /// # Returns
 /// - `crate::types::Message`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SendChecklist {
     /// Unique identifier of the business connection on behalf of which the message will be sent
     pub business_connection_id: Box<str>,
@@ -14,19 +15,24 @@ pub struct SendChecklist {
     /// A JSON-serialized object for the checklist to send
     pub checklist: crate::types::InputChecklist,
     /// Sends the message silently. Users will receive a notification with no sound.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub disable_notification: Option<bool>,
     /// Protects the contents of the sent message from forwarding and saving
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub protect_content: Option<bool>,
     /// Unique identifier of the message effect to be added to the message
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub message_effect_id: Option<Box<str>>,
     /// A JSON-serialized object for description of the message to reply to
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub reply_parameters: Option<crate::types::ReplyParameters>,
     /// A JSON-serialized object for an inline keyboard
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
 }
 impl SendChecklist {

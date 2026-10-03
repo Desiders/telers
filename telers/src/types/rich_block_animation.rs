@@ -1,16 +1,19 @@
-use serde::{Deserialize, Serialize};
 /// A block with an animation, corresponding to the HTML tag <`video`>.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richblockanimation>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct RichBlockAnimation {
     /// The animation
     pub animation: Box<crate::types::Animation>,
     /// `true`, if the media preview is covered by a spoiler animation
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub has_spoiler: Option<bool>,
     /// Caption of the block
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub caption: Option<crate::types::RichBlockCaption>,
 }
 impl RichBlockAnimation {

@@ -1,8 +1,8 @@
 use super::{Error, Storage, StorageKey};
 
+use crate::serialization::{DeserializeOwned, Serialize};
 use deadpool_redis::{Config, ConfigError, Connection, CreatePoolError, Pool, PoolError, Runtime};
 use redis::{IntoConnectionInfo, RedisError};
-use serde::{de::DeserializeOwned, Serialize};
 use std::{
     collections::HashMap,
     fmt::{self, Debug, Display, Formatter},
@@ -430,7 +430,7 @@ impl<K: KeyBuilder + Clone> Storage for Redis<K> {
 
         Span::current().record("key", key.as_ref());
 
-        let plain_json = serde_json::to_string(
+        let plain_json = crate::serialization::to_string(
             &data
                 .into_iter()
                 .map(|(k, v)| (k.as_ref().to_owned(), v))
@@ -502,7 +502,7 @@ impl<K: KeyBuilder + Clone> Storage for Redis<K> {
             })?;
 
         let mut data = match plain_json {
-            Some(ref plain_json) => serde_json::from_str(plain_json).map_err(|err| {
+            Some(ref plain_json) => crate::serialization::from_str(plain_json).map_err(|err| {
                 event!(
                     Level::ERROR,
                     error = %err,
@@ -522,11 +522,11 @@ impl<K: KeyBuilder + Clone> Storage for Redis<K> {
 
         data.insert(
             value_key.as_ref(),
-            serde_json::to_value(value).map_err(|err| {
-                event!(Level::ERROR, error = %err, "Failed to convert value to `serde_json::Value`");
+            crate::serialization::to_value(&value).map_err(|err| {
+                event!(Level::ERROR, error = %err, "Failed to convert value to JSON value");
 
                 Error::new(
-                    format!("Failed to convert value to `serde_json::Value`. Storage key: {key}"),
+                    format!("Failed to convert value to JSON value. Storage key: {key}"),
                     err,
                 )
             })?,
@@ -534,7 +534,7 @@ impl<K: KeyBuilder + Clone> Storage for Redis<K> {
 
         Span::current().record("data", field::debug(&data));
 
-        let plain_json = serde_json::to_string(&data).map_err(|err| {
+        let plain_json = crate::serialization::to_string(&data).map_err(|err| {
             event!(Level::ERROR, error = %err, "Failed to serialize data");
 
             Error::new(format!("Failed to serialize data. Storage key: {key}"), err)
@@ -589,7 +589,7 @@ impl<K: KeyBuilder + Clone> Storage for Redis<K> {
             })?;
 
         match plain_json {
-            Some(ref plain_json) => serde_json::from_str(plain_json).map_err(|err| {
+            Some(ref plain_json) => crate::serialization::from_str(plain_json).map_err(|err| {
                 event!(
                     Level::ERROR,
                     error = %err,
@@ -647,8 +647,8 @@ impl<K: KeyBuilder + Clone> Storage for Redis<K> {
 
         match plain_json {
             Some(ref plain_json) => {
-                let mut data: HashMap<Box<str>, serde_json::Value> =
-                    serde_json::from_str(plain_json).map_err(|err| {
+                let mut data: HashMap<Box<str>, crate::serialization::Value> =
+                    crate::serialization::from_str(plain_json).map_err(|err| {
                         event!(
                             Level::ERROR,
                             error = %err,
@@ -664,20 +664,19 @@ impl<K: KeyBuilder + Clone> Storage for Redis<K> {
 
                 match data.remove(value_key.as_ref()) {
                     Some(value) => {
-                        let value_str = value.to_string();
-                        let res = serde_json::from_value(value)
+                        let value_str = crate::serialization::to_string(&value).unwrap_or_default();
+                        let res = crate::serialization::from_value(value)
                             .map_err(|err| {
                                 event!(
                                     Level::ERROR,
                                     error = %err,
                                     value = %value_str,
-                                    "Failed to convert `serde_json::Value` to value",
+                                    "Failed to convert JSON value to value",
                                 );
 
                                 Error::new(
                                     format!(
-                                        "Failed to convert `serde_json::Value` to value. Storage \
-                                         key: {key}"
+                                        "Failed to convert JSON value to value. Storage key: {key}"
                                     ),
                                     err,
                                 )

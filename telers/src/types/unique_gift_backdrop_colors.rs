@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object describes the colors of the backdrop of a unique gift.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#uniquegiftbackdropcolors>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct UniqueGiftBackdropColors {
     /// The color in the center of the backdrop in RGB format
     pub center_color: i32,

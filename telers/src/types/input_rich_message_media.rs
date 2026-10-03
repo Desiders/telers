@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes a media element embedded in an outgoing rich message.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputrichmessagemedia>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputRichMessageMedia {
     /// Unique identifier of the media used in a `tg://photo?id=`, `tg://video?id=`, `tg://document?id=`, or `tg://audio?id=` link. 1-64 characters, only A-Z, a-z, 0-9, `_` and - are allowed.
     pub id: Box<str>,

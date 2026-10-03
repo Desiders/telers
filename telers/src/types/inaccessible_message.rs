@@ -1,9 +1,11 @@
-use serde::{Deserialize, Serialize};
 /// This object describes a message that was deleted or is otherwise inaccessible to the bot.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inaccessiblemessage>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(deny_unknown_fields))]
+#[cfg_attr(feature = "deser", deser(deny_unknown_fields))]
 pub struct InaccessibleMessage {
     /// Chat the message belonged to
     pub chat: Box<crate::types::Chat>,

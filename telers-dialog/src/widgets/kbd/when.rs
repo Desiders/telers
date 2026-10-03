@@ -87,13 +87,25 @@ pub(crate) fn is_allowed<'a>(
 
 #[must_use]
 fn is_truthy(value: &Data) -> bool {
-    match value {
-        Data::Bool(value) => *value,
-        Data::Null => false,
-        Data::Number(value) => value.as_f64() != Some(0.0),
-        Data::String(value) => !value.is_empty(),
-        Data::Array(value) => !value.is_empty(),
-        Data::Object(value) => !value.is_empty(),
+    if value.is_null() {
+        false
+    } else if let Some(value) = value.as_bool() {
+        value
+    } else if let Some(value) = value.as_str() {
+        !value.is_empty()
+    } else if let Some(value) = value.as_f64() {
+        value != 0.0
+    } else if let Some(values) = telers::serialization::as_array(value) {
+        !values.is_empty()
+    } else {
+        #[cfg(feature = "deser")]
+        {
+            value.as_map().is_some_and(|values| !values.is_empty())
+        }
+        #[cfg(not(feature = "deser"))]
+        {
+            value.as_object().is_some_and(|values| !values.is_empty())
+        }
     }
 }
 
@@ -101,10 +113,10 @@ fn is_truthy(value: &Data) -> bool {
 mod tests {
     use super::{is_allowed, WhenCondition, WhenContext};
     use crate::entities::{Context, DataMap};
-    use serde_json::{json, Value};
+    use telers::serialization::{json, Value};
 
     fn context() -> Context {
-        Context::new("", "state", Value::Null)
+        Context::new("", "state", Value::default())
     }
 
     #[tokio::test]
@@ -150,7 +162,7 @@ mod tests {
             assert_eq!(
                 is_allowed(Some(&condition), &ctx, &data).await,
                 expected,
-                "value {value} should be {expected}",
+                "value {value:?} should be {expected}",
             );
         }
     }

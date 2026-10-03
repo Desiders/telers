@@ -1,10 +1,11 @@
-use serde::{Deserialize, Serialize};
 /// Media is a sticker, information about the sticker; currently, for poll options only
 /// # Notes
 /// This object represents a poll media from original field `sticker`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#pollmedia>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PollMediaSticker {
     /// Media is a sticker, information about the sticker; currently, for poll options only
     pub sticker: Box<crate::types::Sticker>,

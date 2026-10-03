@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Returns the amount of Telegram Stars owned by a managed business account. Requires the `can_view_gifts_and_stars` business bot right. Returns [`crate::types::StarAmount`] on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getbusinessaccountstarbalance>
 /// # Returns
 /// - `crate::types::StarAmount`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetBusinessAccountStarBalance {
     /// Unique identifier of the business connection
     pub business_connection_id: Box<str>,

@@ -1,11 +1,12 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to move a sticker in a set created by the bot to a specific position. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setstickerpositioninset>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SetStickerPositionInSet {
     /// File identifier of the sticker
     pub sticker: Box<str>,

@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// This object represents an incoming update.
 /// At most one of the optional fields can be present in any given update.
 /// Currently, it can be one of
@@ -31,8 +30,11 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::UpdateSubscription`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#update>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(untagged)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(untagged))]
+#[cfg_attr(feature = "deser", deser(untagged))]
 pub enum Update {
     BusinessConnection(crate::types::UpdateBusinessConnection),
     BusinessMessage(crate::types::UpdateBusinessMessage),

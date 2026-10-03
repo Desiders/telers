@@ -1,18 +1,21 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a change of a reaction on a message performed by a user.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#messagereactionupdated>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct MessageReactionUpdated {
     /// The chat containing the message the user reacted to
     pub chat: Box<crate::types::Chat>,
     /// Unique identifier of the message inside the chat
     pub message_id: i64,
     /// The user that changed the reaction, if the user isn't anonymous
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub user: Option<Box<crate::types::User>>,
     /// The chat on behalf of which the reaction was changed, if the user is anonymous
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub actor_chat: Option<Box<crate::types::Chat>>,
     /// Date of the change in Unix time
     pub date: i64,

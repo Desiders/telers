@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a boost added to a chat or changed.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatboostupdated>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatBoostUpdated {
     /// Chat which was boosted
     pub chat: Box<crate::types::Chat>,

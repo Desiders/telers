@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes a story area containing weather information. Currently, a story can have up to 3 weather areas.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#storyareatypeweather>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct StoryAreaTypeWeather {
     /// Temperature, in degree Celsius
     pub temperature: f64,

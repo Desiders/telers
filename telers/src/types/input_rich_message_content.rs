@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Represents the content of a rich message to be sent as the result of an inline query.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputrichmessagecontent>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputRichMessageContent {
     /// The message to be sent. Only previously uploaded files may be used in the message.
     pub rich_message: crate::types::InputRichMessage,

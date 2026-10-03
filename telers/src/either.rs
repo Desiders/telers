@@ -1,7 +1,8 @@
-use serde::{Deserialize, Serialize};
+use crate::serialization::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(untagged)]
+#[cfg_attr(not(feature = "deser"), serde(untagged))]
+#[cfg_attr(feature = "deser", deser(untagged))]
 pub enum Either<T, U> {
     Left(T),
     Right(U),

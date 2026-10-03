@@ -1,19 +1,22 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Changes the emoji status for a given user that previously allowed the bot to manage their emoji status via the Mini App method `requestEmojiStatusAccess`. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setuseremojistatus>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SetUserEmojiStatus {
     /// Unique identifier of the target user
     pub user_id: i64,
     /// Custom emoji identifier of the emoji status to set. Pass an empty string to remove the status.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub emoji_status_custom_emoji_id: Option<Box<str>>,
     /// Expiration date of the emoji status, if any
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub emoji_status_expiration_date: Option<i64>,
 }
 impl SetUserEmojiStatus {

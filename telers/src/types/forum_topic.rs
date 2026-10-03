@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a forum topic.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#forumtopic>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ForumTopic {
     /// Unique identifier of the forum topic
     pub message_thread_id: i64,
@@ -11,10 +12,12 @@ pub struct ForumTopic {
     /// Color of the topic icon in RGB format
     pub icon_color: i32,
     /// Unique identifier of the custom emoji shown as the topic icon
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub icon_custom_emoji_id: Option<Box<str>>,
     /// `true`, if the name of the topic wasn't specified explicitly by its creator and likely needs to be changed by the bot
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_name_implicit: Option<bool>,
 }
 impl ForumTopic {

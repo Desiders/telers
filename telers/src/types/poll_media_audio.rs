@@ -1,10 +1,11 @@
-use serde::{Deserialize, Serialize};
 /// Media is an audio file, information about the file; currently, can't be received in a poll option
 /// # Notes
 /// This object represents a poll media from original field `audio`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#pollmedia>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PollMediaAudio {
     /// Media is an audio file, information about the file; currently, can't be received in a poll option
     pub audio: Box<crate::types::Audio>,

@@ -1,18 +1,20 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Changes the first and last name of a managed business account. Requires the `can_change_name` business bot right. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setbusinessaccountname>
 /// # Returns
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SetBusinessAccountName {
     /// Unique identifier of the business connection
     pub business_connection_id: Box<str>,
     /// The new value of the first name for the business account; 1-64 characters
     pub first_name: Box<str>,
     /// The new value of the last name for the business account; 0-64 characters
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub last_name: Option<Box<str>>,
 }
 impl SetBusinessAccountName {

@@ -91,8 +91,8 @@ pub fn safe_parse_webapp_init_data(
         let value = percent_decode(value);
         match key {
             "query_id" => parsed.query_id = Some(value),
-            "user" => parsed.user = Some(serde_json::from_str(&value)?),
-            "receiver" => parsed.receiver = Some(serde_json::from_str(&value)?),
+            "user" => parsed.user = Some(crate::serialization::from_str(&value)?),
+            "receiver" => parsed.receiver = Some(crate::serialization::from_str(&value)?),
             "chat_type" => parsed.chat_type = Some(value),
             "chat_instance" => parsed.chat_instance = Some(value),
             "start_param" => parsed.start_param = Some(value),
@@ -150,7 +150,7 @@ pub enum WebAppValidationError {
     InvalidSignature,
     /// The init data contains a field that failed to parse.
     #[error("failed to parse init data: {0}")]
-    Json(#[from] serde_json::Error),
+    Json(#[from] crate::serialization::Error),
 }
 
 /// Init data of a `WebApp`, as sent by `Telegram`.
@@ -177,7 +177,7 @@ pub struct WebAppInitData {
 }
 
 /// A user of a `WebApp`.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, crate::serialization::Deserialize)]
 pub struct WebAppUser {
     /// Unique identifier of the user.
     pub id: u64,
@@ -200,12 +200,13 @@ pub struct WebAppUser {
 }
 
 /// A chat that a `WebApp` was opened in.
-#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, crate::serialization::Deserialize)]
 pub struct WebAppChat {
     /// Unique identifier of the chat.
     pub id: i64,
     /// Type of the chat.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "deser"), serde(rename = "type"))]
+    #[cfg_attr(feature = "deser", deser(rename = "type"))]
     pub r#type: String,
     /// Title of the chat.
     pub title: String,

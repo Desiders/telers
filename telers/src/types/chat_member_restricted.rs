@@ -1,11 +1,13 @@
-use serde::{Deserialize, Serialize};
 /// Represents a chat member that is under certain restrictions in the chat. Supergroups only.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberrestricted>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatMemberRestricted {
     /// Tag of the member
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub tag: Option<Box<str>>,
     /// Information about the user
     pub user: Box<crate::types::User>,

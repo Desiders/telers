@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// The boost was obtained by subscribing to Telegram Premium or by gifting a Telegram Premium subscription to another user.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatboostsourcepremium>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatBoostSourcePremium {
     /// User that boosted the chat
     pub user: Box<crate::types::User>,

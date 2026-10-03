@@ -1,27 +1,33 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to stop updating a live location message before `live_period` expires. On success, if the message is not an inline message, the edited Message is returned, otherwise `true` is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#stopmessagelivelocation>
 /// # Returns
 /// - `crate::types::Message`
 /// - `bool`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct StopMessageLiveLocation {
     /// Unique identifier of the business connection on behalf of which the message to be edited was sent
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub business_connection_id: Option<Box<str>>,
     /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub chat_id: Option<crate::types::ChatIdKind>,
     /// Required if `inline_message_id` is not specified. Identifier of the message with live location to stop.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub message_id: Option<i64>,
     /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub inline_message_id: Option<Box<str>>,
     /// A JSON-serialized object for a new inline keyboard
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
 }
 impl StopMessageLiveLocation {

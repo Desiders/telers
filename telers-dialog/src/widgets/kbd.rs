@@ -50,8 +50,10 @@ pub use when::{WhenCondition, WhenContext};
 
 #[cfg(test)]
 mod tests {
-    use serde_json::Value;
-    use telers::types::{CopyTextButton, LoginUrl, SwitchInlineQueryChosenChat, WebAppInfo};
+    use telers::{
+        serialization::Value,
+        types::{CopyTextButton, LoginUrl, SwitchInlineQueryChosenChat, WebAppInfo},
+    };
 
     use super::{
         Button, ButtonAction, ClickContext, Group, InlineKeyboard, Keyboard, MultiKeyboard, Select,
@@ -73,14 +75,14 @@ mod tests {
             .context
             .dialog_data
             .get("prefix")
-            .and_then(Value::as_str)
+            .and_then(|value| value.as_str())
             .unwrap_or("missing");
         ButtonAction::set_dialog_value("fruit", format!("{prefix}:{}", select_click.payload))
     }
 
     #[tokio::test]
     async fn inline_keyboard_renders_callback_data_with_intent() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let keyboard = InlineKeyboard::builder()
             .row([Button::action("go", "Go", ButtonAction::Next)])
             .build();
@@ -101,14 +103,14 @@ mod tests {
 
     #[tokio::test]
     async fn inline_keyboard_ignores_foreign_intent_callbacks() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let keyboard = InlineKeyboard::builder()
             .row([Button::action(
                 "go",
                 "Go",
                 ButtonAction::Start {
                     state: "next".into(),
-                    data: Value::Null,
+                    data: Value::default(),
                     mode: StartMode::Normal,
                 },
             )])
@@ -122,7 +124,7 @@ mod tests {
 
     #[tokio::test]
     async fn button_on_click_receives_click_context() {
-        let ctx = Context::new("", "confirm_delete", Value::Null);
+        let ctx = Context::new("", "confirm_delete", Value::default());
         let keyboard = InlineKeyboard::builder()
             .row([Button::on_click("confirm", "Confirm", confirm_click)])
             .build();
@@ -141,7 +143,7 @@ mod tests {
 
     #[tokio::test]
     async fn keyboard_when_condition_filters_render_and_callbacks() {
-        let mut ctx = Context::new("", "state", Value::Null);
+        let mut ctx = Context::new("", "state", Value::default());
         let mut data = DataMap::new();
         let keyboard = MultiKeyboard::new().kbd_boxed(Box::new(
             InlineKeyboard::builder()
@@ -159,7 +161,7 @@ mod tests {
             .await
             .is_none());
 
-        data.insert("show".into(), Value::Bool(true));
+        data.insert("show".into(), Value::from(true));
         ctx.dialog_data = data.clone();
 
         assert!(keyboard
@@ -176,7 +178,7 @@ mod tests {
 
     #[tokio::test]
     async fn select_renders_and_resolves_string_payloads() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
 
         let select = Select::builder("fruit")
             .items_getter(|_data| ["red:apple", "pear"])
@@ -212,9 +214,9 @@ mod tests {
 
     #[tokio::test]
     async fn select_action_receives_click_context() {
-        let mut ctx = Context::new("", "state", Value::Null);
+        let mut ctx = Context::new("", "state", Value::default());
         ctx.dialog_data
-            .insert("prefix".into(), Value::String("chosen".into()));
+            .insert("prefix".into(), Value::from("chosen"));
 
         let select = Select::builder("fruit")
             .items_getter(|_data| ["apple"])
@@ -237,7 +239,7 @@ mod tests {
 
     #[tokio::test]
     async fn select_allows_static_footer_buttons() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
 
         let select = Select::builder("fruit")
             .items_getter(|_data| ["pear"])
@@ -257,7 +259,7 @@ mod tests {
 
     #[tokio::test]
     async fn group_chunks_inline_keyboard_rows() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let grouped = Group::builder(
             InlineKeyboard::builder()
                 .row([
@@ -283,7 +285,7 @@ mod tests {
 
     #[tokio::test]
     async fn inline_keyboard_renders_non_callback_button_variants() {
-        let ctx = Context::new("", "state", Value::Null);
+        let ctx = Context::new("", "state", Value::default());
         let keyboard = InlineKeyboard::builder()
             .row([Button::web_app(
                 "Web",

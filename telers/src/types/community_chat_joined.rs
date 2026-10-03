@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes a service message about a chat being joined by a user from a community.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#communitychatjoined>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct CommunityChatJoined {
     /// The community from which the chat was joined
     pub community: crate::types::Community,

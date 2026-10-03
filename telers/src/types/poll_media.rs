@@ -1,4 +1,3 @@
-use serde::{Deserialize, Serialize};
 /// At most one of the optional fields can be present in any given object.
 /// Currently, it can be one of
 /// - [`crate::types::PollMediaAnimation`]
@@ -13,8 +12,11 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::PollMediaVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#pollmedia>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(untagged)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(untagged))]
+#[cfg_attr(feature = "deser", deser(untagged))]
 pub enum PollMedia {
     Animation(crate::types::PollMediaAnimation),
     LivePhoto(crate::types::PollMediaLivePhoto),

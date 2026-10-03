@@ -4,8 +4,12 @@ version = "0.1.0"
 edition = "2021"
 publish = false
 
+[features]
+default = ["serde"]
+serde = ["telers/serde", "telers-dialog/serde"]
+deser = ["telers/deser", "telers-dialog/deser"]
+
 [dependencies]
-serde_json = "1.0"
 telers = { path = "../../telers", default-features = false, features = ["default_signal", "memory-storage", "rustls-tls", "std"] }
 telers-dialog = { path = "../../telers-dialog", default-features = false, features = ["rustls-tls", "template"] }
 tokio = { version = "1.36", features = ["macros"] }

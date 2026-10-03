@@ -2,12 +2,6 @@
 
 use pluralizer::pluralize;
 use quote::format_ident;
-use std::fmt::Display;
-
-pub fn format_tokens(tokens: impl Display) -> syn::Result<String> {
-    let syntax_tree = syn::parse_file(&tokens.to_string())?;
-    Ok(prettyplease::unparse(&syntax_tree))
-}
 
 const RESERVED_KEYWORDS: &[&str] = &[
     "type", "self", "ref", "move", "use", "mod", "impl", "trait", "where",

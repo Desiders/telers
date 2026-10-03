@@ -2,9 +2,11 @@
 
 use async_trait::async_trait;
 use bon::bon;
-use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
-use telers::types::InputFile;
+use telers::{
+    serialization::{Deserialize, Serialize},
+    types::InputFile,
+};
 
 use crate::entities::RenderContext;
 

@@ -1,43 +1,54 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Returns the gifts received and owned by a managed business account. Requires the `can_view_gifts_and_stars` business bot right. Returns [`crate::types::OwnedGifts`] on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getbusinessaccountgifts>
 /// # Returns
 /// - `crate::types::OwnedGifts`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetBusinessAccountGifts {
     /// Unique identifier of the business connection
     pub business_connection_id: Box<str>,
     /// Pass `true` to exclude gifts that aren't saved to the account's profile page
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub exclude_unsaved: Option<bool>,
     /// Pass `true` to exclude gifts that are saved to the account's profile page
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub exclude_saved: Option<bool>,
     /// Pass `true` to exclude gifts that can be purchased an unlimited number of times
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub exclude_unlimited: Option<bool>,
     /// Pass `true` to exclude gifts that can be purchased a limited number of times and can be upgraded to unique
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub exclude_limited_upgradable: Option<bool>,
     /// Pass `true` to exclude gifts that can be purchased a limited number of times and can't be upgraded to unique
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub exclude_limited_non_upgradable: Option<bool>,
     /// Pass `true` to exclude unique gifts
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub exclude_unique: Option<bool>,
     /// Pass `true` to exclude gifts that were assigned from the TON blockchain and can't be resold or transferred in Telegram
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub exclude_from_blockchain: Option<bool>,
     /// Pass `true` to sort results by gift price instead of send date. Sorting is applied before pagination.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub sort_by_price: Option<bool>,
     /// Offset of the first entry to return as received from the previous request; use empty string to get the first chunk of results
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub offset: Option<Box<str>>,
     /// The maximum number of gifts to be returned; 1-100. Defaults to 100.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub limit: Option<u8>,
 }
 impl GetBusinessAccountGifts {

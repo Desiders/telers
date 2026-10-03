@@ -1,22 +1,27 @@
-use serde::{Deserialize, Serialize};
 /// An item of a list to be sent.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputrichblocklistitem>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputRichBlockListItem {
     /// The content of the item
     pub blocks: Box<[crate::types::InputRichBlock]>,
     /// Pass `true` if the item has a checkbox
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub has_checkbox: Option<bool>,
     /// Pass `true` if the item has a checked checkbox
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_checked: Option<bool>,
     /// For ordered lists, the numeric value of the item label
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub value: Option<i64>,
     /// For ordered lists, the type of the item label; must be one of `a` for lowercase letters, `A` for uppercase letters, `i` for lowercase Roman numerals, `I` for uppercase Roman numerals, or `1` for decimal numbers
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub r#type: Option<Box<str>>,
 }
 impl InputRichBlockListItem {

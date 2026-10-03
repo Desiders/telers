@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// The background is taken directly from a built-in chat theme.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#backgroundtypechattheme>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct BackgroundTypeChatTheme {
     /// Name of the chat theme, which is usually an emoji
     pub theme_name: Box<str>,

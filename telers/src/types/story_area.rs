@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Describes a clickable area on a story media.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#storyarea>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct StoryArea {
     /// Position of the area
     pub position: crate::types::StoryAreaPosition,

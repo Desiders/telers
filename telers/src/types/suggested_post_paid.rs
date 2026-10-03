@@ -1,19 +1,23 @@
-use serde::{Deserialize, Serialize};
 /// Describes a service message about a successful payment for a suggested post.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#suggestedpostpaid>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct SuggestedPostPaid {
     /// Message containing the suggested post. Note that the Message object in this field will not contain the `reply_to_message` field even if it itself is a reply.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub suggested_post_message: Option<Box<crate::types::Message>>,
     /// Currency in which the payment was made. Currently, one of `XTR` for Telegram Stars or `TON` for TON grams.
     pub currency: Box<str>,
     /// The amount of the currency that was received by the channel in nanograms; for payments in TON grams only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub amount: Option<i64>,
     /// The amount of Telegram Stars that was received by the channel; for payments in Telegram Stars only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub star_amount: Option<crate::types::StarAmount>,
 }
 impl SuggestedPostPaid {

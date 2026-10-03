@@ -1,10 +1,12 @@
-use serde::{Deserialize, Serialize};
 /// # Notes
 /// This object represents an inline query result kind as combine of [`crate::types::InlineQueryResultCachedMpeg4Gif`] and [`crate::types::InlineQueryResultMpeg4Gif`].
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(untagged)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), serde(untagged))]
+#[cfg_attr(feature = "deser", deser(untagged))]
 pub enum InlineQueryResultMpeg4GifKind {
     Uncached(crate::types::InlineQueryResultMpeg4Gif),
     Cached(crate::types::InlineQueryResultCachedMpeg4Gif),

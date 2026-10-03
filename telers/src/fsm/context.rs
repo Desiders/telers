@@ -1,8 +1,9 @@
 use super::{Storage, StorageKey};
 
-use crate::FromContext;
-
-use serde::{de::DeserializeOwned, Serialize};
+use crate::{
+    serialization::{DeserializeOwned, Serialize},
+    FromContext,
+};
 use std::collections::HashMap;
 
 /// Context is used to manage state and data of the user in specified storage

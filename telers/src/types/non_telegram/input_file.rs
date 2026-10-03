@@ -1,5 +1,6 @@
 use bytes::{Bytes, BytesMut};
 use futures_util::{Stream, TryFutureExt as _, TryStreamExt as _};
+#[cfg(not(feature = "deser"))]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{
     ffi::OsStr,
@@ -50,6 +51,8 @@ pub const DEFAULT_CAPACITY: usize = 64 * 1024; // 64 KiB
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputfile>
 #[derive(Debug, Clone, Hash, PartialEq)]
+#[cfg_attr(feature = "deser", derive(deser::Deserialize))]
+#[cfg_attr(feature = "deser", deser(deserialize_as = deser::adapters::FromInto<String>))]
 pub enum InputFile {
     Id(FileId),
     Url(UrlFile),
@@ -167,6 +170,7 @@ impl InputFile {
     }
 }
 
+#[cfg(not(feature = "deser"))]
 impl Serialize for InputFile {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -176,6 +180,7 @@ impl Serialize for InputFile {
     }
 }
 
+#[cfg(not(feature = "deser"))]
 impl<'de> Deserialize<'de> for InputFile {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -584,5 +589,19 @@ impl Hash for StreamFile {
 impl PartialEq for StreamFile {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
+    }
+}
+
+#[cfg(feature = "deser")]
+impl deser::Serialize for InputFile {
+    fn serialize(&self, state: &mut deser::State) -> Result<deser::ser::Chunk<'_>, deser::Error> {
+        <str as deser::Serialize>::serialize(self.str_to_file(), state)
+    }
+}
+
+#[cfg(feature = "deser")]
+impl From<String> for InputFile {
+    fn from(value: String) -> Self {
+        Self::id(value)
     }
 }

@@ -1,17 +1,21 @@
-use serde::{Deserialize, Serialize};
 /// Describes a service message about checklist tasks marked as done or not done.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#checklisttasksdone>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChecklistTasksDone {
     /// Message containing the checklist whose tasks were marked as done or not done. Note that the Message object in this field will not contain the `reply_to_message` field even if it itself is a reply.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub checklist_message: Option<Box<crate::types::Message>>,
     /// Identifiers of the tasks that were marked as done
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub marked_as_done_task_ids: Option<Box<[i64]>>,
     /// Identifiers of the tasks that were marked as not done
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub marked_as_not_done_task_ids: Option<Box<[i64]>>,
 }
 impl ChecklistTasksDone {

@@ -1,14 +1,16 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Use this method to get the current bot name for the given user language. Returns [`crate::types::BotName`] on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getmyname>
 /// # Returns
 /// - `crate::types::BotName`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetMyName {
     /// A two-letter ISO 639-1 language code or an empty string
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub language_code: Option<Box<str>>,
 }
 impl GetMyName {

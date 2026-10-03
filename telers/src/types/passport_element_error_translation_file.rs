@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// Represents an issue with one of the files that constitute the translation of a document. The error is considered resolved when the file changes.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerrortranslationfile>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PassportElementErrorTranslationFile {
     /// Type of element of the user's Telegram Passport which has the issue, one of `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`, `temporary_registration`
     pub r#type: Box<str>,

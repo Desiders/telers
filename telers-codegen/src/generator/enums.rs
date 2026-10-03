@@ -130,7 +130,6 @@ pub fn tokenize_kind_enum(type_quote: &NormalizedType) -> Option<TokenStream> {
 
     Some(quote! {
         use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
-        use serde::{Deserialize, Serialize};
 
         #( #[doc = #doc_lines] )*
         #strum_derives
@@ -205,7 +204,6 @@ pub fn tokenize_enum_parse_mode() -> TokenStream {
 
     quote! {
         use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
-        use serde::{Deserialize, Serialize};
 
         /// This enum represents all possible types of the parse mode
         /// # Documentation
@@ -304,7 +302,6 @@ pub fn tokenize_enum_telegram_observer_type(schema: &NormalizedSchema) -> TokenS
 
     quote! {
         use crate::{enums::UpdateType, types::Update};
-        use serde::{Deserialize, Serialize};
         use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 
         /// This enum represents all possible telegram observer types.

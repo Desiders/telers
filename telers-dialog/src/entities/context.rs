@@ -1,14 +1,14 @@
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::{
     collections::BTreeMap,
     sync::atomic::{AtomicU64, Ordering::Relaxed},
     time::{SystemTime, UNIX_EPOCH},
 };
+use telers::serialization::{Deserialize, DeserializeOwned, Serialize};
 
 use super::AccessSettings;
 
 /// Untyped dialog payload stored in `start_data`, `dialog_data`, and `widget_data`.
-pub type Data = serde_json::Value;
+pub type Data = telers::serialization::Value;
 /// String-keyed map used by dialogs and widgets for persisted runtime state.
 pub type DataMap = BTreeMap<String, Data>;
 
@@ -111,7 +111,7 @@ impl Context {
     {
         self.dialog_value(key)
             .cloned()
-            .and_then(|value| serde_json::from_value(value).ok())
+            .and_then(|value| telers::serialization::from_value(value).ok())
     }
 
     /// Read and deserialize a typed value from `widget_data`.
@@ -122,18 +122,18 @@ impl Context {
     {
         self.widget_value(key)
             .cloned()
-            .and_then(|value| serde_json::from_value(value).ok())
+            .and_then(|value| telers::serialization::from_value(value).ok())
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::Context;
-    use serde_json::json;
+    use telers::serialization::json;
 
     #[tokio::test]
     async fn context_reads_dialog_and_widget_values() {
-        let mut ctx = Context::new("stack", "state", serde_json::Value::Null);
+        let mut ctx = Context::new("stack", "state", telers::serialization::Value::default());
         ctx.dialog_data.insert("count".into(), json!(3));
         ctx.widget_data.insert("selected".into(), json!("pear"));
 
@@ -160,14 +160,14 @@ mod tests {
 
     #[test]
     fn context_new_defaults_access_settings_to_none() {
-        let ctx = Context::new("", "state", serde_json::Value::Null);
+        let ctx = Context::new("", "state", telers::serialization::Value::default());
 
         assert!(ctx.access_settings.is_none());
     }
 
     #[test]
     fn context_typed_value_missing_key_is_none() {
-        let ctx = Context::new("", "state", serde_json::Value::Null);
+        let ctx = Context::new("", "state", telers::serialization::Value::default());
 
         assert_eq!(ctx.dialog_value("count"), None);
         assert_eq!(ctx.widget_value("sel"), None);
@@ -177,7 +177,7 @@ mod tests {
 
     #[test]
     fn context_typed_value_wrong_type_is_none() {
-        let mut ctx = Context::new("", "state", serde_json::Value::Null);
+        let mut ctx = Context::new("", "state", telers::serialization::Value::default());
         ctx.dialog_data.insert("count".into(), json!(3));
         ctx.widget_data.insert("sel".into(), json!("pear"));
 
@@ -187,8 +187,8 @@ mod tests {
 
     #[test]
     fn context_new_generates_unique_ids() {
-        let first = Context::new("", "state", serde_json::Value::Null);
-        let second = Context::new("", "state", serde_json::Value::Null);
+        let first = Context::new("", "state", telers::serialization::Value::default());
+        let second = Context::new("", "state", telers::serialization::Value::default());
 
         assert_ne!(first.id, second.id);
     }

@@ -1,11 +1,13 @@
-use serde::{Deserialize, Serialize};
 /// Describes a service message about a payment refund for a suggested post.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#suggestedpostrefunded>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct SuggestedPostRefunded {
     /// Message containing the suggested post. Note that the Message object in this field will not contain the `reply_to_message` field even if it itself is a reply.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub suggested_post_message: Option<Box<crate::types::Message>>,
     /// Reason for the refund. Currently, one of `post_deleted` if the post was deleted within 24 hours of being posted or removed from scheduled messages without being posted, or `payment_refunded` if the payer refunded their payment.
     pub reason: Box<str>,

@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a sticker set.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#stickerset>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct StickerSet {
     /// Sticker set name
     pub name: Box<str>,
@@ -13,7 +14,8 @@ pub struct StickerSet {
     /// List of all set stickers
     pub stickers: Box<[crate::types::Sticker]>,
     /// Sticker set thumbnail in the .WEBP, .TGS, or .WEBM format
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub thumbnail: Option<crate::types::PhotoSize>,
 }
 impl StickerSet {

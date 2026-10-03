@@ -1,11 +1,13 @@
-use serde::{Deserialize, Serialize};
 /// This object represents a service message about the creation of a scheduled giveaway.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#giveawaycreated>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct GiveawayCreated {
     /// The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub prize_star_count: Option<i64>,
 }
 impl GiveawayCreated {

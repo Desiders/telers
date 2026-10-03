@@ -1,15 +1,17 @@
-use serde::{Deserialize, Serialize};
 /// Represents a chat member that owns the chat and has all administrator privileges.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberowner>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatMemberOwner {
     /// Information about the user
     pub user: Box<crate::types::User>,
     /// `true`, if the user's presence in the chat is hidden
     pub is_anonymous: bool,
     /// Custom title for this user
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub custom_title: Option<Box<str>>,
 }
 impl ChatMemberOwner {

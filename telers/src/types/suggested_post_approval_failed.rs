@@ -1,11 +1,13 @@
-use serde::{Deserialize, Serialize};
 /// Describes a service message about the failed approval of a suggested post. Currently, only caused by insufficient user funds at the time of approval.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#suggestedpostapprovalfailed>
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct SuggestedPostApprovalFailed {
     /// Message containing the suggested post whose approval has failed. Note that the Message object in this field will not contain the `reply_to_message` field even if it itself is a reply.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub suggested_post_message: Option<Box<crate::types::Message>>,
     /// Expected price of the post
     pub price: crate::types::SuggestedPostPrice,

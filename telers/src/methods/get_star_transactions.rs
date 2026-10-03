@@ -1,17 +1,20 @@
 use crate::client::Bot;
-use serde::Serialize;
 /// Returns the bot's Telegram Star transactions in chronological order. On success, returns a [`crate::types::StarTransactions`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getstartransactions>
 /// # Returns
 /// - `crate::types::StarTransactions`
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetStarTransactions {
     /// Number of transactions to skip in the response
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub offset: Option<i64>,
     /// The maximum number of transactions to be retrieved. Values between 1-100 are accepted. Defaults to 100.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub limit: Option<u8>,
 }
 impl GetStarTransactions {
