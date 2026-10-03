@@ -24,7 +24,7 @@ bon = "3.9"
 deser = { version = "=0.9.1", features = ["derive"], optional = true }
 minijinja = { version = "2.0", optional = true }
 serde = { version = "1.0", features = ["derive"], optional = true }
-telers = { path = "../telers", version = ">=1.0.0-beta.1, <1.0.0", default-features = false, features = ["std"] }
+telers = { path = "../telers", version = ">=1.0.0-beta.1, <1.0.0", default-features = false }
 thiserror = "2.0"
 time = { version = "0.3", features = ["macros"] }
 tracing = "0.1"

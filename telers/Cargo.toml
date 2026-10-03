@@ -14,7 +14,7 @@ all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
-default = ["default-tls", "std", "serde"]
+default = ["default-tls", "serde"]
 default-tls = ["reqwest/native-tls"]
 rustls-tls = ["reqwest/rustls"]
 
@@ -22,32 +22,12 @@ rustls-tls = ["reqwest/rustls"]
 deser = ["dep:deser", "dep:deser-json", "dep:deser-value"]
 serde = ["dep:serde", "dep:serde_json", "dep:serde_stacker", "dep:serde_with"]
 
-# The `std` feature enables support for Rust's standard library.
-# By default, some dependencies support both `std` and `no_std` environments.
-# Usually, a higher MSRV is required for `no_std`.
-std = [
-    "thiserror/std",
-    "anyhow/std",
-    "base64/std",
-    "bytes/std",
-    "futures-util/std",
-    "regex/std",
-    "strum/std",
-    "serde?/std",
-    "serde_json?/std",
-    "serde_with?/std",
-    "subtle?/std",
-    "tracing/std",
-    "url?/std",
-    "uuid/std",
-]
-
 # Include all possible features
 full = ["storages", "default-signal"]
 # Include all possible storages
 storages = ["redis-storage", "memory-storage"]
 # For possible use redis FSM storage
-redis-storage = ["redis", "deadpool-redis", "std"]
+redis-storage = ["redis", "deadpool-redis"]
 # For possible use memory FSM storage.
 memory-storage = []
 
@@ -71,41 +51,41 @@ webhooks-axum = ["webhooks", "axum"]
 webapp-validation = ["hmac", "sha2", "subtle"]
 
 [dependencies]
-anyhow = { version = "1.0", default-features = false }
+anyhow = { version = "1.0", default-features = false, features = ["std"] }
 axum = { version = "0.8", default-features = false, optional = true }
 backoff = { version = "0.4", default-features = false, features = ["tokio"] }
-base64 = { version = "0.22", default-features = false, features = ["alloc"] }
-bytes = { version = "1.5", default-features = false }
+base64 = { version = "0.22", default-features = false, features = ["std"] }
+bytes = { version = "1.5", default-features = false, features = ["std"] }
 deadpool-redis = { version = "0.23", default-features = false, features = ["rt_tokio_1"], optional = true }
 deser = { version = "=0.9.1", features = ["derive"], optional = true }
 deser-json = { version = "=0.9.1", optional = true }
 deser-value = { version = "=0.9.1", optional = true }
-futures-util = { version = "0.3", default-features = false }
+futures-util = { version = "0.3", default-features = false, features = ["std"] }
 hmac = { version = "0.13", default-features = false, optional = true }
 native-tls = { version = "0.2", optional = true }
 paste = { version = "1.0", default-features = false }
 pathdiff = { version = "0.2", default-features = false }
 redis = { version = "1.0", default-features = false, features = ["tokio-comp"], optional = true }
-regex = { version = "1.10", default-features = false, features = ["unicode-case"] }
+regex = { version = "1.10", default-features = false, features = ["std", "unicode-case"] }
 reqwest = { version = "0.13", default-features = false, features = ["multipart", "stream"] }
 secrecy = { version = "0.10", default-features = false }
-serde = { version = "1.0", default-features = false, features = ["derive", "alloc"], optional = true }
-serde_json = { version = "1.0", default-features = false, features = ["alloc", "unbounded_depth"], optional = true }
+serde = { version = "1.0", default-features = false, features = ["derive", "std"], optional = true }
+serde_json = { version = "1.0", default-features = false, features = ["std", "unbounded_depth"], optional = true }
 serde_stacker = { version = "0.1", default-features = false, optional = true }
-serde_with = { version = "3.6", default-features = false, features = ["macros"], optional = true }
+serde_with = { version = "3.6", default-features = false, features = ["macros", "std"], optional = true }
 sha2 = { version = "0.11", default-features = false, optional = true }
 strum = { version = "0.28", default-features = false, features = ["std"] }
 strum_macros = { version = "0.28", default-features = false }
-subtle = { version = "2.6", default-features = false, optional = true }
+subtle = { version = "2.6", default-features = false, features = ["std"], optional = true }
 takecell = { version = "=0.1.1", default-features = false }
 telers-macros = { path = "../telers-macros", version = "1.0.0-beta.2", features = ["default"] }
-thiserror = { version = "2.0", default-features = false }
+thiserror = { version = "2.0", default-features = false, features = ["std"] }
 tokio = { version = "1.36", default-features = false, features = ["sync", "macros", "fs", "io-util"] }
 tokio-util = { version = "0.7", default-features = false, features = ["codec"] }
 tower = { version = "0.5", default-features = false, features = ["util"] }
-tracing = { version = "0.1", default-features = false, features = ["attributes"] }
-url = { version = "2.5", optional = true }
-uuid = { version = "1.7", default-features = false, features = ["v4"] }
+tracing = { version = "0.1", default-features = false, features = ["attributes", "std"] }
+url = { version = "2.5", features = ["std"], optional = true }
+uuid = { version = "1.7", default-features = false, features = ["std", "v4"] }
 
 [dev-dependencies]
 criterion = { version = "0.7", features = ["async_tokio"] }
