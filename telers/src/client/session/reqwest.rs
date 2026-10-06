@@ -173,6 +173,21 @@ impl Default for Reqwest {
     }
 }
 
+/// Logs a failed request and strips the url, which embeds the bot token, from the error.
+fn on_request_error(err: reqwest::Error) -> reqwest::Error {
+    let err = err.without_url();
+    if err.is_timeout() {
+        event!(Level::WARN, error = %err, "Request timed out",);
+    } else {
+        event!(
+            Level::ERROR,
+            error = format_error_report(&err),
+            "Cannot send a request",
+        );
+    }
+    err
+}
+
 impl Session for Reqwest {
     fn api(&self) -> &telegram::APIServer {
         &self.api
@@ -225,19 +240,7 @@ impl Session for Reqwest {
         }
         .send()
         .await
-        .map_err(|err| {
-            let err = err.without_url();
-            if err.is_timeout() {
-                event!(Level::WARN, error = %err, "Request timed out",);
-            } else {
-                event!(
-                    Level::ERROR,
-                    error = format_error_report(&err),
-                    "Cannot send a request",
-                );
-            }
-            err
-        })?;
+        .map_err(on_request_error)?;
 
         let status_code = response.status().as_u16();
 
@@ -280,19 +283,7 @@ impl Session for Reqwest {
         }
         .send()
         .await
-        .map_err(|err| {
-            let err = err.without_url();
-            if err.is_timeout() {
-                event!(Level::WARN, error = %err, "Request timed out",);
-            } else {
-                event!(
-                    Level::ERROR,
-                    error = format_error_report(&err),
-                    "Cannot send a request",
-                );
-            }
-            err
-        })?;
+        .map_err(on_request_error)?;
 
         let status_code = response.status().as_u16();
 
