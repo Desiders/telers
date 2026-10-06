@@ -173,6 +173,21 @@ impl Default for Reqwest {
     }
 }
 
+/// Logs a failed request and strips the url, which embeds the bot token, from the error.
+fn on_request_error(err: reqwest::Error) -> reqwest::Error {
+    let err = err.without_url();
+    if err.is_timeout() {
+        event!(Level::WARN, error = %err, "Request timed out",);
+    } else {
+        event!(
+            Level::ERROR,
+            error = format_error_report(&err),
+            "Cannot send a request",
+        );
+    }
+    err
+}
+
 impl Session for Reqwest {
     fn api(&self) -> &telegram::APIServer {
         &self.api
@@ -225,28 +240,19 @@ impl Session for Reqwest {
         }
         .send()
         .await
-        .map_err(|err| {
-            if err.is_timeout() {
-                event!(Level::WARN, error = %err, "Request timed out",);
-            } else {
-                event!(
-                    Level::ERROR,
-                    error = format_error_report(&err),
-                    "Cannot send a request",
-                );
-            }
-            err
-        })?;
+        .map_err(on_request_error)?;
 
         let status_code = response.status().as_u16();
 
-        let content = response.text().await.inspect_err(|err| {
+        let content = response.text().await.map_err(|err| {
+            let err = err.without_url();
             event!(
                 Level::ERROR,
                 error = format_error_report(&err),
                 status_code,
                 "Cannot get a response content",
             );
+            err
         })?;
 
         Ok(ClientResponse::new(status_code, content))
@@ -277,32 +283,20 @@ impl Session for Reqwest {
         }
         .send()
         .await
-        .map_err(|err| {
-            if err.is_timeout() {
-                event!(Level::WARN, error = %err, "Request timed out",);
-            } else {
-                event!(
-                    Level::ERROR,
-                    error = format_error_report(&err),
-                    "Cannot send a request",
-                );
-            }
-            err
-        })?;
+        .map_err(on_request_error)?;
 
         let status_code = response.status().as_u16();
 
-        let content = response
-            .bytes_stream()
-            .inspect_err(move |err| {
-                event!(
-                    Level::ERROR,
-                    error = format_error_report(err),
-                    status_code,
-                    "Cannot get a response content",
-                );
-            })
-            .map_err(anyhow::Error::from);
+        let content = response.bytes_stream().map_err(move |err| {
+            let err = err.without_url();
+            event!(
+                Level::ERROR,
+                error = format_error_report(&err),
+                status_code,
+                "Cannot get a response content",
+            );
+            anyhow::Error::from(err)
+        });
 
         Ok(ClientStreamResponse::new(status_code, Box::pin(content)))
     }
@@ -312,6 +306,25 @@ impl Session for Reqwest {
 mod tests {
     use super::*;
     use crate::methods::SendPhoto;
+
+    /// The API url embeds the token, so every request error must lose its url
+    /// before it reaches the logs or the caller.
+    #[tokio::test]
+    async fn request_error_without_url_hides_the_bot_token() {
+        let err = Client::new()
+            .get("http://127.0.0.1:1/bot123:secret/getMe")
+            .send()
+            .await
+            .unwrap_err();
+
+        assert!(
+            format!("{err} {err:?}").contains("secret"),
+            "reqwest no longer embeds the url in the error, so the fix below is dead code"
+        );
+
+        let err = err.without_url();
+        assert!(!format!("{err} {err:?}").contains("secret"));
+    }
 
     #[tokio::test]
     async fn multipart_upload_keeps_attachment_reference_and_file_bytes() {
