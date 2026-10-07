@@ -68,7 +68,7 @@ use super::{session::base::Session, Reqwest};
 
 use crate::{
     errors::{SessionErrorKind, TelegramErrorKind},
-    methods::TelegramMethod,
+    methods::{GetMe, TelegramMethod},
     utils::token,
 };
 
@@ -81,6 +81,7 @@ use std::{
     sync::Arc,
     time::Duration,
 };
+use tokio::sync::OnceCell;
 use tracing::{event, Level};
 
 /// Retry policy used by [`Bot::send_with_retry`] and [`Bot::send_with_timeout_and_retry`].
@@ -166,7 +167,7 @@ impl From<u32> for RetryPolicy {
 /// Represents a bot with its token and ID, also contains client for sending requests to Telegram API.
 /// # Notes
 /// This structure is cheap to clone, because the token is shared behind an [`Arc`] and the id is an
-/// [`i64`].
+/// [`i64`]. The cached username is shared behind an [`Arc`] too, so all clones resolve it once.
 ///
 /// Default client is [`Reqwest`], which also is cheap to clone.
 ///
@@ -184,6 +185,8 @@ pub struct Bot<Client = Reqwest> {
     pub id: i64,
     /// Client for sending requests to Telegram API
     client: Client,
+    /// Bot username, requested with [`GetMe`] by [`Bot::username`] and then kept for every clone
+    username: Arc<OnceCell<Option<Box<str>>>>,
 }
 
 impl<Client> Bot<Client> {
@@ -201,6 +204,7 @@ impl<Client> Bot<Client> {
             token: Arc::new(SecretString::from(token.into_boxed_str())),
             id,
             client,
+            username: Arc::new(OnceCell::new()),
         }
     }
 
@@ -234,6 +238,7 @@ impl<Client: Default> Default for Bot<Client> {
             token: Arc::new(SecretString::from(Box::<str>::from(""))),
             id: 0,
             client: Client::default(),
+            username: Arc::new(OnceCell::new()),
         }
     }
 }
@@ -285,6 +290,23 @@ impl<Client> Display for Bot<Client> {
 }
 
 impl<Client: Session> Bot<Client> {
+    /// Returns the bot username without the leading `@`, or `None` if the bot has no username.
+    ///
+    /// # Notes
+    /// The first call sends a [`GetMe`] request, every later call on this bot and on any of its
+    /// clones returns the cached value, so a bot username costs at most one request per bot.
+    ///
+    /// # Errors
+    /// If error occurred in the process of sending request to the Telegram API or parsing response
+    pub async fn username(&self) -> Result<Option<&str>, SessionErrorKind> {
+        let username = self
+            .username
+            .get_or_try_init(|| async { self.send(GetMe {}).await.map(|user| user.username) })
+            .await?;
+
+        Ok(username.as_deref())
+    }
+
     /// Use this method to send requests to Telegram API
     /// # Arguments
     /// * `method` - Telegram API method
@@ -504,7 +526,7 @@ mod tests {
         collections::VecDeque,
         sync::{
             atomic::{AtomicUsize, Ordering},
-            Mutex, OnceLock,
+            Arc, Mutex, OnceLock,
         },
     };
 
@@ -523,24 +545,27 @@ mod tests {
     const BAD_REQUEST_RESPONSE: &str =
         r#"{"ok":false,"description":"Bad Request: chat not found","error_code":400}"#;
 
-    /// Returns a response from the prepared queue and counts attempts
+    /// Returns a response from the prepared queue and counts attempts.
+    ///
+    /// `Clone` is derived so a cloned [`Bot`] keeps pointing at the same queue and counters.
+    #[derive(Clone)]
     struct MockSession {
-        responses: Mutex<VecDeque<Result<ClientResponse, anyhow::Error>>>,
-        attempts: AtomicUsize,
+        responses: Arc<Mutex<VecDeque<Result<ClientResponse, anyhow::Error>>>>,
+        attempts: Arc<AtomicUsize>,
     }
 
     impl MockSession {
         fn new(responses: &[(u16, &str)]) -> Self {
             Self {
-                responses: Mutex::new(
+                responses: Arc::new(Mutex::new(
                     responses
                         .iter()
                         .map(|(status_code, content)| {
                             Ok(ClientResponse::new(*status_code, *content))
                         })
                         .collect(),
-                ),
-                attempts: AtomicUsize::new(0),
+                )),
+                attempts: Arc::new(AtomicUsize::new(0)),
             }
         }
     }
@@ -595,6 +620,33 @@ mod tests {
 
     fn attempts(bot: &Bot<MockSession>) -> usize {
         bot.client.attempts.load(Ordering::SeqCst)
+    }
+
+    #[tokio::test]
+    async fn username_is_requested_once_and_shared_with_clones() {
+        const GET_ME_RESPONSE: &str = r#"{"ok":true,"result":{"id":123,"is_bot":true,"first_name":"bot","username":"telers_bot"}}"#;
+
+        let bot = Bot::with_client(
+            "123:token",
+            MockSession::new(&[(OK_STATUS_CODE, GET_ME_RESPONSE)]),
+        );
+
+        assert_eq!(bot.username().await.unwrap(), Some("telers_bot"));
+        assert_eq!(bot.clone().username().await.unwrap(), Some("telers_bot"));
+        assert_eq!(attempts(&bot), 1);
+    }
+
+    #[tokio::test]
+    async fn username_is_none_for_a_bot_without_username() {
+        const GET_ME_RESPONSE: &str =
+            r#"{"ok":true,"result":{"id":123,"is_bot":true,"first_name":"bot"}}"#;
+
+        let bot = Bot::with_client(
+            "123:token",
+            MockSession::new(&[(OK_STATUS_CODE, GET_ME_RESPONSE)]),
+        );
+
+        assert_eq!(bot.username().await.unwrap(), None);
     }
 
     #[tokio::test]

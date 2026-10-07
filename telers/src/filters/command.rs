@@ -4,7 +4,6 @@ use crate::{
     command::{CommandKind, Commands},
     context::Context,
     errors::SessionErrorKind,
-    methods::GetMe,
     types::BotCommand,
     FromContext, Request,
 };
@@ -435,23 +434,24 @@ impl Command {
 
     /// # Errors
     /// If error occurred in the process of sending request to the Telegram API or parsing response
-    #[allow(clippy::missing_panics_doc)]
     pub async fn validate_mention(
         &self,
         command: &CommandObject,
         bot: &Bot<impl Session>,
     ) -> Result<bool, SessionErrorKind> {
         if self.ignore_mention {
-            Ok(true)
-        } else if let Some(ref mention) = command.mention {
-            bot.send(GetMe {}).await.map(|user| {
-                // `unwrap` is safe here, because bot always has username.
-                // Telegram usernames are case-insensitive, so compare accordingly.
-                user.username.unwrap().eq_ignore_ascii_case(mention)
-            })
-        } else {
-            Ok(true)
+            return Ok(true);
         }
+
+        let Some(mention) = &command.mention else {
+            return Ok(true);
+        };
+
+        // Telegram usernames are case-insensitive, so compare accordingly.
+        Ok(bot
+            .username()
+            .await?
+            .is_some_and(|username| username.eq_ignore_ascii_case(mention)))
     }
 
     /// Validates that the command matches one of the patterns of the filter:
