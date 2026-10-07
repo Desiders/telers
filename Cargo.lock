@@ -3094,6 +3094,7 @@ dependencies = [
  "deser",
  "deser-json",
  "deser-value",
+ "form_urlencoded",
  "futures-util",
  "hmac",
  "native-tls",

@@ -84,12 +84,9 @@ pub fn safe_parse_webapp_init_data(
     }
 
     let mut parsed = WebAppInitData::default();
-    for pair in init_data.split('&') {
-        let Some((key, value)) = pair.split_once('=') else {
-            continue;
-        };
-        let value = percent_decode(value);
-        match key {
+    for (key, value) in form_urlencoded::parse(init_data.as_bytes()) {
+        let (key, value) = (key.into_owned(), value.into_owned());
+        match key.as_str() {
             "query_id" => parsed.query_id = Some(value),
             "user" => parsed.user = Some(crate::serialization::from_str(&value)?),
             "receiver" => parsed.receiver = Some(crate::serialization::from_str(&value)?),
@@ -225,12 +222,9 @@ fn hmac_sha256(key: &[u8], message: &[u8]) -> Vec<u8> {
 }
 
 fn hex_lower(bytes: &[u8]) -> String {
-    const HEX: &[u8; 16] = b"0123456789abcdef";
-
     let mut out = String::with_capacity(bytes.len() * 2);
     for byte in bytes {
-        out.push(HEX[(byte >> 4) as usize] as char);
-        out.push(HEX[(byte & 0x0F) as usize] as char);
+        let _ = write!(out, "{byte:02x}");
     }
     out
 }
@@ -246,45 +240,6 @@ fn signature_matches(secret: &[u8], message: &[u8], expected_hex: &str) -> bool 
     let calculated = hex_lower(&hmac_sha256(secret, message));
 
     constant_time_eq(calculated.as_bytes(), expected_hex.as_bytes())
-}
-
-fn percent_decode(input: &str) -> String {
-    let bytes = input.as_bytes();
-    let mut out = Vec::with_capacity(bytes.len());
-    let mut index = 0;
-    while index < bytes.len() {
-        match bytes[index] {
-            b'+' => {
-                out.push(b' ');
-                index += 1;
-            }
-            b'%' if index + 2 < bytes.len() => {
-                let high = hex_val(bytes[index + 1]);
-                let low = hex_val(bytes[index + 2]);
-                if let (Some(high), Some(low)) = (high, low) {
-                    out.push((high << 4) | low);
-                    index += 3;
-                } else {
-                    out.push(b'%');
-                    index += 1;
-                }
-            }
-            byte => {
-                out.push(byte);
-                index += 1;
-            }
-        }
-    }
-    String::from_utf8_lossy(&out).into_owned()
-}
-
-fn hex_val(byte: u8) -> Option<u8> {
-    match byte {
-        b'0'..=b'9' => Some(byte - b'0'),
-        b'a'..=b'f' => Some(byte - b'a' + 10),
-        b'A'..=b'F' => Some(byte - b'A' + 10),
-        _ => None,
-    }
 }
 
 #[cfg(test)]
@@ -386,19 +341,9 @@ mod tests {
     }
 
     #[test]
-    fn test_percent_decode() {
-        assert_eq!(percent_decode("%7B%22id%22%3A42%7D"), "{\"id\":42}");
-        assert_eq!(percent_decode("a+b"), "a b");
-        assert_eq!(percent_decode("%ZZ"), "%ZZ");
-        assert_eq!(percent_decode("plain"), "plain");
-    }
-
-    #[test]
     fn test_hex_helpers() {
-        assert_eq!(hex_val(b'f'), Some(15));
-        assert_eq!(hex_val(b'F'), Some(15));
-        assert_eq!(hex_val(b'0'), Some(0));
-        assert_eq!(hex_val(b'Z'), None);
         assert_eq!(hex_lower(&[0xde, 0xad, 0xbe, 0xef]), "deadbeef");
+        assert_eq!(hex_lower(&[]), "");
+        assert_eq!(hex_lower(&[0x00, 0x0f, 0xa0, 0xff]), "000fa0ff");
     }
 }
