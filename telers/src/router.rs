@@ -456,6 +456,10 @@ macro_rules! impl_router_on_methods {
         )+
 
         /// Apply the same observer configurator for every Telegram observer (including `update` and `error`).
+        /// # Notes
+        /// Every update is propagated to the `update` observer first and then to the observer of its
+        /// type, so an outer middleware registered here runs twice per update. Use `on_update` or
+        /// `on_<update type>` instead when it should run once.
         #[must_use]
         pub fn on_all<F>(mut self, mut configure: F) -> Self
         where
