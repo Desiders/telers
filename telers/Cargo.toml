@@ -85,7 +85,6 @@ tokio = { version = "1.36", default-features = false, features = ["sync", "macro
 tokio-util = { version = "0.7", default-features = false, features = ["codec"] }
 tower = { version = "0.5", default-features = false, features = ["util"] }
 tracing = { version = "0.1", default-features = false, features = ["attributes", "std"] }
-url = { version = "2.5", features = ["std"], optional = true }
 uuid = { version = "1.7", default-features = false, features = ["std", "v4"] }
 
 [dev-dependencies]
