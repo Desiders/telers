@@ -48,7 +48,7 @@ webhooks = ["subtle"]
 webhooks-axum = ["webhooks", "axum"]
 
 # For validation of WebApp init-data and login widget signatures
-webapp-validation = ["hmac", "sha2", "subtle"]
+webapp-validation = ["form_urlencoded", "hmac", "sha2", "subtle"]
 
 [dependencies]
 anyhow = { version = "1.0", default-features = false, features = ["std"] }
@@ -60,6 +60,7 @@ deadpool-redis = { version = "0.23", default-features = false, features = ["rt_t
 deser = { version = "=0.9.1", features = ["derive"], optional = true }
 deser-json = { version = "=0.9.1", optional = true }
 deser-value = { version = "=0.9.1", optional = true }
+form_urlencoded = { version = "1.2", default-features = false, optional = true }
 futures-util = { version = "0.3", default-features = false, features = ["std"] }
 hmac = { version = "0.13", default-features = false, optional = true }
 native-tls = { version = "0.2", optional = true }
