@@ -92,7 +92,7 @@ pub mod utils;
 #[cfg(feature = "webhooks")]
 pub mod webhooks;
 
-pub use telers_macros::{CallbackData, Command, FromContext, FromEvent};
+pub use telers_macros::{CallbackData, Command, FromContext, FromEvent, State};
 
 pub use client::Bot;
 pub use context::Context;

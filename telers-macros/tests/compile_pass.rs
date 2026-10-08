@@ -21,3 +21,8 @@ fn callback_data_combinations() {
 fn command_combinations() {
     trybuild::TestCases::new().pass("tests/ui/command_combinations.rs");
 }
+
+#[test]
+fn state_combinations() {
+    trybuild::TestCases::new().pass("tests/ui/state_combinations.rs");
+}

@@ -1,0 +1,41 @@
+error: expected `enum` with `State` derive
+  --> tests/ui/state_errors.rs:10:8
+   |
+10 | struct E01;
+   |        ^^^
+
+error: expected `enum` with `State` derive
+  --> tests/ui/state_errors.rs:14:7
+   |
+14 | union E02 {
+   |       ^^^
+
+error: generic states are not supported
+  --> tests/ui/state_errors.rs:20:9
+   |
+20 | enum E03<T> {
+   |         ^^^
+
+error: generic states are not supported
+  --> tests/ui/state_errors.rs:26:9
+   |
+26 | enum E04<'a> {
+   |         ^^^^
+
+error: only unit variants are supported
+  --> tests/ui/state_errors.rs:33:5
+   |
+33 |     Start(i32),
+   |     ^^^^^^^^^^
+
+error: only unit variants are supported
+  --> tests/ui/state_errors.rs:39:5
+   |
+39 |     Start { at: i32 },
+   |     ^^^^^^^^^^^^^^^^^
+
+error: duplicate state name `start`
+  --> tests/ui/state_errors.rs:46:5
+   |
+46 |     START,
+   |     ^^^^^

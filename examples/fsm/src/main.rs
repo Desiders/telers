@@ -6,7 +6,7 @@ use telers::{
     methods::SendMessage,
     middlewares::outer::FSMContext as FSMContextMiddleware,
     types::{Message, MessageText},
-    Bot, Dispatcher, Router,
+    Bot, Dispatcher, Router, State,
 };
 
 /// Shorthand for the FSM context with in-memory storage. Replace `MemoryStorage` with your own `Storage` impl if needed.
@@ -14,30 +14,13 @@ type Fsm = FSMContext<MemoryStorage>;
 
 /// State of conversation.
 ///
-/// We use it to determine what we should ask user next and implement [`From<State>`] for [`str`]
-/// for possible save this state in `Storage`.
-/// We also implement [`PartialEq<&str>`] for comparing states with other in [`StateFilter`].
-#[derive(Clone)]
+/// States are stored under their `snake_case` names, so `Name` is saved as `name`.
+#[derive(Clone, State)]
 enum State {
     /// User is asked for his name
     Name,
     /// User is asked for his language
     Language,
-}
-
-impl AsRef<str> for State {
-    fn as_ref(&self) -> &str {
-        match self {
-            State::Name => "name",
-            State::Language => "language",
-        }
-    }
-}
-
-impl PartialEq<&str> for State {
-    fn eq(&self, other: &&str) -> bool {
-        self.as_ref() == *other
-    }
 }
 
 async fn start_handler(bot: Bot, message: Message, fsm: Fsm) -> HandlerResult<()> {

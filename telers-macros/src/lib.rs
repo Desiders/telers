@@ -1,6 +1,7 @@
-//! This crate contains the derive macros of the `telers` crate: [`FromContext`], [`FromEvent`], [`CallbackData`] and [`Command`].
+//! This crate contains the derive macros of the `telers` crate: [`FromContext`], [`FromEvent`], [`CallbackData`], [`Command`] and [`State`].
 //!
-//! All of them implement `Extractor`, so the derived types can be used as handler arguments.
+//! [`FromContext`], [`FromEvent`], [`CallbackData`] and [`Command`] also implement `Extractor`, so the
+//! derived types can be used as handler arguments. [`State`] derives FSM states instead.
 
 mod attrs_parsing;
 mod callback_data;
@@ -8,6 +9,7 @@ mod command;
 mod extractor;
 mod from_context;
 mod from_event;
+mod state;
 
 use proc_macro::TokenStream;
 use quote::ToTokens;
@@ -376,6 +378,45 @@ pub fn derive_callback_data(item: TokenStream) -> TokenStream {
 #[proc_macro_derive(Command, attributes(command))]
 pub fn derive_command(item: TokenStream) -> TokenStream {
     expand_with(item, command::expand)
+}
+
+/// Derives the FSM states of an enum, so they can be passed to the [`State`] filter and to
+/// [`FSMContext::set_state`] without writing the state names by hand.
+///
+/// This macro generates:
+/// - an `as_str` method on the enum, returning the state name of the variant
+/// - an [`AsRef<str>`] implementation, which is what [`FSMContext::set_state`] asks for
+/// - a `PartialEq<&str>` implementation, which is what the [`State`] filter asks for
+/// - a [`Display`](std::fmt::Display) implementation
+///
+/// # Example
+///
+/// ```rust
+/// use telers::State;
+///
+/// #[derive(Clone, State)]
+/// enum OrderState {
+///     Start,
+///     AwaitingPayment,
+/// }
+///
+/// assert_eq!(OrderState::AwaitingPayment.as_str(), "awaiting_payment");
+/// assert!(OrderState::Start == "start");
+/// ```
+///
+/// # Notes
+/// - The enum must be [`Clone`] and [`Send`], derive it on the enum itself
+/// - Every variant must be a unit variant, and its name becomes the state name in `snake_case`
+/// - The [`State`] filter takes the states by value, so [`State::one`] and [`State::many`]
+///   work as they are, for example `State::one(OrderState::Start)`
+///
+/// [`State`]: telers::filters::State
+/// [`State::one`]: telers::filters::State::one
+/// [`State::many`]: telers::filters::State::many
+/// [`FSMContext::set_state`]: telers::FSMContext::set_state
+#[proc_macro_derive(State)]
+pub fn derive_state(item: TokenStream) -> TokenStream {
+    expand_with(item, state::expand)
 }
 
 /// Parses the input of the derive macro and expands it with `f`,

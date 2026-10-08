@@ -25,3 +25,8 @@ fn callback_data_errors() {
 fn command_errors() {
     trybuild::TestCases::new().compile_fail("tests/ui/command_errors.rs");
 }
+
+#[test]
+fn state_errors() {
+    trybuild::TestCases::new().compile_fail("tests/ui/state_errors.rs");
+}
