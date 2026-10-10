@@ -23,7 +23,7 @@ pub mod throttling;
 
 pub(crate) use base::{boxed_middleware_factory, BoxedCloneMiddlewareService};
 
-pub use base::{wrap_to_next, Middleware, Next};
+pub use base::{wrap_to_next, Middleware, MiddlewareResponse, MiddlewareResult, Next};
 pub use callback_answer::CallbackAnswer;
 pub use logging::Logging;
 pub use manager::Manager;

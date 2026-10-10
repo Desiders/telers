@@ -1,10 +1,9 @@
 //! Middleware that automatically answers callback queries.
 
-use super::base::{Middleware, Next};
+use super::base::{Middleware, MiddlewareResult, Next};
 use crate::{
     client::{Bot, Session},
-    errors::{EventErrorKind, SessionErrorKind},
-    event::telegram::HandlerResponse,
+    errors::SessionErrorKind,
     methods::AnswerCallbackQuery,
     Request,
 };
@@ -99,7 +98,7 @@ impl<Client: Send + Sync + Clone + 'static + Session> Middleware<Client> for Cal
         &mut self,
         request: Request<Client>,
         next: Next<Client>,
-    ) -> Result<HandlerResponse<Client>, EventErrorKind> {
+    ) -> MiddlewareResult<Client> {
         let callback_query_id = request
             .update
             .callback_query()

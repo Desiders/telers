@@ -1,9 +1,5 @@
-use super::base::{Middleware, Next};
-use crate::{
-    errors::EventErrorKind,
-    event::{telegram::HandlerResponse, EventReturn},
-    Request,
-};
+use super::base::{Middleware, MiddlewareResult, Next};
+use crate::{errors::EventErrorKind, event::EventReturn, Request};
 
 use std::{
     fmt::{self, Display, Formatter},
@@ -37,7 +33,7 @@ where
         &mut self,
         request: Request<Client>,
         next: Next<Client>,
-    ) -> Result<HandlerResponse<Client>, EventErrorKind> {
+    ) -> MiddlewareResult<Client> {
         let now = Instant::now();
         let result = next(request).await;
         let elapsed = now.elapsed();

@@ -1,7 +1,6 @@
-use super::base::{Middleware, Next};
+use super::base::{Middleware, MiddlewareResult, Next};
 use crate::{
     client::Reqwest,
-    errors::EventErrorKind,
     event::{telegram::HandlerResponse, EventReturn},
     types::{Chat, User},
     Request,
@@ -129,7 +128,7 @@ where
         &mut self,
         request: Request<Client>,
         next: Next<Client>,
-    ) -> Result<HandlerResponse<Client>, EventErrorKind> {
+    ) -> MiddlewareResult<Client> {
         let context = &request.context;
         let chat_id = context.get::<Chat>("event_chat").map(Chat::id);
         let user_id = context.get::<User>("event_user").map(|user| user.id);

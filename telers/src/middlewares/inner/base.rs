@@ -12,14 +12,17 @@ use futures_util::future::BoxFuture;
 use std::{future::Future, sync::Arc};
 
 pub(crate) type BoxedCloneMiddlewareService<Client> =
-    BoxCloneService<(Request<Client>, Next<Client>), HandlerResponse<Client>, EventErrorKind>;
+    BoxCloneService<(Request<Client>, Next<Client>), MiddlewareResponse<Client>, EventErrorKind>;
+
+/// Response from the remaining inner middlewares and handler.
+pub type MiddlewareResponse<Client = Reqwest> = HandlerResponse<Client>;
+
+/// Result from the remaining inner middlewares and handler.
+pub type MiddlewareResult<Client = Reqwest> = Result<MiddlewareResponse<Client>, EventErrorKind>;
 
 /// The middleware chain and the handler at the end
-pub type Next<Client = Reqwest> = Box<
-    dyn Fn(Request<Client>) -> BoxFuture<'static, Result<HandlerResponse<Client>, EventErrorKind>>
-        + Send
-        + Sync,
->;
+pub type Next<Client = Reqwest> =
+    Box<dyn Fn(Request<Client>) -> BoxFuture<'static, MiddlewareResult<Client>> + Send + Sync>;
 
 /// Inner middlewares called after outer middlewares, after filters, but before handlers.
 /// If filters aren't passed, then inner middlewares aren't called.
@@ -38,7 +41,7 @@ pub trait Middleware<Client = Reqwest>: Clone + Send + Sync + 'static {
     /// * `request` - Data for handler and middlewares
     /// * `next` - Call next middleware or handler, if middlewares are empty or already called
     /// # Returns
-    /// [`HandlerResponse`] from handler or [`EventErrorKind`] if handler or middleware returns an error
+    /// [`MiddlewareResponse`] from handler or [`EventErrorKind`] if handler or middleware returns an error
     /// # Errors
     /// If any inner middleware returns an error
     /// If handler returns an error. Probably it's the error to extract args to the handler
@@ -46,7 +49,7 @@ pub trait Middleware<Client = Reqwest>: Clone + Send + Sync + 'static {
         &mut self,
         request: Request<Client>,
         next: Next<Client>,
-    ) -> impl Future<Output = Result<HandlerResponse<Client>, EventErrorKind>> + Send;
+    ) -> impl Future<Output = MiddlewareResult<Client>> + Send;
 }
 
 /// To possible use function-like as middlewares
@@ -54,13 +57,13 @@ impl<Client, F, Fut> Middleware<Client> for F
 where
     Client: Send + Sync + 'static,
     F: FnMut(Request<Client>, Next<Client>) -> Fut + Clone + Send + Sync + 'static,
-    Fut: Future<Output = Result<HandlerResponse<Client>, EventErrorKind>> + Send,
+    Fut: Future<Output = MiddlewareResult<Client>> + Send,
 {
     fn call(
         &mut self,
         request: Request<Client>,
         next: Next<Client>,
-    ) -> impl Future<Output = Result<HandlerResponse<Client>, EventErrorKind>> + Send {
+    ) -> impl Future<Output = MiddlewareResult<Client>> + Send {
         self(request, next)
     }
 }
@@ -143,7 +146,7 @@ mod tests {
     async fn test_middleware<Client>(
         request: Request<Client>,
         next: Next<Client>,
-    ) -> Result<HandlerResponse<Client>, EventErrorKind> {
+    ) -> MiddlewareResult<Client> {
         next(request).await
     }
 
