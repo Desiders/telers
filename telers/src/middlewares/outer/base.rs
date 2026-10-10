@@ -75,7 +75,6 @@ where
 }
 
 /// Wrap routing and middlewares in a [`Next`] function.
-#[must_use]
 pub(crate) fn wrap_to_next<Client>(
     service: BoxedCloneRoutingService<Client>,
     middlewares: Box<[BoxedCloneMiddlewareService<Client>]>,

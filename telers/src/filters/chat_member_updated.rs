@@ -1,7 +1,10 @@
 use super::{Filter, FilterResult};
 use crate::{enums::ChatMemberType, Request};
 
-use std::convert::Infallible;
+use std::{
+    convert::Infallible,
+    future::{ready, Future},
+};
 
 #[derive(Debug, Clone)]
 pub struct ChatMemberUpdated {
@@ -39,7 +42,10 @@ where
 {
     type Error = Infallible;
 
-    async fn check(&mut self, request: &mut Request<Client>) -> FilterResult<Self::Error> {
+    fn check(
+        &mut self,
+        request: &mut Request<Client>,
+    ) -> impl Future<Output = FilterResult<Self::Error>> + Send {
         // Use or_else instead of or for lazy evaluation
         let member_update = request
             .update
@@ -47,10 +53,13 @@ where
             .or_else(|| request.update.my_chat_member());
 
         let Some(m) = member_update else {
-            return Ok(false);
+            return ready(Ok(false));
         };
 
-        Ok(self.validate((&m.new_chat_member).into(), (&m.old_chat_member).into()))
+        ready(Ok(self.validate(
+            (&m.new_chat_member).into(),
+            (&m.old_chat_member).into(),
+        )))
     }
 }
 

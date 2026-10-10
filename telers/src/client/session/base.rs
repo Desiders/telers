@@ -123,7 +123,6 @@ pub trait Session: Send + Sync {
     ///   If `None`, then client timeout will be used, which is [`DEFAULT_TIMEOUT`] by default.
     /// # Errors
     /// If the request cannot be send or decoded
-    #[must_use]
     fn send_request<Client, T>(
         &self,
         bot: &Bot<Client>,
@@ -142,7 +141,6 @@ pub trait Session: Send + Sync {
     ///   If `None`, then client timeout will be used, which is [`DEFAULT_TIMEOUT`] by default.
     /// # Errors
     /// If the request cannot be sent
-    #[must_use]
     fn stream_content(
         &self,
         url: &str,

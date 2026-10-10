@@ -4,7 +4,10 @@ use telers::{
     event::telegram::{Handler, HandlerResult},
     filters::Command,
     methods::SendMessage,
-    middlewares::outer::{MiddlewareResult, Next},
+    middlewares::{
+        outer::{MiddlewareResult, Next},
+        OuterMiddleware,
+    },
     types::Message,
     Bot, Dispatcher, Extension, Extensions, FilterResult, Request, Router,
 };
@@ -18,10 +21,15 @@ struct StrData(&'static str);
 #[derive(Clone)]
 struct EmptyData;
 
-async fn to_extensions_middleware(mut request: Request, next: Next) -> MiddlewareResult {
-    request.extensions.insert(NumData(1));
+#[derive(Clone)]
+struct ExtensionsMiddleware;
 
-    next(request).await
+impl OuterMiddleware for ExtensionsMiddleware {
+    async fn call(&mut self, mut request: Request, next: Next) -> MiddlewareResult {
+        request.extensions.insert(NumData(1));
+
+        next(request).await
+    }
 }
 
 fn to_extensions_filter(request: &mut Request) -> impl Future<Output = FilterResult<Infallible>> {
@@ -62,7 +70,7 @@ async fn main() {
             // Register middleware that adds data to extensions.
             // Be aware, we register middleware for message observer, so it will be called only for messages.
             // If you want to register middleware for any update, you should register it for update observer.
-            .register_outer_middleware(to_extensions_middleware)
+            .register_outer_middleware(ExtensionsMiddleware)
             // Register handler that sends data from extensions to chat
             .register(Handler::new(send_data_handler).filter(Command::one("data")))
     });

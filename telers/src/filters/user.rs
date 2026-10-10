@@ -1,7 +1,11 @@
 use super::{Filter, FilterResult};
 use crate::{types::User as UserType, Request};
 
-use std::{borrow::Cow, convert::Infallible};
+use std::{
+    borrow::Cow,
+    convert::Infallible,
+    future::{ready, Future},
+};
 
 /// Filter for checking the user.
 /// This filter checks if the user username, first name, last name, language code or ID is equal to one of the specified.
@@ -378,11 +382,14 @@ where
 {
     type Error = Infallible;
 
-    async fn check(&mut self, request: &mut Request<Client>) -> FilterResult<Self::Error> {
-        Ok(match request.update.from() {
+    fn check(
+        &mut self,
+        request: &mut Request<Client>,
+    ) -> impl Future<Output = FilterResult<Self::Error>> + Send {
+        ready(Ok(match request.update.from() {
             Some(user) => self.validate(user),
             None => false,
-        })
+        }))
     }
 }
 

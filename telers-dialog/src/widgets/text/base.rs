@@ -5,10 +5,8 @@ use async_trait::async_trait;
 
 #[async_trait]
 pub trait Text: Send + Sync + 'static {
-    #[must_use]
     async fn render_text(&self, data: &DataMap) -> Box<str>;
 
-    #[must_use]
     async fn render_text_in_context(&self, render_ctx: &RenderContext) -> Box<str> {
         self.render_text(render_ctx.data.as_ref()).await
     }

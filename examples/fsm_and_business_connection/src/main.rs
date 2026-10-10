@@ -113,7 +113,7 @@ async fn language_handler(bot: Bot, message: MessageText, fsm: Fsm) -> HandlerRe
             bot.send(
                 SendMessage::new(
                     message.chat.id(),
-                    format!("{name}, I don't speak your language. Please, choose another :(",),
+                    format!("{name}, I don't speak your language. Please, choose another :("),
                 )
                 .business_connection_id(message.business_connection_id.expect(
                     "Business connection id should be set, because we registered this handler for \

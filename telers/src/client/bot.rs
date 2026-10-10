@@ -476,7 +476,7 @@ impl<Client: Session> Bot<Client> {
 
                         Err(BackoffError::retry_after(
                             SessionErrorKind::Telegram(error),
-                            Duration::from_secs(retry_after.max(0) as u64),
+                            Duration::from_secs(u64::try_from(retry_after).unwrap_or_default()),
                         ))
                     }
                     Err(

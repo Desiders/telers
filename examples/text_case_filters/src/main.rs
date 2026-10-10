@@ -1,4 +1,7 @@
-use std::{convert::Infallible, future::Future};
+use std::{
+    convert::Infallible,
+    future::{ready, Future},
+};
 use telers::{
     enums::UpdateType,
     event::telegram::{Handler, HandlerResult},
@@ -13,11 +16,14 @@ struct UppercaseFilter;
 impl Filter for UppercaseFilter {
     type Error = Infallible;
 
-    async fn check(&mut self, request: &mut Request) -> FilterResult<Infallible> {
-        Ok(request
+    fn check(
+        &mut self,
+        request: &mut Request,
+    ) -> impl Future<Output = FilterResult<Infallible>> + Send {
+        ready(Ok(request
             .update
             .text()
-            .is_some_and(|text| text.to_uppercase() == text))
+            .is_some_and(|text| text.to_uppercase() == text)))
     }
 }
 

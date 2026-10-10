@@ -5,7 +5,10 @@ use crate::{
     manager::DialogManager,
     registry::DialogRegistry,
 };
-use std::{future::Future, marker::PhantomData};
+use std::{
+    future::{ready, Future},
+    marker::PhantomData,
+};
 use telers::{
     client::Session,
     errors::{ExtractionError, HandlerError},
@@ -120,16 +123,18 @@ where
 {
     type Error = ExtractionError;
 
-    async fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
+    fn extract(
+        request: &Request<Client>,
+    ) -> impl Future<Output = Result<Self, Self::Error>> + Send {
         let Some(manager) = request.context.get::<DialogManager<S>>(DIALOG_MANAGER_KEY) else {
-            return Err(ExtractionError::new(
+            return ready(Err(ExtractionError::new(
                 "`DialogManager` is missing in request context. Make sure to register \
                  `DialogManagerMiddleware` after `DialogContextMiddleware` in your middleware \
                  stack. Also ensure that `DialogRegistry` is properly registered in \
                  `telers::Extensions`.",
-            ));
+            )));
         };
-        Ok(manager.clone())
+        ready(Ok(manager.clone()))
     }
 }
 

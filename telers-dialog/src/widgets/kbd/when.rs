@@ -64,14 +64,12 @@ impl WhenCondition {
     }
 
     #[inline]
-    #[must_use]
     pub(crate) fn check<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
         (self.0)(WhenContext::new(ctx, data))
     }
 }
 
 #[inline]
-#[must_use]
 pub(crate) fn is_allowed<'a>(
     when: Option<&'a WhenCondition>,
     ctx: &'a Context,

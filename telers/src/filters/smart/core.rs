@@ -413,7 +413,7 @@ impl<T: Send + Sync + 'static> SmartFilterOwnedPath<T> {
     #[must_use]
     pub fn map<U: Send + Sync + 'static>(
         self,
-        f: impl for<'a> Fn(T) -> U + Send + Sync + 'static,
+        f: impl Fn(T) -> U + Send + Sync + 'static,
     ) -> SmartFilterOwnedPath<U> {
         let accessor = self.accessor;
         SmartFilterOwnedPath {
@@ -425,7 +425,7 @@ impl<T: Send + Sync + 'static> SmartFilterOwnedPath<T> {
     #[must_use]
     pub fn and_then<U: Send + Sync + 'static>(
         self,
-        f: impl for<'a> Fn(T) -> Option<U> + Send + Sync + 'static,
+        f: impl Fn(T) -> Option<U> + Send + Sync + 'static,
     ) -> SmartFilterOwnedPath<U> {
         let accessor = self.accessor;
         SmartFilterOwnedPath {

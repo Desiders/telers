@@ -36,7 +36,6 @@ pub trait Keyboard: Send + Sync + 'static {
 
     /// Return whether this keyboard should render and handle callbacks.
     #[inline]
-    #[must_use]
     async fn is_visible(&self, _ctx: &Context, _data: &DataMap) -> bool {
         true
     }

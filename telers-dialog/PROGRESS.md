@@ -73,14 +73,14 @@ Updated: 2026-10-10 (UTC)
 - Different: explicit `telers` middleware integration, typed Rust actions/builders, smaller widget set, no managed wrapper types.
 
 ## Validation Snapshot
-- Outer middleware migration (2026-10-10): source and convention review only. Direct middleware tests now supply routing continuations. Builds, tests, and formatters were not run at the user's request; earlier checks below predate this change.
+- Outer middleware migration (2026-10-10): direct middleware tests now supply routing continuations. Workspace compilation is covered by `just clippy`; tests and formatters were not rerun during lint cleanup.
 - Convention review: grouped serialization imports, shortened the Deser README to 16 lines, and corrected private builder links. Generator tests pass (19); model and fixture output is unchanged.
 - `cargo doc -p telers -p telers-dialog --no-deps --all-features --locked`: passes without warnings.
 - `cargo test -p telers-dialog --all-features`: 273 unit tests and 1 doc test pass; 15 doc tests ignored (native Deser, including templates).
 - Serde mode: all 273 dialog unit tests pass with the `template` feature.
 - `cargo check --workspace --all-features --all-targets --locked`: passes with the native backend (one existing unused-field warning in the commands tests).
 - `cargo check -p dialogs_mega --no-default-features --features deser`: passes.
-- Clippy passes for the core, generator, dialogs, and example; existing warnings remain.
+- `just clippy` passes across the workspace with all features and pedantic warnings enabled, without warnings (2026-10-10).
 - Serialization regressions: 273 native dialog tests and 124 Serde keyboard tests pass.
 - Direct Serde dependencies are optional; enable `serde` explicitly when disabling defaults without choosing Deser. Backend features must match those selected on `telers`.
 - The existing standalone pager example gap listed above is unrelated to serialization and remains open.

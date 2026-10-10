@@ -3,7 +3,10 @@ use telers::{
     event::telegram::{Handler, HandlerResult},
     filters::Command,
     methods::SendMessage,
-    middlewares::outer::{MiddlewareResult, Next},
+    middlewares::{
+        outer::{MiddlewareResult, Next},
+        OuterMiddleware,
+    },
     types::Message,
     Bot, Context, Dispatcher, FromContext, Request, Router,
 };
@@ -18,10 +21,15 @@ struct Data1(i64);
 #[context(key = "data2")]
 struct Data2(i64);
 
-async fn to_context_middleware(mut request: Request, next: Next) -> MiddlewareResult {
-    request.context.insert("data1", Data1(1));
+#[derive(Clone)]
+struct ContextMiddleware;
 
-    next(request).await
+impl OuterMiddleware for ContextMiddleware {
+    async fn call(&mut self, mut request: Request, next: Next) -> MiddlewareResult {
+        request.context.insert("data1", Data1(1));
+
+        next(request).await
+    }
 }
 
 async fn send_data_handler(
@@ -55,7 +63,7 @@ async fn main() {
             // Register middleware that adds data to context.
             // Be aware, we register middleware for message observer, so it will be called only for messages.
             // If you want to register middleware for any update, you should register it for update observer.
-            .register_outer_middleware(to_context_middleware)
+            .register_outer_middleware(ContextMiddleware)
             // Register handler that sends data from context to chat
             .register(Handler::new(send_data_handler).filter(Command::one("data")))
     });

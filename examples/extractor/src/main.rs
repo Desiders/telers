@@ -1,4 +1,7 @@
-use std::convert::Infallible;
+use std::{
+    convert::Infallible,
+    future::{ready, Future},
+};
 use telers::{
     enums::UpdateType,
     errors::{ConvertToTypeError, ExtractionError},
@@ -97,8 +100,8 @@ struct BotId(i64);
 impl Extractor for BotId {
     type Error = Infallible;
 
-    async fn extract(request: &Request) -> Result<Self, Self::Error> {
-        Ok(Self(request.bot.id))
+    fn extract(request: &Request) -> impl Future<Output = Result<Self, Self::Error>> + Send {
+        ready(Ok(Self(request.bot.id)))
     }
 }
 

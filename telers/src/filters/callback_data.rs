@@ -29,7 +29,7 @@ use std::{convert::Infallible, future::Future, marker::PhantomData};
 ///     .on_callback_query(|observer| observer.filter(CallbackData::<LanguageSettings>::new()));
 /// ```
 ///
-/// [`CallbackQuery`](crate::types::CallbackQuery): crate::types::CallbackQuery
+/// [`CallbackQuery`]: crate::types::CallbackQuery
 #[derive(Debug, Clone, Copy, Default)]
 pub struct CallbackData<CD> {
     phantom: PhantomData<CD>,

@@ -266,7 +266,8 @@ where
                 selected_hour = ?hour,
                 "Resolved time-select hour callback"
             );
-        } else if let Some(value) = payload.strip_prefix('m') {
+        } else {
+            let value = payload.strip_prefix('m')?;
             let value = value.parse::<u8>().ok()?;
             minute = Some(value);
             click_action = match &self.on_minute_click {
@@ -279,8 +280,6 @@ where
                 selected_minute = ?minute,
                 "Resolved time-select minute callback"
             );
-        } else {
-            return None;
         }
 
         let update_action = ButtonAction::set_widget_value(self.widget_id(), json!([hour, minute]));

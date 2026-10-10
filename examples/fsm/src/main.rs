@@ -81,7 +81,7 @@ async fn language_handler(bot: Bot, message: MessageText, fsm: Fsm) -> HandlerRe
         _ => {
             bot.send(SendMessage::new(
                 message.chat.id(),
-                format!("{name}, I don't speak your language. Please, choose another :(",),
+                format!("{name}, I don't speak your language. Please, choose another :("),
             ))
             .await?;
 

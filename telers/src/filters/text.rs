@@ -2,7 +2,11 @@ use super::{Filter, FilterResult};
 use crate::Request;
 
 use regex::Regex;
-use std::{borrow::Cow, convert::Infallible};
+use std::{
+    borrow::Cow,
+    convert::Infallible,
+    future::{ready, Future},
+};
 
 /// Represents a command pattern type for verification
 /// # Variants
@@ -409,12 +413,15 @@ where
 {
     type Error = Infallible;
 
-    async fn check(&mut self, request: &mut Request<Client>) -> FilterResult<Self::Error> {
-        Ok(request
+    fn check(
+        &mut self,
+        request: &mut Request<Client>,
+    ) -> impl Future<Output = FilterResult<Self::Error>> + Send {
+        ready(Ok(request
             .update
             .text()
             .or(request.update.caption())
-            .is_some_and(|text| self.validate_text(text)))
+            .is_some_and(|text| self.validate_text(text))))
     }
 }
 

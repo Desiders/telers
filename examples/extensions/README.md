@@ -10,7 +10,7 @@ Send the `/data` command to the bot and it replies with a single message echoing
 
 - A `Router` named `main` registers everything on its message observer.
 - `to_extensions_filter` is a `filter` that inserts `StrData("1")` into `request.extensions` and returns `true` so the handler runs.
-- `to_extensions_middleware` is an outer middleware (`register_outer_middleware`) that inserts `NumData(1)`. It is registered on the message observer, so it only fires for messages — register on the update observer to cover every update.
+- `ExtensionsMiddleware` is an outer middleware (`register_outer_middleware`) that inserts `NumData(1)`. It is registered on the message observer, so it only fires for messages — register on the update observer to cover every update.
 - `EmptyData` is supplied globally through the `Dispatcher` builder's `.extension(...)` method.
 - `send_data_handler` is gated by `Command::one("data")`. It receives `Extension<NumData>`, `Extension<StrData>`, and `Extension<EmptyData>` extracted automatically, plus the raw `Extensions` map, and asserts that both access paths return the same values before replying with `SendMessage`.
 - The `Dispatcher` is built with `allowed_update(UpdateType::Message)` and run via `run_polling`.

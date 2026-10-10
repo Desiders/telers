@@ -55,7 +55,6 @@ impl OnPageChanged {
         }))
     }
 
-    #[must_use]
     pub(super) fn call(&self, change: PageChange) -> BoxFuture<'static, ButtonAction> {
         (self.0)(change)
     }
@@ -108,7 +107,6 @@ impl BaseScroll {
 pub trait Scroll: Send + Sync + 'static {
     fn base_scroll(&self) -> &BaseScroll;
 
-    #[must_use]
     async fn get_page_count(&self, render_ctx: RenderContext) -> usize;
 
     #[must_use]

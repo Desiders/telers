@@ -47,10 +47,8 @@ pub trait Dialog: Send + Sync {
 
     async fn render(&self, state: &str, render_ctx: &RenderContext) -> Option<NewMessage>;
 
-    #[must_use]
     async fn handle_callback(&self, state: &str, click: &ClickContext) -> Option<ButtonAction>;
 
-    #[must_use]
     async fn handle_message(
         &self,
         state: &str,
@@ -65,7 +63,6 @@ pub trait Dialog: Send + Sync {
     /// child start data, and result data.
     ///
     /// Returns an optional action to execute in the parent context.
-    #[must_use]
     async fn process_result(&self, _state: &str, _ctx: ResultContext) -> Option<ButtonAction> {
         None
     }
