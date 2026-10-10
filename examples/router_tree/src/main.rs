@@ -4,14 +4,13 @@ use std::sync::{
 };
 use telers::{
     enums::ChatType::Private,
-    errors::EventErrorKind,
-    event::{
-        telegram::{Handler, HandlerResult},
-        EventReturn,
-    },
+    event::telegram::{Handler, HandlerResult},
     filters::{ChatType, Command, CommandStart},
     methods::{CopyMessage, SendMessage},
-    middlewares::{outer::MiddlewareResponse, OuterMiddleware},
+    middlewares::{
+        outer::{MiddlewareResult, Next},
+        OuterMiddleware,
+    },
     types::Message,
     Bot, Context, Dispatcher, Request, Router,
 };
@@ -23,7 +22,7 @@ struct IncomingEchoRouterUpdates {
 }
 
 impl OuterMiddleware for IncomingEchoRouterUpdates {
-    async fn call(&mut self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
+    async fn call(&mut self, mut request: Request, next: Next) -> MiddlewareResult {
         tracing::info!("Incoming echo router update");
 
         self.counter.fetch_add(1, Ordering::SeqCst);
@@ -33,7 +32,7 @@ impl OuterMiddleware for IncomingEchoRouterUpdates {
             self.counter.load(Ordering::SeqCst),
         );
 
-        Ok((request, EventReturn::Finish))
+        next(request).await
     }
 }
 

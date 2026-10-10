@@ -1,16 +1,18 @@
-use std::sync::{
-    atomic::{AtomicUsize, Ordering},
-    Arc,
+use std::{
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc,
+    },
+    time::Instant,
 };
 use telers::{
     enums::UpdateType,
     errors::EventErrorKind,
-    event::{
-        telegram::{Handler, HandlerResponse, HandlerResult},
-        EventReturn,
-    },
+    event::telegram::{Handler, HandlerResponse, HandlerResult},
     methods::SendMessage,
-    middlewares::{outer::MiddlewareResponse, InnerMiddleware, Next, OuterMiddleware},
+    middlewares::{
+        outer::MiddlewareResult, InnerMiddleware, InnerNext, OuterMiddleware, OuterNext,
+    },
     types::Update,
     Bot, Context, Dispatcher, Request, Router,
 };
@@ -21,7 +23,7 @@ struct IncomingUpdates {
 }
 
 impl OuterMiddleware for IncomingUpdates {
-    async fn call(&mut self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
+    async fn call(&mut self, mut request: Request, next: OuterNext) -> MiddlewareResult {
         self.counter.fetch_add(1, Ordering::SeqCst);
 
         request.context.insert(
@@ -29,7 +31,11 @@ impl OuterMiddleware for IncomingUpdates {
             self.counter.load(Ordering::SeqCst),
         );
 
-        Ok((request, EventReturn::Finish))
+        let started = Instant::now();
+        let result = next(request).await;
+        tracing::debug!(elapsed = ?started.elapsed(), "Incoming update processing finished");
+
+        result
     }
 }
 
@@ -44,7 +50,7 @@ impl InnerMiddleware for ProcessedHandlers {
     async fn call(
         &mut self,
         mut request: Request,
-        next: Next,
+        next: InnerNext,
     ) -> Result<HandlerResponse, EventErrorKind> {
         request.context.insert(
             "processed_handlers_counter",

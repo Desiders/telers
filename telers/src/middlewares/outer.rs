@@ -1,8 +1,9 @@
 //! This module contains outer middlewares.
 //!
 //! Middlewares are called `outer` if they are called before filters, inner middlewares and handlers.
-//! These middlewares have access to the [`request`] (with [`context`] in it),
-//! but don't have access to the middlewares/handler-chain and the [`response`] (for these purposes, use [`inner middlewares`]).
+//! These middlewares can modify the [`request`] (with [`context`] in it),
+//! call the remaining routing work through [`Next`], and inspect or modify its [`response`].
+//! They can run cleanup after processing, including when no handler matches or processing fails.
 //!
 //! Prefer to use outer middlewares over inner middlewares in some cases:
 //! - If you need to call middlewares before filters, inner middlewares and handlers
@@ -11,7 +12,7 @@
 //! You can check an example of using outer middlewares in `examples/stats_incoming_updates_middleware`.
 //!
 //! [`request`]: telers::Request
-//! [`response`]: telers::event::telegram::HandlerResponse
+//! [`response`]: telers::router::Response
 //! [`context`]: telers::context::Context
 //! [`inner middlewares`]: telers::middlewares::inner
 
@@ -20,9 +21,11 @@ pub mod fsm_context;
 pub mod manager;
 pub mod user_context;
 
-pub(crate) use base::{boxed_middleware_factory, BoxedCloneMiddlewareService};
+pub(crate) use base::{
+    boxed_middleware_factory, wrap_to_next, BoxedCloneMiddlewareService, BoxedCloneRoutingService,
+};
 
-pub use base::{Middleware, MiddlewareResponse};
+pub use base::{Middleware, MiddlewareResponse, MiddlewareResult, Next};
 pub use fsm_context::FSMContext;
 pub use manager::Manager;
 pub use user_context::UserContext;

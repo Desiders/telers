@@ -1,8 +1,7 @@
-use super::{Middleware, MiddlewareResponse};
+use super::{Middleware, MiddlewareResult, Next};
 use crate::{
     context::Context as RequestContext,
     errors::{EventErrorKind, MiddlewareError},
-    event::EventReturn,
     fsm::{
         storage::base::{StorageKey, DEFAULT_DESTINY},
         strategy::Strategy,
@@ -155,23 +154,27 @@ where
     async fn call(
         &mut self,
         mut request: Request<Client>,
-    ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
-        let context = &mut request.context;
-
-        if let Some(fsm_context) = self.resolve_event_context(request.bot.id, context) {
-            if let Some(state) = fsm_context
-                .get_state()
-                .await
-                .map_err(|err| MiddlewareError::new(err.into()))?
-            {
-                context.insert("fsm_state", state);
+        next: Next<Client>,
+    ) -> MiddlewareResult<Client> {
+        if let Some(fsm_context) = self.resolve_event_context(request.bot.id, &request.context) {
+            let state = match fsm_context.get_state().await {
+                Ok(state) => state,
+                Err(err) => {
+                    return Err((
+                        EventErrorKind::Middleware(MiddlewareError::new(err.into())),
+                        request,
+                    ));
+                }
+            };
+            if let Some(state) = state {
+                request.context.insert("fsm_state", state);
             }
 
-            context.insert("fsm_context", fsm_context);
+            request.context.insert("fsm_context", fsm_context);
         }
 
-        context.insert("fsm_storage", self.storage.clone());
+        request.context.insert("fsm_storage", self.storage.clone());
 
-        Ok((request, EventReturn::default()))
+        next(request).await
     }
 }

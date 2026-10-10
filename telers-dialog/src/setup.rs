@@ -8,26 +8,24 @@ use crate::{
 use std::{future::Future, marker::PhantomData};
 use telers::{
     client::Session,
-    errors::{EventErrorKind, ExtractionError, HandlerError},
+    errors::{ExtractionError, HandlerError},
     event::{
         telegram::{Handler as TelegramHandler, HandlerResult, Observer as TelegramObserver},
         EventReturn,
     },
     extractor::Extractor,
     fsm::{self, Storage},
-    middlewares::outer::{Middleware, MiddlewareResponse},
+    middlewares::outer::{Middleware, MiddlewareResult, Next},
     types::{CallbackQuery, Message},
     Bot, Request,
 };
 
 pub const DIALOG_MANAGER_KEY: &str = "td_dialog_manager";
 
-/// Outer middleware that derives dialog-specific event data from `telers::Request`.
+/// Outer middleware that derives dialog event data from [`Request`].
 ///
-/// The middleware is intentionally small:
-/// - supported update types produce `ChatEvent`
-/// - `EventContext` and `ChatEvent` are inserted into request context
-/// - unsupported updates are ignored without failing the request
+/// Supported updates add [`EventContext`] and [`ChatEvent`] to the request context
+/// before calling the next middleware. Unsupported updates continue without dialog event data.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct DialogContextMiddleware;
 
@@ -39,7 +37,7 @@ impl DialogContextMiddleware {
     }
 }
 
-/// Outer middleware that prepares a typed `DialogManager<S>` in request context.
+/// Outer middleware that prepares a typed [`DialogManager`] in request context.
 #[derive(Debug)]
 pub struct DialogManagerMiddleware<S> {
     marker: PhantomData<fn() -> S>,
@@ -76,14 +74,15 @@ where
     fn call(
         &mut self,
         mut request: Request<Client>,
-    ) -> impl Future<Output = Result<MiddlewareResponse<Client>, EventErrorKind>> + Send {
+        next: Next<Client>,
+    ) -> impl Future<Output = MiddlewareResult<Client>> + Send {
         let chat_event = chat_event_from_update(request.update.as_ref());
         if let Some(chat_event) = chat_event {
             let event_context = EventContext::new(request.bot.clone(), chat_event.clone());
             request.context.insert(EVENT_CONTEXT_KEY, event_context);
             request.context.insert(CHAT_EVENT_KEY, chat_event);
         }
-        async move { Ok((request, EventReturn::default())) }
+        next(request)
     }
 }
 
@@ -95,7 +94,8 @@ where
     fn call(
         &mut self,
         mut request: Request<Client>,
-    ) -> impl Future<Output = Result<MiddlewareResponse<Client>, EventErrorKind>> + Send {
+        next: Next<Client>,
+    ) -> impl Future<Output = MiddlewareResult<Client>> + Send {
         let fsm = request.context.get::<fsm::Context<S>>("fsm_context");
         let registry = request.extensions.get::<DialogRegistry>();
         let event = request.context.get::<ChatEvent>(CHAT_EVENT_KEY);
@@ -109,7 +109,7 @@ where
             );
             request.context.insert(DIALOG_MANAGER_KEY, manager);
         }
-        async move { Ok((request, EventReturn::default())) }
+        next(request)
     }
 }
 
@@ -219,14 +219,25 @@ mod tests {
         event::{bases::PropagateEventResult, telegram::Handler as TelegramHandler, EventReturn},
         extractor::Extractor,
         fsm::{Context as FSMContext, MemoryStorage, StorageKey},
-        middlewares::outer::Middleware,
-        router::PropagateEvent,
+        middlewares::outer::{Middleware, Next},
+        router::{PropagateEvent, Response},
         types::{
             CallbackQuery, ChatPrivate, Message, MessageText, Update, UpdateCallbackQuery,
             UpdateMessage, User,
         },
         Bot, Extensions, Request, Router,
     };
+
+    fn unhandled_next() -> Next<Reqwest> {
+        Box::new(|request| {
+            Box::pin(async move {
+                Ok(Response {
+                    request,
+                    propagate_result: PropagateEventResult::Unhandled,
+                })
+            })
+        })
+    }
 
     #[tokio::test]
     async fn middleware_inserts_dialog_event_context_for_message() {
@@ -240,7 +251,11 @@ mod tests {
         };
         let mut middleware = DialogContextMiddleware::new();
 
-        let (request, _) = middleware.call(request).await.expect("middleware");
+        let request = middleware
+            .call(request, unhandled_next())
+            .await
+            .expect("middleware")
+            .request;
 
         assert!(request.context.contains_key(EVENT_CONTEXT_KEY));
         assert!(request.context.contains_key(CHAT_EVENT_KEY));
@@ -274,7 +289,11 @@ mod tests {
         );
 
         let mut middleware = DialogManagerMiddleware::<MemoryStorage>::new();
-        let (request, _) = middleware.call(request).await.expect("middleware");
+        let request = middleware
+            .call(request, unhandled_next())
+            .await
+            .expect("middleware")
+            .request;
 
         assert!(!request.context.contains_key(EVENT_CONTEXT_KEY));
         assert!(!request.context.contains_key(CHAT_EVENT_KEY));
@@ -309,9 +328,17 @@ mod tests {
         );
 
         let mut context_middleware = DialogContextMiddleware::new();
-        let (request, _) = context_middleware.call(request).await.expect("middleware");
+        let request = context_middleware
+            .call(request, unhandled_next())
+            .await
+            .expect("middleware")
+            .request;
         let mut manager_middleware = DialogManagerMiddleware::<MemoryStorage>::new();
-        let (request, _) = manager_middleware.call(request).await.expect("middleware");
+        let request = manager_middleware
+            .call(request, unhandled_next())
+            .await
+            .expect("middleware")
+            .request;
         let extracted = DialogManager::<MemoryStorage>::extract(&request).await;
 
         assert!(

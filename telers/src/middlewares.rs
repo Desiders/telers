@@ -13,5 +13,5 @@
 pub mod inner;
 pub mod outer;
 
-pub use inner::{Middleware as InnerMiddleware, Next};
-pub use outer::Middleware as OuterMiddleware;
+pub use inner::{Middleware as InnerMiddleware, Next as InnerNext};
+pub use outer::{Middleware as OuterMiddleware, Next as OuterNext};

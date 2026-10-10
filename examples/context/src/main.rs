@@ -1,13 +1,9 @@
 use telers::{
     enums::UpdateType,
-    errors::EventErrorKind,
-    event::{
-        telegram::{Handler, HandlerResult},
-        EventReturn,
-    },
+    event::telegram::{Handler, HandlerResult},
     filters::Command,
     methods::SendMessage,
-    middlewares::outer::MiddlewareResponse,
+    middlewares::outer::{MiddlewareResult, Next},
     types::Message,
     Bot, Context, Dispatcher, FromContext, Request, Router,
 };
@@ -22,10 +18,10 @@ struct Data1(i64);
 #[context(key = "data2")]
 struct Data2(i64);
 
-async fn to_context_middleware(mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
+async fn to_context_middleware(mut request: Request, next: Next) -> MiddlewareResult {
     request.context.insert("data1", Data1(1));
 
-    Ok((request, EventReturn::default()))
+    next(request).await
 }
 
 async fn send_data_handler(

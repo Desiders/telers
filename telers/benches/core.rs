@@ -7,8 +7,8 @@ use telers::{
         session::{ClientResponse, ClientStreamResponse, Session},
         telegram::APIServer,
     },
-    errors::EventErrorKind,
     event::{telegram::Handler, EventReturn},
+    middlewares::{InnerNext, OuterNext},
     types::{ChatPrivate, Message, MessageText, Update, UpdateMessage, User},
     Bot, Dispatcher, Filter, Request, Router, RouterConfigured,
 };
@@ -145,9 +145,9 @@ fn middleware(c: &mut Criterion) {
 
     let router = Router::new("outer_middleware").on_message(|observer| {
         observer
-            .register_outer_middleware(|request: Request<MockSession>| async move {
-                Ok::<_, EventErrorKind>((request, EventReturn::Skip))
-            })
+            .register_outer_middleware(
+                |request: Request<MockSession>, next: OuterNext<MockSession>| next(request),
+            )
             .register(finish_handler())
     });
     let dispatcher = Dispatcher::builder()
@@ -158,9 +158,7 @@ fn middleware(c: &mut Criterion) {
     let router = Router::new("inner_middleware").on_message(|observer| {
         observer
             .register_inner_middleware(
-                |request: Request<MockSession>, next: telers::middlewares::Next<MockSession>| {
-                    next(request)
-                },
+                |request: Request<MockSession>, next: InnerNext<MockSession>| next(request),
             )
             .register(finish_handler())
     });

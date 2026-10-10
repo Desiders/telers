@@ -274,7 +274,7 @@ mod tests {
         client::Reqwest,
         errors::{HandlerError, MiddlewareError},
         filters::CommandStart,
-        middlewares::Next,
+        middlewares::InnerNext,
         types::{ChatPrivate, MessageText, Update, UpdateMessage},
         Bot, Extensions,
     };
@@ -365,7 +365,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_observer_trigger_error_with_inner_middleware() {
-        let pass_through = |request, next: Next<_>| next(request);
+        let pass_through = |request, next: InnerNext<_>| next(request);
 
         let mut observer = Observer::<Reqwest>::default()
             .register(Handler::new(|| async {
@@ -398,7 +398,7 @@ mod tests {
         // The fix only intercepts `EventErrorKind::Handler`. A middleware that returns its own
         // error (a distinct variant) must NOT be swallowed into a `Handled` response — it has to
         // propagate as an `Err` out of `trigger`, just as before.
-        let failing_middleware = |_request, _next: Next<_>| async move {
+        let failing_middleware = |_request, _next: InnerNext<_>| async move {
             Err::<HandlerResponse<_>, _>(EventErrorKind::Middleware(MiddlewareError::new(anyhow!(
                 "middleware boom"
             ))))
@@ -434,7 +434,7 @@ mod tests {
         // Non-error results must still pass through unchanged with a middleware present: the first
         // handler's `Skip` has to advance the observer to the second handler (which the middleware
         // runs again for), ending in `Handled(Finish)`.
-        let pass_through = |request, next: Next<_>| next(request);
+        let pass_through = |request, next: InnerNext<_>| next(request);
 
         let mut observer = Observer::<Reqwest>::default()
             .register(Handler::new(|| async {

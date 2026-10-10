@@ -18,7 +18,7 @@ Three routers are wired into a tree:
 - `echo_router` (named `echo`) registers an outer middleware and two handlers: `stats_echo_router` behind `Command::many(["stats", "statistics"])`, and a catch-all `echo_handler` that re-sends the message with `CopyMessage`.
 - `main_router` (named `main`) uses `.include(private_router)` and `.include(echo_router)`; updates not handled by an earlier router fall through to the next.
 
-The middleware `IncomingEchoRouterUpdates` implements `OuterMiddleware`. It is registered on the echo router's `on_update` observer, increments a shared `Arc<AtomicUsize>` counter for every update reaching that branch, and stores the count in the `Context` under `incoming_echo_router_updates_counter` (read back via `context.get::<usize>(..)`). It returns `(request, EventReturn::Finish)`. `allowed_updates` is derived from `resolve_used_update_types()`.
+The middleware `IncomingEchoRouterUpdates` implements `OuterMiddleware`. It is registered on the echo router's `on_update` observer, increments a shared `Arc<AtomicUsize>` counter for every update reaching that branch, and stores the count in the `Context` under `incoming_echo_router_updates_counter` (read back via `context.get::<usize>(..)`). It calls `next(request).await` to continue through the echo router's filters, handlers, and any child routers. `allowed_updates` is derived from `resolve_used_update_types()`.
 
 ## Running
 

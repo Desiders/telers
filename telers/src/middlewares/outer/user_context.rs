@@ -1,7 +1,5 @@
-use super::{Middleware, MiddlewareResponse};
+use super::{Middleware, MiddlewareResult, Next};
 use crate::{
-    errors::EventErrorKind,
-    event::EventReturn,
     types::{Chat, MaybeInaccessibleMessage, Update, User},
     Request,
 };
@@ -61,7 +59,8 @@ where
     async fn call(
         &mut self,
         mut request: Request<Client>,
-    ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
+        next: Next<Client>,
+    ) -> MiddlewareResult<Client> {
         if let Some(from) = resolve_event_user(&request.update) {
             request.context.insert("event_user", from.clone());
         }
@@ -80,7 +79,7 @@ where
             );
         }
 
-        Ok((request, EventReturn::default()))
+        next(request).await
     }
 }
 
@@ -91,7 +90,7 @@ mod tests {
         client::Reqwest,
         context::Context,
         enums::UpdateType,
-        event::telegram::Handler,
+        event::{telegram::Handler, EventReturn},
         router::{PropagateEvent as _, Router},
         types::{Chat, ChatPrivate, Message, MessageText, Update, UpdateMessage, User},
         Bot, Extensions,

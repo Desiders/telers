@@ -14,7 +14,7 @@ Send the bot any message and it replies with a line like:
 
 Two shared counters are kept as `Arc<AtomicUsize>` inside cloneable middleware structs:
 
-- `IncomingUpdates` implements `OuterMiddleware`: on every update it increments the counter and inserts `"incoming_updates_counter"` into `request.context`, then returns `EventReturn::Finish` to let processing continue.
+- `IncomingUpdates` implements `OuterMiddleware`: on every update it increments the counter and inserts `"incoming_updates_counter"` into `request.context`, then calls `next(request).await`. It logs the elapsed time after the remaining routing finishes, including when no handler matches or processing fails.
 - `ProcessedHandlers` implements `InnerMiddleware`: it inserts the current `"processed_handlers_counter"` into the context, calls `next(request).await`, and increments the counter only after the handler returns successfully (a failing handler does not count).
 
 Registration happens on the `Router`: `on_all` registers the inner middleware across every telegram observer, `on_update` registers the outer middleware on the update observer, and `on_message` registers the handler. The handler extracts `Bot`, `Update`, and `Context`, reads both counters with `context.get::<usize>(...)`, and replies via `SendMessage` when `update.chat()` is present. The `Dispatcher` allows all update types (`UpdateType::all()`) and runs with `run_polling()`.
@@ -24,3 +24,5 @@ Registration happens on the `Router`: `on_all` registers the inner middleware ac
 ```bash
 BOT_TOKEN=<your_bot_token> cargo run --package stats_incoming_updates_middleware
 ```
+
+Set `RUST_LOG=debug` to see the elapsed-time logs from the outer middleware.

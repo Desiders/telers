@@ -12,9 +12,8 @@
 //! for example in middlewares:
 //! ```rust
 //! use telers::{
-//!     errors::EventErrorKind,
-//!     event::{telegram::HandlerResult, EventReturn},
-//!     middlewares::outer::{Middleware, MiddlewareResponse},
+//!     event::telegram::HandlerResult,
+//!     middlewares::outer::{Middleware, MiddlewareResult, Next},
 //!     Extension, Request,
 //! };
 //!
@@ -27,13 +26,10 @@
 //! where
 //!     T: Send + Sync + Clone + 'static,
 //! {
-//!     async fn call(
-//!         &mut self,
-//!         mut request: Request,
-//!     ) -> Result<MiddlewareResponse, EventErrorKind> {
+//!     async fn call(&mut self, mut request: Request, next: Next) -> MiddlewareResult {
 //!         request.extensions.insert(self.data.clone());
 //!
-//!         Ok((request, EventReturn::default()))
+//!         next(request).await
 //!     }
 //! }
 //!

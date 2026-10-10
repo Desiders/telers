@@ -1,14 +1,10 @@
 use std::{convert::Infallible, future::Future};
 use telers::{
     enums::UpdateType,
-    errors::EventErrorKind,
-    event::{
-        telegram::{Handler, HandlerResult},
-        EventReturn,
-    },
+    event::telegram::{Handler, HandlerResult},
     filters::Command,
     methods::SendMessage,
-    middlewares::outer::MiddlewareResponse,
+    middlewares::outer::{MiddlewareResult, Next},
     types::Message,
     Bot, Dispatcher, Extension, Extensions, FilterResult, Request, Router,
 };
@@ -22,12 +18,10 @@ struct StrData(&'static str);
 #[derive(Clone)]
 struct EmptyData;
 
-async fn to_extensions_middleware(
-    mut request: Request,
-) -> Result<MiddlewareResponse, EventErrorKind> {
+async fn to_extensions_middleware(mut request: Request, next: Next) -> MiddlewareResult {
     request.extensions.insert(NumData(1));
 
-    Ok((request, EventReturn::default()))
+    next(request).await
 }
 
 fn to_extensions_filter(request: &mut Request) -> impl Future<Output = FilterResult<Infallible>> {

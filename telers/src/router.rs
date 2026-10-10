@@ -44,7 +44,8 @@
 //! see the [`extractors module`] for more details.
 //! The return type of a handler is [`Result<EventReturn, HandlerError>`],
 //! where [`EventReturn`] is a special enum that controls propagation of the event (see below).
-//! When the observer is triggered, it calls outer middlewares and checks all handlers in order of registration.
+//! During router propagation, outer middlewares surround the observer,
+//! which checks handlers in order of registration.
 //! It calls the filters of each handler and skips the handler if any of them returns `false`.
 //! If the handler passes the filters, the observer calls inner middlewares with the handler at the end of the chain.
 //! By default, the first handler that passes the filters stops the propagation of the event,
@@ -93,32 +94,27 @@
 //! [`PropagateEvent::propagate_error_event`], [`PropagateEvent::emit_startup`] and [`PropagateEvent::emit_shutdown`] methods of [`Router`],
 //! but it's better to use a [`Dispatcher`] that does it for you.
 //!
-//! Routers are called in the order they are registered. For each router:
-//! 1. The router's outer middlewares are called.
-//! 2. The handlers of the observer matching the event type (`Message`, `CallbackQuery`, etc.)
-//!    are checked in order of registration: the filters of each handler are called,
-//!    and a handler is selected when all of its filters return `true`.
-//! 3. When a handler is selected, the router's inner middlewares are called as a chain,
-//!    with the handler at the end of it.
-//! 4. When the handler completes, processing of the event is finished.
-//! 5. If no handler was executed (none registered, or all rejected by filters),
-//!    the same sequence is repeated with the next router in the chain.
+//! Each router runs its `update` observer before the event-specific observer (`Message`,
+//! `CallbackQuery`, etc.). Observers check common filters, then handlers and their filters
+//! in registration order. Each matching handler runs inside its inner middleware chain.
+//! If the observer leaves the event unhandled, routing continues through child routers in registration order.
 //!
-//! The processing can be influenced by returning a variant of [`EventReturn`]:
-//! * In outer middlewares:
-//!   * [`EventReturn::Finish`] — save the [`Request`] changes made in the middleware and continue;
-//!   * [`EventReturn::Skip`] — skip the changes made in the middleware and continue;
-//!   * [`EventReturn::Cancel`] — stop event propagation.
-//! * In inner middlewares and handlers:
-//!   * [`EventReturn::Finish`] — finish event propagation;
-//!   * [`EventReturn::Skip`] — skip the current handler and go to the next one (and its filters);
-//!   * [`EventReturn::Cancel`] — stop event propagation for the current router and go to the next router.
+//! Outer middlewares call [`OuterNext`](crate::middlewares::OuterNext) to run the rest of the chain,
+//! and can inspect the result or run cleanup after it returns. Update outer middlewares surround
+//! both the update observer and subsequent typed routing. Typed outer middlewares surround
+//! their observer and child routers; error outer middlewares surround error observers and child error routing.
+//! Returning a [`Response`] without calling `next` short-circuits that work.
+//! [`PropagateEventResult::Rejected`] stops propagation, while [`PropagateEventResult::Unhandled`]
+//! lets the parent try its next child. Request changes from an unhandled child stay within that branch.
 //!
-//! The special `update` observer follows the same rules with two differences:
-//! 1. Its middlewares and handlers are called before those of the event-specific observer,
-//!    so its processing units have priority in processing.
-//! 2. [`EventReturn::Cancel`] returned from its inner middlewares and handlers doesn't stop
-//!    event propagation for the current router — it doesn't affect the processing of the event in any way.
+//! Inner middlewares and handlers control processing with [`EventReturn`]:
+//! * [`EventReturn::Finish`] finishes event propagation;
+//! * [`EventReturn::Skip`] tries the next handler with a new inner middleware chain;
+//! * [`EventReturn::Cancel`] skips the current router's subtree and lets its parent try the next child.
+//!
+//! A rejected common filter also skips the subtree. For the special `update` observer,
+//! rejection or [`EventReturn::Cancel`] still allows the event-specific observer to run.
+//! Direct [`PropagateEvent::propagate_update_event`] calls run only the current update observer and its middlewares.
 //!
 //! # Error observer
 //!
@@ -126,8 +122,9 @@
 //! When the propagation of an update fails, the [`Dispatcher`] propagates the error event
 //! with the same rules as any other event, starting from the main router:
 //! outer middlewares of the `error` observer, its handlers with their filters and inner middlewares, then the sub routers.
-//! The request of the error event is the request as it was when the error occurred,
-//! so the data added to it before the error (for example, by [`UserContextMiddleware`]) is available to the error handlers.
+//! Error routing starts after the original outer middleware chain has unwound.
+//! Error routing receives the request returned by failed propagation, including outer cleanup changes.
+//! Data prepared by outer middlewares (for example, by [`UserContextMiddleware`]) is available to the error handlers.
 //! The dispatched errors are:
 //! * an error returned by a handler;
 //! * an error returned by a filter or by an outer or inner middleware;
@@ -192,6 +189,10 @@
 //! [`Command`]: telers::filters::Command
 //! [`ErrorType`]: telers::filters::ErrorType
 //! [`ErrorMessage`]: telers::filters::ErrorMessage
+//! [`EventReturn`]: crate::event::EventReturn
+//! [`EventReturn::Finish`]: crate::event::EventReturn::Finish
+//! [`EventReturn::Skip`]: crate::event::EventReturn::Skip
+//! [`EventReturn::Cancel`]: crate::event::EventReturn::Cancel
 
 use crate::{
     client::Reqwest,
@@ -200,7 +201,7 @@ use crate::{
     },
     errors::EventErrorKind,
     event::{
-        bases::{EventReturn, PropagateEventResult},
+        bases::PropagateEventResult,
         service::Service as _,
         simple::{HandlerResult as SimpleHandlerResult, Observer as SimpleObserver},
         telegram::{HandlerResponse, Observer as TelegramObserver},
@@ -221,16 +222,25 @@ use crate::{
     Request,
 };
 
+mod propagation;
+
+#[cfg(test)]
+mod outer_tests;
+
 use paste::paste;
 use std::{
     collections::HashSet,
     fmt::{self, Debug, Formatter},
     future::Future,
     pin::Pin,
+    sync::Arc,
 };
 use tracing::{event, instrument, Level};
 
 pub struct Response<Client> {
+    /// Request after routing and outer middleware cleanup.
+    /// Modify this request during outer cleanup. Public propagation copies it into
+    /// the nested handler response, if any, after the outer chain completes.
     pub request: Request<Client>,
     pub propagate_result: PropagateEventResult<Client>,
 }
@@ -262,7 +272,7 @@ pub trait PropagateEvent<Client>: Clone + Send + Sync + 'static {
     /// - If any inner middleware returns error
     /// - If any handler returns error. Probably it's error to extract args to handler
     ///
-    /// The error is returned together with the request as it was when the error occurred
+    /// The result retains the request after outer middleware cleanup.
     fn propagate_event(
         &mut self,
         update_type: UpdateType,
@@ -274,13 +284,14 @@ pub trait PropagateEvent<Client>: Clone + Send + Sync + 'static {
     /// Propagate update event
     /// # Notes
     /// This calls the special event observer that used to handle all telegram events.
-    /// It's called for router and its sub routers and before other telegram observers.
+    /// Direct calls run only this router's update observer and its outer middleware chain.
+    /// During [`Self::propagate_event`], that chain also surrounds subsequent typed and child routing.
     /// # Errors
     /// - If any outer middleware returns error
     /// - If any inner middleware returns error
     /// - If any handler returns error. Probably it's error to extract args to handler
     ///
-    /// The error is returned together with the request as it was when the error occurred
+    /// The result retains the request after outer middleware cleanup.
     fn propagate_update_event(
         &mut self,
         request: Request<Client>,
@@ -299,7 +310,7 @@ pub trait PropagateEvent<Client>: Clone + Send + Sync + 'static {
     /// - If any inner middleware returns error
     /// - If any handler returns error. Probably it's error to extract args to handler
     ///
-    /// The error is returned together with the request as it was when the error occurred
+    /// The result retains the request after outer middleware cleanup.
     fn propagate_error_event(
         &mut self,
         request: Request<Client>,
@@ -310,9 +321,9 @@ pub trait PropagateEvent<Client>: Clone + Send + Sync + 'static {
     /// Propagate event and, if the propagation fails, propagate the error event
     /// # Notes
     /// This is what the [`Dispatcher`](crate::Dispatcher) calls for every update.
-    /// A failed propagation has two shapes: an error returned by a handler is turned into a handled response
-    /// by the observer, while extraction, filter and middleware errors are returned together with the request.
-    /// Both carry the request as it was when the error occurred, and the error event is propagated with it.
+    /// A failed propagation has two shapes: a handled response carrying a handler error,
+    /// or an extraction, filter or middleware error paired with its request.
+    /// Both carry the request after outer middleware cleanup, and the error event is propagated with it.
     /// If a handler of the `error` observer finishes, its response replaces the failed one,
     /// otherwise the result of the propagation stays as it was.
     /// # Errors
@@ -457,8 +468,8 @@ macro_rules! impl_router_on_methods {
 
         /// Apply the same observer configurator for every Telegram observer (including `update` and `error`).
         /// # Notes
-        /// Every update is propagated to the `update` observer first and then to the observer of its
-        /// type, so an outer middleware registered here runs twice per update. Use `on_update` or
+        /// An outer middleware registered here may run for both the `update` and event-specific
+        /// observers, and for the `error` observer if propagation fails. Use `on_update` or
         /// `on_<update type>` instead when it should run once.
         #[must_use]
         pub fn on_all<F>(mut self, mut configure: F) -> Self
@@ -744,7 +755,7 @@ macro_rules! define_configured_struct {
     ($(($variant:ident, $observer:ident)),+ $(,)?) => {
         pub struct Configured<Client = Reqwest> {
             name: &'static str,
-            sub_routers: Vec<Configured<Client>>,
+            sub_routers: Arc<[Configured<Client>]>,
 
             $(
                 $observer: TelegramObserver<Client>,
@@ -762,290 +773,46 @@ where
     Client: 'static,
 {
     #[instrument(skip_all, fields(router = self.name))]
-    fn propagate_event(
+    async fn propagate_event(
         &mut self,
         update_type: UpdateType,
-        mut request: Request<Client>,
-    ) -> impl Future<Output = Result<Response<Client>, (EventErrorKind, Request<Client>)>> + Send
+        request: Request<Client>,
+    ) -> Result<Response<Client>, (EventErrorKind, Request<Client>)>
     where
         Client: Send + Sync + Clone,
     {
-        Box::pin(async move {
-            match self.propagate_update_event(request).await? {
-                // If update event handled by router, then return a response
-                Response {
-                    request,
-                    propagate_result: PropagateEventResult::Handled(response),
-                } => {
-                    return Ok(Response {
-                        request,
-                        propagate_result: PropagateEventResult::Handled(response),
-                    });
-                }
-                // If update event rejected by router, then return a response
-                Response {
-                    request,
-                    propagate_result: PropagateEventResult::Rejected,
-                } => {
-                    return Ok(Response {
-                        request,
-                        propagate_result: PropagateEventResult::Rejected,
-                    });
-                }
-                // If update event unhandled by router, then continue propagation
-                Response {
-                    request: updated_request,
-                    propagate_result: PropagateEventResult::Unhandled,
-                } => {
-                    request = updated_request;
-                }
-            }
-
-            event!(Level::TRACE, "Propagate event to router");
-
-            let observer = self.telegram_observer_by_update_type(update_type);
-
-            for middleware in &mut observer.outer_middlewares.middlewares {
-                let (updated_request, event_return) = match middleware.call(request.clone()).await {
-                    Ok(val) => val,
-                    Err(err) => return Err((err, request)),
-                };
-                match event_return {
-                    // If middleware returns finish then update request because the middleware could have changed it
-                    EventReturn::Finish => {
-                        event!(Level::TRACE, "Outer middleware returns finish");
-                        request = updated_request;
-                    }
-                    // If middleware returns skip, then we should skip this middleware and its changes
-                    EventReturn::Skip => {
-                        event!(Level::TRACE, "Outer middleware returns skip");
-                    }
-                    // If middleware returns cancel, then we should reject propagation
-                    EventReturn::Cancel => {
-                        event!(Level::TRACE, "Outer middleware returns cancel");
-                        return Ok(Response {
-                            request,
-                            propagate_result: PropagateEventResult::Rejected,
-                        });
-                    }
-                }
-            }
-
-            let observer_response = observer.trigger(request).await?;
-            let request = observer_response.request;
-
-            match observer_response.propagate_result {
-                // If observer unhandled, then propagate event to next observer
-                PropagateEventResult::Unhandled => {
-                    event!(Level::TRACE, "Event unhandled by router");
-                }
-                // If observer handled, then return a response
-                PropagateEventResult::Handled(response) => {
-                    event!(Level::TRACE, "Event handled by router");
-                    return Ok(Response {
-                        request,
-                        propagate_result: PropagateEventResult::Handled(response),
-                    });
-                }
-                // If observer rejected, then return a response.
-                // Router don't know about rejected event by observer, so it returns unhandled response.
-                PropagateEventResult::Rejected => {
-                    event!(Level::TRACE, "Event rejected by router");
-                    return Ok(Response {
-                        request,
-                        propagate_result: PropagateEventResult::Unhandled,
-                    });
-                }
-            }
-
-            // Propagate event to sub routers
-            for router in &mut self.sub_routers {
-                let router_response = router.propagate_event(update_type, request.clone()).await?;
-                match router_response.propagate_result {
-                    // If the event unhandled by the sub router's observer, then continue propagation
-                    PropagateEventResult::Unhandled => {
-                        event!(Level::TRACE, "Event unhandled by sub router");
-                    }
-                    // If the event handled by the sub router's observer, then return a response
-                    PropagateEventResult::Handled(_) => {
-                        event!(Level::TRACE, "Event handled by sub router");
-                        return Ok(router_response);
-                    }
-                    // If the event rejected by the sub router's observer, then return a response
-                    PropagateEventResult::Rejected => {
-                        event!(Level::TRACE, "Event rejected by sub router");
-                        return Ok(router_response);
-                    }
-                }
-            }
-
-            // If the event unhandled by all observers, then return an unhandled response
-            Ok(Response {
-                request,
-                propagate_result: PropagateEventResult::Unhandled,
-            })
-        })
+        let result = self
+            .routing_service(propagation::Route::Event(update_type))
+            .call(request)
+            .await;
+        propagation::finish(result)
     }
 
     #[instrument(skip_all, fields(router = self.name))]
     async fn propagate_update_event(
         &mut self,
-        mut request: Request<Client>,
+        request: Request<Client>,
     ) -> Result<Response<Client>, (EventErrorKind, Request<Client>)>
     where
         Client: Send + Sync + Clone,
     {
-        event!(Level::TRACE, "Propagate update event to router");
-
-        for middleware in &mut self.update.outer_middlewares.middlewares {
-            let (updated_request, event_return) = match middleware.call(request.clone()).await {
-                Ok(val) => val,
-                Err(err) => return Err((err, request)),
-            };
-            match event_return {
-                // If middleware returns finish, then update request because the middleware could have changed it
-                EventReturn::Finish => {
-                    event!(Level::TRACE, "Update outer middleware returns finish");
-                    request = updated_request;
-                }
-                // If middleware returns skip, then we should skip this middleware and its changes
-                EventReturn::Skip => {
-                    event!(Level::TRACE, "Update outer middleware returns skip");
-                }
-                // If middleware returns cancel, then we should cancel propagation
-                EventReturn::Cancel => {
-                    event!(Level::TRACE, "Update outer middleware returns cancel");
-                    return Ok(Response {
-                        request,
-                        propagate_result: PropagateEventResult::Rejected,
-                    });
-                }
-            }
-        }
-
-        let observer_response = self.update.trigger(request).await?;
-        let request = observer_response.request;
-
-        match observer_response.propagate_result {
-            // If observer returns unhandled, then propagate event to next observer
-            PropagateEventResult::Unhandled => {
-                event!(Level::TRACE, "Update event unhandled by router");
-                Ok(Response {
-                    request,
-                    propagate_result: PropagateEventResult::Unhandled,
-                })
-            }
-            // If observer returns handled, then return a response
-            PropagateEventResult::Handled(response) => {
-                event!(Level::TRACE, "Update event handled by router");
-                Ok(Response {
-                    request,
-                    propagate_result: PropagateEventResult::Handled(response),
-                })
-            }
-            // If observer returns rejected, then return a response.
-            // Router don't know about rejected event by observer, so it returns unhandled response.
-            PropagateEventResult::Rejected => {
-                event!(Level::TRACE, "Update event rejected by router");
-                Ok(Response {
-                    request,
-                    propagate_result: PropagateEventResult::Unhandled,
-                })
-            }
-        }
+        let result = self.update_service().call(request).await;
+        propagation::finish(result)
     }
 
     #[instrument(skip_all, fields(router = self.name))]
-    fn propagate_error_event(
+    async fn propagate_error_event(
         &mut self,
-        mut request: Request<Client>,
-    ) -> impl Future<Output = Result<Response<Client>, (EventErrorKind, Request<Client>)>> + Send
+        request: Request<Client>,
+    ) -> Result<Response<Client>, (EventErrorKind, Request<Client>)>
     where
         Client: Send + Sync + Clone,
     {
-        Box::pin(async move {
-            event!(Level::TRACE, "Propagate error event to router");
-
-            for middleware in &mut self.error.outer_middlewares.middlewares {
-                let (updated_request, event_return) = match middleware.call(request.clone()).await {
-                    Ok(val) => val,
-                    Err(err) => return Err((err, request)),
-                };
-                match event_return {
-                    // If middleware returns finish then update request because the middleware could have changed it
-                    EventReturn::Finish => {
-                        event!(Level::TRACE, "Error outer middleware returns finish");
-                        request = updated_request;
-                    }
-                    // If middleware returns skip, then we should skip this middleware and its changes
-                    EventReturn::Skip => {
-                        event!(Level::TRACE, "Error outer middleware returns skip");
-                    }
-                    // If middleware returns cancel, then we should reject propagation
-                    EventReturn::Cancel => {
-                        event!(Level::TRACE, "Error outer middleware returns cancel");
-                        return Ok(Response {
-                            request,
-                            propagate_result: PropagateEventResult::Rejected,
-                        });
-                    }
-                }
-            }
-
-            let observer_response = self.error.trigger(request).await?;
-            let request = observer_response.request;
-
-            match observer_response.propagate_result {
-                // If observer unhandled, then propagate event to next observer
-                PropagateEventResult::Unhandled => {
-                    event!(Level::TRACE, "Error event unhandled by router");
-                }
-                // If observer handled, then return a response
-                PropagateEventResult::Handled(response) => {
-                    event!(Level::TRACE, "Error event handled by router");
-                    return Ok(Response {
-                        request,
-                        propagate_result: PropagateEventResult::Handled(response),
-                    });
-                }
-                // If observer rejected, then return a response.
-                // Router don't know about rejected event by observer, so it returns unhandled response.
-                PropagateEventResult::Rejected => {
-                    event!(Level::TRACE, "Error event rejected by router");
-                    return Ok(Response {
-                        request,
-                        propagate_result: PropagateEventResult::Unhandled,
-                    });
-                }
-            }
-
-            // Propagate event to sub routers
-            for router in &mut self.sub_routers {
-                let router_response = router.propagate_error_event(request.clone()).await?;
-                match router_response.propagate_result {
-                    // If the event unhandled by the sub router's observer, then continue propagation
-                    PropagateEventResult::Unhandled => {
-                        event!(Level::TRACE, "Error event unhandled by sub router");
-                    }
-                    // If the event handled by the sub router's observer, then return a response
-                    PropagateEventResult::Handled(_) => {
-                        event!(Level::TRACE, "Error event handled by sub router");
-                        return Ok(router_response);
-                    }
-                    // If the event rejected by the sub router's observer, then return a response
-                    PropagateEventResult::Rejected => {
-                        event!(Level::TRACE, "Error event rejected by sub router");
-                        return Ok(router_response);
-                    }
-                }
-            }
-
-            // If the event unhandled by all observers, then return an unhandled response
-            Ok(Response {
-                request,
-                propagate_result: PropagateEventResult::Unhandled,
-            })
-        })
+        let result = self
+            .routing_service(propagation::Route::Error)
+            .call(request)
+            .await;
+        propagation::finish(result)
     }
 
     #[instrument(skip_all, fields(router = self.name))]
@@ -1059,7 +826,7 @@ where
                     return Err(err);
                 }
 
-                for sub_router in &mut router.sub_routers {
+                for sub_router in Arc::make_mut(&mut router.sub_routers) {
                     recurse(sub_router).await?;
                 }
 
@@ -1082,7 +849,7 @@ where
                     return Err(err);
                 }
 
-                for sub_router in &mut router.sub_routers {
+                for sub_router in Arc::make_mut(&mut router.sub_routers) {
                     recurse(sub_router).await?;
                 }
 
@@ -1114,14 +881,14 @@ impl<Client> Configured<Client> {
 
     #[must_use]
     fn telegram_observer_by_update_type(
-        &mut self,
+        &self,
         update_type: UpdateType,
-    ) -> &mut TelegramObserver<Client> {
+    ) -> &TelegramObserver<Client> {
         macro_rules! by_observer_type_match_arms {
             ($(($variant:ident, $observer:ident)),+ $(,)?) => {
                 match TelegramObserverType::from(update_type) {
                     $(
-                        TelegramObserverType::$variant => &mut self.$observer,
+                        TelegramObserverType::$variant => &self.$observer,
                     )+
                 }
             };
@@ -1346,7 +1113,7 @@ mod tests {
             telegram::{Handler as TelegramHandler, HandlerResult as TelegramHandlerResult},
             EventReturn,
         },
-        middlewares::Next,
+        middlewares::{InnerNext, OuterNext},
         types::{ChatPrivate, MessageText, Update, UpdateMessage},
         Bot, Context, Extensions,
     };
@@ -1356,8 +1123,8 @@ mod tests {
 
     #[test]
     fn test_include_router() {
-        let inner_middleware = |request, next: Next<_>| next(request);
-        let outer_middleware = |request| async move { Ok((request, EventReturn::default())) };
+        let inner_middleware = |request, next: InnerNext<_>| next(request);
+        let outer_middleware = |request, next: OuterNext<_>| next(request);
 
         let router = Router::<Reqwest>::new("main")
             .on_message(|observer| {
@@ -1465,8 +1232,8 @@ mod tests {
             assert_eq!(observer.handlers.len(), 1);
         });
 
-        let inner_middleware = |request, next: Next| next(request);
-        let outer_middleware = |request| async move { Ok((request, EventReturn::Finish)) };
+        let inner_middleware = |request, next: InnerNext| next(request);
+        let outer_middleware = |request, next: OuterNext| next(request);
 
         router = router.on_message(|observer| {
             observer
@@ -1530,11 +1297,13 @@ mod tests {
 
         let router = Router::new("test_middleware_and_handler")
             .on_update(|observer| {
-                observer.register_outer_middleware(|mut request: Request<Reqwest>| async move {
-                    request.context.insert("test", "test");
+                observer.register_outer_middleware(
+                    |mut request: Request<Reqwest>, next: OuterNext| async move {
+                        request.context.insert("test", "test");
 
-                    Ok((request, EventReturn::Finish))
-                })
+                        next(request).await
+                    },
+                )
             })
             .on_message(|observer| {
                 observer.register(TelegramHandler::new(|context: Context| async move {
