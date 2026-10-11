@@ -103,9 +103,14 @@ async fn main() {
 
     let router = Router::new("main")
         // Register fsm middleware for possible managing states and fsm data (e.g. user's name and language for this example)
+        // `isolation` makes the updates of one user wait for each other, so two of them cannot
+        // read the same state and then overwrite each other
         .on_update(|observer| {
-            observer
-                .register_outer_middleware(FSMContextMiddleware::new(storage).strategy(UserInChat))
+            observer.register_outer_middleware(
+                FSMContextMiddleware::new(storage)
+                    .strategy(UserInChat)
+                    .isolation(true),
+            )
         })
         .on_message(|observer| {
             observer.registers([
