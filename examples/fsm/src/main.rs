@@ -1,4 +1,4 @@
-﻿use telers::{
+use telers::{
     enums::{MessageType::Text, UpdateType},
     event::telegram::{Handler, HandlerResult},
     filters::{CommandStart, MessageType, State as StateFilter},
