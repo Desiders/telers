@@ -35,10 +35,12 @@
 //! [`FSMContext middleware`]: telers::middlewares::outer::fsm_context::FSMContext
 
 pub mod context;
+pub mod isolation;
 pub mod storage;
 pub mod strategy;
 
 pub use context::Context;
+pub use isolation::{DisabledEventIsolation, EventIsolation, SimpleEventIsolation};
 pub use storage::{Storage, StorageKey};
 pub use strategy::Strategy;
 

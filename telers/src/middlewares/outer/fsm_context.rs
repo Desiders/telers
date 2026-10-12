@@ -3,6 +3,7 @@ use crate::{
     context::Context as RequestContext,
     errors::{EventErrorKind, MiddlewareError},
     fsm::{
+        isolation::{DisabledEventIsolation, EventIsolation, IsolationGuard},
         storage::base::{StorageKey, DEFAULT_DESTINY},
         strategy::Strategy,
         Context, Storage,
@@ -12,35 +13,24 @@ use crate::{
 };
 
 use std::{
-    collections::HashMap,
     fmt::{self, Debug, Formatter},
-    sync::{Arc, Mutex},
+    sync::Arc,
 };
-use tokio::sync::OwnedMutexGuard;
 use tracing::instrument;
-
-type KeyLock = tokio::sync::Mutex<()>;
-
-/// One lock per state key, created on demand and shared by every clone of the middleware.
-///
-/// shortcut: entries are never removed, so a long-running process keeps one lock per key it has
-/// ever seen. Add eviction if a bot serves millions of keys from a single process.
-type Locks = Mutex<HashMap<StorageKey, Arc<KeyLock>>>;
 
 /// State key an upstream `FSMContext` already locked, so a nested chain does not lock it twice.
 const ISOLATED_KEY: &str = "fsm_isolated_key";
 
 /// Middleware for creating FSM [`Context`]
 ///
-/// With [`FSMContext::isolation`] enabled, updates resolving to the same state key are processed
-/// one after another instead of concurrently.
+/// With [`FSMContext::isolation`] set, updates resolving to the same state key are processed one
+/// after another instead of concurrently.
 #[derive(Clone)]
 pub struct FSMContext<S> {
     storage: S,
     strategy: Strategy,
     destiny: &'static str,
-    isolation: bool,
-    locks: Arc<Locks>,
+    isolation: Arc<dyn EventIsolation>,
 }
 
 impl<S> FSMContext<S> {
@@ -51,8 +41,7 @@ impl<S> FSMContext<S> {
             storage,
             strategy: Strategy::default(),
             destiny: DEFAULT_DESTINY,
-            isolation: false,
-            locks: Arc::new(Locks::default()),
+            isolation: Arc::new(DisabledEventIsolation),
         }
     }
 
@@ -79,14 +68,24 @@ impl<S> FSMContext<S> {
     /// The lock is taken before the state is read and released once the handlers finish, so two
     /// updates from one key cannot interleave their reads and writes.
     ///
+    /// # Examples
+    /// ```
+    /// use telers::{
+    ///     fsm::{MemoryStorage, SimpleEventIsolation},
+    ///     middlewares::outer::FSMContext,
+    /// };
+    ///
+    /// let middleware = FSMContext::new(MemoryStorage::new()).isolation(SimpleEventIsolation::new());
+    /// ```
+    ///
     /// # Notes
-    /// Off by default. Enabled, a key stays locked for the whole update, including the parts that
-    /// never touch the state.
+    /// Defaults to [`DisabledEventIsolation`], which locks nothing. A key stays locked for the whole
+    /// update, including the parts that never touch the state.
     #[inline]
     #[must_use]
-    pub fn isolation(self, val: bool) -> Self {
+    pub fn isolation(self, val: impl EventIsolation) -> Self {
         Self {
-            isolation: val,
+            isolation: Arc::new(val),
             ..self
         }
     }
@@ -107,7 +106,6 @@ impl<S> Debug for FSMContext<S> {
         f.debug_struct("FSMContext")
             .field("strategy", &self.strategy)
             .field("destiny", &self.destiny)
-            .field("isolation", &self.isolation)
             .finish_non_exhaustive()
     }
 }
@@ -186,26 +184,14 @@ where
 
     /// Lock the key, unless an upstream middleware already locked the same one, which is what
     /// happens when this middleware is registered through `on_all`.
-    async fn lock(
-        &self,
-        context: &mut RequestContext,
-        key: StorageKey,
-    ) -> Option<OwnedMutexGuard<()>> {
-        if !self.isolation || context.get::<StorageKey>(ISOLATED_KEY) == Some(&key) {
+    async fn lock(&self, context: &mut RequestContext, key: StorageKey) -> Option<IsolationGuard> {
+        if context.get::<StorageKey>(ISOLATED_KEY) == Some(&key) {
             return None;
         }
 
-        let lock = Arc::clone(
-            self.locks
-                .lock()
-                .unwrap_or_else(std::sync::PoisonError::into_inner)
-                .entry(key.clone())
-                .or_insert_with(|| Arc::new(KeyLock::new(()))),
-        );
+        context.insert(ISOLATED_KEY, key.clone());
 
-        context.insert(ISOLATED_KEY, key);
-
-        Some(lock.lock_owned().await)
+        Some(self.isolation.lock(&key).await)
     }
 }
 
@@ -259,7 +245,7 @@ mod tests {
             bases::PropagateEventResult,
             service::{service_fn, BoxCloneService},
         },
-        fsm::MemoryStorage,
+        fsm::{MemoryStorage, SimpleEventIsolation},
         middlewares::outer::{
             base::BoxedCloneRoutingService, boxed_middleware_factory, wrap_to_next, UserContext,
         },
@@ -267,6 +253,7 @@ mod tests {
         types::{ChatPrivate, MessageText, Update, UpdateMessage, User},
         Bot, Extensions,
     };
+    use std::sync::Mutex;
 
     const USER_ID: i64 = 3;
 
@@ -318,7 +305,7 @@ mod tests {
         }))
     }
 
-    fn fsm_middleware(isolation: bool) -> FSMContext<MemoryStorage> {
+    fn fsm_middleware<I: EventIsolation>(isolation: I) -> FSMContext<MemoryStorage> {
         FSMContext::new(MemoryStorage::new()).isolation(isolation)
     }
 
@@ -341,7 +328,7 @@ mod tests {
     #[tokio::test]
     async fn isolation_serializes_updates_of_the_same_key() {
         let reads = Arc::new(Mutex::new(Vec::new()));
-        let fsm = fsm_middleware(true);
+        let fsm = fsm_middleware(SimpleEventIsolation::new());
 
         let (first, second) = tokio::join!(
             chain(&reads, &fsm)(test_request()),
@@ -370,7 +357,7 @@ mod tests {
     #[tokio::test]
     async fn without_isolation_updates_of_the_same_key_overlap() {
         let reads = Arc::new(Mutex::new(Vec::new()));
-        let fsm = fsm_middleware(false);
+        let fsm = fsm_middleware(DisabledEventIsolation);
 
         let (first, second) = tokio::join!(
             chain(&reads, &fsm)(test_request()),
@@ -393,7 +380,7 @@ mod tests {
         let reads = Arc::new(Mutex::new(Vec::new()));
         // Both middlewares share one lock registry, which is what a clone registered through
         // `on_all` gives. Separate instances would have separate registries and never collide.
-        let fsm = fsm_middleware(true);
+        let fsm = fsm_middleware(SimpleEventIsolation::new());
         let middlewares = vec![
             boxed_middleware_factory(UserContext),
             boxed_middleware_factory(fsm.clone()),
