@@ -28,13 +28,19 @@ More information about this crate can be found in the [crate documentation][docs
 
 ## Getting started
 
-Add `telers` to your `Cargo.toml`:
+```shell
+cargo add telers
+```
+
+`telers` is published as a pre-release, so `cargo add` is the reliable way to pick up the current version. Written by hand, the requirement has to carry the pre-release tag:
 
 ```toml
 [dependencies]
-telers = "1.0"
+telers = "1.0.0-beta.9"
 tokio = { version = "1", features = ["macros", "rt"] }
 ```
+
+Requires Rust 1.88 or newer.
 
 To enable logging, you may also want to add `tracing` and `tracing-subscriber`.
 
@@ -88,10 +94,19 @@ For more, check out the [crate documentation][docs] and the [examples below][exa
  - [Smart filter][examples/smart_filter]. This example show how to use smart filter.
  - [Text case filters][examples/text_case_filters]. This example shows how to create text case filters.
  - [Stats updates middleware][examples/stats_incoming_updates_middleware]. This example shows how to create a middleware that count incoming updates.
+ - [Throttling][examples/throttling]. This example shows how to limit how often a single user may trigger a handler.
  - [Input file][examples/input_file]. This example shows how to send files by the bot.
  - [Download file][examples/download_file]. This example shows how to download files sent to the bot.
+ - [Ephemeral messages][examples/ephemeral_messages]. This example shows how to send, edit and delete ephemeral messages.
+ - [Random sticker][examples/random_sticker]. This example shows how to reply with a random sticker from a sticker set.
+ - [Serialize][examples/serialize]. This example shows how to serialize an update back into JSON.
+ - [Skip updates][examples/skip_updates]. This example shows how to drop the updates that piled up before the bot started.
  - [Callback data][examples/callback_data]. This example shows how to pack structured data into inline keyboard buttons and unpack it in handlers.
+ - [Commands][examples/commands]. This example shows how to declare commands with the `Command` derive, publish them to BotFather and parse their arguments.
  - [Finite state machine][examples/fsm]. This example shows how to use a finite state machine (conversation).
+ - [Dialogs][examples/dialogs_mega]. This example shows how to build a multi-step dialog with `telers-dialog`.
+ - [Business connection][examples/business_connection]. This example shows how to handle `business_connection` and `business_message` updates.
+ - [FSM and business connection][examples/fsm_and_business_connection]. This example shows how to keep a separate state machine per business connection.
  - [Error handling][examples/error_handling]. This example shows how to handle errors of handlers, filters and middlewares in one place.
  - [Router tree][examples/router_tree]. This example shows how to create a router tree.
  - [Bot http client][examples/bot_http_client]. This example shows how to set a custom bot HTTP client.
@@ -100,6 +115,10 @@ For more, check out the [crate documentation][docs] and the [examples below][exa
  - [Managed bot][examples/managed_bot]. This example shows how to create a managed bot that echoes messages and handles managed bot creation events by spawning separate dispatchers with a shared shutdown signal.
 
 You may consider checking out [this directory][examples] for more examples.
+
+## Projects using telers
+
+Found a project that uses `telers`? Open a pull request and add it here.
 
 ## Community
 ### Telegram
@@ -131,6 +150,15 @@ This project is licensed under either of the following licenses, at your option:
 [examples/context]: https://github.com/Desiders/telers/tree/dev-1.x/examples/context
 [examples/extensions]: https://github.com/Desiders/telers/tree/dev-1.x/examples/extensions
 [examples/managed_bot]: https://github.com/Desiders/telers/tree/dev-1.x/examples/managed_bot
+[examples/business_connection]: https://github.com/Desiders/telers/tree/dev-1.x/examples/business_connection
+[examples/commands]: https://github.com/Desiders/telers/tree/dev-1.x/examples/commands
+[examples/dialogs_mega]: https://github.com/Desiders/telers/tree/dev-1.x/examples/dialogs_mega
+[examples/ephemeral_messages]: https://github.com/Desiders/telers/tree/dev-1.x/examples/ephemeral_messages
+[examples/fsm_and_business_connection]: https://github.com/Desiders/telers/tree/dev-1.x/examples/fsm_and_business_connection
+[examples/random_sticker]: https://github.com/Desiders/telers/tree/dev-1.x/examples/random_sticker
+[examples/serialize]: https://github.com/Desiders/telers/tree/dev-1.x/examples/serialize
+[examples/skip_updates]: https://github.com/Desiders/telers/tree/dev-1.x/examples/skip_updates
+[examples/throttling]: https://github.com/Desiders/telers/tree/dev-1.x/examples/throttling
 [licence_apache]: https://github.com/Desiders/telers/blob/dev-1.x/telers/LICENSE-APACHE
 [licence_mit]: https://github.com/Desiders/telers/blob/dev-1.x/telers/LICENSE-MIT
 [docs]: https://docs.rs/telers
