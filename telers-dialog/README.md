@@ -2,15 +2,12 @@
 
 # `telers-dialog`
 
-[![docs.rs](https://img.shields.io/docsrs/telers-dialog?style=flat-square)](https://docs.rs/telers-dialog)
-[![crates.io](https://shieldcn.dev/crates/telers-dialog.svg?variant=branded&size=xs)](https://crates.io/crates/telers-dialog)
+[![telers](https://img.shields.io/crates/v/telers?style=flat-square)](https://crates.io/crates/telers)
 <a href="https://core.telegram.org/bots/api" target="_blank" rel="noopener noreferrer"><picture><source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/Desiders/telers/refs/heads/dev-1.x/telers-codegen/schemas/api.json&query=$.version&variant=outline&size=xs&logo=ri:FaTelegramPlane&logoColor=24A1DE&label=Telegram&mode=dark"><img alt="Telegram Bot API" src="https://shieldcn.dev/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/Desiders/telers/refs/heads/dev-1.x/telers-codegen/schemas/api.json&query=$.version&variant=outline&size=xs&mode=light&theme=zinc&logo=ri:FaTelegramPlane&logoColor=24A1DE&label=Telegram"></picture></a>
 
 ### Dialog framework for [telers](https://crates.io/crates/telers)
 
 </div>
-
-More information about this crate can be found in the [crate documentation][docs].
 
 ## Highlights
  - **Windows and dialogs**. A dialog is a set of windows, each window is a set of widgets, and the dialog owns the navigation between them.
@@ -22,24 +19,22 @@ More information about this crate can be found in the [crate documentation][docs
 
 ## Getting started
 
-Add `telers-dialog` to your `Cargo.toml`:
+`telers-dialog` is not on crates.io yet, so point Cargo at the repository for now:
 
 ```toml
 [dependencies]
-telers-dialog = "0.1"
+telers-dialog = { git = "https://github.com/Desiders/telers", branch = "dev-1.x" }
 ```
 
-To enable logging, you may also want to add `tracing` and `tracing-subscriber`.
-
-Pick your serialization backend. `telers-dialog` follows `telers`, so the backend features have to match the ones you enabled on `telers`:
+`telers-dialog` follows `telers` for serialization, so the backend features have to match the ones you enabled on `telers`. The default is serde, and the deser variant looks like this:
 
 ```toml
-# default, serde is enabled on telers-dialog itself
-telers-dialog = "0.1"
-
-# with `telers = { features = ["deser"] }`
-telers-dialog = { version = "0.1", default-features = false, features = ["deser"] }
+telers-dialog = { git = "https://github.com/Desiders/telers", branch = "dev-1.x", default-features = false, features = ["deser"] }
 ```
+
+Once the crate gets published, replace the `git` part with `version = "0.1"`.
+
+To enable logging, you may also want to add `tracing` and `tracing-subscriber`.
 
 The optional `template` feature adds `TemplateText`, which renders messages with [MiniJinja](https://github.com/mitsuhiko/minijinja) templates.
 
@@ -148,7 +143,7 @@ pub fn dialog() -> impl Dialog {
 
 `LaunchMode` decides how a dialog behaves when it is started: `Standard` (the default) puts no restrictions on it, `Root` always resets the stack, `Exclusive` additionally forbids starting any other dialog on top of it, and `SingleTop` is not repeated on top of the stack, so starting the same dialog again replaces it.
 
-For more, check out the [crate documentation][docs] and the [example below][examples/dialogs_mega].
+For more, check out the [example below][examples/dialogs_mega] and the [source][source].
 
 ## Widgets
  - **Text**: `text`, `FormatText`, `FnText`, `ListText` (with optional pagination), `ScrollingText`, `MultiText`, `Case`, `Progress`, and `TemplateText` behind the `template` feature.
@@ -174,7 +169,7 @@ This project is licensed under either of the following licenses, at your option:
  - [Apache License, Version 2.0][licence_apache]
  - [MIT License][licence_mit]
 
-[docs]: https://docs.rs/telers-dialog
+[source]: https://github.com/Desiders/telers/tree/dev-1.x/telers-dialog
 [examples]: https://github.com/Desiders/telers/tree/dev-1.x/examples
 [examples/dialogs_mega]: https://github.com/Desiders/telers/tree/dev-1.x/examples/dialogs_mega
 [licence_mit]: https://github.com/Desiders/telers/blob/dev-1.x/LICENSE-MIT
