@@ -1,4 +1,4 @@
-//! Router combines all event observers.
+﻿//! Router combines all event observers.
 //!
 //! Each event observer is a special unit that handles a specific event type.
 //! There are two types of event observers.
@@ -527,6 +527,16 @@ where
 {
     with_telegram_observer_variants!(impl_router_on_methods);
 
+    /// Register an outer middleware on the `update` observer.
+    /// # Notes
+    /// Shortcut for [`Router::on_update`] with [`TelegramObserver::register_outer_middleware`],
+    /// so a middleware that has to see every update is registered with one call.
+    #[inline]
+    #[must_use]
+    pub fn on_update_middleware(self, middleware: impl OuterMiddleware<Client>) -> Self {
+        self.on_update(|observer| observer.register_outer_middleware(middleware))
+    }
+
     /// # Arguments
     /// * `name` - Name of the router. It can be used for logging and debugging and code clarity.
     #[must_use]
@@ -637,7 +647,7 @@ impl<Client> Router<Client> {
     ///
     /// 3. **Reset the Outer Middlewares in the Configuration:**
     ///    Since the outer middlewares from the configuration have been applied to the router,
-    ///    the configuration’s `outer_middlewares` is reset to a new, empty instance.
+    ///    the configurationвЂ™s `outer_middlewares` is reset to a new, empty instance.
     ///
     /// 4. **Recursively Configure Sub Routers and Build the Final Router:**
     ///    Each sub-router is recursively configured by calling `configure` on it with a cloned
