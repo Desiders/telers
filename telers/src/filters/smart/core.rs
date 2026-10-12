@@ -69,7 +69,7 @@
 //!
 //! Strings and slices:
 //! - `len()` and `is_empty()` on `str`, `String`, `Box<str>`, `[T]`, `Vec<T>`, `Box<[T]>`.
-//! - `starts_with`, `ends_with`, `is_uppercase`, `is_lowercase`, `contains` on `str`/`String`/`Box<str>`.
+//! - `starts_with`, `ends_with`, `is_uppercase`, `is_lowercase`, `contains`, `regexp` on `str`/`String`/`Box<str>`.
 //! - `contains(val)` on slices (`[T]`, `Vec<T>`, `Box<[T]>`) where `T: PartialEq`.
 //!
 //! Custom predicates:
@@ -77,7 +77,7 @@
 #![allow(clippy::type_complexity)]
 
 use crate::{types::Update, Filter, FilterResult, Request};
-
+use regex::Regex;
 use std::{convert::Infallible, future::Future, pin::Pin, sync::Arc};
 
 /// Accessor for borrowed smart filter paths.
@@ -678,6 +678,21 @@ macro_rules! impl_str_methods {
             pub fn is_lowercase(self) -> $check_ty<$str_ty> {
                 self.matches(|inner| inner.chars().all(char::is_lowercase))
             }
+
+            /// Check that the value matches the `pattern`, searching anywhere in the value.
+            ///
+            /// The pattern is compiled once here, not on every update.
+            /// # Panics
+            /// Panics if `pattern` is not a valid regexp.
+            ///
+            /// The `regex` crate is built without its Perl classes, so `\d`, `\w`, `\s` and `\b`
+            /// are not available. Use `[0-9]`, `[[:digit:]]` or `(?-u:\d)` instead.
+            #[must_use]
+            pub fn regexp(self, pattern: impl Into<Box<str>>) -> $check_ty<$str_ty> {
+                let pattern = pattern.into();
+                let regex = Regex::new(pattern.as_ref()).expect("invalid regexp pattern");
+                self.matches(move |inner| regex.is_match(inner.as_ref()))
+            }
         }
     };
 }
@@ -753,7 +768,7 @@ impl_check_invert!(SmartFilterOwnedCheck, SmartFilterOwnedMode, OwnedAccessor, b
 
 #[cfg(test)]
 mod tests {
-    use super::SmartFilterPath;
+    use super::{SmartFilterOwnedPath, SmartFilterPath};
     use crate::{
         client::Reqwest,
         filters::Filter,
@@ -820,5 +835,42 @@ mod tests {
 
         let mut filter = path(None).all().branch(|path| path.matches(|_| true));
         assert!(!filter.check(&mut request).await.unwrap());
+    }
+
+    #[tokio::test]
+    async fn regexp_matches_a_borrowed_value() {
+        let mut request = request();
+
+        let mut filter = path(Some("order_42")).regexp(r"^order_");
+        assert!(filter.check(&mut request).await.unwrap());
+
+        let mut filter = path(Some("order_42")).regexp(r"_[0-9]+$");
+        assert!(filter.check(&mut request).await.unwrap());
+
+        let mut filter = path(Some("order_42")).regexp(r"^user_");
+        assert!(!filter.check(&mut request).await.unwrap());
+
+        let mut filter = path(None).regexp(r"^order_");
+        assert!(!filter.check(&mut request).await.unwrap());
+    }
+
+    #[tokio::test]
+    async fn regexp_matches_an_owned_value() {
+        let mut request = request();
+        let owned = |value: Option<&'static str>| SmartFilterOwnedPath {
+            accessor: Arc::new(move |_| value.map(String::from)),
+        };
+
+        let mut filter = owned(Some("order_42")).regexp(r"^order_");
+        assert!(filter.check(&mut request).await.unwrap());
+
+        let mut filter = owned(Some("order_42")).regexp(r"^user_");
+        assert!(!filter.check(&mut request).await.unwrap());
+    }
+
+    #[test]
+    #[should_panic(expected = "invalid regexp pattern")]
+    fn regexp_rejects_an_invalid_pattern() {
+        let _ = path(Some("order_42")).regexp(r"(unclosed");
     }
 }
