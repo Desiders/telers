@@ -1,4 +1,4 @@
-﻿//! Router combines all event observers.
+//! Router combines all event observers.
 //!
 //! Each event observer is a special unit that handles a specific event type.
 //! There are two types of event observers.
@@ -647,7 +647,7 @@ impl<Client> Router<Client> {
     ///
     /// 3. **Reset the Outer Middlewares in the Configuration:**
     ///    Since the outer middlewares from the configuration have been applied to the router,
-    ///    the configurationвЂ™s `outer_middlewares` is reset to a new, empty instance.
+    ///    the configuration’s `outer_middlewares` is reset to a new, empty instance.
     ///
     /// 4. **Recursively Configure Sub Routers and Build the Final Router:**
     ///    Each sub-router is recursively configured by calling `configure` on it with a cloned

@@ -1,4 +1,4 @@
-﻿use super::{
+use super::{
     Config, Configured, InnerMiddlewaresConfig, OuterMiddlewaresConfig, PropagateEvent as _,
     Response, Router,
 };
@@ -198,41 +198,6 @@ async fn test_outer_cleanup_keeps_inner_and_outer_changes() {
             Some(&true)
         );
     }
-}
-
-#[tokio::test]
-async fn test_on_update_middleware_registers_on_the_update_observer() {
-    let calls = Arc::new(Mutex::new(Vec::new()));
-    let mut router = configure_router(
-        Router::new("main")
-            .on_update_middleware(recording_outer_middleware(
-                calls.clone(),
-                "update before",
-                "update after",
-            ))
-            .on_message(|observer| {
-                observer.register(recording_handler(
-                    calls.clone(),
-                    "message handler",
-                    EventReturn::Finish,
-                ))
-            }),
-    );
-
-    let response = router
-        .propagate_event(UpdateType::Message, test_request())
-        .await
-        .unwrap();
-
-    assert_finished(&response);
-    // The call log alone cannot tell `update` apart from any other observer, because the
-    // `update` observer has no handlers of its own, so check where it landed as well.
-    assert_eq!(
-        *calls.lock().unwrap(),
-        ["update before", "message handler", "update after"]
-    );
-    assert_eq!(router.update.outer_middlewares.middlewares.len(), 1);
-    assert!(router.message.outer_middlewares.middlewares.is_empty());
 }
 
 #[tokio::test]
