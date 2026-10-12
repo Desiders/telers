@@ -684,9 +684,6 @@ macro_rules! impl_str_methods {
             /// The pattern is compiled once here, not on every update.
             /// # Panics
             /// Panics if `pattern` is not a valid regexp.
-            ///
-            /// The `regex` crate is built without its Perl classes, so `\d`, `\w`, `\s` and `\b`
-            /// are not available. Use `[0-9]`, `[[:digit:]]` or `(?-u:\d)` instead.
             #[must_use]
             pub fn regexp(self, pattern: impl Into<Box<str>>) -> $check_ty<$str_ty> {
                 let pattern = pattern.into();
@@ -844,7 +841,7 @@ mod tests {
         let mut filter = path(Some("order_42")).regexp(r"^order_");
         assert!(filter.check(&mut request).await.unwrap());
 
-        let mut filter = path(Some("order_42")).regexp(r"_[0-9]+$");
+        let mut filter = path(Some("order_42")).regexp(r"_\d+$");
         assert!(filter.check(&mut request).await.unwrap());
 
         let mut filter = path(Some("order_42")).regexp(r"^user_");
