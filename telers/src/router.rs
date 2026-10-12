@@ -527,6 +527,16 @@ where
 {
     with_telegram_observer_variants!(impl_router_on_methods);
 
+    /// Register an outer middleware on the `update` observer.
+    /// # Notes
+    /// Shortcut for [`Router::on_update`] with [`TelegramObserver::register_outer_middleware`],
+    /// so a middleware that has to see every update is registered with one call.
+    #[inline]
+    #[must_use]
+    pub fn on_update_middleware(self, middleware: impl OuterMiddleware<Client>) -> Self {
+        self.on_update(|observer| observer.register_outer_middleware(middleware))
+    }
+
     /// # Arguments
     /// * `name` - Name of the router. It can be used for logging and debugging and code clarity.
     #[must_use]
