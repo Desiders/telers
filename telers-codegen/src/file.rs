@@ -14,8 +14,10 @@ pub fn write_tokens_to_file(
     Ok(())
 }
 
-/// Render tokens the same way [`write_tokens_to_file`] does and report the path back when the
-/// file on disk differs. A file that does not exist counts as differing.
+/// Report the path back when the file on disk differs from what the generator would write.
+///
+/// The file on disk is rendered the same way, so formatting applied afterwards does not count as
+/// drift. A file that does not exist, or does not parse, counts as differing.
 pub fn check_tokens_to_file(
     tokens: impl Display,
     dir: &Path,
@@ -23,9 +25,12 @@ pub fn check_tokens_to_file(
 ) -> anyhow::Result<Option<String>> {
     let formatted = format_tokens(&tokens)?;
     let path = dir.join(filename);
-    let existing = fs::read_to_string(&path).unwrap_or_default();
+    let matches = fs::read_to_string(&path)
+        .ok()
+        .and_then(|existing| format_tokens(&existing).ok())
+        .is_some_and(|existing| existing == formatted);
 
-    Ok((existing != formatted).then(|| path.display().to_string()))
+    Ok((!matches).then(|| path.display().to_string()))
 }
 
 fn format_tokens(tokens: &impl Display) -> anyhow::Result<String> {
