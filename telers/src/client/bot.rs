@@ -613,6 +613,10 @@ mod tests {
         type Method = ();
         type Return = i64;
 
+        fn method_name(&self) -> &'static str {
+            "test"
+        }
+
         fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
             Request::new("test", (), None)
         }

@@ -493,6 +493,10 @@ impl super::TelegramMethod for SendAnimation {
     type Method = Self;
     type Return = crate::types::Message;
 
+    fn method_name(&self) -> &'static str {
+        "sendAnimation"
+    }
+
     fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
         super::prepare_file(&mut files, &mut self.animation);

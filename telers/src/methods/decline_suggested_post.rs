@@ -67,6 +67,10 @@ impl super::TelegramMethod for DeclineSuggestedPost {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "declineSuggestedPost"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("declineSuggestedPost", self, None)
     }

@@ -59,6 +59,10 @@ impl super::TelegramMethod for SetStickerMaskPosition {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "setStickerMaskPosition"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("setStickerMaskPosition", self, None)
     }

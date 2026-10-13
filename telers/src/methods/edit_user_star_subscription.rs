@@ -60,6 +60,10 @@ impl super::TelegramMethod for EditUserStarSubscription {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "editUserStarSubscription"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("editUserStarSubscription", self, None)
     }

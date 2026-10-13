@@ -103,6 +103,10 @@ impl super::TelegramMethod for SetManagedBotAccessSettings {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "setManagedBotAccessSettings"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("setManagedBotAccessSettings", self, None)
     }

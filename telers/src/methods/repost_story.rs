@@ -113,6 +113,10 @@ impl super::TelegramMethod for RepostStory {
     type Method = Self;
     type Return = crate::types::Story;
 
+    fn method_name(&self) -> &'static str {
+        "repostStory"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("repostStory", self, None)
     }

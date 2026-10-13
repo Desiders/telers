@@ -70,6 +70,10 @@ impl super::TelegramMethod for SetBusinessAccountProfilePhoto {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "setBusinessAccountProfilePhoto"
+    }
+
     fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
         super::prepare_input_profile_photo(&mut files, &mut self.photo);

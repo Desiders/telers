@@ -82,6 +82,10 @@ impl super::TelegramMethod for CreateChatSubscriptionInviteLink {
     type Method = Self;
     type Return = crate::types::ChatInviteLink;
 
+    fn method_name(&self) -> &'static str {
+        "createChatSubscriptionInviteLink"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("createChatSubscriptionInviteLink", self, None)
     }

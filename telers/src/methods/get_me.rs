@@ -24,6 +24,10 @@ impl super::TelegramMethod for GetMe {
     type Method = Self;
     type Return = crate::types::User;
 
+    fn method_name(&self) -> &'static str {
+        "getMe"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getMe", self, None)
     }

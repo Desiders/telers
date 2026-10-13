@@ -246,6 +246,10 @@ impl super::TelegramMethod for EditMessageCaption {
     type Method = Self;
     type Return = crate::Either<crate::types::Message, bool>;
 
+    fn method_name(&self) -> &'static str {
+        "editMessageCaption"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("editMessageCaption", self, None)
     }

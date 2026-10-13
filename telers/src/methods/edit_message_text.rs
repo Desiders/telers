@@ -271,6 +271,10 @@ impl super::TelegramMethod for EditMessageText {
     type Method = Self;
     type Return = crate::Either<crate::types::Message, bool>;
 
+    fn method_name(&self) -> &'static str {
+        "editMessageText"
+    }
+
     fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
         if let Some(rich_message) = &mut self.rich_message {

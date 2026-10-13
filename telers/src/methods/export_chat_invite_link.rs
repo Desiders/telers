@@ -34,6 +34,10 @@ impl super::TelegramMethod for ExportChatInviteLink {
     type Method = Self;
     type Return = Box<str>;
 
+    fn method_name(&self) -> &'static str {
+        "exportChatInviteLink"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("exportChatInviteLink", self, None)
     }

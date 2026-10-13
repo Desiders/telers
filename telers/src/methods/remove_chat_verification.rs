@@ -34,6 +34,10 @@ impl super::TelegramMethod for RemoveChatVerification {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "removeChatVerification"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("removeChatVerification", self, None)
     }

@@ -128,6 +128,10 @@ impl super::TelegramMethod for EditMessageReplyMarkup {
     type Method = Self;
     type Return = crate::Either<crate::types::Message, bool>;
 
+    fn method_name(&self) -> &'static str {
+        "editMessageReplyMarkup"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("editMessageReplyMarkup", self, None)
     }

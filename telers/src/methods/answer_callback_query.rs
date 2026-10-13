@@ -113,6 +113,10 @@ impl super::TelegramMethod for AnswerCallbackQuery {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "answerCallbackQuery"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("answerCallbackQuery", self, None)
     }

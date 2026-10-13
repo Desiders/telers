@@ -136,6 +136,10 @@ impl super::TelegramMethod for EditMessageMedia {
     type Method = Self;
     type Return = crate::Either<crate::types::Message, bool>;
 
+    fn method_name(&self) -> &'static str {
+        "editMessageMedia"
+    }
+
     fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
         super::prepare_input_media(&mut files, &mut self.media);

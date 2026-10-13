@@ -74,6 +74,10 @@ impl super::TelegramMethod for SetStickerEmojiList {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "setStickerEmojiList"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("setStickerEmojiList", self, None)
     }

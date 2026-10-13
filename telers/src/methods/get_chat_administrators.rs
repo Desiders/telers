@@ -56,6 +56,10 @@ impl super::TelegramMethod for GetChatAdministrators {
     type Method = Self;
     type Return = Box<[crate::types::ChatMember]>;
 
+    fn method_name(&self) -> &'static str {
+        "getChatAdministrators"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getChatAdministrators", self, None)
     }

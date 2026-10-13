@@ -77,6 +77,10 @@ impl super::TelegramMethod for ReplaceStickerInSet {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "replaceStickerInSet"
+    }
+
     fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
         super::prepare_input_sticker(&mut files, &mut self.sticker);

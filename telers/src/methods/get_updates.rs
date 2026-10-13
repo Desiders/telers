@@ -141,6 +141,10 @@ impl super::TelegramMethod for GetUpdates {
     type Method = Self;
     type Return = Box<[crate::Either<crate::types::Update, crate::types::UpdateUnparsed>]>;
 
+    fn method_name(&self) -> &'static str {
+        "getUpdates"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getUpdates", self, None)
     }

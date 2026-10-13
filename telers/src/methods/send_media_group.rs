@@ -221,6 +221,10 @@ impl super::TelegramMethod for SendMediaGroup {
     type Method = Self;
     type Return = Box<[crate::types::Message]>;
 
+    fn method_name(&self) -> &'static str {
+        "sendMediaGroup"
+    }
+
     fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
         super::prepare_input_media_group(&mut files, self.media.iter_mut().collect());

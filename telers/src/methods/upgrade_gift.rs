@@ -89,6 +89,10 @@ impl super::TelegramMethod for UpgradeGift {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "upgradeGift"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("upgradeGift", self, None)
     }

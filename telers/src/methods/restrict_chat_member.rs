@@ -108,6 +108,10 @@ impl super::TelegramMethod for RestrictChatMember {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "restrictChatMember"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("restrictChatMember", self, None)
     }

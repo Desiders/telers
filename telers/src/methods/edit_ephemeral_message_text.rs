@@ -228,6 +228,10 @@ impl super::TelegramMethod for EditEphemeralMessageText {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "editEphemeralMessageText"
+    }
+
     fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
         if let Some(rich_message) = &mut self.rich_message {

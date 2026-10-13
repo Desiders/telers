@@ -479,6 +479,10 @@ impl super::TelegramMethod for CreateInvoiceLink {
     type Method = Self;
     type Return = Box<str>;
 
+    fn method_name(&self) -> &'static str {
+        "createInvoiceLink"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("createInvoiceLink", self, None)
     }

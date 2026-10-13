@@ -94,6 +94,10 @@ impl super::TelegramMethod for GetGameHighScores {
     type Method = Self;
     type Return = Box<[crate::types::GameHighScore]>;
 
+    fn method_name(&self) -> &'static str {
+        "getGameHighScores"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getGameHighScores", self, None)
     }

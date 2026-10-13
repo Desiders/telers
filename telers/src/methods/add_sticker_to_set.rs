@@ -60,6 +60,10 @@ impl super::TelegramMethod for AddStickerToSet {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "addStickerToSet"
+    }
+
     fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
         super::prepare_input_sticker(&mut files, &mut self.sticker);

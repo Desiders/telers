@@ -24,6 +24,10 @@ impl super::TelegramMethod for GetAvailableGifts {
     type Method = Self;
     type Return = crate::types::Gifts;
 
+    fn method_name(&self) -> &'static str {
+        "getAvailableGifts"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getAvailableGifts", self, None)
     }

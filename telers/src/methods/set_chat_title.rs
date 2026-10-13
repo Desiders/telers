@@ -48,6 +48,10 @@ impl super::TelegramMethod for SetChatTitle {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "setChatTitle"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("setChatTitle", self, None)
     }

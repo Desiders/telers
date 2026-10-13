@@ -48,6 +48,10 @@ impl super::TelegramMethod for DeclineChatJoinRequest {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "declineChatJoinRequest"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("declineChatJoinRequest", self, None)
     }

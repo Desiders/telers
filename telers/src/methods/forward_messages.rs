@@ -167,6 +167,10 @@ impl super::TelegramMethod for ForwardMessages {
     type Method = Self;
     type Return = Box<[crate::types::MessageId]>;
 
+    fn method_name(&self) -> &'static str {
+        "forwardMessages"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("forwardMessages", self, None)
     }

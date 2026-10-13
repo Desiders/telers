@@ -70,6 +70,10 @@ impl super::TelegramMethod for SetChatMemberTag {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "setChatMemberTag"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("setChatMemberTag", self, None)
     }
