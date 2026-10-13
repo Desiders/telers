@@ -3,8 +3,10 @@ use crate::{
     context::Context as RequestContext,
     errors::{EventErrorKind, MiddlewareError},
     fsm::{
-        isolation::{DisabledEventIsolation, EventIsolation, IsolationGuard},
-        storage::base::{StorageKey, DEFAULT_DESTINY},
+        storage::{
+            base::{StorageKey, DEFAULT_DESTINY},
+            DisabledEventIsolation, EventIsolation, IsolationGuard,
+        },
         strategy::Strategy,
         Context, Storage,
     },
@@ -19,7 +21,7 @@ use std::{
 use tracing::instrument;
 
 /// State key an upstream `FSMContext` already locked, so a nested chain does not lock it twice.
-const ISOLATED_KEY: &str = "fsm_isolated_key";
+const LOCKED_KEY: &str = "fsm_locked_key";
 
 /// Middleware for creating FSM [`Context`]
 ///
@@ -71,11 +73,11 @@ impl<S> FSMContext<S> {
     /// # Examples
     /// ```
     /// use telers::{
-    ///     fsm::{MemoryStorage, SimpleEventIsolation},
+    ///     fsm::{MemoryEventIsolation, MemoryStorage},
     ///     middlewares::outer::FSMContext,
     /// };
     ///
-    /// let middleware = FSMContext::new(MemoryStorage::new()).isolation(SimpleEventIsolation::new());
+    /// let middleware = FSMContext::new(MemoryStorage::new()).isolation(MemoryEventIsolation::new());
     /// ```
     ///
     /// # Notes
@@ -115,11 +117,7 @@ where
     S: Clone,
 {
     #[must_use]
-    fn resolve_event_context(
-        &self,
-        bot_id: i64,
-        context: &RequestContext,
-    ) -> Option<(StorageKey, Context<S>)> {
+    fn resolve_event_context(&self, bot_id: i64, context: &RequestContext) -> Option<Context<S>> {
         let user_id = context.get::<User>("event_user").map(|user| user.id);
         let chat_id = context.get::<Chat>("event_chat").map(Chat::id);
         let message_thread_id = context.get("event_message_thread_id").copied();
@@ -142,7 +140,7 @@ where
         user_id: Option<i64>,
         message_thread_id: Option<i64>,
         business_connection_id: Option<String>,
-    ) -> Option<(StorageKey, Context<S>)> {
+    ) -> Option<Context<S>> {
         user_id.map(|user_id| {
             let id_pair = self.strategy.apply(
                 chat_id.unwrap_or(user_id),
@@ -169,7 +167,7 @@ where
         user_id: i64,
         message_thread_id: Option<i64>,
         business_connection_id: Option<String>,
-    ) -> (StorageKey, Context<S>) {
+    ) -> Context<S> {
         let key = StorageKey {
             bot_id,
             chat_id,
@@ -179,19 +177,34 @@ where
             destiny: self.destiny,
         };
 
-        (key.clone(), Context::new(self.storage.clone(), key))
+        Context::new(self.storage.clone(), key)
     }
 
-    /// Lock the key, unless an upstream middleware already locked the same one, which is what
-    /// happens when this middleware is registered through `on_all`.
-    async fn lock(&self, context: &mut RequestContext, key: StorageKey) -> Option<IsolationGuard> {
-        if context.get::<StorageKey>(ISOLATED_KEY) == Some(&key) {
-            return None;
+    /// Lock the key, unless this update is already locked
+    ///
+    /// `on_all` registers this middleware once per update type, so an update passes through it
+    /// twice: once for its own type and once for `on_all`. Locking the key again on the second
+    /// pass would wait for a lock this update already holds, so the key is remembered in the
+    /// request context instead of taking it twice.
+    ///
+    /// # Errors
+    /// If the isolation implementation can't take the lock
+    async fn lock(
+        &self,
+        context: &mut RequestContext,
+        key: &StorageKey,
+    ) -> Result<Option<IsolationGuard>, EventErrorKind> {
+        if context.get::<StorageKey>(LOCKED_KEY) == Some(key) {
+            return Ok(None);
         }
 
-        context.insert(ISOLATED_KEY, key.clone());
+        context.insert(LOCKED_KEY, key.clone());
 
-        Some(self.isolation.lock(&key).await)
+        self.isolation
+            .lock(key)
+            .await
+            .map(Some)
+            .map_err(|err| EventErrorKind::Middleware(MiddlewareError::new(err)))
     }
 }
 
@@ -208,12 +221,15 @@ where
     ) -> MiddlewareResult<Client> {
         let fsm = self.resolve_event_context(request.bot.id, &request.context);
         // Dropped when this function returns, so the handlers run inside the lock.
-        let _isolation_guard = match &fsm {
-            Some((key, _)) => self.lock(&mut request.context, key.clone()).await,
+        let _isolation_guard = match fsm.as_ref() {
+            Some(fsm_context) => match self.lock(&mut request.context, fsm_context.key()).await {
+                Ok(guard) => guard,
+                Err(err) => return Err((err, request)),
+            },
             None => None,
         };
 
-        if let Some((_, fsm_context)) = fsm {
+        if let Some(fsm_context) = fsm {
             let state = match fsm_context.get_state().await {
                 Ok(state) => state,
                 Err(err) => {
@@ -245,7 +261,7 @@ mod tests {
             bases::PropagateEventResult,
             service::{service_fn, BoxCloneService},
         },
-        fsm::{MemoryStorage, SimpleEventIsolation},
+        fsm::{MemoryEventIsolation, MemoryStorage},
         middlewares::outer::{
             base::BoxedCloneRoutingService, boxed_middleware_factory, wrap_to_next, UserContext,
         },
@@ -328,7 +344,7 @@ mod tests {
     #[tokio::test]
     async fn isolation_serializes_updates_of_the_same_key() {
         let reads = Arc::new(Mutex::new(Vec::new()));
-        let fsm = fsm_middleware(SimpleEventIsolation::new());
+        let fsm = fsm_middleware(MemoryEventIsolation::new());
 
         let (first, second) = tokio::join!(
             chain(&reads, &fsm)(test_request()),
@@ -380,7 +396,7 @@ mod tests {
         let reads = Arc::new(Mutex::new(Vec::new()));
         // Both middlewares share one lock registry, which is what a clone registered through
         // `on_all` gives. Separate instances would have separate registries and never collide.
-        let fsm = fsm_middleware(SimpleEventIsolation::new());
+        let fsm = fsm_middleware(MemoryEventIsolation::new());
         let middlewares = vec![
             boxed_middleware_factory(UserContext),
             boxed_middleware_factory(fsm.clone()),

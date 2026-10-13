@@ -20,8 +20,10 @@ pub mod memory;
 pub mod redis;
 
 #[cfg(feature = "redis-storage")]
-pub use self::redis::{KeyBuilderImpl, Redis};
+pub use self::redis::{KeyBuilderImpl, Redis, RedisEventIsolation};
 #[allow(clippy::module_name_repetitions)]
-pub use base::{Error, Storage, StorageKey};
+pub use base::{
+    DisabledEventIsolation, Error, EventIsolation, IsolationGuard, Storage, StorageKey,
+};
 #[cfg(feature = "memory-storage")]
-pub use memory::Memory;
+pub use memory::{Memory, MemoryEventIsolation};

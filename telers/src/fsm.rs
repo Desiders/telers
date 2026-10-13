@@ -35,17 +35,15 @@
 //! [`FSMContext middleware`]: telers::middlewares::outer::fsm_context::FSMContext
 
 pub mod context;
-pub mod isolation;
 pub mod storage;
 pub mod strategy;
 
 pub use context::Context;
-pub use isolation::{DisabledEventIsolation, EventIsolation, SimpleEventIsolation};
-pub use storage::{Storage, StorageKey};
+pub use storage::{DisabledEventIsolation, EventIsolation, Storage, StorageKey};
 pub use strategy::Strategy;
 
 #[cfg(feature = "redis-storage")]
 pub use storage::{KeyBuilderImpl as RedisDefaultKeyBuilder, Redis as RedisStorage};
 
 #[cfg(feature = "memory-storage")]
-pub use storage::Memory as MemoryStorage;
+pub use storage::{Memory as MemoryStorage, MemoryEventIsolation};

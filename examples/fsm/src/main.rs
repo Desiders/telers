@@ -2,7 +2,7 @@ use telers::{
     enums::{MessageType::Text, UpdateType},
     event::telegram::{Handler, HandlerResult},
     filters::{CommandStart, MessageType, State as StateFilter},
-    fsm::{Context as FSMContext, MemoryStorage, SimpleEventIsolation, Strategy::UserInChat},
+    fsm::{Context as FSMContext, MemoryEventIsolation, MemoryStorage, Strategy::UserInChat},
     methods::SendMessage,
     middlewares::outer::FSMContext as FSMContextMiddleware,
     types::{Message, MessageText},
@@ -109,7 +109,7 @@ async fn main() {
             observer.register_outer_middleware(
                 FSMContextMiddleware::new(storage)
                     .strategy(UserInChat)
-                    .isolation(SimpleEventIsolation::new()),
+                    .isolation(MemoryEventIsolation::new()),
             )
         })
         .on_message(|observer| {
