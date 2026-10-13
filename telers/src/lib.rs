@@ -94,7 +94,10 @@ pub mod webhooks;
 
 pub use telers_macros::{CallbackData, Command, FromContext, FromEvent, State};
 
-pub use client::Bot;
+pub use client::{
+    session::{Logging, Middleware, Next},
+    Bot,
+};
 pub use context::Context;
 pub use dispatcher::{Builder as DispatcherBuilder, Dispatcher};
 pub use either::Either;

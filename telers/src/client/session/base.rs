@@ -303,35 +303,6 @@ pub trait Session: Send + Sync {
         }
     }
 
-    /// Makes a request to Telegram API and get result from it
-    /// # Arguments
-    /// * `bot` - Bot instance for building and sending request, it is mainly used for getting bot token
-    /// * `method` - Telegram method for building and sending request
-    /// * `timeout` - Request timeout.
-    ///   If `None`, then client timeout will be used, which is [`DEFAULT_TIMEOUT`] by default.
-    /// # Errors
-    /// - If the request cannot be send or decoded
-    /// - If the response cannot be parsed
-    /// - If the response represents an telegram api error
-    fn make_request_and_get_result<Client, T>(
-        &self,
-        bot: &Bot<Client>,
-        method: T,
-        timeout: Option<f32>,
-    ) -> impl Future<Output = Result<T::Return, SessionErrorKind>> + Send
-    where
-        Client: Session,
-        T: TelegramMethod + Send + Sync,
-        T::Method: Send + Sync,
-    {
-        async move {
-            let resp = self.make_request(bot, method, timeout).await?;
-
-            // Unwrap safe because we checked it in `check_response`
-            Ok(resp.result.unwrap())
-        }
-    }
-
     /// Close client session. Default implementation does nothing.
     fn close(&self) -> impl Future<Output = Result<(), anyhow::Error>> + Send {
         async move { Ok(()) }
