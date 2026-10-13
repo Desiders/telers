@@ -3,12 +3,8 @@ use crate::{
     context::Context as RequestContext,
     errors::{EventErrorKind, MiddlewareError},
     fsm::{
-        storage::{
-            base::{StorageKey, DEFAULT_DESTINY},
-            DisabledEventIsolation, EventIsolation, IsolationGuard,
-        },
-        strategy::Strategy,
-        Context, Storage,
+        strategy::Strategy, Context, DisabledEventIsolation, EventIsolation, IsolationGuard,
+        Storage, StorageKey, DEFAULT_DESTINY,
     },
     types::{Chat, User},
     Request,

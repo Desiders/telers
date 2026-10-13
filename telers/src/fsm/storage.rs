@@ -24,6 +24,7 @@ pub use self::redis::{KeyBuilderImpl, Redis, RedisEventIsolation};
 #[allow(clippy::module_name_repetitions)]
 pub use base::{
     DisabledEventIsolation, Error, EventIsolation, IsolationGuard, Storage, StorageKey,
+    DEFAULT_DESTINY,
 };
 #[cfg(feature = "memory-storage")]
 pub use memory::{Memory, MemoryEventIsolation};
