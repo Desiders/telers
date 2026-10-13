@@ -3,7 +3,7 @@
 use telers_dialog::{
     entities::DataMap,
     widgets::{
-        fn_text, keyboard, text, Button, ButtonAction, Calendar, CalendarAppearance,
+        fn_text, keyboard, text, Button, ButtonAction, ButtonAppearance, ButtonStyle, Calendar, CalendarAppearance,
         CalendarButtonKind, InlineKeyboard, TimeSelect,
     },
     window, Dialog,
@@ -172,6 +172,13 @@ pub fn dialog() -> impl Dialog {
                                 .text_renderer(
                                     |kind, _ctx| async move { custom_calendar_label(kind) },
                                 )
+                                .appearance_renderer(|kind, _ctx| async move {
+                                    if matches!(kind, CalendarButtonKind::Day { is_today: true, .. }) {
+                                        ButtonAppearance::builder().style(ButtonStyle::Success).build()
+                                    } else {
+                                        ButtonAppearance::default()
+                                    }
+                                })
                                 .build(),
                         )
                         .on_click(|_click, selected_date| async move {
@@ -188,13 +195,25 @@ pub fn dialog() -> impl Dialog {
         window(
             "calendar_time",
             [
-                text("Time select\n\nThe selected hour and minute stay highlighted."),
+                fn_text(|data: &DataMap| {
+                    let selected = data.get("selected_time").and_then(|value| value.as_str())
+                        .unwrap_or("Choose an hour and a minute.");
+                    format!("Time select\n\n{selected}")
+                }),
                 keyboard(
                     TimeSelect::builder("digest_time")
                         .hour_header("Hour".into())
                         .minute_header("Minute".into())
                         .minute_precision(15)
                         .minute_width(4)
+                        .selected_button_appearance(ButtonAppearance::builder().style(ButtonStyle::Success).build())
+                        .on_value_changed(|_click, selected| async move {
+                            let label = selected.map_or_else(
+                                || "Choose an hour and a minute.".to_owned(),
+                                |value| format!("Selected: {:02}:{:02}", value.hour(), value.minute()),
+                            );
+                            ButtonAction::set_dialog_value("selected_time", label)
+                        })
                         .build(),
                 ),
                 keyboard(back_nav()),

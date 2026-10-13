@@ -19,10 +19,8 @@ pub type MediaItemRenderer<T> =
 
 /// A scrollable media widget that displays one media item at a time.
 ///
-/// Works with [`ScrollingGroup`] and pager widgets to allow navigation
+/// Works with pager widgets to allow navigation
 /// through a collection of media items.
-///
-/// [`ScrollingGroup`]: crate::widgets::ScrollingGroup
 pub struct MediaScroll<T>
 where
     T: Clone + Send + Sync + 'static,

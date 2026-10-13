@@ -1,7 +1,7 @@
 #[cfg(test)]
 use crate::entities::{ChatEvent, EventContext};
 use crate::{
-    entities::{Context, NewMessage, RenderContext, ResultContext, ShowMode},
+    entities::{Context, DataGetter, NewMessage, RenderContext, ResultContext, ShowMode},
     future::BoxFuture,
     widgets::{
         ensure_widgets, ButtonAction, ClickContext, Input, Keyboard, LinkPreviewWidget, Media,
@@ -19,6 +19,9 @@ type WindowResultHandler =
 #[async_trait]
 pub trait Window: Send + Sync {
     fn get_state(&self) -> &str;
+    async fn load_data(&self, render_ctx: &RenderContext) -> Result<RenderContext, crate::DialogError> {
+        Ok(render_ctx.clone())
+    }
     async fn render(&self, render_ctx: &RenderContext) -> NewMessage;
     async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction>;
     #[cfg(test)]
@@ -38,7 +41,7 @@ pub trait Window: Send + Sync {
                 .from(User::new(10, false, "tester"))
                 .into(),
         );
-        let event_context = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        let event_context = EventContext::new(Bot::<Reqwest>::default(), event.clone());
         let runtime_context = telers::Context::default();
         let click = ClickContext::new(ctx, callback_data, &event, &event_context, &runtime_context);
         self.handle_callback(&click).await
@@ -103,6 +106,7 @@ pub struct WindowImpl {
     show_mode: ShowMode,
     link_preview_options: Option<LinkPreviewOptions>,
     on_process_result: Option<Arc<WindowResultHandler>>,
+    getters: Vec<DataGetter>,
 }
 
 impl WindowImpl {
@@ -123,7 +127,15 @@ impl WindowImpl {
             show_mode: ShowMode::Auto,
             link_preview_options: None,
             on_process_result: None,
+            getters: Vec::new(),
         }
+    }
+
+    /// Add a data provider, evaluated after dialog getters in registration order.
+    #[must_use]
+    pub fn getter(mut self, getter: DataGetter) -> Self {
+        self.getters.push(getter);
+        self
     }
 
     /// Set parse mode.
@@ -195,6 +207,14 @@ impl WindowImpl {
 impl Window for WindowImpl {
     fn get_state(&self) -> &str {
         &self.state
+    }
+
+    async fn load_data(&self, render_ctx: &RenderContext) -> Result<RenderContext, crate::DialogError> {
+        let mut context = render_ctx.clone();
+        for getter in &self.getters {
+            context = getter.load(&context).await?;
+        }
+        Ok(context)
     }
 
     async fn render(&self, render_ctx: &RenderContext) -> NewMessage {
@@ -286,6 +306,98 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn getters_merge_in_order_without_persisting_derived_data() {
+        use crate::entities::{base_data, DataGetter};
+        use telers::serialization::json;
+        let mut context = Context::new("", "state", json!({"seed": 5}));
+        context.dialog_data.insert("name".into(), json!("original"));
+        context.widget_data.insert("choice".into(), json!("pear"));
+        let event = ChatEvent::Message(test_message("input"));
+        let event_context = EventContext::new(Bot::<Reqwest>::default(), event.clone());
+        let mut runtime = telers::Context::default();
+        runtime.insert("prefix", String::from("Hello"));
+        let render = RenderContext::new(&context, &base_data(&context), &event, &event_context)
+            .with_runtime_context(&runtime);
+        let window = window("state", [text("{name}")])
+            .getter(DataGetter::new(|render: RenderContext| async move {
+                assert_eq!(render.data["start_data"]["seed"], 5);
+                assert_eq!(render.data["widget_data"]["choice"], "pear");
+                Ok(DataMap::from([(
+                    "name".into(),
+                    json!(render.runtime_data::<String>("prefix").unwrap()),
+                )]))
+            }))
+            .getter(DataGetter::new(|render: RenderContext| async move {
+                Ok(DataMap::from([(
+                    "name".into(),
+                    json!(format!("{} world", render.data["name"].as_str().unwrap())),
+                )]))
+            }));
+        let loaded = window.load_data(&render).await.expect("getters");
+        assert_eq!(loaded.data["name"], "Hello world");
+        assert_eq!(context.dialog_data["name"], "original");
+        assert_eq!(loaded.context.dialog_data["name"], "original");
+    }
+
+    #[tokio::test]
+    async fn getter_failure_stops_the_pipeline() {
+        use crate::entities::{DataGetter, base_data};
+        let context = Context::new("", "state", Value::default());
+        let event = ChatEvent::Message(test_message("input"));
+        let event_context = EventContext::new(Bot::<Reqwest>::default(), event.clone());
+        let render = RenderContext::new(&context, &base_data(&context), &event, &event_context);
+        let window = window("state", [text("Text")])
+            .getter(DataGetter::new(|_: RenderContext| async {
+                Err(crate::DialogError::NoContext)
+            }))
+            .getter(DataGetter::new(|_: RenderContext| async {
+                panic!("must not run after failure")
+            }));
+        assert!(matches!(
+            window.load_data(&render).await,
+            Err(crate::DialogError::NoContext)
+        ));
+    }
+
+    #[tokio::test]
+    async fn window_getter_failure_keeps_inherited_dialog_getter_data_ephemeral() {
+        use crate::{
+            dialog,
+            entities::{base_data, DataGetter},
+            Dialog,
+        };
+        use telers::serialization::json;
+
+        let mut context = Context::new("", "state", json!({"seed": 7}));
+        context.dialog_data.insert("value".into(), json!("persisted"));
+        let event = ChatEvent::Message(test_message("input"));
+        let event_context = EventContext::new(Bot::<Reqwest>::default(), event.clone());
+        let render = RenderContext::new(&context, &base_data(&context), &event, &event_context);
+        let dialog = dialog([window("state", [text("Text")])
+            .getter(DataGetter::new(|render: RenderContext| async move {
+                assert_eq!(render.data["value"].as_str(), Some("derived"));
+                assert_eq!(render.data["start_data"]["seed"], 7);
+                assert_eq!(
+                    render.context.dialog_data["value"].as_str(),
+                    Some("persisted")
+                );
+                Err(crate::DialogError::NoContext)
+            }))
+            .getter(DataGetter::new(|_: RenderContext| async {
+                panic!("must not run after window getter fails")
+            }))])
+            .getter(DataGetter::new(|_: RenderContext| async {
+                Ok(DataMap::from([("value".into(), json!("derived"))]))
+            }));
+        assert!(matches!(
+            dialog.load_data("state", &render).await,
+            Err(crate::DialogError::NoContext)
+        ));
+        assert_eq!(render.data["value"].as_str(), Some("persisted"));
+        assert_eq!(context.dialog_data["value"].as_str(), Some("persisted"));
+    }
+
+    #[tokio::test]
     async fn window_combines_multiple_keyboard_and_input_widgets() {
         let window = window(
             "state",
@@ -313,7 +425,7 @@ mod tests {
         let ctx = Context::new("", "state", Value::default());
         let data = DataMap::new();
         let event = ChatEvent::Message(test_message("/start"));
-        let event_ctx = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        let event_ctx = EventContext::new(Bot::<Reqwest>::default(), event.clone());
         let render_ctx = RenderContext::new(&ctx, &data, &event, &event_ctx);
 
         let rendered = window.render(&render_ctx).await;
@@ -361,7 +473,7 @@ mod tests {
         let ctx = Context::new("", "state", Value::default());
         let data = DataMap::new();
         let event = ChatEvent::Message(test_message("/start"));
-        let event_ctx = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        let event_ctx = EventContext::new(Bot::<Reqwest>::default(), event.clone());
         let render_ctx = RenderContext::new(&ctx, &data, &event, &event_ctx);
 
         let rendered = window.render(&render_ctx).await;
@@ -379,7 +491,7 @@ mod tests {
         let ctx = Context::new("", "state", Value::default());
         let data = DataMap::new();
         let event = ChatEvent::Message(test_message("/start"));
-        let event_ctx = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        let event_ctx = EventContext::new(Bot::<Reqwest>::default(), event.clone());
         let render_ctx = RenderContext::new(&ctx, &data, &event, &event_ctx);
 
         let rendered = window.render(&render_ctx).await;
@@ -406,7 +518,7 @@ mod tests {
         let start_data = Value::default();
         let result = Value::default();
         let event = ChatEvent::Message(test_message("/done"));
-        let event_ctx = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        let event_ctx = EventContext::new(Bot::<Reqwest>::default(), event.clone());
         let runtime_context = telers::Context::default();
         let result_ctx = ResultContext::new(
             &ctx,

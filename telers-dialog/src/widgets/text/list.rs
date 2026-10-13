@@ -13,6 +13,8 @@ use async_trait::async_trait;
 /// `items_getter` is invoked with the current [`DataMap`] and returns any
 /// `IntoIterator`. `item_renderer` formats each item and the rendered strings
 /// are joined by the configured separator (default `"\n"`).
+/// Its data includes `pos` / `pos0`, `current_page` / `current_page1`, and `pages`;
+/// the original render data remains available under `data`.
 ///
 /// # Pagination
 ///
@@ -113,20 +115,34 @@ where
         // instead of rendering the whole list and discarding all but one page.
         let items: Vec<Item> = (self.items_getter)(data).into_iter().collect();
 
+        let pages = match self.page_size {
+            Some(page_size) if page_size > 0 => items.len().div_ceil(page_size).max(1),
+            _ => 1,
+        };
+        let current = page.min(pages - 1);
         let range = match self.page_size {
             Some(page_size) if page_size > 0 => {
-                let pages = items.len().div_ceil(page_size).max(1);
-                let current = page.min(pages - 1);
                 let start = current * page_size;
                 let end = (start + page_size).min(items.len());
                 start..end
             }
             _ => 0..items.len(),
         };
-
+        let start = range.start;
+        let mut item_data = data.clone();
+        item_data.insert("data".into(), telers::serialization::to_value(data).unwrap_or_default());
+        item_data.insert("current_page".into(), current.into());
+        item_data.insert("current_page1".into(), (current + 1).into());
+        item_data.insert("pages".into(), pages.into());
         items[range]
             .iter()
-            .map(|item| (self.item_renderer)(item, data).into())
+            .enumerate()
+            .map(|(index, item)| -> Box<str> {
+                item_data.insert("pos0".into(), (start + index).into());
+                item_data.insert("pos".into(), (start + index + 1).into());
+                (self.item_renderer)(item, &item_data).into()
+            })
+            .filter(|text| !text.is_empty())
             .collect::<Vec<Box<str>>>()
             .join(&self.separator)
             .into_boxed_str()

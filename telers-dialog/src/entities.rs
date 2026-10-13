@@ -5,6 +5,7 @@
 
 mod access;
 mod context;
+mod data;
 mod events;
 mod messages;
 mod modes;
@@ -15,12 +16,13 @@ mod update_event;
 
 pub use access::{AccessSettings, DefaultAccessValidator, StackAccessValidator};
 pub use context::{generate_id, Context, Data, DataMap};
+pub use data::DataGetter;
 pub use events::{
-    chat_event_from_update, ChatEvent, EventContext, CHAT_EVENT_KEY, EVENT_CONTEXT_KEY,
+    chat_event_from_update, ChatEvent, EventContext, CHAT_EVENT_KEY, EVENT_BOT_KEY, EVENT_CONTEXT_KEY,
 };
 pub use messages::{NewMessage, OldMessage};
 pub use modes::{LaunchMode, ShowMode, StartMode};
-pub use render::RenderContext;
+pub use render::{base_data, RenderContext};
 pub use result::ResultContext;
 pub use stack::{Stack, DEFAULT_STACK_ID};
 pub use update_event::{

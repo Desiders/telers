@@ -3,7 +3,7 @@
 use async_trait::async_trait;
 use bon::bon;
 use std::{borrow::Cow, sync::Arc};
-use telers::serialization::{self, Deserialize};
+use telers::{serialization::{self, Deserialize}, Either};
 use tracing::warn;
 
 use super::{Media, MediaAttachment, MediaContentType, MediaId};
@@ -92,7 +92,7 @@ struct MediaAttachmentData {
     url: Option<String>,
     #[cfg_attr(not(feature = "deser"), serde(default))]
     #[cfg_attr(feature = "deser", deser(default))]
-    file_id: Option<String>,
+    file_id: Option<Either<String, MediaId>>,
     #[cfg_attr(not(feature = "deser"), serde(default))]
     #[cfg_attr(feature = "deser", deser(default))]
     file_unique_id: Option<String>,
@@ -129,6 +129,9 @@ struct MediaAttachmentData {
     #[cfg_attr(not(feature = "deser"), serde(default))]
     #[cfg_attr(feature = "deser", deser(default))]
     supports_streaming: Option<bool>,
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
+    emoji: Option<String>,
 }
 
 impl MediaAttachmentData {
@@ -141,6 +144,8 @@ impl MediaAttachmentData {
             "animation" => MediaContentType::Animation,
             "voice" => MediaContentType::Voice,
             "video_note" | "videonote" => MediaContentType::VideoNote,
+            "sticker" => MediaContentType::Sticker,
+            "dice" => MediaContentType::Dice,
             other => {
                 warn!(
                     content_type = other,
@@ -150,12 +155,12 @@ impl MediaAttachmentData {
             }
         };
 
-        let file_id = self.file_id.map(|id| {
-            if let Some(unique_id) = self.file_unique_id {
-                MediaId::with_unique_id(id, unique_id)
-            } else {
-                MediaId::new(id)
-            }
+        let file_id = self.file_id.map(|id| match id {
+            Either::Left(id) => match self.file_unique_id {
+                Some(unique_id) => MediaId::with_unique_id(id, unique_id),
+                None => MediaId::new(id),
+            },
+            Either::Right(id) => id,
         });
 
         Some(MediaAttachment {
@@ -173,6 +178,7 @@ impl MediaAttachmentData {
             performer: self.performer.map(Cow::Owned),
             title: self.title.map(Cow::Owned),
             supports_streaming: self.supports_streaming,
+            emoji: self.emoji.map(Cow::Owned),
         })
     }
 }

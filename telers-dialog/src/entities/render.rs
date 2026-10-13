@@ -16,6 +16,8 @@ pub struct RenderContext {
     pub event: Arc<ChatEvent>,
     /// Normalized event metadata used for target chat/thread routing.
     pub event_context: Arc<EventContext>,
+    /// Request data supplied by middleware and filters.
+    pub runtime_context: Arc<telers::Context>,
 }
 
 impl RenderContext {
@@ -32,8 +34,36 @@ impl RenderContext {
             data: Arc::new(data.clone()),
             event: Arc::new(event.clone()),
             event_context: Arc::new(event_context.clone()),
+            runtime_context: Arc::new(telers::Context::default()),
         }
     }
+
+    #[must_use]
+    pub fn with_runtime_context(mut self, runtime_context: &telers::Context) -> Self {
+        self.runtime_context = Arc::new(runtime_context.clone());
+        self
+    }
+
+    #[must_use]
+    pub fn with_data(mut self, data: DataMap) -> Self {
+        self.data = Arc::new(data);
+        self
+    }
+
+    #[must_use]
+    pub fn runtime_data<T: 'static>(&self, key: &'static str) -> Option<&T> {
+        self.runtime_context.get(key)
+    }
+}
+
+/// Build the shared data available to dialog and window getters.
+#[must_use]
+pub fn base_data(context: &Context) -> DataMap {
+    let mut data = context.dialog_data.clone();
+    data.insert("start_data".into(), context.start_data.clone());
+    data.insert("dialog_data".into(), telers::serialization::to_value(&context.dialog_data).unwrap_or_default());
+    data.insert("widget_data".into(), telers::serialization::to_value(&context.widget_data).unwrap_or_default());
+    data
 }
 
 #[cfg(test)]
@@ -60,7 +90,7 @@ mod tests {
                     .into(),
             );
             let event_context =
-                EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+                EventContext::new(Bot::<Reqwest>::default(), event.clone());
             let render_ctx = RenderContext::new(ctx, data, &event, &event_context);
 
             render(render_ctx).await

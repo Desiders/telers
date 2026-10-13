@@ -12,7 +12,7 @@ use telers_dialog::{
 use crate::{
     common::MAIN_MENU_STATE,
     dialogs::{
-        button_actions, buttons, calendar, counter, inputs, layouts, link_preview, media,
+        background, button_actions, buttons, calendar, composition, counter, data_getters, inputs, layouts, lifecycle, link_preview, list_groups, media,
         multiwidget, reply_kbd, scrolls, selects, switch, template, text_widgets,
     },
 };
@@ -36,9 +36,13 @@ pub fn dialog() -> impl Dialog {
                     .row([link("m_template", "🧩 Template text", template::STATE)])
                     .row([link("m_scrolls", "📜 Scrolling widgets", scrolls::STATE)])
                     .row([link("m_layouts", "📐 Keyboard layouts", layouts::STATE)])
+                    .row([link("m_lifecycle", "Lifecycle hooks", lifecycle::STATE)])
+                    .row([link("m_background", "Background updates", background::STATE)])
                     .row([link("m_selects", "☑️ Selection widgets", selects::STATE)])
                     .row([link("m_multi", "🎛 Combined widgets", multiwidget::STATE)])
                     .row([link("m_counter", "💯 Counter & progress", counter::STATE)])
+                    .row([link("m_composition", "Conditional widgets", composition::STATE)])
+                    .row([link("m_data", "Data getters", data_getters::STATE)])
                     .row([link("m_calendar", "📅 Calendar & time", calendar::STATE)])
                     .row([link("m_switch", "🔢 Multi-step input", switch::STATE)])
                     .row([link("m_reply", "⌨️ Reply keyboard", reply_kbd::STATE)])
@@ -50,6 +54,7 @@ pub fn dialog() -> impl Dialog {
                         button_actions::STATE,
                     )])
                     .row([link("m_link", "🔗 Link preview", link_preview::STATE)])
+                    .row([link("m_lists", "Repeated keyboards", list_groups::STATE)])
                     .row([link("m_media", "🖼 Media widgets", media::STATE)])
                     .build(),
             ),

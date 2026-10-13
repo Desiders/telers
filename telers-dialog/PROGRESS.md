@@ -1,86 +1,67 @@
 # telers-dialog Progress
 
-Updated: 2026-10-10 (UTC)
+Updated: 2026-10-13
 
 ## Goal
-- Focused Rust dialog framework for `telers`, borrowing `aiogram-dialog` behavior only where useful.
-- Core: registry, manager, windows/widgets, FSM persistence, observer middleware integration.
-- Feature work is not complete until the library API, tests, examples, and this progress file are all updated.
+- Rust-native dialog framework over `telers`; use `aiogram-dialog` as a behavior reference.
+- Feature work includes the API, meaningful crate tests, and a reachable runnable example.
 
 ## Architecture
-- Runtime: `manager.rs`, `message_manager.rs`, `dialog.rs`, `window.rs`.
-- State/entities: `context.rs`, `stack.rs`, `messages.rs`, `events.rs`, `render.rs`, `result.rs`.
-- Integration: `setup.rs` with `DialogContextMiddleware`, `DialogManagerMiddleware`, and `DialogObserverExt`.
-- Widgets: text, keyboard, input, link preview, media, pager, stateful select, calendar, request keyboards.
+- `dialog.rs`, `window.rs`, `manager.rs`, and `message_manager.rs` handle navigation, rendering, lifecycle, and Telegram requests.
+- Persistent contexts/stacks use the selected `telers` serialization backend: Serde by default or native Deser.
+- `DialogRegistry` owns shared registration, access validation, media caching, and event isolation.
+- `DialogContextMiddleware` precedes `DialogManagerMiddleware`; `setup_dialogs` wraps the full observer continuation. Command handlers run before dialog input handlers.
+- Widgets keep owned builders and hide internal boxes/arcs. `DialogControl` provides borrowed, storage/client-independent access inside lifecycle/result hooks.
 
 ## Implemented
-- Dialog context and manager middlewares prepare request data before calling the outer `Next` continuation through filters, handlers, and descendant routers.
-- Serialization follows `telers`: default `serde`, or native `deser` when enabled. Stored dialog contexts, stacks, access data, media, markup snapshots, and calendar state use the selected traits and JSON values. MiniJinja receives native values directly with Deser.
-- `DialogRegistry` indexes by state and rejects duplicates.
-- `DialogManager` supports start/switch/next/back/done/result/show plus callback/message handling.
-- Manager and action APIs include single-value (`set_dialog_value`, `set_widget_value`) and batched (`extend_dialog_data`, `extend_widget_data`) helpers, mirrored on `ButtonAction`.
-- Widget builders share canonical helpers via internal macros: `impl_button_row_helpers!` covers `header_row` / `header_push` / `footer_row` / `footer_push` on `Select`, `Checkbox`, `Counter`, `Multiselect`, `Radio`, `Toggle`; `impl_reply_keyboard_options_setters!` covers the reply-keyboard option setters on `RequestContact`, `RequestLocation`, `RequestPoll`.
-- `Button` stores its widget id as `Option<Cow<'static, str>>`; only callback-style buttons (`Button::action`, `Button::on_click` and friends) carry an id, and `resolve_callback` short-circuits on `None`.
-- `Progress` and `Case` text widgets use `#[bon]` builders for consistency with the rest of the widget surface.
-- Launch modes: `Root`, `Exclusive`, `SingleTop`.
-- `ShowMode::Auto`, message cleanup/reuse, parent result propagation.
-- `dialog_data` and `widget_data` mutation/read helpers.
-- Access control via registry-level `StackAccessValidator`.
-- Public async hooks use `async-trait` for widgets, inputs, dialogs, windows, link preview, media, and scroll/page-count traits; `telers_dialog::async_trait` re-exports the macro for downstream impls.
-- Callback contract: `td:{intent_id}:{widget_id}[:payload]`; stale intent callbacks ignored.
-- Media rendering flows:
-  - `Window` can render media widgets into `NewMessage`.
-  - `MessageManager` sends media messages, uses window text as caption, edits through `editMessageMedia` when possible, and resends when text/media message shape or media type requires it.
-  - `StaticMedia`, `DynamicMedia`, `MediaScroll`, `MediaAttachment`, `MediaId`, and `MediaContentType` are exported.
-- Inline button additions:
-  - `ButtonStyle` and `icon_custom_emoji_id` are exposed on `Button`.
-  - Dynamic URL, web app URL, copy text, and switch-inline payload constructors are available.
-- Text:
-  - Static text, `FnText`, `FormatText`, `Case`, `MultiText`, `Progress`, `ScrollingText`, `ListText`.
-  - `ListText` supports optional `page_size` pagination: with an `id` it renders one page of items, stores the page in `widget_data[id]`, and implements `Scroll` so a `NumberedPager` can drive it.
-  - Optional `template` feature provides `TemplateText` and `TemplateEnvBuilder` backed by `minijinja`.
-- Keyboard:
-  - `InlineKeyboard`, `Group`, `Button`, `Select`, request keyboards, `ForceReply`, `WhenCondition`.
-  - Stateful widgets: `Checkbox`, `Counter`, `TimeSelect`, `Radio`, `Toggle`, `Multiselect`.
-  - `Calendar` supports `CalendarConfig`, `CalendarAppearance` (label override via `text_renderer`), and `CalendarViews` (full scope replacement).
-  - Pager/scroll: `ScrollingGroup`, `SwitchPage`, first/prev/current/next/last wrappers, `NumberedPager`, `StubScroll`, `sync_scroll`.
-- Link preview:
-  - `LinkPreview` widget renders `LinkPreviewOptions` from static or dynamic text data.
-- Reply-markup transitions:
-  - The stack persists the real `last_reply_markup_type` (instead of a derived `last_reply_keyboard` flag), so `ForceReply` / `ReplyKeyboardRemove` messages are no longer misclassified as inline keyboards. Leaving a `ForceReply` window no longer triggers a bogus `editMessageReplyMarkup`.
+- Registry/state lookup, ordered windows, start/switch/next/back/done/result, Root/Exclusive/SingleTop launch modes, access settings and FSM persistence.
+- `start_with_access_settings` applies access rules before the start hook and first render; child starts inherit context/stack rules. SingleTop replaces the intent with a fresh id so old callbacks/jobs expire.
+- `for_stack` and `background_for_stack` select retained stacks without changing default message routing. Ordinary messages address the default stack; callbacks select their active intent's stack. Reply keyboards are restricted to the default stack.
+- `BackgroundManager` binds jobs to an intent and rejects covered, closed, restarted, or relocated conversations. Synthetic events describe update/start/switch/done operations.
+- Foreground middleware and background operations share process-local event isolation. Bot is the conservative default; User, Chat, and UserInChat scopes permit concurrency when they match the FSM strategy. Inline calls reenter safely; spawned work acquires its own guard; cancellation releases guards.
+- Async dialog start/close and manager-aware result hooks; action-based dialog/window result hooks are also available. Plain done passes a null child result. Hooks can mutate/navigate before rendering, close errors leave the intent open, and transition chains avoid duplicate rendering.
+- Ordered dialog/window `DataGetter` providers receive stored values, event metadata, and typed middleware data. Derived values remain transient. Visibility/item callbacks load current getter data, while foreign/stale intents skip providers.
+- Event metadata is independent of the Telegram client type. `EVENT_BOT_KEY` exposes the actual typed bot in runtime data. Senderless updates are ignored instead of panicking in middleware.
+- Text: static/computed/format text, nested map/list fields and escaped braces, MultiText, Case, Progress, ListText with item/page metadata, ScrollingText, conditional Text::when, FirstText fallback, optional MiniJinja templates.
+- Input: typed MessageInput, TextInput with FromStr or an explicit custom parser, error handlers, typed stored-value access, async filters and CombinedInput. Handlers see the original message and latest accepted widget value.
+- Keyboards: InlineKeyboard, Group, KeyboardGroup and repeated nested ListGroup. List groups isolate widget/page state by stable item ids, preserve parent/item data, and scope mutation chains across nested groups and intent transitions.
+- Native ReplyKeyboard/ReplyButton rows, explicit removal, contact/location/poll/user/chat/managed-bot/web-app request payloads and ForceReply. Placeholders and labels can use dynamic Text. Reply choices use normal MessageInput; no hidden text callback protocol.
+- Button visibility, typed URL/web-app/copy/inline-query actions, reusable conditional/dynamic ButtonAppearance, custom emoji and fallback composition. Appearance covers inline/reply buttons, collection selections, calendars, time selection and pagers.
+- Checkbox, Counter, Radio, Multiselect, Toggle, TimeSelect, async state-change hooks and min/max constraints. Hooks receive the updated widget snapshot. Selection payloads must still belong to the current item set; counters keep finite values and obey bounds for either increment direction.
+- Calendar configuration/custom views and label/appearance hooks, bounded month/year/day rendering, negative-year persistence, range normalization, and absolute built-in navigation targets that survive calendar/today rollovers.
+- ScrollingGroup, NumberedPager, first/previous/current/next/last/fixed-page controls, StubScroll, sync_scroll; bounded callbacks, page-count changes and dimension overflow are covered.
+- StaticMedia, DynamicMedia, MediaScroll, media-id caching, link previews, native photo/video/animation/audio/document/sticker/voice/video-note/dice requests and media-option propagation.
+- Message snapshots include their original chat, thread, business connection, parse mode and media options. Destination/type/option changes choose edit versus resend correctly. NoUpdate does not touch transport/media cache; manager-level suppression also skips getters.
+- Expected stale/deleted/noneditable Telegram messages recover safely. Expired callback acknowledgments do not discard valid actions; unrelated transport errors propagate. Reply-keyboard transitions remove the keyboard in its original destination and preserve chat-wide replacements across topics.
+- Callback contract is `td:{intent_id}:{widget_id}[:payload]`. Nested lists encode item routing within payloads. Removed/offscreen/hidden/oversized nested callbacks and stale physical-message callbacks are rejected.
 
-## Existing Examples
-- `examples/dialogs_mega` continues to wire both dialog middlewares through `setup_dialogs`, now using the outer continuation API.
-- The existing `dialogs_mega` example supports both backends; run native mode with `cargo run -p dialogs_mega --no-default-features --features deser`. No example is missing for the serialization feature.
-- A single combined example crate, `examples/dialogs_mega`, bundles the previous standalone dialog examples into one bot. A root menu (`LaunchMode::Root`) starts each feature dialog and every screen returns to it with `Button::done`. Feature dialogs:
-  - text widgets (`FormatText`, `FnText`, `ListText`); template text (default + custom env).
-  - scrolling widgets (`ScrollingGroup`, `ScrollingText`, paged `ListText`, `StubScroll`, `sync_scroll`).
-  - keyboard layouts (`Group` row widths); selection widgets (`Select`, `Radio`, `Multiselect`, `Toggle`); combined stateful widgets.
-  - `Counter` + a `widget_data`-driven progress bar; `Calendar` (default + `CalendarAppearance` custom labels) and `TimeSelect`.
-  - multi-step input with `Case` summary; reply-keyboard request widgets; `TextInput` + `ForceReply`.
-  - inline button styles + dynamic payloads; `Button::on_click`/`action` handlers; `LinkPreview`; media (`StaticMedia`, `DynamicMedia`, `MediaScroll`).
+## Examples
+`examples/dialogs_mega` contains reachable screens for every feature family above:
+- Text/templates, conditional/fallback composition, custom parsers and filtered input groups.
+- Dialog/window data getters, lifecycle and parent/child results.
+- Nested repeated keyboards with per-item state and pagination.
+- Native reply rows, requests/removal, force reply, selection hooks and dynamic appearances.
+- Numbered and standalone pager controls, synchronized scrolling, calendar/time customization.
+- Media/gallery/link previews, dice and user-supplied sticker/voice/video-note content.
+- `/background` runs a pinned progress job; closing or restarting its intent stops updates.
+The example selects UserInChat isolation to match its FSM strategy and supports both serialization backends.
 
 ## Missing Examples
-- Standalone pager buttons (`FirstPage` / `PrevPage` / `CurrentPage` / `NextPage` / `LastPage` / `SwitchPage`) are exported but not yet demonstrated in the mega example.
+- None for the implemented additions.
 
-## Known Gaps
-- Generic plain reply-keyboard row builder/factory beyond request-only widgets is still missing.
-- Async/manager-aware result hooks beyond current action-based `on_process_result`.
-- Managed wrapper types from `aiogram-dialog` are intentionally not implemented yet.
+## Remaining Scope and Design Questions
+- Python HTML/web preview and diagram tooling are not ported. Decide whether Rust preview/inspection belongs in a separate tools crate.
+- Managed Python wrapper types are replaced by typed context access, explicit widget ids and actions. Programmatic raw manager writes deliberately do not invoke widget callbacks; decide whether a distinct semantic setter/typed handle API is useful before adding wrapper-like state objects.
+- Manager-aware result processing is provided at dialog level; window-level result handlers return actions.
+- Built-in isolation is process-local. Multiple workers sharing an FSM backend require distributed isolation around the same storage key. Manually constructed managers outside middleware must participate in equivalent isolation.
+- TimeSelect headers remain static builder labels; value renderers and appearances provide runtime customization.
 
-## aiogram-dialog Alignment
-- Aligned: stack/current context, manager navigation, show/update decisions, data separation, text input, select routing, radio/multiselect/toggle, scrolling/pagers, media widgets, access control, result propagation.
-- Different: explicit `telers` middleware integration, typed Rust actions/builders, smaller widget set, no managed wrapper types.
-
-## Validation Snapshot
-- Outer middleware migration (2026-10-10): direct middleware tests now supply routing continuations. Workspace compilation is covered by `just clippy`; tests and formatters were not rerun during lint cleanup.
-- Convention review: grouped serialization imports, shortened the Deser README to 16 lines, and corrected private builder links. Generator tests pass (19); model and fixture output is unchanged.
-- `cargo doc -p telers -p telers-dialog --no-deps --all-features --locked`: passes without warnings.
-- `cargo test -p telers-dialog --all-features`: 273 unit tests and 1 doc test pass; 15 doc tests ignored (native Deser, including templates).
-- Serde mode: all 273 dialog unit tests pass with the `template` feature.
-- `cargo check --workspace --all-features --all-targets --locked`: passes with the native backend (one existing unused-field warning in the commands tests).
-- `cargo check -p dialogs_mega --no-default-features --features deser`: passes.
-- `just clippy` passes across the workspace with all features and pedantic warnings enabled, without warnings (2026-10-10).
-- Serialization regressions: 273 native dialog tests and 124 Serde keyboard tests pass.
-- Direct Serde dependencies are optional; enable `serde` explicitly when disabling defaults without choosing Deser. Backend features must match those selected on `telers`.
-- The existing standalone pager example gap listed above is unrelated to serialization and remains open.
+## Validation
+- Both native Deser/all-features and Serde/template test suites: 451 unit tests pass, 1 doctest passes, 15 illustrative doctests remain ignored.
+- Tests are limited to `telers-dialog`; no `telers` test suite was run for this feature task.
+- `cargo check -p telers-dialog --all-features --locked` passes. `dialogs_mega` builds with both default Serde and all-feature native Deser.
+- Scoped `cargo clippy -p telers-dialog --no-deps --all-features --all-targets --locked -- -D warnings` passes. Dependency-wide linting on Rust 1.99 flags the existing redundant `#[must_use]` in `telers/src/middlewares/inner/base.rs:74`; that source is unchanged.
+- Telegram behavior is validated through typed request/response transport mocks; live bot polling was not exercised.
+- Convention review reused the existing input traversal and callback encoder, aligned new production/test layout with neighboring code, and corrected obsolete runtime/widget documentation and the dice example's missing required text widget.
+- A startup smoke check constructs and registers all demo dialogs successfully without polling or bot credentials. Rustdoc builds with warnings denied.
+- No formatter was run.

@@ -7,7 +7,7 @@ use super::{ChatEvent, Context, Data, DataMap, EventContext};
 /// Context available when processing a sub-dialog result.
 ///
 /// This context is passed to `on_process_result` hooks on dialogs and windows
-/// when a child dialog completes with `done_with_result()`.
+/// when a child dialog completes. Plain `done()` supplies null result data.
 ///
 /// # Example
 ///
@@ -132,7 +132,7 @@ mod tests {
                 .from(User::new(10, false, "tester"))
                 .into(),
         );
-        let event_context = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        let event_context = EventContext::new(Bot::<Reqwest>::default(), event.clone());
         let runtime_context = telers::Context::default();
 
         let result_ctx = ResultContext::new(

@@ -11,7 +11,7 @@ mod standalone;
 mod stub_scroll;
 
 use common::{
-    build_pager_row, handle_pager_callback, page_count_from_rows, read_page,
+    build_pager_row, page_count_from_rows, read_page,
     render_direction_button, render_fixed_width_page,
 };
 

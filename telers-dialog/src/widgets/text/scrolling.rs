@@ -104,7 +104,7 @@ impl ScrollingText {
                 .from(User::new(10, false, "tester"))
                 .into(),
         );
-        let event_context = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        let event_context = EventContext::new(Bot::<Reqwest>::default(), event.clone());
         let render_ctx = RenderContext::new(ctx, data, &event, &event_context);
         self.page_count_in_context(&render_ctx).await
     }

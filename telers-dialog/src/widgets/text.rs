@@ -3,6 +3,7 @@
 mod base;
 mod case;
 mod format;
+mod fallback;
 mod list;
 mod multi;
 mod progress;
@@ -11,7 +12,8 @@ mod scrolling;
 #[cfg(feature = "template")]
 mod template;
 
-pub use base::{FnText, Text};
+pub use base::{ConditionalText, FnText, Text};
+pub use fallback::FirstText;
 pub use case::Case;
 pub use format::FormatText;
 pub use list::ListText;

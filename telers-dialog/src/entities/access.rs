@@ -65,24 +65,24 @@ mod tests {
     };
 
     /// Build an event and event context for a group chat `G` with user id `N`.
-    fn ev_group(group_id: i64, user_id: i64) -> (ChatEvent, EventContext<Reqwest>) {
+    fn ev_group(group_id: i64, user_id: i64) -> (ChatEvent, EventContext) {
         let event = ChatEvent::Message(
             MessageText::new(1, 1, ChatGroup::new(group_id), "/x")
                 .from(User::new(user_id, false, "u"))
                 .into(),
         );
-        let event_ctx = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        let event_ctx = EventContext::new(Bot::<Reqwest>::default(), event.clone());
         (event, event_ctx)
     }
 
     /// Build an event and event context for a private chat `P` with user id `N`.
-    fn ev_private(private_id: i64, user_id: i64) -> (ChatEvent, EventContext<Reqwest>) {
+    fn ev_private(private_id: i64, user_id: i64) -> (ChatEvent, EventContext) {
         let event = ChatEvent::Message(
             MessageText::new(1, 1, ChatPrivate::new(private_id), "/x")
                 .from(User::new(user_id, false, "u"))
                 .into(),
         );
-        let event_ctx = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        let event_ctx = EventContext::new(Bot::<Reqwest>::default(), event.clone());
         (event, event_ctx)
     }
 

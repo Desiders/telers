@@ -29,7 +29,7 @@ pub trait Keyboard: Send + Sync + 'static {
                 .from(User::new(10, false, "tester"))
                 .into(),
         );
-        let event_context = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        let event_context = EventContext::new(Bot::<Reqwest>::default(), event.clone());
         let render_ctx = RenderContext::new(ctx, data, &event, &event_context);
         self.render_keyboard(&render_ctx).await
     }
@@ -60,7 +60,7 @@ pub trait Keyboard: Send + Sync + 'static {
                 .from(User::new(10, false, "tester"))
                 .into(),
         );
-        let event_context = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        let event_context = EventContext::new(Bot::<Reqwest>::default(), event.clone());
         let runtime_context = telers::Context::default();
         let click = ClickContext::new(ctx, callback_data, &event, &event_context, &runtime_context);
         self.handle_callback(&click).await
@@ -137,7 +137,7 @@ impl Keyboard for MultiKeyboard {
     async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
         for keyboard in &self.keyboards {
             if keyboard
-                .is_visible(click.context.as_ref(), &click.context.dialog_data)
+                .is_visible(click.context.as_ref(), click.data.as_ref())
                 .await
             {
                 if let Some(action) = keyboard.handle_callback(click).await {

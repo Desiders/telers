@@ -3144,6 +3144,7 @@ dependencies = [
 name = "telers-dialog"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "async-trait",
  "async_fn_traits",
  "bon",

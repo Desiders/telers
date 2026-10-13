@@ -9,6 +9,7 @@
 //! - [`Multiselect`] stores several selected ids
 
 mod checkbox;
+mod change;
 mod counter;
 mod multiselect;
 mod radio;
@@ -16,6 +17,7 @@ mod time_select;
 mod toggle;
 
 pub use checkbox::Checkbox;
+pub use change::{OnStateChanged, StateChange};
 pub use counter::Counter;
 pub use multiselect::Multiselect;
 pub use radio::Radio;

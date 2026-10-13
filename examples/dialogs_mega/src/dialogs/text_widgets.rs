@@ -61,7 +61,10 @@ pub fn dialog() -> impl Dialog {
                                 "Reusable cup reward for takeout",
                             ]
                         })
-                        .item_renderer(|&item, _data| format!("- {item}"))
+                        .item_renderer(|&item, data| {
+                            let position = data.get("pos").and_then(|value| value.as_u64()).unwrap_or(1);
+                            format!("{position}. {item}")
+                        })
                         .build(),
                 ),
                 text("\n[Text] `text`, `FormatText`, `FnText`, and `ListText` in one window."),

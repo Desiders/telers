@@ -6,11 +6,13 @@ pub enum LaunchMode {
     Standard,
     /// Dialogs will be always a root dialog in stack.
     ///
-    /// Starting such dialogs will automatically reset stack.
+    /// Starting such dialogs resets the target stack unless [`StartMode::NewStack`]
+    /// creates a separate stack.
     Root,
     /// Dialogs can be only a single dialog in stack.
     ///
-    /// Starting such dialogs will automatically reset stack.
+    /// Starting such dialogs resets the target stack unless [`StartMode::NewStack`]
+    /// creates a separate stack.
     /// Starting other dialogs on top of them is forbidden.
     Exclusive,
     /// Dialogs will not be repeated on top of stack.
@@ -22,7 +24,10 @@ pub enum LaunchMode {
 /// Modes of show dialog message when new update handled
 #[derive(Default, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ShowMode {
-    /// Uses [`Self::Send`] mode when new message from user handled or [`Self::Edit`] mode when any other updated handled.
+    /// Choose a mode from the chat, stack, and event. Private-chat reply keyboards
+    /// use [`Self::DeleteAndSend`]; messages on the default private-chat stack use
+    /// [`Self::Send`], except subsequent messages in the same media group.
+    /// Other events use [`Self::Edit`].
     #[default]
     Auto,
     /// Edit dialog message

@@ -1,5 +1,4 @@
-//! Reply-keyboard request widgets: `RequestContact`, `RequestLocation`,
-//! `RequestPoll`, each paired with a `MessageInput` that advances the flow.
+//! Plain reply-keyboard rows, native sharing buttons, and keyboard removal.
 //!
 //! A request widget owns the message's reply markup, so these windows do not
 //! also place an inline keyboard; the user advances by sending the requested
@@ -7,11 +6,13 @@
 
 use telers::{
     enums::PollType,
-    types::{MessageContact, MessageLocation, MessagePoll},
+    types::{KeyboardButtonRequestChat, KeyboardButtonRequestUsers, Message, MessageContact,
+        MessageLocation, MessagePoll},
 };
 use telers_dialog::{
     widgets::{
-        format_text, input, keyboard, ButtonAction, InlineKeyboard, MessageInput, RequestContact,
+        format_text, input, keyboard, text, ButtonAction, ButtonStyle, FormatText, InlineKeyboard,
+        MessageInput, ReplyButton, ReplyKeyboard, ReplyKeyboardRemove, RequestContact,
         RequestLocation, RequestPoll,
     },
     window, Dialog,
@@ -19,12 +20,56 @@ use telers_dialog::{
 
 use crate::common::main_menu_button;
 
-pub const STATE: &str = "reply_contact";
+pub const STATE: &str = "reply_choices";
 
 pub fn dialog() -> impl Dialog {
     telers_dialog::dialog([
         window(
             STATE,
+            [
+                format_text(
+                    "Reply keyboard\n\nPlain buttons send text messages; native buttons send \
+                     matching Telegram payloads. Select a user or group to try the native \
+                     choices, then tap Continue for contact/location/poll requests.\n\n\
+                     {shared_selection}",
+                ),
+                keyboard(
+                    ReplyKeyboard::builder()
+                        .row([
+                            ReplyButton::text("Continue").style(ButtonStyle::Primary),
+                            ReplyButton::text("☰ Main menu"),
+                        ])
+                        .row([
+                            ReplyButton::request_users(
+                                "Select user", KeyboardButtonRequestUsers::new(1).user_is_bot(false),
+                            ),
+                            ReplyButton::request_chat(
+                                "Select group", KeyboardButtonRequestChat::new(2, false),
+                            ),
+                        ])
+                        .resize_keyboard(true)
+                        .input_field_placeholder(FormatText::new("Pick an option. {shared_selection}"))
+                        .build(),
+                ),
+                input(MessageInput::new(|_ctx, message: Message| async move {
+                    match message.text() {
+                        Some("Continue") => return ButtonAction::next(),
+                        Some("☰ Main menu") => return ButtonAction::done(),
+                        _ => {}
+                    }
+                    let selection = if let Some(shared) = message.users_shared() {
+                        format!("Shared {} user(s).", shared.users.len())
+                    } else if let Some(shared) = message.chat_shared() {
+                        format!("Shared group {}.", shared.chat_id)
+                    } else {
+                        "Tap Continue or choose a sharing button.".to_owned()
+                    };
+                    ButtonAction::set_dialog_value("shared_selection", selection)
+                })),
+            ],
+        ),
+        window(
+            "reply_contact",
             [
                 format_text(
                     "Reply keyboard\n\nStep 1 of 3. Tap the button to share a contact. \
@@ -34,6 +79,7 @@ pub fn dialog() -> impl Dialog {
                     RequestContact::builder("Share contact")
                         .resize_keyboard(true)
                         .one_time_keyboard(true)
+                        .style(ButtonStyle::Success)
                         .build(),
                 ),
                 input(MessageInput::new(
@@ -100,6 +146,16 @@ pub fn dialog() -> impl Dialog {
                         ),
                         ButtonAction::next(),
                     ])
+                })),
+            ],
+        ),
+        window(
+            "reply_remove",
+            [
+                text("The reply keyboard has been removed. Send any message to see the summary."),
+                keyboard(ReplyKeyboardRemove::builder().build()),
+                input(MessageInput::new(|_ctx, _message: Message| async move {
+                    ButtonAction::next()
                 })),
             ],
         ),

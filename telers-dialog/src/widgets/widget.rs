@@ -51,7 +51,7 @@ pub fn text(val: impl Text) -> WidgetKind {
     WidgetKind::Text(Box::new(val))
 }
 
-/// Tag a closure rendering text from `dialog_data` as a window widget.
+/// Tag a closure rendering text from render data as a window widget.
 #[inline]
 #[must_use]
 pub fn fn_text<Renderer, Item>(renderer: Renderer) -> WidgetKind

@@ -5,12 +5,17 @@
 //! others by starting their entry state.
 
 pub mod button_actions;
+pub mod background;
 pub mod buttons;
 pub mod calendar;
 pub mod counter;
+pub mod composition;
+pub mod data_getters;
 pub mod inputs;
 pub mod layouts;
+pub mod lifecycle;
 pub mod link_preview;
+pub mod list_groups;
 pub mod main_menu;
 pub mod media;
 pub mod multiwidget;

@@ -4,6 +4,10 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 pub enum DialogError {
     #[error(transparent)]
+    Custom(Box<dyn std::error::Error + Send + Sync>),
+    #[error("Reply keyboards can only be used on the default dialog stack")]
+    IncompatibleReplyKeyboard,
+    #[error(transparent)]
     Storage(#[from] fsm::storage::Error),
     #[error(transparent)]
     SessionErrorKind(#[from] SessionErrorKind),
@@ -23,6 +27,13 @@ pub enum DialogError {
     StackOverflow,
     #[error("Access denied for user {user_id}")]
     AccessDenied { user_id: i64 },
+}
+
+impl DialogError {
+    #[must_use]
+    pub fn custom(error: impl std::error::Error + Send + Sync + 'static) -> Self {
+        Self::Custom(Box::new(error))
+    }
 }
 
 #[cfg(test)]

@@ -64,7 +64,10 @@ impl Text for MultiText {
     async fn render_text(&self, data: &DataMap) -> Box<str> {
         let mut rendered = Vec::with_capacity(self.items.len());
         for item in &self.items {
-            rendered.push(item.render_text(data).await.into_string());
+            let text = item.render_text(data).await;
+            if !text.is_empty() {
+                rendered.push(text.into_string());
+            }
         }
         rendered.join(&self.separator).into_boxed_str()
     }
@@ -72,7 +75,10 @@ impl Text for MultiText {
     async fn render_text_in_context(&self, render_ctx: &RenderContext) -> Box<str> {
         let mut rendered = Vec::with_capacity(self.items.len());
         for item in &self.items {
-            rendered.push(item.render_text_in_context(render_ctx).await.into_string());
+            let text = item.render_text_in_context(render_ctx).await;
+            if !text.is_empty() {
+                rendered.push(text.into_string());
+            }
         }
         rendered.join(&self.separator).into_boxed_str()
     }

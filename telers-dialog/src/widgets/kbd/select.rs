@@ -7,7 +7,7 @@ use tracing::debug;
 
 use super::{
     format_callback_data, macros::impl_button_row_helpers, parse_callback_data, when::is_allowed,
-    Button, ButtonAction, ClickContext, Keyboard, WhenCondition,
+    Button, ButtonAction, ButtonAppearance, ClickContext, Keyboard, WhenCondition,
 };
 use crate::{
     entities::{Context, DataMap, RenderContext},
@@ -89,6 +89,7 @@ impl SelectAction {
 /// receives only the payload) or `on_click` (which also receives the click
 /// context). The widget does not persist any state itself — write any
 /// selected value back into `dialog_data` or `widget_data` from the handler.
+/// Per-item appearances receive `item_id`, `pos` (one-based), and `pos0` in render data.
 ///
 /// # Example
 ///
@@ -111,6 +112,7 @@ pub struct Select<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr,
     item_renderer: ItemRenderer,
     id_getter: IdGetter,
     action: SelectAction,
+    appearance: Option<ButtonAppearance>,
     header_rows: Vec<Vec<Button>>,
     footer_rows: Vec<Vec<Button>>,
     when: Option<WhenCondition>,
@@ -140,6 +142,7 @@ impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id
         items_getter: ItemsGetter,
         item_renderer: ItemRenderer,
         id_getter: IdGetter,
+        appearance: Option<ButtonAppearance>,
         when: Option<WhenCondition>,
     ) -> Self
     where
@@ -160,6 +163,7 @@ impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id
             item_renderer,
             id_getter,
             action,
+            appearance,
             header_rows,
             footer_rows,
             when,
@@ -240,25 +244,33 @@ where
             rows.push(render_button_row(row, render_ctx).await);
         }
 
-        for item in (self.items_getter)(data) {
+        let item_buttons: Vec<_> = (self.items_getter)(data).into_iter().enumerate().map(|(position, item)| {
             let text = (self.item_renderer)(&item, data);
             let payload = (self.id_getter)(item).to_string();
-            rows.push(
-                [
-                    InlineKeyboardButton::new(text).callback_data(format_callback_data(
-                        ctx,
-                        &self.id,
-                        Some(&payload),
-                    )),
-                ]
-                .into(),
-            );
+            let button = InlineKeyboardButton::new(text).callback_data(format_callback_data(
+                ctx,
+                &self.id,
+                Some(&payload),
+            ));
+            (button, payload, position)
+        }).collect();
+        for (mut button, payload, position) in item_buttons {
+            if let Some(appearance) = &self.appearance {
+                let mut item_data = data.clone();
+                item_data.insert("item_id".into(), payload.into());
+                item_data.insert("pos".into(), (position + 1).into());
+                item_data.insert("pos0".into(), position.into());
+                let item_context = render_ctx.clone().with_data(item_data);
+                button = appearance.apply(button, &item_context).await;
+            }
+            rows.push([button].into());
         }
 
         for row in &self.footer_rows {
             rows.push(render_button_row(row, render_ctx).await);
         }
 
+        rows.retain(|row| !row.is_empty());
         if rows.is_empty() {
             None
         } else {
@@ -269,7 +281,7 @@ where
     async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
         let ctx = click.context.as_ref();
         let callback_data = click.callback_data.as_str();
-        let data = &ctx.dialog_data;
+        let data = click.data.as_ref();
         if !self.is_visible(ctx, data).await {
             return None;
         }
@@ -289,6 +301,9 @@ where
             return None;
         }
         let payload = parsed.payload?;
+        if !(self.items_getter)(data).into_iter().any(|item| (self.id_getter)(item).to_string() == payload) {
+            return None;
+        }
         debug!(context_id = %ctx.id, widget_id = %self.id, "Resolved select callback");
         Some(self.action.call(click, payload).await)
     }
@@ -301,7 +316,9 @@ pub(crate) fn render_button_row<'a>(
     Box::pin(async move {
         let mut buttons = Vec::with_capacity(row.len());
         for button in row {
-            buttons.push(button.render(render_ctx).await);
+            if button.is_visible(&render_ctx.context, &render_ctx.data).await {
+                buttons.push(button.render(render_ctx).await);
+            }
         }
         buttons.into_boxed_slice()
     })

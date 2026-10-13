@@ -38,7 +38,7 @@ pub trait LinkPreviewWidget: Send + Sync + 'static {
                 .from(User::new(10, false, "tester"))
                 .into(),
         );
-        let event_context = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        let event_context = EventContext::new(Bot::<Reqwest>::default(), event.clone());
         let render_ctx = RenderContext::new(&ctx, data, &event, &event_context);
         self.render_link_preview(&render_ctx).await
     }

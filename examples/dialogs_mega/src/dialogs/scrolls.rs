@@ -5,8 +5,9 @@ use telers_dialog::{
     async_trait,
     entities::{DataMap, RenderContext},
     widgets::{
-        format_text, keyboard, sync_scroll, text, Button, ButtonAction, InlineKeyboard, ListText,
-        NumberedPager, ScrollingGroup, ScrollingText, Select, StubScroll, Text,
+        format_text, keyboard, sync_scroll, text, Button, ButtonAction, ButtonAppearance, ButtonStyle, InlineKeyboard, ListText,
+        CurrentPage, FirstPage, KeyboardGroup, LastPage, NextPage, NumberedPager, PageDirection,
+        PrevPage, ScrollingGroup, ScrollingText, Select, StubScroll, SwitchPage, Text,
     },
     window, Dialog,
 };
@@ -72,6 +73,7 @@ fn back_nav() -> InlineKeyboard {
 
 #[allow(clippy::too_many_lines)]
 pub fn dialog() -> impl Dialog {
+    let stub = StubScroll::builder(STUB_SCROLL_ID).pages(STUB_PAGES).build();
     let preview = ScrollingText::builder("scroll_text")
         .text(LONG_TEXT)
         .page_size(160)
@@ -242,15 +244,29 @@ pub fn dialog() -> impl Dialog {
                 ),
                 text(StubPreview),
                 keyboard(
-                    NumberedPager::builder(
-                        StubScroll::builder(STUB_SCROLL_ID)
-                            .pages(STUB_PAGES)
-                            .build(),
-                    )
+                    NumberedPager::builder(stub.clone())
                     .page_renderer(|page, _data| format!("{}", page + 1))
                     .current_page_renderer(|page, _data| format!("[{}]", page + 1))
                     .length(5)
+                    .current_page_appearance(ButtonAppearance::builder().style(ButtonStyle::Success).build())
                     .build(),
+                ),
+                keyboard(
+                    KeyboardGroup::builder()
+                        .items_per_row(5)
+                        .keyboard(FirstPage::builder(stub.clone()).build())
+                        .keyboard(PrevPage::builder(stub.clone()).build())
+                        .keyboard(CurrentPage::builder(stub.clone()).build())
+                        .keyboard(NextPage::builder(stub.clone()).build())
+                        .keyboard(LastPage::builder(stub.clone()).build())
+                        .build(),
+                ),
+                keyboard(
+                    SwitchPage::builder(stub)
+                        .direction(PageDirection::Page(2))
+                        .label_renderer(|target, _current, _data| format!("Jump to page {}", target + 1))
+                        .appearance(ButtonAppearance::builder().style(ButtonStyle::Primary).build())
+                        .build(),
                 ),
                 keyboard(back_nav()),
             ],

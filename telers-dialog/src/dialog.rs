@@ -1,10 +1,12 @@
 use crate::{
-    entities::{Context, LaunchMode, NewMessage, RenderContext, ResultContext},
+    entities::{Context, Data, DataGetter, LaunchMode, NewMessage, RenderContext, ResultContext},
+    errors::DialogError,
     future::BoxFuture,
+    manager::DialogControl,
     widgets::{ButtonAction, ClickContext},
     IntoWindow, Window,
 };
-use async_fn_traits::AsyncFn1;
+use async_fn_traits::{AsyncFn1, AsyncFn2, AsyncFn3};
 use async_trait::async_trait;
 use std::{collections::BTreeMap, sync::Arc};
 use telers::types::Message;
@@ -12,6 +14,63 @@ use tracing::warn;
 
 type ProcessResultHandler =
     dyn Fn(ResultContext) -> BoxFuture<'static, Option<ButtonAction>> + Send + Sync + 'static;
+
+type StartHandler = dyn for<'a> Fn(
+        Context,
+        &'a dyn DialogControl,
+    ) -> BoxFuture<'a, Result<Option<ButtonAction>, DialogError>>
+    + Send
+    + Sync;
+type CloseHandler = dyn for<'a> Fn(
+        Context,
+        Option<Data>,
+        &'a dyn DialogControl,
+    ) -> BoxFuture<'a, Result<(), DialogError>>
+    + Send
+    + Sync;
+type ManagedResultHandler = dyn for<'a> Fn(
+        ResultContext,
+        &'a dyn DialogControl,
+    ) -> BoxFuture<'a, Result<Option<ButtonAction>, DialogError>>
+    + Send
+    + Sync;
+
+fn run_hook<'a, F, C>(
+    handler: &F,
+    ctx: C,
+    manager: &'a (dyn DialogControl + 'a),
+) -> BoxFuture<'a, Result<Option<ButtonAction>, DialogError>>
+where
+    F: for<'b> AsyncFn2<
+        C,
+        &'b (dyn DialogControl + 'b),
+        Output = Result<Option<ButtonAction>, DialogError>,
+    >,
+    for<'b> <F as AsyncFn2<C, &'b (dyn DialogControl + 'b)>>::OutputFuture: Send + 'b,
+{
+    let future: <F as AsyncFn2<C, &'a (dyn DialogControl + 'a)>>::OutputFuture = handler(ctx, manager);
+    Box::pin(future)
+}
+
+fn run_close_hook<'a, F>(
+    handler: &F,
+    ctx: Context,
+    result: Option<Data>,
+    manager: &'a (dyn DialogControl + 'a),
+) -> BoxFuture<'a, Result<(), DialogError>>
+where
+    F: for<'b> AsyncFn3<
+        Context,
+        Option<Data>,
+        &'b (dyn DialogControl + 'b),
+        Output = Result<(), DialogError>,
+    >,
+    for<'b> <F as AsyncFn3<Context, Option<Data>, &'b (dyn DialogControl + 'b)>>::OutputFuture: Send + 'b,
+{
+    let future: <F as AsyncFn3<Context, Option<Data>, &'a (dyn DialogControl + 'a)>>::OutputFuture =
+        handler(ctx, result, manager);
+    Box::pin(future)
+}
 
 #[async_trait]
 pub trait Dialog: Send + Sync {
@@ -45,6 +104,16 @@ pub trait Dialog: Send + Sync {
             .and_then(|index| states.get(index).map(String::as_str))
     }
 
+    /// # Errors
+    /// Returns data-provider errors.
+    async fn load_data(
+        &self,
+        _state: &str,
+        render_ctx: &RenderContext,
+    ) -> Result<RenderContext, DialogError> {
+        Ok(render_ctx.clone())
+    }
+
     async fn render(&self, state: &str, render_ctx: &RenderContext) -> Option<NewMessage>;
 
     async fn handle_callback(&self, state: &str, click: &ClickContext) -> Option<ButtonAction>;
@@ -58,13 +127,45 @@ pub trait Dialog: Send + Sync {
 
     /// Process a result from a completed child dialog.
     ///
-    /// Called when a child dialog completes with `done_with_result()`.
+    /// Called when a child dialog completes. Plain `done()` supplies null result data.
     /// The handler receives a [`ResultContext`] with access to the parent context,
     /// child start data, and result data.
     ///
     /// Returns an optional action to execute in the parent context.
     async fn process_result(&self, _state: &str, _ctx: ResultContext) -> Option<ButtonAction> {
         None
+    }
+
+    /// # Errors
+    /// Returns errors from the start hook.
+    async fn process_start(
+        &self,
+        _ctx: Context,
+        _manager: &dyn DialogControl,
+    ) -> Result<Option<ButtonAction>, DialogError> {
+        Ok(None)
+    }
+
+    /// # Errors
+    /// Returns errors from the close hook.
+    async fn process_close(
+        &self,
+        _ctx: Context,
+        _result: Option<Data>,
+        _manager: &dyn DialogControl,
+    ) -> Result<(), DialogError> {
+        Ok(())
+    }
+
+    /// # Errors
+    /// Returns errors from result processing.
+    async fn process_result_with_manager(
+        &self,
+        state: &str,
+        ctx: ResultContext,
+        _manager: &dyn DialogControl,
+    ) -> Result<Option<ButtonAction>, DialogError> {
+        Ok(self.process_result(state, ctx).await)
     }
 }
 
@@ -109,6 +210,10 @@ pub struct DialogImpl {
     windows: BTreeMap<String, Arc<dyn Window>>,
     launch_mode: LaunchMode,
     on_process_result: Option<Arc<ProcessResultHandler>>,
+    on_start: Option<Arc<StartHandler>>,
+    on_close: Option<Arc<CloseHandler>>,
+    on_managed_result: Option<Arc<ManagedResultHandler>>,
+    getters: Vec<DataGetter>,
 }
 
 impl DialogImpl {
@@ -134,6 +239,10 @@ impl DialogImpl {
             windows: map,
             launch_mode: LaunchMode::default(),
             on_process_result: None,
+            on_start: None,
+            on_close: None,
+            on_managed_result: None,
+            getters: Vec::new(),
         }
     }
 
@@ -141,6 +250,74 @@ impl DialogImpl {
     #[must_use]
     pub fn with_launch_mode(mut self, mode: LaunchMode) -> Self {
         self.launch_mode = mode;
+        self
+    }
+
+    /// Add a provider evaluated before window getters, in registration order.
+    #[must_use]
+    pub fn getter(mut self, getter: DataGetter) -> Self {
+        self.getters.push(getter);
+        self
+    }
+
+    /// Run before the first render, after the new context has been persisted.
+    #[must_use]
+    pub fn on_start<F>(mut self, handler: F) -> Self
+    where
+        F: for<'a> AsyncFn2<
+                Context,
+                &'a dyn DialogControl,
+                Output = Result<Option<ButtonAction>, DialogError>,
+            > + Send
+            + Sync
+            + 'static,
+        for<'a> <F as AsyncFn2<Context, &'a dyn DialogControl>>::OutputFuture: Send + 'a,
+    {
+        let handler = Arc::new(handler);
+        self.on_start = Some(Arc::new(move |ctx, manager| {
+            run_hook(handler.as_ref(), ctx, manager)
+        }));
+        self
+    }
+
+    /// Run while the closing context is still current. Errors leave it open.
+    #[must_use]
+    pub fn on_close<F>(mut self, handler: F) -> Self
+    where
+        F: for<'a> AsyncFn3<
+                Context,
+                Option<Data>,
+                &'a dyn DialogControl,
+                Output = Result<(), DialogError>,
+            > + Send
+            + Sync
+            + 'static,
+        for<'a> <F as AsyncFn3<Context, Option<Data>, &'a dyn DialogControl>>::OutputFuture: Send + 'a,
+    {
+        let handler = Arc::new(handler);
+        self.on_close = Some(Arc::new(move |ctx, result, manager| {
+            run_close_hook(handler.as_ref(), ctx, result, manager)
+        }));
+        self
+    }
+
+    /// Process child results with access to the live parent manager.
+    #[must_use]
+    pub fn on_process_result_with_manager<F>(mut self, handler: F) -> Self
+    where
+        F: for<'a> AsyncFn2<
+                ResultContext,
+                &'a dyn DialogControl,
+                Output = Result<Option<ButtonAction>, DialogError>,
+            > + Send
+            + Sync
+            + 'static,
+        for<'a> <F as AsyncFn2<ResultContext, &'a dyn DialogControl>>::OutputFuture: Send + 'a,
+    {
+        let handler = Arc::new(handler);
+        self.on_managed_result = Some(Arc::new(move |ctx, manager| {
+            run_hook(handler.as_ref(), ctx, manager)
+        }));
         self
     }
 
@@ -199,6 +376,21 @@ impl Dialog for DialogImpl {
         self.launch_mode
     }
 
+    async fn load_data(
+        &self,
+        state: &str,
+        render_ctx: &RenderContext,
+    ) -> Result<RenderContext, DialogError> {
+        let mut render_ctx = render_ctx.clone();
+        for getter in &self.getters {
+            render_ctx = getter.load(&render_ctx).await?;
+        }
+        match self.get_window(state) {
+            Some(window) => window.load_data(&render_ctx).await,
+            None => Err(DialogError::DialogNotFound),
+        }
+    }
+
     async fn render(&self, state: &str, render_ctx: &RenderContext) -> Option<NewMessage> {
         match self.get_window(state) {
             Some(window) => Some(window.render(render_ctx).await),
@@ -238,12 +430,93 @@ impl Dialog for DialogImpl {
         }
         None
     }
+
+    async fn process_start(
+        &self,
+        ctx: Context,
+        manager: &dyn DialogControl,
+    ) -> Result<Option<ButtonAction>, DialogError> {
+        match &self.on_start {
+            Some(handler) => handler(ctx, manager).await,
+            None => Ok(None),
+        }
+    }
+
+    async fn process_close(
+        &self,
+        ctx: Context,
+        result: Option<Data>,
+        manager: &dyn DialogControl,
+    ) -> Result<(), DialogError> {
+        match &self.on_close {
+            Some(handler) => handler(ctx, result, manager).await,
+            None => Ok(()),
+        }
+    }
+
+    async fn process_result_with_manager(
+        &self,
+        state: &str,
+        ctx: ResultContext,
+        manager: &dyn DialogControl,
+    ) -> Result<Option<ButtonAction>, DialogError> {
+        if let Some(handler) = &self.on_managed_result {
+            let action = handler(ctx.clone(), manager).await?;
+            if action.is_some() {
+                return Ok(action);
+            }
+            let current = match manager.current_context().await {
+                Ok(current) if current.id == ctx.context.id => current,
+                Ok(_) | Err(DialogError::NoContext) => return Ok(None),
+                Err(err) => return Err(err),
+            };
+            let state = current.state.clone();
+            let mut ctx = ctx;
+            ctx.context = Arc::new(current);
+            return Ok(self.process_result(&state, ctx).await);
+        }
+        Ok(self.process_result(state, ctx).await)
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::{dialog, Dialog};
-    use crate::{entities::LaunchMode, widgets::text, window};
+    use crate::{
+        entities::{Context, DataGetter, DataMap, LaunchMode, RenderContext},
+        widgets::text,
+        window,
+    };
+    use telers::serialization::{json, Value};
+
+    #[tokio::test]
+    async fn dialog_getters_chain_before_window_getters() {
+        let dialog = dialog([window("a", [text("A")]).getter(DataGetter::new(
+            |render: RenderContext| async move {
+                assert_eq!(render.data.get("source"), Some(&json!("second")));
+                Ok(DataMap::from([("source".into(), json!("window"))]))
+            },
+        ))])
+        .getter(DataGetter::new(|_render: RenderContext| async move {
+            Ok(DataMap::from([
+                ("source".into(), json!("first")),
+                ("first_only".into(), json!(true)),
+            ]))
+        }))
+        .getter(DataGetter::new(|render: RenderContext| async move {
+            assert_eq!(render.data.get("source"), Some(&json!("first")));
+            Ok(DataMap::from([("source".into(), json!("second"))]))
+        }));
+        let ctx = Context::new("", "a", Value::default());
+        let loaded = RenderContext::with_test(&ctx, &DataMap::new(), |render| {
+            Box::pin(async move { dialog.load_data("a", &render).await.unwrap() })
+        })
+        .await;
+
+        assert_eq!(loaded.data.get("source"), Some(&json!("window")));
+        assert_eq!(loaded.data.get("first_only"), Some(&json!(true)));
+        assert!(loaded.context.dialog_data.is_empty());
+    }
 
     #[tokio::test]
     async fn dialog_knows_next_and_previous_states() {

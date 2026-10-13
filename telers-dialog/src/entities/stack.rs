@@ -17,6 +17,18 @@ pub struct Stack {
     pub intents: Vec<String>,
     /// Last dialog message id.
     pub last_message_id: Option<i64>,
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
+    /// Original target chat of the stored dialog message.
+    pub last_message_chat: Option<telers::types::Chat>,
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
+    /// Original message thread of the stored dialog message.
+    pub last_message_thread_id: Option<i64>,
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
+    /// Original business connection of the stored dialog message.
+    pub last_business_connection_id: Option<Box<str>>,
     /// Last dialog text snapshot.
     pub last_text: Option<Box<str>>,
     /// Type of the last reply markup, when one was shown.
@@ -31,6 +43,12 @@ pub struct Stack {
     pub last_reply_markup: Option<telers::serialization::Value>,
     /// Serialized link preview options snapshot.
     pub last_link_preview_options: Option<telers::serialization::Value>,
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
+    pub last_parse_mode: Option<Box<str>>,
+    #[cfg_attr(not(feature = "deser"), serde(default))]
+    #[cfg_attr(feature = "deser", deser(default))]
+    pub last_media_options: Option<telers::serialization::Value>,
     /// Last known media file id, when tracked.
     pub last_media_id: Option<String>,
     /// Last known media unique id, when tracked.
@@ -89,10 +107,15 @@ impl Stack {
     /// Clear the cached snapshot of the last shown dialog message.
     pub fn clear_last_message(&mut self) {
         self.last_message_id = None;
+        self.last_message_chat = None;
+        self.last_message_thread_id = None;
+        self.last_business_connection_id = None;
         self.last_text = None;
         self.last_reply_markup_type = None;
         self.last_reply_markup = None;
         self.last_link_preview_options = None;
+        self.last_parse_mode = None;
+        self.last_media_options = None;
         self.last_media_id = None;
         self.last_media_unique_id = None;
         self.last_media_content_type = None;
@@ -181,9 +204,14 @@ mod tests {
 
         let mut stack = Stack::new();
         stack.last_message_id = Some(5);
+        stack.last_message_chat = Some(telers::types::ChatPrivate::new(10).into());
+        stack.last_message_thread_id = Some(20);
+        stack.last_business_connection_id = Some("business".into());
         stack.last_text = Some("t".into());
         stack.last_reply_markup_type = Some(ReplyMarkupType::InlineKeyboardMarkup);
         stack.last_reply_markup = Some(telers::serialization::json!({}));
+        stack.last_parse_mode = Some("HTML".into());
+        stack.last_media_options = Some(telers::serialization::json!({"has_spoiler": true}));
         stack.last_media_id = Some("file".into());
         stack.last_income_media_group_id = Some("group".into());
         stack.has_protected_content = Some(true);
@@ -191,14 +219,38 @@ mod tests {
         stack.clear_last_message();
 
         assert_eq!(stack.last_message_id, None);
+        assert!(stack.last_message_chat.is_none());
+        assert_eq!(stack.last_message_thread_id, None);
+        assert_eq!(stack.last_business_connection_id, None);
         assert_eq!(stack.last_text, None);
         assert_eq!(stack.last_reply_markup_type, None);
         assert_eq!(stack.last_reply_markup, None);
+        assert_eq!(stack.last_parse_mode, None);
+        assert_eq!(stack.last_media_options, None);
         assert_eq!(stack.last_media_id, None);
         assert_eq!(stack.last_media_unique_id, None);
         assert_eq!(stack.last_media_content_type, None);
         assert_eq!(stack.last_income_media_group_id, None);
         assert_eq!(stack.message_type, None);
         assert_eq!(stack.has_protected_content, None);
+    }
+
+    #[test]
+    fn restores_stack_without_new_render_options() {
+        let stack: Stack = telers::serialization::from_str(r#"{
+            "id":"", "intents":[], "last_message_id":5, "last_text":"body",
+            "last_reply_markup_type":null, "last_reply_markup":null,
+            "last_link_preview_options":null, "last_media_id":null,
+            "last_media_unique_id":null, "last_media_content_type":null,
+            "last_income_media_group_id":null, "message_type":null,
+            "access_settings":null, "has_protected_content":null
+        }"#).expect("stored stack from before render-options snapshots");
+
+        assert_eq!(stack.last_message_id, Some(5));
+        assert!(stack.last_message_chat.is_none());
+        assert_eq!(stack.last_message_thread_id, None);
+        assert_eq!(stack.last_business_connection_id, None);
+        assert_eq!(stack.last_parse_mode, None);
+        assert_eq!(stack.last_media_options, None);
     }
 }

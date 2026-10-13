@@ -83,9 +83,17 @@ impl Keyboard for InlineKeyboard {
         for row in &self.rows {
             let mut rendered_row = Vec::with_capacity(row.len());
             for button in row {
-                rendered_row.push(button.render(render_ctx).await);
+                if button.is_visible(ctx, data).await {
+                    rendered_row.push(button.render(render_ctx).await);
+                }
             }
-            rows.push(rendered_row.into_boxed_slice());
+            if !rendered_row.is_empty() {
+                rows.push(rendered_row.into_boxed_slice());
+            }
+        }
+
+        if rows.is_empty() {
+            return None;
         }
 
         Some(ReplyMarkup::InlineKeyboardMarkup(
@@ -95,7 +103,7 @@ impl Keyboard for InlineKeyboard {
 
     async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
         let ctx = click.context.as_ref();
-        let data = &ctx.dialog_data;
+        let data = click.data.as_ref();
         if !self.is_visible(ctx, data).await {
             return None;
         }

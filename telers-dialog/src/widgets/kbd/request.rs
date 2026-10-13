@@ -12,7 +12,7 @@
 
 use async_trait::async_trait;
 use bon::bon;
-use std::borrow::Cow;
+use std::sync::Arc;
 
 use telers::{
     enums::PollType,
@@ -23,8 +23,8 @@ use telers::{
 };
 
 use super::{
-    macros::impl_reply_keyboard_options_setters, when::is_allowed, ButtonAction, ClickContext,
-    Keyboard, WhenCondition,
+    macros::{impl_reply_button_appearance_setters, impl_reply_keyboard_options_setters},
+    when::is_allowed, ButtonAction, ButtonAppearance, ClickContext, Keyboard, WhenCondition,
 };
 use crate::{
     entities::{Context, DataMap, RenderContext},
@@ -38,20 +38,28 @@ use crate::{
 /// [`impl_reply_keyboard_options_setters!`](super::macros::impl_reply_keyboard_options_setters).
 #[derive(Default)]
 pub struct ReplyKeyboardOptions {
-    is_persistent: Option<bool>,
-    resize_keyboard: Option<bool>,
-    one_time_keyboard: Option<bool>,
-    input_field_placeholder: Option<Cow<'static, str>>,
-    selective: Option<bool>,
+    pub(super) is_persistent: Option<bool>,
+    pub(super) resize_keyboard: Option<bool>,
+    pub(super) one_time_keyboard: Option<bool>,
+    pub(super) input_field_placeholder: Option<Arc<dyn Text>>,
+    pub(super) selective: Option<bool>,
 }
 
 impl ReplyKeyboardOptions {
-    fn apply(&self, markup: ReplyKeyboardMarkup) -> ReplyKeyboardMarkup {
+    pub(super) async fn apply(
+        &self,
+        markup: ReplyKeyboardMarkup,
+        render_ctx: &RenderContext,
+    ) -> ReplyKeyboardMarkup {
+        let placeholder = match &self.input_field_placeholder {
+            Some(text) => Some(text.render_text_in_context(render_ctx).await),
+            None => None,
+        };
         markup
             .is_persistent_option(self.is_persistent)
             .resize_keyboard_option(self.resize_keyboard)
             .one_time_keyboard_option(self.one_time_keyboard)
-            .input_field_placeholder_option(self.input_field_placeholder.as_deref())
+            .input_field_placeholder_option(placeholder)
             .selective_option(self.selective)
     }
 }
@@ -78,6 +86,7 @@ pub struct RequestContact<ButtonText> {
     text: ButtonText,
     options: ReplyKeyboardOptions,
     when: Option<WhenCondition>,
+    appearance: ButtonAppearance,
 }
 
 #[bon]
@@ -88,6 +97,7 @@ impl<ButtonText> RequestContact<ButtonText> {
     pub fn new(
         #[builder(start_fn)] text: ButtonText,
         #[builder(field = ReplyKeyboardOptions::default())] options: ReplyKeyboardOptions,
+        #[builder(field = ButtonAppearance::default())] appearance: ButtonAppearance,
         when: Option<WhenCondition>,
     ) -> Self
     where
@@ -97,6 +107,7 @@ impl<ButtonText> RequestContact<ButtonText> {
             text,
             options,
             when,
+            appearance,
         }
     }
 }
@@ -107,6 +118,7 @@ where
     ButtonText: Text,
 {
     impl_reply_keyboard_options_setters!();
+    impl_reply_button_appearance_setters!();
 }
 
 #[async_trait]
@@ -127,9 +139,11 @@ where
         }
         let button = KeyboardButton::new(self.text.render_text_in_context(render_ctx).await)
             .request_contact(true);
+        let button = self.appearance.apply_reply(button, render_ctx).await;
         Some(
             self.options
-                .apply(ReplyKeyboardMarkup::new([[button]]))
+                .apply(ReplyKeyboardMarkup::new([[button]]), render_ctx)
+                .await
                 .into(),
         )
     }
@@ -150,6 +164,7 @@ pub struct RequestLocation<ButtonText> {
     text: ButtonText,
     options: ReplyKeyboardOptions,
     when: Option<WhenCondition>,
+    appearance: ButtonAppearance,
 }
 
 #[bon]
@@ -160,6 +175,7 @@ impl<ButtonText> RequestLocation<ButtonText> {
     pub fn new(
         #[builder(start_fn)] text: ButtonText,
         #[builder(field = ReplyKeyboardOptions::default())] options: ReplyKeyboardOptions,
+        #[builder(field = ButtonAppearance::default())] appearance: ButtonAppearance,
         when: Option<WhenCondition>,
     ) -> Self
     where
@@ -169,6 +185,7 @@ impl<ButtonText> RequestLocation<ButtonText> {
             text,
             options,
             when,
+            appearance,
         }
     }
 }
@@ -179,6 +196,7 @@ where
     ButtonText: Text,
 {
     impl_reply_keyboard_options_setters!();
+    impl_reply_button_appearance_setters!();
 }
 
 #[async_trait]
@@ -199,9 +217,11 @@ where
         }
         let button = KeyboardButton::new(self.text.render_text_in_context(render_ctx).await)
             .request_location(true);
+        let button = self.appearance.apply_reply(button, render_ctx).await;
         Some(
             self.options
-                .apply(ReplyKeyboardMarkup::new([[button]]))
+                .apply(ReplyKeyboardMarkup::new([[button]]), render_ctx)
+                .await
                 .into(),
         )
     }
@@ -224,6 +244,7 @@ pub struct RequestPoll<ButtonText> {
     options: ReplyKeyboardOptions,
     poll_type: Option<PollType>,
     when: Option<WhenCondition>,
+    appearance: ButtonAppearance,
 }
 
 #[bon]
@@ -234,6 +255,7 @@ impl<ButtonText> RequestPoll<ButtonText> {
     pub fn new(
         #[builder(start_fn)] text: ButtonText,
         #[builder(field = ReplyKeyboardOptions::default())] options: ReplyKeyboardOptions,
+        #[builder(field = ButtonAppearance::default())] appearance: ButtonAppearance,
         poll_type: Option<PollType>,
         when: Option<WhenCondition>,
     ) -> Self
@@ -245,6 +267,7 @@ impl<ButtonText> RequestPoll<ButtonText> {
             options,
             poll_type,
             when,
+            appearance,
         }
     }
 }
@@ -255,6 +278,7 @@ where
     ButtonText: Text,
 {
     impl_reply_keyboard_options_setters!();
+    impl_reply_button_appearance_setters!();
 }
 
 #[async_trait]
@@ -277,9 +301,11 @@ where
             KeyboardButtonPollType::new().type_option(self.poll_type.map(Into::<Box<str>>::into));
         let button = KeyboardButton::new(self.text.render_text_in_context(render_ctx).await)
             .request_poll(request_poll);
+        let button = self.appearance.apply_reply(button, render_ctx).await;
         Some(
             self.options
-                .apply(ReplyKeyboardMarkup::new([[button]]))
+                .apply(ReplyKeyboardMarkup::new([[button]]), render_ctx)
+                .await
                 .into(),
         )
     }
@@ -292,14 +318,18 @@ where
 /// Options for [`ForceReply`] reply markup.
 #[derive(Default)]
 pub struct ForceReplyOptions {
-    input_field_placeholder: Option<Cow<'static, str>>,
+    input_field_placeholder: Option<Arc<dyn Text>>,
     selective: Option<bool>,
 }
 
 impl ForceReplyOptions {
-    fn apply(&self, reply: TelegramForceReply) -> TelegramForceReply {
+    async fn apply(&self, reply: TelegramForceReply, render_ctx: &RenderContext) -> TelegramForceReply {
+        let placeholder = match &self.input_field_placeholder {
+            Some(text) => Some(text.render_text_in_context(render_ctx).await),
+            None => None,
+        };
         reply
-            .input_field_placeholder_option(self.input_field_placeholder.as_deref())
+            .input_field_placeholder_option(placeholder)
             .selective_option(self.selective)
     }
 }
@@ -349,8 +379,8 @@ where
     S: force_reply_builder::State,
 {
     /// Set the input-field placeholder shown while the reply is active.
-    pub fn input_field_placeholder(mut self, value: impl Into<Cow<'static, str>>) -> Self {
-        self.options.input_field_placeholder = Some(value.into());
+    pub fn input_field_placeholder(mut self, value: impl Text) -> Self {
+        self.options.input_field_placeholder = Some(Arc::new(value));
         self
     }
 
@@ -374,7 +404,7 @@ impl Keyboard for ForceReply {
         {
             return None;
         }
-        let reply = self.options.apply(TelegramForceReply::new(true));
+        let reply = self.options.apply(TelegramForceReply::new(true), render_ctx).await;
         Some(reply.into())
     }
 
@@ -385,14 +415,15 @@ impl Keyboard for ForceReply {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::{Arc, atomic::{AtomicUsize, Ordering}};
     use telers::{enums::PollType, serialization::Value};
 
     use telers::types::ReplyMarkup;
 
     use super::{ForceReply, RequestContact, RequestLocation, RequestPoll};
     use crate::{
-        entities::{Context, DataMap},
-        widgets::Keyboard,
+        entities::{Context, DataMap, RenderContext},
+        widgets::{ButtonStyle, FormatText, Keyboard, WhenCondition},
     };
 
     #[tokio::test]
@@ -415,6 +446,58 @@ mod tests {
         assert_eq!(markup.keyboard[0][0].request_contact, Some(true));
         assert_eq!(markup.resize_keyboard, Some(true));
         assert_eq!(markup.input_field_placeholder.as_deref(), Some("Phone"));
+    }
+
+    #[tokio::test]
+    async fn request_keyboard_renders_style_emoji_and_dynamic_placeholder() {
+        let ctx = Context::new("", "state", Value::default());
+        let data = [("name".into(), Value::from("Ada"))].into_iter().collect();
+        let keyboard = RequestContact::builder(FormatText::new("Share, {name}"))
+            .input_field_placeholder(FormatText::new("Contact for {name}"))
+            .style(ButtonStyle::Success)
+            .icon_custom_emoji_id("emoji")
+            .build();
+
+        let Some(ReplyMarkup::ReplyKeyboardMarkup(markup)) = keyboard
+            .render_keyboard_for_test(&ctx, &data).await else {
+            panic!("reply keyboard");
+        };
+
+        assert_eq!(markup.keyboard[0][0].text.as_ref(), "Share, Ada");
+        assert_eq!(markup.keyboard[0][0].style.as_deref(), Some("success"));
+        assert_eq!(markup.keyboard[0][0].icon_custom_emoji_id.as_deref(), Some("emoji"));
+        assert_eq!(markup.input_field_placeholder.as_deref(), Some("Contact for Ada"));
+    }
+
+    #[tokio::test]
+    async fn hidden_request_keyboard_does_not_execute_dynamic_appearance() {
+        let ctx = Context::new("", "state", Value::default());
+        let calls = Arc::new(AtomicUsize::new(0));
+        let count = calls.clone();
+        let keyboard = RequestContact::builder("Contact")
+            .when(WhenCondition::data_field("show"))
+            .style_dynamic(move |_render: RenderContext| {
+                let count = count.clone();
+                async move {
+                    count.fetch_add(1, Ordering::SeqCst);
+                    Some(ButtonStyle::Success)
+                }
+            })
+            .icon_custom_emoji_id_dynamic(FormatText::new("{emoji}"))
+            .build();
+
+        assert!(keyboard.render_keyboard_for_test(&ctx, &DataMap::new()).await.is_none());
+        assert_eq!(calls.load(Ordering::SeqCst), 0);
+        let data = [("show".into(), Value::from(true)), ("emoji".into(), Value::from("contact_emoji"))]
+            .into_iter().collect();
+        let Some(ReplyMarkup::ReplyKeyboardMarkup(markup)) = keyboard
+            .render_keyboard_for_test(&ctx, &data).await else {
+            panic!("reply keyboard");
+        };
+        assert_eq!(calls.load(Ordering::SeqCst), 1);
+        assert_eq!(markup.keyboard[0][0].style.as_deref(), Some("success"));
+        assert_eq!(markup.keyboard[0][0].icon_custom_emoji_id.as_deref(), Some("contact_emoji"));
+        assert_eq!(markup.keyboard[0][0].request_contact, Some(true));
     }
 
     #[tokio::test]
@@ -486,5 +569,20 @@ mod tests {
             Some("Enter your name")
         );
         assert_eq!(reply.selective, Some(true));
+    }
+
+    #[tokio::test]
+    async fn force_reply_renders_dynamic_placeholder() {
+        let ctx = Context::new("", "state", Value::default());
+        let data = [("name".into(), Value::from("Ada"))].into_iter().collect();
+        let keyboard = ForceReply::builder()
+            .input_field_placeholder(FormatText::new("Reply, {name}"))
+            .build();
+
+        let Some(ReplyMarkup::ForceReply(reply)) = keyboard
+            .render_keyboard_for_test(&ctx, &data).await else {
+            panic!("force reply");
+        };
+        assert_eq!(reply.input_field_placeholder.as_deref(), Some("Reply, Ada"));
     }
 }

@@ -6,9 +6,9 @@ use telers::types::{
 };
 use tracing::debug;
 
-use super::{format_callback_data, parse_callback_data, ButtonAction, ClickContext};
+use super::{format_callback_data, parse_callback_data, when::is_allowed, ButtonAction, ButtonAppearance, ClickContext, WhenCondition};
 use crate::{
-    entities::{Data, RenderContext, StartMode},
+    entities::{Context, Data, DataMap, RenderContext, StartMode},
     future::BoxFuture,
     widgets::Text,
 };
@@ -16,11 +16,6 @@ use crate::{
 type ButtonClickHandler =
     dyn Fn(ClickContext) -> BoxFuture<'static, ButtonAction> + Send + Sync + 'static;
 
-/// Distinguishes the underlying Telegram action carried by a [`Button`].
-///
-/// Callback variants ([`ButtonKind::Callback`], [`ButtonKind::OnClick`]) carry
-/// a widget id used to match the callback data; all other variants are passive
-/// (the Telegram client handles them) and never produce a [`ButtonAction`].
 #[derive(Clone)]
 enum ButtonKind {
     Callback(ButtonAction),
@@ -43,10 +38,9 @@ impl ButtonKind {
     }
 }
 
-/// Visual style for an inline keyboard button.
+/// Visual style for a Telegram keyboard button.
 ///
-/// Maps directly onto the optional `style` field supported by telers'
-/// [`InlineKeyboardButton`].
+/// Maps directly onto the optional `style` field supported by telers' keyboard buttons.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ButtonStyle {
     /// Red-tinted button for destructive or dangerous actions.
@@ -95,8 +89,8 @@ pub struct Button {
     id: Option<Cow<'static, str>>,
     text: Arc<dyn Text>,
     kind: ButtonKind,
-    style: Option<ButtonStyle>,
-    icon_custom_emoji_id: Option<Cow<'static, str>>,
+    appearance: ButtonAppearance,
+    when: Option<WhenCondition>,
 }
 
 impl Button {
@@ -107,8 +101,8 @@ impl Button {
             id: Some(id),
             text,
             kind,
-            style: None,
-            icon_custom_emoji_id: None,
+            appearance: ButtonAppearance::default(),
+            when: None,
         }
     }
 
@@ -119,8 +113,8 @@ impl Button {
             id: None,
             text,
             kind,
-            style: None,
-            icon_custom_emoji_id: None,
+            appearance: ButtonAppearance::default(),
+            when: None,
         }
     }
 
@@ -309,8 +303,38 @@ impl Button {
     /// Apply the given style to this button.
     #[must_use]
     pub fn style(mut self, style: ButtonStyle) -> Self {
-        self.style = Some(style);
+        self.appearance = self.appearance.with_style(style);
         self
+    }
+
+    #[must_use]
+    pub fn style_dynamic<F>(mut self, renderer: F) -> Self
+    where
+        F: AsyncFn(RenderContext) -> Option<ButtonStyle>
+            + AsyncFn1<RenderContext, Output = Option<ButtonStyle>>
+            + Send
+            + Sync
+            + 'static,
+        <F as AsyncFn1<RenderContext>>::OutputFuture: Send + 'static,
+    {
+        self.appearance = self.appearance.with_style_dynamic(renderer);
+        self
+    }
+
+    #[must_use]
+    pub fn appearance(mut self, appearance: ButtonAppearance) -> Self {
+        self.appearance = appearance;
+        self
+    }
+
+    #[must_use]
+    pub fn when(mut self, condition: WhenCondition) -> Self {
+        self.when = Some(condition);
+        self
+    }
+
+    pub(crate) async fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data).await
     }
 
     /// Style this button as a destructive (red) action.
@@ -337,7 +361,13 @@ impl Button {
     /// Set the custom emoji shown before the button text.
     #[must_use]
     pub fn icon_custom_emoji_id(mut self, emoji_id: impl Into<Cow<'static, str>>) -> Self {
-        self.icon_custom_emoji_id = Some(emoji_id.into());
+        self.appearance = self.appearance.with_emoji(emoji_id.into());
+        self
+    }
+
+    #[must_use]
+    pub fn icon_custom_emoji_id_dynamic(mut self, emoji_id: impl Text) -> Self {
+        self.appearance = self.appearance.with_emoji(emoji_id);
         self
     }
 
@@ -347,10 +377,10 @@ impl Button {
     ) -> BoxFuture<'a, InlineKeyboardButton> {
         Box::pin(async move {
             let ctx = render_ctx.context.as_ref();
-            let button =
-                InlineKeyboardButton::new(self.text.render_text_in_context(render_ctx).await)
-                    .style_option(self.style.map(|style| style.as_str()))
-                    .icon_custom_emoji_id_option(self.icon_custom_emoji_id.as_deref());
+            let button = self.appearance.apply(
+                InlineKeyboardButton::new(self.text.render_text_in_context(render_ctx).await),
+                render_ctx,
+            ).await;
 
             match &self.kind {
                 ButtonKind::Callback(_) | ButtonKind::OnClick(_) => {
@@ -392,6 +422,9 @@ impl Button {
         Box::pin(async move {
             let id = self.id.as_deref()?;
             let ctx = click.context.as_ref();
+            if !self.is_visible(ctx, click.data.as_ref()).await {
+                return None;
+            }
             let parsed = parse_callback_data(ctx, click.callback_data.as_str())?;
             if parsed.target_id != id || parsed.payload.is_some() {
                 return None;
@@ -423,8 +456,8 @@ mod tests {
 
     use super::ButtonStyle;
     use crate::{
-        entities::{Context, DataMap},
-        widgets::{Button, ButtonAction, FormatText, InlineKeyboard, Keyboard},
+        entities::{Context, DataMap, RenderContext},
+        widgets::{Button, ButtonAction, ButtonAppearance, Checkbox, ClickContext, FnText, FormatText, InlineKeyboard, Keyboard, Select, WhenCondition},
     };
 
     /// Render a single button inside an [`InlineKeyboard`] and return the
@@ -508,6 +541,184 @@ mod tests {
         let rendered = render_single(button, &ctx, &DataMap::new()).await;
 
         assert_eq!(rendered.icon_custom_emoji_id.as_deref(), Some("123"));
+    }
+
+    #[tokio::test]
+    async fn dynamic_style_reads_render_data_and_persisted_state() {
+        let mut ctx = Context::new("", "state", Value::default());
+        ctx.widget_data.insert("approved".into(), json!(true));
+        let data = DataMap::from([("highlight".into(), json!(true))]);
+        let button = Button::action("a", "A", ButtonAction::noop())
+            .style_dynamic(|ctx: RenderContext| async move {
+                assert_eq!(ctx.context.widget_value_as::<bool>("approved"), Some(true));
+                if ctx.data.get("highlight").and_then(|value| value.as_bool()).unwrap_or(false) {
+                    Some(ButtonStyle::Primary)
+                } else {
+                    None
+                }
+            });
+        assert_eq!(render_single(button.clone(), &ctx, &data).await.style.as_deref(), Some("primary"));
+        assert!(render_single(button, &ctx, &DataMap::new()).await.style.is_none());
+    }
+
+    #[tokio::test]
+    async fn static_and_dynamic_style_setters_replace_each_other() {
+        let ctx = Context::new("", "state", Value::default());
+        let button = Button::action("a", "A", ButtonAction::noop())
+            .danger()
+            .style_dynamic(|_: RenderContext| async { None });
+        assert!(render_single(button.clone(), &ctx, &DataMap::new()).await.style.is_none());
+        assert_eq!(render_single(button.success(), &ctx, &DataMap::new()).await.style.as_deref(), Some("success"));
+    }
+
+    #[tokio::test]
+    async fn dynamic_emoji_renders_text_and_omits_empty_values() {
+        let ctx = Context::new("", "state", Value::default());
+        let button = Button::url("Docs", "https://example.com")
+            .icon_custom_emoji_id_dynamic(FnText::new(|data: &DataMap| {
+                data.get("emoji").and_then(|value| value.as_str()).unwrap_or("").to_owned()
+            }));
+        let data = DataMap::from([("emoji".into(), json!("123456"))]);
+        assert_eq!(render_single(button.clone(), &ctx, &data).await.icon_custom_emoji_id.as_deref(), Some("123456"));
+        assert!(render_single(button, &ctx, &DataMap::new()).await.icon_custom_emoji_id.is_none());
+    }
+
+    #[tokio::test]
+    async fn button_visibility_removes_empty_rows_and_retains_neighbor_buttons() {
+        let ctx = Context::new("", "state", Value::default());
+        let keyboard = InlineKeyboard::builder()
+            .row([Button::done("hidden", "Hidden").when(WhenCondition::data_field("enabled"))])
+            .row([
+                Button::done("hidden2", "Hidden2").when(WhenCondition::data_field("enabled")),
+                Button::done("visible", "Visible"),
+            ])
+            .build();
+        let markup = keyboard.render_keyboard_for_test(&ctx, &DataMap::new()).await.unwrap();
+        let rows = markup.inline_keyboard().unwrap();
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].len(), 1);
+        assert_eq!(rows[0][0].text.as_ref(), "Visible");
+        let data = DataMap::from([("enabled".into(), json!(true))]);
+        let markup = keyboard.render_keyboard_for_test(&ctx, &data).await.unwrap();
+        assert_eq!(markup.inline_keyboard().unwrap().len(), 2);
+    }
+
+    #[tokio::test]
+    async fn fully_hidden_inline_keyboard_returns_no_markup_without_rendering_buttons() {
+        let ctx = Context::new("", "state", Value::default());
+        let keyboard = InlineKeyboard::builder()
+            .row([Button::done("hidden", FnText::new(|_: &DataMap| -> String { panic!("hidden button rendered") }))
+                .when(WhenCondition::data_field("missing"))])
+            .build();
+        assert!(keyboard.render_keyboard_for_test(&ctx, &DataMap::new()).await.is_none());
+    }
+
+    #[tokio::test]
+    async fn hidden_callback_does_not_run_its_click_handler() {
+        let ctx = Context::new("", "state", Value::default());
+        let button = Button::on_click("a", "A", |_: ClickContext| async { panic!("hidden handler called") })
+            .when(WhenCondition::data_field("enabled"));
+        ClickContext::with_test(&ctx, &format!("td:{}:a", ctx.id), move |click| Box::pin(async move {
+            assert!(button.resolve_callback(&click).await.is_none());
+        })).await;
+    }
+
+    #[tokio::test]
+    async fn visible_callback_still_resolves_with_button_condition() {
+        let mut ctx = Context::new("", "state", Value::default());
+        ctx.dialog_data.insert("enabled".into(), json!(true));
+        let button = Button::done("a", "A").when(WhenCondition::data_field("enabled"));
+        ClickContext::with_test(&ctx, &format!("td:{}:a", ctx.id), move |click| Box::pin(async move {
+            assert!(matches!(button.resolve_callback(&click).await, Some(ButtonAction::Done)));
+        })).await;
+    }
+
+    #[tokio::test]
+    async fn hidden_select_header_and_footer_do_not_produce_empty_markup() {
+        let select = Select::builder("items")
+            .items_getter(|_: &DataMap| Vec::<&'static str>::new())
+            .item_renderer(|item: &&str, _: &DataMap| (*item).to_owned())
+            .id_getter(|item| item)
+            .action(|_: String| async { ButtonAction::noop() })
+            .header_row([Button::done("header", "Header").when(WhenCondition::data_field("missing"))])
+            .footer_row([Button::done("footer", "Footer").when(WhenCondition::data_field("missing"))])
+            .build();
+        assert!(select.render_keyboard_for_test(&Context::new("", "state", Value::default()), &DataMap::new()).await.is_none());
+    }
+
+    #[tokio::test]
+    async fn hidden_stateful_header_and_footer_keep_only_the_widget_row() {
+        let checkbox = Checkbox::builder("check")
+            .checked_text("yes")
+            .unchecked_text("no")
+            .header_row([Button::done("header", "Header").when(WhenCondition::data_field("missing"))])
+            .footer_row([Button::done("footer", "Footer").when(WhenCondition::data_field("missing"))])
+            .build();
+        let markup = checkbox.render_keyboard_for_test(&Context::new("", "state", Value::default()), &DataMap::new()).await.unwrap();
+        assert_eq!(markup.inline_keyboard().unwrap().len(), 1);
+    }
+
+    #[tokio::test]
+    async fn select_reuses_dynamic_appearance_and_preserves_item_callbacks() {
+        let select = Select::builder("fruit")
+            .items_getter(|_: &DataMap| ["apple", "pear"])
+            .item_renderer(|item: &&str, _: &DataMap| (*item).to_owned())
+            .id_getter(|item| item)
+            .action(|value: String| async move { ButtonAction::set_dialog_value("fruit", value) })
+            .appearance(ButtonAppearance::builder()
+                .style_dynamic(|ctx: RenderContext| async move {
+                    ctx.data.get("highlight").and_then(|value| value.as_bool()).unwrap_or(false)
+                        .then_some(ButtonStyle::Primary)
+                })
+                .icon_custom_emoji_id("123")
+                .build())
+            .build();
+        let ctx = Context::new("", "state", Value::default());
+        let markup = select.render_keyboard_for_test(&ctx, &DataMap::from([("highlight".into(), json!(true))])).await.unwrap();
+        for (button, payload) in markup.inline_keyboard().unwrap().iter().map(|row| &row[0]).zip(["apple", "pear"]) {
+            assert_eq!(button.style.as_deref(), Some("primary"));
+            assert_eq!(button.icon_custom_emoji_id.as_deref(), Some("123"));
+            assert_eq!(button.callback_data.as_deref(), Some(format!("td:{}:fruit:{payload}", ctx.id).as_str()));
+        }
+    }
+
+    #[tokio::test]
+    async fn select_appearance_gets_item_metadata_without_leaking_or_requiring_send_items() {
+        use std::rc::Rc;
+
+        let select = Select::builder("fruit")
+            .items_getter(|_: &DataMap| vec![Rc::new("apple"), Rc::new("pear")])
+            .item_renderer(|item: &Rc<&str>, _: &DataMap| (**item).to_owned())
+            .id_getter(|item| (*item).to_owned())
+            .action(|_: String| async { ButtonAction::noop() })
+            .appearance(ButtonAppearance::builder()
+                .style_dynamic(|render: RenderContext| async move {
+                    assert_eq!(render.data["prefix"].as_str(), Some("original"));
+                    let position = render.data["pos0"].as_u64().unwrap();
+                    assert_eq!(render.data["pos"].as_u64(), Some(position + 1));
+                    match render.data["item_id"].as_str().unwrap() {
+                        "apple" => { assert_eq!(position, 0); Some(ButtonStyle::Danger) }
+                        "pear" => { assert_eq!(position, 1); Some(ButtonStyle::Success) }
+                        _ => panic!("unknown item"),
+                    }
+                }).build())
+            .header_row([Button::done("header", "Header").style_dynamic(|render: RenderContext| async move {
+                assert_eq!(render.data["item_id"].as_str(), Some("window"));
+                Some(ButtonStyle::Primary)
+            })])
+            .footer_row([Button::done("footer", "Footer").style_dynamic(|render: RenderContext| async move {
+                assert_eq!(render.data["item_id"].as_str(), Some("window"));
+                Some(ButtonStyle::Primary)
+            })])
+            .build();
+        let ctx = Context::new("", "state", Value::default());
+        let data = DataMap::from([("prefix".into(), json!("original")), ("item_id".into(), json!("window"))]);
+        let markup = select.render_keyboard_for_test(&ctx, &data).await.unwrap();
+        let rows = markup.inline_keyboard().unwrap();
+        assert_eq!(rows[1][0].style.as_deref(), Some("danger"));
+        assert_eq!(rows[2][0].style.as_deref(), Some("success"));
+        assert_eq!(data["item_id"].as_str(), Some("window"));
+        assert!(!data.contains_key("pos"));
     }
 
     #[tokio::test]

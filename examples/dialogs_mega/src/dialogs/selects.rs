@@ -2,8 +2,8 @@
 
 use telers_dialog::{
     widgets::{
-        format_text, keyboard, text, Button, ButtonAction, Group, InlineKeyboard, Multiselect,
-        Radio, Select, Toggle,
+        format_text, keyboard, text, Button, ButtonAction, ButtonAppearance, ButtonStyle, Group, InlineKeyboard, Multiselect,
+        OnStateChanged, Radio, Select, StateChange, Toggle,
     },
     window, Dialog,
 };
@@ -11,6 +11,14 @@ use telers_dialog::{
 use crate::common::{main_menu_button, FRUITS};
 
 pub const STATE: &str = "selects_menu";
+
+async fn selection_changed(change: StateChange) -> ButtonAction {
+    let selected = change.new_value.as_str().map(str::to_owned).unwrap_or_else(|| {
+        format!("{} items", change.click.context.widget_value_as::<Vec<String>>(&change.widget_id)
+            .map_or(0, |items| items.len()))
+    });
+    ButtonAction::set_dialog_value("selection_change", selected)
+}
 
 fn back_nav() -> InlineKeyboard {
     InlineKeyboard::builder()
@@ -64,7 +72,7 @@ pub fn dialog() -> impl Dialog {
         window(
             "selects_radio",
             [
-                text("Radio\n\nExactly one item stays selected."),
+                format_text("Radio\n\nExactly one item stays selected.\nState-change hook: {selection_change}"),
                 keyboard(
                     Group::builder(
                         Radio::builder("fruit_radio")
@@ -76,6 +84,9 @@ pub fn dialog() -> impl Dialog {
                                 format!("⚪️ {} {}", item.emoji, item.name)
                             })
                             .id_getter(|item| item.id)
+                            .checked_appearance(ButtonAppearance::builder().style(ButtonStyle::Success).build())
+                            .unchecked_appearance(ButtonAppearance::builder().style(ButtonStyle::Primary).build())
+                            .on_state_changed(OnStateChanged::new(selection_changed))
                             .build(),
                     )
                     .items_per_row(1)
@@ -87,7 +98,7 @@ pub fn dialog() -> impl Dialog {
         window(
             "selects_multi",
             [
-                text("Multiselect\n\nToggle between one and three items."),
+                format_text("Multiselect\n\nToggle between one and three items.\nState-change hook: {selection_change}"),
                 keyboard(
                     Group::builder(
                         Multiselect::builder("fruit_multi")
@@ -101,6 +112,9 @@ pub fn dialog() -> impl Dialog {
                             .id_getter(|item| item.id)
                             .min_selected(1)
                             .max_selected(3)
+                            .checked_appearance(ButtonAppearance::builder().style(ButtonStyle::Success).build())
+                            .unchecked_appearance(ButtonAppearance::builder().style(ButtonStyle::Primary).build())
+                            .on_state_changed(OnStateChanged::new(selection_changed))
                             .build(),
                     )
                     .items_per_row(1)
@@ -112,12 +126,14 @@ pub fn dialog() -> impl Dialog {
         window(
             "selects_toggle",
             [
-                text("Toggle\n\nOne button cycles through the items."),
+                format_text("Toggle\n\nOne button cycles through the items.\nState-change hook: {selection_change}"),
                 keyboard(
                     Toggle::builder("fruit_toggle")
                         .items_getter(|_data| FRUITS)
                         .item_renderer(|item, _data| format!("{} {}", item.emoji, item.name))
                         .id_getter(|item| item.id)
+                        .appearance(ButtonAppearance::builder().style(ButtonStyle::Primary).build())
+                        .on_state_changed(OnStateChanged::new(selection_changed))
                         .build(),
                 ),
                 keyboard(back_nav()),

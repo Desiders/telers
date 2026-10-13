@@ -7,7 +7,7 @@ use telers::{
 };
 use tracing::debug;
 
-use super::super::{format_callback_data, parse_callback_data, ButtonAction};
+use super::super::{format_callback_data, parse_callback_data, ButtonAction, ButtonAppearance, ClickContext};
 use crate::{
     entities::{Context, DataMap, RenderContext},
     future::BoxFuture,
@@ -19,6 +19,13 @@ type PageChangedHandler =
 #[async_trait]
 pub(super) trait PageCountProvider: Sync {
     async fn page_count(&self, render_ctx: &RenderContext) -> usize;
+}
+
+#[async_trait]
+impl<S: Scroll> PageCountProvider for S {
+    async fn page_count(&self, render_ctx: &RenderContext) -> usize {
+        self.get_page_count(render_ctx.clone()).await
+    }
 }
 
 /// Details about a pager state transition.
@@ -92,7 +99,6 @@ impl BaseScroll {
         self.on_page_changed.as_ref()
     }
 
-    #[must_use]
     pub fn handle_callback<'a>(
         &'a self,
         ctx: &'a Context,
@@ -160,6 +166,8 @@ where
 /// Logical direction used by standalone pager buttons.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PageDirection {
+    /// Jump to a zero-based page index, clamped to the last available page.
+    Page(usize),
     First,
     Prev,
     Current,
@@ -175,11 +183,13 @@ pub(super) fn resolve_page_target(
     pages_count: usize,
 ) -> usize {
     let last_page = pages_count.saturating_sub(1);
+    let current_page = current_page.min(last_page);
     match direction {
+        PageDirection::Page(page) => page.min(last_page),
         PageDirection::First => 0,
         PageDirection::Prev => current_page.saturating_sub(1),
         PageDirection::Current => current_page,
-        PageDirection::Next => (current_page + 1).min(last_page),
+        PageDirection::Next => current_page.saturating_add(1).min(last_page),
         PageDirection::Last => last_page,
     }
 }
@@ -190,6 +200,7 @@ pub(super) fn render_direction_button<'a, WidgetId, PageCountGetter, LabelRender
     page_count_getter: &'a PageCountGetter,
     direction: PageDirection,
     label_renderer: &'a LabelRenderer,
+    appearance: Option<&'a ButtonAppearance>,
 ) -> BoxFuture<'a, Option<ReplyMarkup>>
 where
     WidgetId: Display + Sync,
@@ -209,14 +220,37 @@ where
         let current_page = read_page(ctx, &widget_id).min(pages_count.saturating_sub(1));
         let target_page = resolve_page_target(direction, current_page, pages_count);
         let label = (label_renderer)(target_page, current_page, data);
-        let button = InlineKeyboardButton::new(label).callback_data(format_callback_data(
+        let mut button = InlineKeyboardButton::new(label).callback_data(format_callback_data(
             ctx,
             id,
             Some(&target_page.to_string()),
         ));
+        if let Some(appearance) = appearance {
+            let render_ctx = pager_render_context(render_ctx, current_page, target_page, pages_count);
+            button = appearance.apply(button, &render_ctx).await;
+        }
 
         Some(InlineKeyboardMarkup::new(vec![vec![button].into_boxed_slice()]).into())
     })
+}
+
+pub(super) fn pager_render_context(
+    render_ctx: &RenderContext,
+    current_page: usize,
+    target_page: usize,
+    pages: usize,
+) -> RenderContext {
+    let mut data = render_ctx.data.as_ref().clone();
+    for (key, value) in [
+        ("current_page", current_page),
+        ("current_page1", current_page.saturating_add(1)),
+        ("target_page", target_page),
+        ("target_page1", target_page.saturating_add(1)),
+        ("pages", pages),
+    ] {
+        data.insert(key.into(), Value::from(value));
+    }
+    render_ctx.clone().with_data(data)
 }
 
 #[inline]
@@ -282,7 +316,7 @@ pub(super) fn render_fixed_width_page(
     filler_text: &str,
 ) -> Option<(Vec<Box<[InlineKeyboardButton]>>, usize)> {
     let width = width.max(1);
-    let page_capacity = width * height;
+    let page_capacity = width.checked_mul(height)?;
     if page_capacity == 0 {
         return None;
     }
@@ -354,6 +388,31 @@ pub(super) fn handle_pager_callback<'a>(
             None => current_action,
         })
     })
+}
+
+pub(super) async fn handle_bounded_pager_callback(
+    click: &ClickContext,
+    widget_id: &str,
+    page_count_getter: &impl PageCountProvider,
+    on_page_changed: Option<&OnPageChanged>,
+) -> Option<ButtonAction> {
+    let ctx = click.context.as_ref();
+    let parsed = parse_callback_data(ctx, click.callback_data.as_str())?;
+    if parsed.target_id != widget_id {
+        return None;
+    }
+    let target = parsed.payload?.parse::<usize>().ok()?;
+    let render_ctx = RenderContext {
+        context: click.context.clone(),
+        data: click.data.clone(),
+        event: click.event.clone(),
+        event_context: click.event_context.clone(),
+        runtime_context: click.runtime_context.clone(),
+    };
+    if target >= page_count_getter.page_count(&render_ctx).await {
+        return None;
+    }
+    handle_pager_callback(ctx, widget_id, click.callback_data.as_str(), on_page_changed).await
 }
 
 #[inline]

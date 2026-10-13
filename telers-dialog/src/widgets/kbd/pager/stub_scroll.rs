@@ -6,7 +6,7 @@ use telers::serialization::Value;
 
 use super::{
     super::{when::is_allowed, ButtonAction, ClickContext, Keyboard, WhenCondition},
-    BaseScroll, OnPageChanged, Scroll,
+    common::handle_bounded_pager_callback, BaseScroll, OnPageChanged, Scroll,
 };
 use crate::{
     entities::{Context, DataMap, RenderContext},
@@ -22,7 +22,7 @@ type DynPagesGetter =
 pub enum StubScrollPages {
     /// Fixed page count.
     Fixed(usize),
-    /// Read page count from dialog data by field name.
+    /// Read page count from render data by field name.
     DataField(Cow<'static, str>),
     /// Compute page count dynamically from render context.
     Getter(DynPagesGetter),
@@ -145,12 +145,10 @@ impl Keyboard for StubScroll {
 
     async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
         let ctx = click.context.as_ref();
-        if !self.is_visible(ctx, &ctx.dialog_data).await {
+        if !self.is_visible(ctx, click.data.as_ref()).await {
             return None;
         }
-        self.base_scroll
-            .handle_callback(ctx, click.callback_data.as_str())
-            .await
+        handle_bounded_pager_callback(click, self.widget_id(), self, self.on_page_changed()).await
     }
 }
 

@@ -13,6 +13,8 @@ pub struct OldMessage {
     pub chat: Chat,
     /// Telegram message id.
     pub message_id: i64,
+    /// Forum topic or message thread containing the original message.
+    pub message_thread_id: Option<i64>,
     /// Rendered text snapshot.
     pub text: Option<Box<str>>,
     /// Protected-content flag recorded for the sent message.
@@ -27,6 +29,10 @@ pub struct OldMessage {
     pub message_type: Option<MessageType>,
     /// Serialized link preview options snapshot.
     pub link_preview_options_value: Option<telers::serialization::Value>,
+    /// Parse mode used for the rendered text or caption.
+    pub parse_mode: Option<Box<str>>,
+    /// Serialized media options used for the last render.
+    pub media_options_value: Option<telers::serialization::Value>,
     /// Media file ID from the last message.
     pub media_file_id: Option<Box<str>>,
     /// Media unique ID from the last message.
@@ -57,6 +63,7 @@ impl OldMessage {
         Self {
             chat,
             message_id,
+            message_thread_id: None,
             text: text.map(Into::into),
             has_protected_content,
             reply_markup_type,
@@ -64,6 +71,8 @@ impl OldMessage {
             business_connection_id: business_connection_id.map(Into::into),
             message_type,
             link_preview_options_value,
+            parse_mode: None,
+            media_options_value: None,
             media_file_id: None,
             media_unique_id: None,
             media_content_type: None,
@@ -84,10 +93,29 @@ impl OldMessage {
         self
     }
 
+    /// Record options that Telegram does not return in the rendered snapshot.
+    #[must_use]
+    pub fn with_render_options(
+        mut self,
+        parse_mode: Option<Box<str>>,
+        media_options_value: Option<telers::serialization::Value>,
+    ) -> Self {
+        self.parse_mode = parse_mode;
+        self.media_options_value = media_options_value;
+        self
+    }
+
+    /// Record the original topic for cleanup and reuse decisions.
+    #[must_use]
+    pub fn with_message_thread_id(mut self, message_thread_id: Option<i64>) -> Self {
+        self.message_thread_id = message_thread_id;
+        self
+    }
+
     /// Returns true if the old message contained media.
     #[must_use]
     pub fn has_media(&self) -> bool {
-        self.media_file_id.is_some()
+        self.media_file_id.is_some() || self.media_content_type == Some(MessageType::Dice)
     }
 }
 
@@ -269,6 +297,17 @@ mod tests {
         assert!(message.media_file_id.is_none());
         assert!(message.media_unique_id.is_none());
         assert!(message.media_content_type.is_none());
+    }
+
+    #[test]
+    fn old_message_keeps_render_options() {
+        let message = OldMessage::new(
+            ChatPrivate::new(1), 10, Some("caption"), None, None, None,
+            None::<Box<str>>, None, None,
+        ).with_render_options(Some("HTML".into()), Some(json!({"has_spoiler": true})));
+
+        assert_eq!(message.parse_mode.as_deref(), Some("HTML"));
+        assert_eq!(message.media_options_value, Some(json!({"has_spoiler": true})));
     }
 
     #[test]

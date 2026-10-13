@@ -27,6 +27,10 @@ pub enum MediaContentType {
     Voice,
     /// Video note (round video).
     VideoNote,
+    /// Static, animated, or video sticker.
+    Sticker,
+    /// Telegram dice animation with a random result.
+    Dice,
 }
 
 impl MediaContentType {
@@ -103,6 +107,8 @@ pub struct MediaAttachment {
     pub title: Option<Cow<'static, str>>,
     /// Whether video supports streaming.
     pub supports_streaming: Option<bool>,
+    /// Dice animation or uploaded sticker emoji.
+    pub emoji: Option<Cow<'static, str>>,
 }
 
 #[bon]
@@ -125,6 +131,7 @@ impl MediaAttachment {
         #[builder(into)] performer: Option<Cow<'static, str>>,
         #[builder(into)] title: Option<Cow<'static, str>>,
         supports_streaming: Option<bool>,
+        #[builder(into)] emoji: Option<Cow<'static, str>>,
     ) -> Self {
         Self {
             content_type,
@@ -141,6 +148,7 @@ impl MediaAttachment {
             performer,
             title,
             supports_streaming,
+            emoji,
         }
     }
 
@@ -202,7 +210,7 @@ pub trait Media: Send + Sync + 'static {
                 .from(User::new(10, false, "tester"))
                 .into(),
         );
-        let event_context = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        let event_context = EventContext::new(Bot::<Reqwest>::default(), event.clone());
         let render_ctx = crate::entities::RenderContext::new(ctx, data, &event, &event_context);
         self.render_media(&render_ctx).await
     }

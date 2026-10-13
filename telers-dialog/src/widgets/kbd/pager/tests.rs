@@ -7,7 +7,9 @@ use super::{
 };
 use crate::{
     entities::{Context, DataMap, RenderContext},
-    widgets::{Button, ButtonAction, InlineKeyboard, Keyboard},
+    widgets::{
+        Button, ButtonAction, ButtonAppearance, ButtonStyle, ClickContext, InlineKeyboard, Keyboard,
+    },
 };
 
 async fn two_pages(_render_ctx: RenderContext) -> usize {
@@ -225,6 +227,21 @@ async fn scrolling_group_width_groups_buttons_into_fixed_grid() {
 }
 
 #[tokio::test]
+async fn scrolling_group_rejects_overflowing_grid_dimensions() {
+    let ctx = Context::new("", "state", Value::default());
+    let pager = ScrollingGroup::builder("pager")
+        .width(usize::MAX)
+        .height(2)
+        .kbd(build_inner_keyboard(5))
+        .build();
+
+    assert!(pager
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
+        .is_none());
+}
+
+#[tokio::test]
 async fn scrolling_group_pads_last_page_grid_with_fillers() {
     let mut ctx = Context::new("", "state", Value::default());
     ctx.widget_data.insert("pager".into(), json!(1));
@@ -280,6 +297,157 @@ async fn switch_page_renders_directional_button() {
         rows[0][0].callback_data.as_deref(),
         Some(format!("td:{}:pager:2", ctx.id).as_str())
     );
+}
+
+#[tokio::test]
+async fn switch_page_supports_fixed_targets_and_clamps_to_available_pages() {
+    let ctx = Context::new("", "state", Value::default());
+    for (target, expected) in [(2, 2), (usize::MAX, 3)] {
+        let pager = SwitchPage::builder("pager")
+            .direction(PageDirection::Page(target))
+            .page_count_getter(four_pages)
+            .label_renderer(|target, _current, _data| format!("Page {}", target + 1))
+            .build();
+        let markup = pager
+            .render_keyboard_for_test(&ctx, &DataMap::new())
+            .await
+            .unwrap();
+        let button = &markup.inline_keyboard().unwrap()[0][0];
+
+        assert_eq!(button.text.as_ref(), format!("Page {}", expected + 1));
+        assert_eq!(
+            button.callback_data.as_deref(),
+            Some(format!("td:{}:pager:{expected}", ctx.id).as_str())
+        );
+    }
+}
+
+#[test]
+fn page_directions_handle_unbounded_stale_state_without_overflow() {
+    use super::common::resolve_page_target;
+
+    assert_eq!(
+        resolve_page_target(PageDirection::Next, usize::MAX, usize::MAX),
+        usize::MAX - 1
+    );
+    assert_eq!(resolve_page_target(PageDirection::Current, usize::MAX, 4), 3);
+    assert_eq!(resolve_page_target(PageDirection::Prev, usize::MAX, 4), 2);
+    assert_eq!(resolve_page_target(PageDirection::Page(3), 0, 0), 0);
+}
+
+#[tokio::test]
+async fn numbered_pager_current_appearance_inherits_common_emoji() {
+    let ctx = Context::new("", "state", Value::default());
+    let pager = NumberedPager::builder("pager")
+        .page_count_getter(two_pages)
+        .page_renderer(|page, _data| (page + 1).to_string())
+        .current_page_renderer(|page, _data| format!("[{}]", page + 1))
+        .appearance(
+            ButtonAppearance::builder()
+                .style(ButtonStyle::Primary)
+                .icon_custom_emoji_id("123")
+                .build(),
+        )
+        .current_page_appearance(
+            ButtonAppearance::builder()
+                .style(ButtonStyle::Success)
+                .build(),
+        )
+        .build();
+
+    let markup = pager
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
+        .unwrap();
+    let buttons = &markup.inline_keyboard().unwrap()[0];
+
+    assert_eq!(buttons[0].style.as_deref(), Some("success"));
+    assert_eq!(buttons[1].style.as_deref(), Some("primary"));
+    assert!(buttons
+        .iter()
+        .all(|button| button.icon_custom_emoji_id.as_deref() == Some("123")));
+}
+
+#[tokio::test]
+async fn pager_dynamic_appearance_receives_target_page_data() {
+    let ctx = Context::new("", "state", Value::default());
+    let pager = NextPage::builder("pager")
+        .page_count_getter(four_pages)
+        .appearance(
+            ButtonAppearance::builder()
+                .style_dynamic(|render_ctx: RenderContext| async move {
+                    assert_eq!(render_ctx.data.get("current_page1"), Some(&json!(1)));
+                    assert_eq!(render_ctx.data.get("target_page1"), Some(&json!(2)));
+                    assert_eq!(render_ctx.data.get("pages"), Some(&json!(4)));
+                    Some(ButtonStyle::Primary)
+                })
+                .build(),
+        )
+        .build();
+
+    let markup = pager
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
+        .unwrap();
+
+    assert_eq!(
+        markup.inline_keyboard().unwrap()[0][0].style.as_deref(),
+        Some("primary")
+    );
+}
+
+#[tokio::test]
+async fn pager_callbacks_reject_pages_outside_current_content() {
+    let ctx = Context::new("", "state", Value::default());
+    let pager = NumberedPager::builder("pager")
+        .page_count_getter(two_pages)
+        .page_renderer(|page, _data| (page + 1).to_string())
+        .current_page_renderer(|page, _data| format!("[{}]", page + 1))
+        .build();
+    let scroll = ScrollingGroup::builder("grid")
+        .height(2)
+        .kbd(build_inner_keyboard(3))
+        .build();
+    let stub = StubScroll::builder("stub").pages(0_usize).build();
+
+    for target in ["2", "18446744073709551615", "-1", "bad"] {
+        assert!(pager
+            .handle_callback_for_test(&ctx, &format!("td:{}:pager:{target}", ctx.id))
+            .await
+            .is_none());
+        assert!(scroll
+            .handle_callback_for_test(&ctx, &format!("td:{}:grid:{target}", ctx.id))
+            .await
+            .is_none());
+    }
+    assert!(stub
+        .handle_callback_for_test(&ctx, &format!("td:{}:stub:0", ctx.id))
+        .await
+        .is_none());
+}
+
+#[tokio::test]
+async fn pager_callback_bounds_follow_current_getter_data() {
+    let ctx = Context::new("", "state", Value::default());
+    let stub = StubScroll::builder("pager").pages("page_count").build();
+    let callback = format!("td:{}:pager:1", ctx.id);
+
+    ClickContext::with_test(&ctx, &callback, |click| {
+        Box::pin(async move {
+            let mut data = DataMap::new();
+            data.insert("page_count".into(), json!(2));
+            assert!(stub
+                .handle_callback(&click.clone().with_data(data.clone()))
+                .await
+                .is_some());
+            data.insert("page_count".into(), json!(1));
+            assert!(stub
+                .handle_callback(&click.with_data(data))
+                .await
+                .is_none());
+        })
+    })
+    .await;
 }
 
 #[tokio::test]

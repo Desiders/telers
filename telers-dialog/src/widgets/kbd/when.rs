@@ -29,7 +29,7 @@ impl WhenContext {
 
 type WhenPredicate = dyn Fn(WhenContext) -> BoxFuture<'static, bool> + Send + Sync + 'static;
 
-/// Visibility condition shared by keyboard widgets.
+/// Visibility condition shared by text and keyboard widgets.
 #[derive(Clone)]
 pub struct WhenCondition(Arc<WhenPredicate>);
 

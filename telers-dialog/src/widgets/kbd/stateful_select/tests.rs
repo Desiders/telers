@@ -15,6 +15,42 @@ async fn store_selected_minute(_click: ClickContext, minute: u8) -> ButtonAction
 }
 
 #[tokio::test]
+async fn selections_reject_removed_items_and_share_getter_data() {
+    let context = Context::new("", "state", Value::default());
+    let radio = Radio::builder("choice")
+        .items_getter(|data: &DataMap| {
+            data.get("items")
+                .and_then(telers::serialization::as_array)
+                .map_or_else(Vec::new, |items| {
+                    items
+                        .iter()
+                        .filter_map(|value| value.as_str())
+                        .map(str::to_owned)
+                        .collect()
+                })
+        })
+        .checked_renderer(|item, _| format!("[{item}]"))
+        .unchecked_renderer(|item, _| item.to_owned())
+        .id_getter(|item| item.to_owned())
+        .build();
+    let callback = format!("td:{}:choice:pear", context.id);
+    let radio = std::sync::Arc::new(radio);
+    ClickContext::with_test(&context, &callback, |click| {
+        let radio = radio.clone();
+        Box::pin(async move {
+            let click = click.with_data(DataMap::from([("items".into(), json!(["pear"]))]));
+            assert!(matches!(
+                radio.handle_callback(&click).await,
+                Some(ButtonAction::SetWidgetValue { .. })
+            ));
+            let click = click.with_data(DataMap::from([("items".into(), json!(["apple"]))]));
+            assert!(radio.handle_callback(&click).await.is_none());
+        })
+    })
+    .await;
+}
+
+#[tokio::test]
 async fn radio_renders_checked_and_unchecked_items() {
     let ctx = Context::new("", "state", Value::default());
     let radio = Radio::builder("color")

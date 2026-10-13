@@ -5,6 +5,7 @@ use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 
 use super::{
     super::{when::is_allowed, ButtonAction, ClickContext, Keyboard, WhenCondition},
+    common::handle_bounded_pager_callback,
     build_pager_row, page_count_from_rows, render_fixed_width_page, BaseScroll, OnPageChanged,
     Scroll,
 };
@@ -156,12 +157,11 @@ where
 
     async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
         let ctx = click.context.as_ref();
-        let callback_data = click.callback_data.as_str();
-        let data = &ctx.dialog_data;
+        let data = click.data.as_ref();
         if !self.is_visible(ctx, data).await {
             return None;
         }
-        if let Some(action) = self.base_scroll.handle_callback(ctx, callback_data).await {
+        if let Some(action) = handle_bounded_pager_callback(click, self.widget_id(), self, self.on_page_changed()).await {
             return Some(action);
         }
 

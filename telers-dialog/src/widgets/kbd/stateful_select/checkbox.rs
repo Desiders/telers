@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use bon::bon;
-use std::{borrow::Cow, fmt::Display};
+use std::fmt::Display;
 
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::debug;
@@ -9,9 +9,10 @@ use super::super::{
     format_callback_data, macros::impl_button_row_helpers, parse_callback_data, render_button_row,
     when::is_allowed, Button, ButtonAction, ClickContext, Keyboard, WhenCondition,
 };
+use super::change::{state_changed_action, OnStateChanged};
 use crate::{
     entities::{Context, DataMap, RenderContext},
-    widgets::Text,
+    widgets::{ButtonAppearance, Text},
 };
 
 /// Single-button boolean toggle stored in `widget_data`.
@@ -29,6 +30,9 @@ pub struct Checkbox<WidgetId, CheckedText, UncheckedText> {
     header_rows: Vec<Vec<Button>>,
     footer_rows: Vec<Vec<Button>>,
     when: Option<WhenCondition>,
+    on_state_changed: Option<OnStateChanged>,
+    checked_appearance: Option<ButtonAppearance>,
+    unchecked_appearance: Option<ButtonAppearance>,
 }
 
 #[bon]
@@ -44,6 +48,9 @@ impl<WidgetId, CheckedText, UncheckedText> Checkbox<WidgetId, CheckedText, Unche
         unchecked_text: UncheckedText,
         #[builder(default = false)] default: bool,
         when: Option<WhenCondition>,
+        on_state_changed: Option<OnStateChanged>,
+        checked_appearance: Option<ButtonAppearance>,
+        unchecked_appearance: Option<ButtonAppearance>,
     ) -> Self
     where
         WidgetId: Display,
@@ -58,6 +65,9 @@ impl<WidgetId, CheckedText, UncheckedText> Checkbox<WidgetId, CheckedText, Unche
             header_rows,
             footer_rows,
             when,
+            on_state_changed,
+            checked_appearance,
+            unchecked_appearance,
         }
     }
 }
@@ -107,28 +117,31 @@ where
             rows.push(render_button_row(row, render_ctx).await);
         }
 
-        rows.push(
-            [
-                InlineKeyboardButton::new(text).callback_data(format_callback_data(
-                    ctx,
-                    &self.id,
-                    Some(&next_value),
-                )),
-            ]
-            .into(),
-        );
+        let button = InlineKeyboardButton::new(text)
+            .callback_data(format_callback_data(ctx, &self.id, Some(&next_value)));
+        let appearance = if is_checked {
+            self.checked_appearance.as_ref()
+        } else {
+            self.unchecked_appearance.as_ref()
+        };
+        let button = match appearance {
+            Some(appearance) => appearance.apply(button, render_ctx).await,
+            None => button,
+        };
+        rows.push([button].into());
 
         for row in &self.footer_rows {
             rows.push(render_button_row(row, render_ctx).await);
         }
 
+        rows.retain(|row| !row.is_empty());
         Some(InlineKeyboardMarkup::new(rows).into())
     }
 
     async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
         let ctx = click.context.as_ref();
         let callback_data = click.callback_data.as_str();
-        let data = &ctx.dialog_data;
+        let data = click.data.as_ref();
         if !self.is_visible(ctx, data).await {
             return None;
         }
@@ -159,9 +172,10 @@ where
             checked,
             "Resolved checkbox toggle callback"
         );
-        Some(ButtonAction::set_widget_value(
-            Cow::Owned(self.id.to_string()),
-            checked,
-        ))
+        let previous = ctx.widget_value_as::<bool>(&self.id.to_string()).unwrap_or(self.default);
+        Some(state_changed_action(
+            click, self.id.to_string(), Some(previous.into()), checked.into(),
+            self.on_state_changed.as_ref(),
+        ).await)
     }
 }

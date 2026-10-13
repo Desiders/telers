@@ -20,6 +20,8 @@ pub struct ClickContext {
     pub event_context: Arc<EventContext>,
     /// Request-scoped context populated by telers middlewares and filters.
     pub runtime_context: Arc<telers::Context>,
+    /// Current merged dialog and window getter data.
+    pub data: Arc<DataMap>,
 }
 
 impl ClickContext {
@@ -38,7 +40,14 @@ impl ClickContext {
             event: Arc::new(event.clone()),
             event_context: Arc::new(event_context.clone()),
             runtime_context: Arc::new(runtime_context.clone()),
+            data: Arc::new(context.dialog_data.clone()),
         }
+    }
+
+    #[must_use]
+    pub fn with_data(mut self, data: DataMap) -> Self {
+        self.data = Arc::new(data);
+        self
     }
 
     #[inline]
@@ -99,7 +108,7 @@ mod tests {
                     .into(),
             );
             let event_context =
-                EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+                EventContext::new(Bot::<Reqwest>::default(), event.clone());
             let runtime_context = telers::Context::default();
             let click =
                 ClickContext::new(ctx, callback_data, &event, &event_context, &runtime_context);

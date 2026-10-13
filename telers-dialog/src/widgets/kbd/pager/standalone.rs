@@ -6,10 +6,10 @@ use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 
 use super::{
     super::{
-        format_callback_data, when::is_allowed, ButtonAction, ClickContext, Keyboard, WhenCondition,
+        format_callback_data, when::is_allowed, ButtonAction, ButtonAppearance, ClickContext, Keyboard, WhenCondition,
     },
-    common::PageCountProvider,
-    handle_pager_callback, read_page, render_direction_button, OnPageChanged, PageDirection,
+    common::{handle_bounded_pager_callback, pager_render_context, PageCountProvider},
+    read_page, render_direction_button, OnPageChanged, PageDirection,
     Scroll,
 };
 use crate::{
@@ -121,7 +121,7 @@ fn resolve_pager_binding(
     )
 }
 
-/// Single-button pager that jumps in a fixed [`PageDirection`].
+/// Single-button pager that jumps to a page or in a fixed [`PageDirection`].
 ///
 /// Useful when you need a stand-alone next/prev/first/last button outside of
 /// the dedicated [`FirstPage`] / [`PrevPage`] / [`NextPage`] / [`LastPage`]
@@ -133,6 +133,7 @@ pub struct SwitchPage<LabelRenderer, Label> {
     label_renderer: LabelRenderer,
     on_page_changed: Option<OnPageChanged>,
     when: Option<WhenCondition>,
+    appearance: Option<ButtonAppearance>,
     #[allow(clippy::type_complexity)]
     marker: PhantomData<fn() -> Label>,
 }
@@ -149,6 +150,7 @@ impl<LabelRenderer, Label> SwitchPage<LabelRenderer, Label> {
         label_renderer: LabelRenderer,
         on_page_changed: Option<OnPageChanged>,
         when: Option<WhenCondition>,
+        appearance: Option<ButtonAppearance>,
     ) -> Self
     where
         LabelRenderer: Fn(usize, usize, &DataMap) -> Label,
@@ -163,6 +165,7 @@ impl<LabelRenderer, Label> SwitchPage<LabelRenderer, Label> {
             label_renderer,
             on_page_changed,
             when,
+            appearance,
             marker: PhantomData,
         }
     }
@@ -214,20 +217,21 @@ where
             &self.page_count_getter,
             self.direction,
             &self.label_renderer,
+            self.appearance.as_ref(),
         )
         .await
     }
 
     async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
         let ctx = click.context.as_ref();
-        let data = &ctx.dialog_data;
+        let data = click.data.as_ref();
         if !self.is_visible(ctx, data).await {
             return None;
         }
-        handle_pager_callback(
-            ctx,
+        handle_bounded_pager_callback(
+            click,
             self.id.as_ref(),
-            click.callback_data.as_str(),
+            &self.page_count_getter,
             self.on_page_changed.as_ref(),
         )
         .await
@@ -242,6 +246,7 @@ macro_rules! fixed_pager_type {
             label: Cow<'static, str>,
             on_page_changed: Option<OnPageChanged>,
             when: Option<WhenCondition>,
+            appearance: Option<ButtonAppearance>,
         }
 
         #[bon]
@@ -254,6 +259,7 @@ macro_rules! fixed_pager_type {
                 #[builder(default = $default_label.into())] label: Cow<'static, str>,
                 on_page_changed: Option<OnPageChanged>,
                 when: Option<WhenCondition>,
+                appearance: Option<ButtonAppearance>,
             ) -> Self {
                 let (id, page_count_getter, on_page_changed) =
                     resolve_pager_binding(binding, page_count_getter, on_page_changed);
@@ -263,6 +269,7 @@ macro_rules! fixed_pager_type {
                     label,
                     on_page_changed,
                     when,
+                    appearance,
                 }
             }
         }
@@ -307,20 +314,21 @@ macro_rules! fixed_pager_type {
                     &self.page_count_getter,
                     $direction,
                     &|_target, _current, _data| self.label.clone(),
+                    self.appearance.as_ref(),
                 )
                 .await
             }
 
             async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
                 let ctx = click.context.as_ref();
-                let data = &ctx.dialog_data;
+                let data = click.data.as_ref();
                 if !self.is_visible(ctx, data).await {
                     return None;
                 }
-                handle_pager_callback(
-                    ctx,
+                handle_bounded_pager_callback(
+                    click,
                     self.id.as_ref(),
-                    click.callback_data.as_str(),
+                    &self.page_count_getter,
                     self.on_page_changed.as_ref(),
                 )
                 .await
@@ -365,6 +373,7 @@ pub struct CurrentPage {
     page_count_getter: PageCountSource,
     on_page_changed: Option<OnPageChanged>,
     when: Option<WhenCondition>,
+    appearance: Option<ButtonAppearance>,
 }
 
 #[bon]
@@ -377,6 +386,7 @@ impl CurrentPage {
         #[builder(field)] page_count_getter: Option<DynPageCountGetter>,
         on_page_changed: Option<OnPageChanged>,
         when: Option<WhenCondition>,
+        appearance: Option<ButtonAppearance>,
     ) -> Self {
         let (id, page_count_getter, on_page_changed) =
             resolve_pager_binding(binding, page_count_getter, on_page_changed);
@@ -385,6 +395,7 @@ impl CurrentPage {
             page_count_getter,
             on_page_changed,
             when,
+            appearance,
         }
     }
 }
@@ -429,23 +440,27 @@ impl Keyboard for CurrentPage {
         }
 
         let current_page = read_page(ctx, self.id.as_ref()).min(pages_count.saturating_sub(1));
-        let button = InlineKeyboardButton::new(format!("{}", current_page + 1)).callback_data(
+        let mut button = InlineKeyboardButton::new(format!("{}", current_page + 1)).callback_data(
             format_callback_data(ctx, self.id.as_ref(), Some(&format!("{current_page}"))),
         );
+        if let Some(appearance) = &self.appearance {
+            let render_ctx = pager_render_context(render_ctx, current_page, current_page, pages_count);
+            button = appearance.apply(button, &render_ctx).await;
+        }
 
         Some(InlineKeyboardMarkup::new(vec![vec![button].into_boxed_slice()]).into())
     }
 
     async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
         let ctx = click.context.as_ref();
-        let data = &ctx.dialog_data;
+        let data = click.data.as_ref();
         if !self.is_visible(ctx, data).await {
             return None;
         }
-        handle_pager_callback(
-            ctx,
+        handle_bounded_pager_callback(
+            click,
             self.id.as_ref(),
-            click.callback_data.as_str(),
+            &self.page_count_getter,
             self.on_page_changed.as_ref(),
         )
         .await
@@ -458,6 +473,9 @@ impl Keyboard for CurrentPage {
 /// produces the label for the currently selected page (typically wrapped in
 /// brackets). `length` limits the number of buttons per row; when unset all
 /// pages render on one row.
+/// `current_page_appearance` inherits missing fields from `appearance`; dynamic
+/// appearances receive `current_page`, `target_page`, their one-based variants,
+/// and `pages` alongside the window data.
 pub struct NumberedPager<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPageLabel> {
     id: Cow<'static, str>,
     page_count_getter: PageCountSource,
@@ -466,6 +484,8 @@ pub struct NumberedPager<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPa
     length: Option<usize>,
     on_page_changed: Option<OnPageChanged>,
     when: Option<WhenCondition>,
+    appearance: Option<ButtonAppearance>,
+    current_page_appearance: Option<ButtonAppearance>,
     #[allow(clippy::type_complexity)]
     marker: PhantomData<fn() -> (PageLabel, CurrentPageLabel)>,
 }
@@ -485,6 +505,8 @@ impl<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPageLabel>
         length: Option<usize>,
         on_page_changed: Option<OnPageChanged>,
         when: Option<WhenCondition>,
+        appearance: Option<ButtonAppearance>,
+        current_page_appearance: Option<ButtonAppearance>,
     ) -> Self
     where
         PageRenderer: Fn(usize, &DataMap) -> PageLabel,
@@ -502,6 +524,8 @@ impl<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPageLabel>
             length,
             on_page_changed,
             when,
+            appearance,
+            current_page_appearance,
             marker: PhantomData,
         }
     }
@@ -569,13 +593,21 @@ where
             } else {
                 (self.page_renderer)(page, data).into()
             };
-            current_row.push(
-                InlineKeyboardButton::new(label).callback_data(format_callback_data(
+            let mut button = InlineKeyboardButton::new(label).callback_data(format_callback_data(
                     ctx,
                     self.id.as_ref(),
                     Some(&format!("{page}")),
-                )),
-            );
+                ));
+            let appearance = match (&self.current_page_appearance, &self.appearance, page == current_page) {
+                (Some(current), Some(base), true) => Some(current.clone().or(base.clone())),
+                (Some(current), _, true) => Some(current.clone()),
+                (_, base, _) => base.clone(),
+            };
+            if let Some(appearance) = appearance {
+                let render_ctx = pager_render_context(render_ctx, current_page, page, pages_count);
+                button = appearance.apply(button, &render_ctx).await;
+            }
+            current_row.push(button);
 
             if current_row.len() == row_len {
                 rows.push(std::mem::take(&mut current_row).into_boxed_slice());
@@ -591,14 +623,14 @@ where
 
     async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
         let ctx = click.context.as_ref();
-        let data = &ctx.dialog_data;
+        let data = click.data.as_ref();
         if !self.is_visible(ctx, data).await {
             return None;
         }
-        handle_pager_callback(
-            ctx,
+        handle_bounded_pager_callback(
+            click,
             self.id.as_ref(),
-            click.callback_data.as_str(),
+            &self.page_count_getter,
             self.on_page_changed.as_ref(),
         )
         .await

@@ -12,6 +12,7 @@ use crate::{entities::Context, widgets::ButtonAction};
 pub struct MessageInputContext {
     /// Stored dialog context for the active intent.
     pub context: Arc<Context>,
+    pub message: Arc<Message>,
 }
 
 /// Input widget that forwards strongly-typed incoming messages to an async handler.
@@ -69,6 +70,7 @@ where
             (self.handler)(
                 MessageInputContext {
                     context: Arc::new(ctx.clone()),
+                    message: Arc::new(message.clone()),
                 },
                 message.try_into().ok()?,
             )

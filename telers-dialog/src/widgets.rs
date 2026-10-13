@@ -7,9 +7,10 @@ mod widget;
 
 pub(super) use input::MultiInput;
 pub(super) use kbd::MultiKeyboard;
+pub(crate) use kbd::parse_callback_data;
 pub(crate) use widget::ensure_widgets;
 
-pub use input::{Input, MessageInput, MessageInputContext, TextInput, TextInputContext};
+pub use input::{CombinedInput, FilteredInput, Input, InputFilter, InputFilterContext, MessageInput, MessageInputContext, TextInput, TextInputContext};
 pub use kbd::{
     sync_scroll, sync_scrolls, BaseScroll, Button, ButtonAction, ButtonStyle, Calendar,
     CalendarAppearance, CalendarAppearanceBuilder, CalendarBuilder, CalendarButtonKind,
@@ -20,13 +21,17 @@ pub use kbd::{
     PagerBinding, PrevPage, Radio, RequestContact, RequestLocation, RequestPoll, Scroll,
     ScrollingGroup, Select, SelectClickContext, StubScroll, StubScrollPages, SwitchPage,
     TimeSelect, Toggle, WhenCondition, WhenContext,
+    ReplyButton, ReplyKeyboard, ReplyKeyboardRemove,
+    KeyboardGroup, ListGroup,
+    OnStateChanged, StateChange,
+    ButtonAppearance,
 };
 pub use link_preview::{LinkPreview, LinkPreviewWidget};
 pub use media::{
     DynamicMedia, InMemoryMediaIdStorage, Media, MediaAttachment, MediaContentType, MediaId,
     MediaIdStorage, MediaScroll, StaticMedia,
 };
-pub use text::{Case, FnText, FormatText, ListText, MultiText, Progress, ScrollingText, Text};
+pub use text::{Case, ConditionalText, FirstText, FnText, FormatText, ListText, MultiText, Progress, ScrollingText, Text};
 #[cfg(feature = "template")]
 pub use text::{TemplateEnvBuilder, TemplateText};
 pub use widget::{fn_text, format_text, input, keyboard, link_preview, media, text, WidgetKind};

@@ -13,7 +13,7 @@
  - **Windows and dialogs**. A dialog is a set of windows, each window is a set of widgets, and the dialog owns the navigation between them.
  - **Widget library**. Text, inline and reply keyboards, input fields, link previews, media, calendars, pagers and stateful widgets are included.
  - **Stack navigation**. Dialogs are kept on a stack, so `start`, `switch_to`, `next`, `back` and `done` behave like in `aiogram-dialog`.
- - **Persistence for free**. Dialog data lives in `telers::fsm::Context`, so any `telers` storage (`memory-storage`, `redis-storage`, your own) keeps the conversation between restarts.
+ - **FSM storage**. Dialog data lives in `telers::fsm::Context`. Persistence follows your chosen storage backend; memory storage keeps conversations while the process runs.
  - **Extractors**. `DialogManager` is a handler argument, exactly like `FSMContext` in `telers`.
  - **Middleware integration**. One call, `setup_dialogs::<S>()`, registers the middlewares and the event handler on an observer.
 
@@ -136,26 +136,36 @@ pub fn dialog() -> impl Dialog {
             ),
         ],
     )])
-    // Always reset the stack when this dialog is started, so `/start` returns to a clean menu.
+    // Root makes `/start` reset the current stack and return to a clean menu.
     .with_launch_mode(LaunchMode::Root)
 }
 ```
 
-`LaunchMode` decides how a dialog behaves when it is started: `Standard` (the default) puts no restrictions on it, `Root` always resets the stack, `Exclusive` additionally forbids starting any other dialog on top of it, and `SingleTop` is not repeated on top of the stack, so starting the same dialog again replaces it.
+`LaunchMode` decides how a dialog behaves when it is started: `Standard` (the default) puts no restrictions on it, `Root` resets the target stack, `Exclusive` additionally forbids starting any other dialog on top of it, and `SingleTop` is not repeated on top of the stack, so starting the same dialog again replaces it. `StartMode::NewStack` creates a separate stack without clearing the current one, including for `Root` and `Exclusive` dialogs.
 
 For more, check out the [example below][examples/dialogs_mega] and the [source][source].
 
 ## Widgets
- - **Text**: `text`, `FormatText`, `FnText`, `ListText` (with optional pagination), `ScrollingText`, `MultiText`, `Case`, `Progress`, and `TemplateText` behind the `template` feature.
- - **Keyboard**: `InlineKeyboard`, `Group`, `Button` with `ButtonStyle`, `Select`, `WhenCondition`, `ForceReply`, and the request widgets `RequestContact`, `RequestLocation` and `RequestPoll`.
- - **Stateful widgets**: `Checkbox`, `Counter`, `Multiselect`, `Radio`, `TimeSelect` and `Toggle`. They keep their state in the dialog, so they survive restarts.
+ - **Text**: `text`, `FormatText`, `FnText`, `ListText` (with optional pagination), `ScrollingText`, `MultiText`, `Case`, `Progress`, `FirstText`, conditional `Text::when`, and `TemplateText` behind the `template` feature.
+ - **Keyboard**: `InlineKeyboard`, `Group`, `KeyboardGroup`, item-scoped `ListGroup`, `ReplyKeyboard` / `ReplyButton` / `ReplyKeyboardRemove`, `Button` with `ButtonStyle` and reusable `ButtonAppearance`, `Select`, `WhenCondition`, `ForceReply`, and the request widgets `RequestContact`, `RequestLocation` and `RequestPoll`.
+ - **Stateful widgets**: `Checkbox`, `Counter`, `Multiselect`, `Radio`, `TimeSelect` and `Toggle`. They keep their state in the dialog context and support async state-change hooks.
  - **Paging and scrolling**: `ScrollingGroup`, `NumberedPager`, `FirstPage`, `PrevPage`, `CurrentPage`, `NextPage`, `LastPage`, `SwitchPage`, `StubScroll`, `sync_scroll`.
  - **Calendar**: `Calendar` with `CalendarConfig` and `CalendarAppearance` for custom labels and views.
- - **Input**: `TextInput` and `MessageInput`, for multi step forms.
- - **Media and previews**: `StaticMedia`, `DynamicMedia`, `MediaScroll`, and `LinkPreview`.
+ - **Input**: `TextInput` (including custom parsers), `MessageInput`, and `CombinedInput` with async `InputFilter`, for multi step forms.
+ - **Media and previews**: `StaticMedia`, `DynamicMedia`, `MediaScroll`, and `LinkPreview`, including native stickers, voice, video notes, and dice.
+
+## Runtime hooks and data
+
+Dialog `.on_start`, `.on_close`, and `.on_process_result_with_manager` handlers receive a borrowed `DialogControl`, so hooks can read or update the active context without depending on a storage or client type. Action-returning result hooks support declarative transitions.
+
+Dialog and window `.getter(DataGetter::new(...))` providers run in order. Window providers receive dialog-derived fields; callbacks load the same current data for visibility and item routing. Derived data is transient, while `start_data`, `dialog_data`, and `widget_data` are available separately. `FormatText` supports nested paths such as `{profile[name]}` and `{items[0].title}`, plus escaped braces.
+
+Use `manager.background(&bot).await?` before spawning a job. Its controller stays bound to the current intent and rejects updates after that intent closes, is covered, restarts, or moves to another message destination. `background_for_stack` targets a separate named stack. Incoming messages stay on the default stack; callbacks select the retained stack owning their intent. Reply keyboards are restricted to the default stack because they apply to the whole chat.
+
+Dialog middleware and background controllers share process-local event isolation. The default serializes by bot; `.with_event_isolation(EventIsolation::UserInChat)` allows separate conversations to run concurrently when the FSM uses `Strategy::UserInChat`. Choose a scope at least as broad as the FSM storage key. Separate worker processes need distributed isolation around that same key.
 
 ## Examples
- - [Dialogs mega][examples/dialogs_mega]. One bot that demonstrates every widget: a root menu that starts each feature dialog, and every screen returns with `Button::done`.
+ - [Dialogs mega][examples/dialogs_mega]. One bot that demonstrates the widget library: a root menu starts each feature dialog, `Button::done` returns to the menu, and `/start` resets the stack from any screen.
 
 You may consider checking out [this directory][examples] for more examples.
 

@@ -95,9 +95,9 @@ macro_rules! impl_reply_keyboard_options_setters {
         /// Set the input-field placeholder displayed while the keyboard is open.
         pub fn input_field_placeholder(
             mut self,
-            value: impl Into<std::borrow::Cow<'static, str>>,
+            value: impl $crate::widgets::Text,
         ) -> Self {
-            self.options.input_field_placeholder = Some(value.into());
+            self.options.input_field_placeholder = Some(std::sync::Arc::new(value));
             self
         }
 
@@ -110,3 +110,40 @@ macro_rules! impl_reply_keyboard_options_setters {
 }
 
 pub(crate) use impl_reply_keyboard_options_setters;
+
+macro_rules! impl_reply_button_appearance_setters {
+    () => {
+        pub fn style(mut self, style: $crate::widgets::ButtonStyle) -> Self {
+            self.appearance = self.appearance.with_style(style);
+            self
+        }
+
+        pub fn style_dynamic<F>(mut self, renderer: F) -> Self
+        where
+            F: AsyncFn($crate::entities::RenderContext) -> Option<$crate::widgets::ButtonStyle>
+                + async_fn_traits::AsyncFn1<$crate::entities::RenderContext, Output = Option<$crate::widgets::ButtonStyle>>
+                + Send + Sync + 'static,
+            <F as async_fn_traits::AsyncFn1<$crate::entities::RenderContext>>::OutputFuture: Send + 'static,
+        {
+            self.appearance = self.appearance.with_style_dynamic(renderer);
+            self
+        }
+
+        pub fn icon_custom_emoji_id(mut self, value: impl Into<std::borrow::Cow<'static, str>>) -> Self {
+            self.appearance = self.appearance.with_emoji(value.into());
+            self
+        }
+
+        pub fn icon_custom_emoji_id_dynamic(mut self, value: impl $crate::widgets::Text) -> Self {
+            self.appearance = self.appearance.with_emoji(value);
+            self
+        }
+
+        pub fn appearance(mut self, appearance: $crate::widgets::ButtonAppearance) -> Self {
+            self.appearance = appearance;
+            self
+        }
+    };
+}
+
+pub(crate) use impl_reply_button_appearance_setters;

@@ -1,6 +1,5 @@
 use crate::entities::update_event::DialogUpdateEvent;
 use telers::{
-    client::Reqwest,
     types::{
         CallbackQuery, Chat, ChatJoinRequest, ChatMemberUpdated, MaybeInaccessibleMessage, Message,
         Update, User,
@@ -9,6 +8,7 @@ use telers::{
 };
 
 pub const EVENT_CONTEXT_KEY: &str = "td_event_context";
+pub const EVENT_BOT_KEY: &str = "td_event_bot";
 pub const CHAT_EVENT_KEY: &str = "td_chat_event";
 
 /// Chat-scoped event variants that can drive dialog updates.
@@ -48,15 +48,19 @@ pub fn chat_event_from_update(update: &Update) -> Option<ChatEvent> {
         return Some(ChatEvent::ChatMember(chat_member.clone()));
     }
     if let Some(message) = update.message() {
+        message.from()?;
         return Some(ChatEvent::Message(message.clone()));
     }
     if let Some(message) = update.edited_message() {
+        message.from()?;
         return Some(ChatEvent::Message(message.clone()));
     }
     if let Some(message) = update.business_message() {
+        message.from()?;
         return Some(ChatEvent::Message(message.clone()));
     }
     if let Some(message) = update.edited_business_message() {
+        message.from()?;
         return Some(ChatEvent::Message(message.clone()));
     }
     None
@@ -64,9 +68,9 @@ pub fn chat_event_from_update(update: &Update) -> Option<ChatEvent> {
 
 /// Normalized event context extracted from the current update.
 #[derive(Clone, Debug)]
-pub struct EventContext<Client = Reqwest> {
-    /// Bot instance bound to the current request.
-    pub bot: Bot<Client>,
+pub struct EventContext {
+    /// Bot identifier bound to the current request.
+    pub bot_id: i64,
     /// Event chat.
     pub chat: Chat,
     /// Event author.
@@ -77,11 +81,13 @@ pub struct EventContext<Client = Reqwest> {
     pub business_connection_id: Option<String>,
 }
 
-impl<Client> EventContext<Client> {
+impl EventContext {
     /// # Panics
-    /// - If the event is callback query and the message is not available
+    /// - If the event is a callback query without a message.
+    /// - If the event is a message without a sender.
     #[must_use]
-    pub fn new(bot: Bot<Client>, event: ChatEvent) -> Self {
+    pub fn new<Client>(bot: Bot<Client>, event: ChatEvent) -> Self {
+        let bot_id = bot.id;
         match event {
             ChatEvent::CallbackQuery(callback_query) => {
                 let user = *callback_query.from;
@@ -99,7 +105,7 @@ impl<Client> EventContext<Client> {
                     None => unreachable!("CallbackQuery must have a message"),
                 };
                 Self {
-                    bot,
+                    bot_id,
                     chat,
                     user,
                     thread_id,
@@ -110,7 +116,7 @@ impl<Client> EventContext<Client> {
                 let user = *chat_join_request.from;
                 let chat = *chat_join_request.chat;
                 Self {
-                    bot,
+                    bot_id,
                     chat,
                     user,
                     thread_id: None,
@@ -121,7 +127,7 @@ impl<Client> EventContext<Client> {
                 let user = *chat_member_updated.from;
                 let chat = *chat_member_updated.chat;
                 Self {
-                    bot,
+                    bot_id,
                     chat,
                     user,
                     thread_id: None,
@@ -135,7 +141,7 @@ impl<Client> EventContext<Client> {
                 business_connection_id,
                 ..
             }) => Self {
-                bot,
+                bot_id,
                 chat,
                 user,
                 thread_id,
@@ -152,7 +158,7 @@ impl<Client> EventContext<Client> {
                     message.business_connection_id().map(ToOwned::to_owned),
                 );
                 Self {
-                    bot,
+                    bot_id,
                     chat,
                     user,
                     thread_id,
@@ -166,7 +172,7 @@ impl<Client> EventContext<Client> {
 #[cfg(test)]
 mod tests {
     use super::chat_event_from_update;
-    use telers::types::{CallbackQuery, Update, UpdateCallbackQuery, User};
+    use telers::types::{CallbackQuery, ChatPrivate, MessageText, Update, UpdateCallbackQuery, UpdateMessage, User};
 
     #[test]
     fn inline_message_callback_is_skipped() {
@@ -179,5 +185,11 @@ mod tests {
             chat_event_from_update(&update).is_none(),
             "inline-message callback (message=None) must not produce a chat event"
         );
+    }
+
+    #[test]
+    fn message_without_sender_is_skipped() {
+        let update = Update::Message(UpdateMessage::new(1, MessageText::new(1, 1, ChatPrivate::new(1), "senderless")));
+        assert!(chat_event_from_update(&update).is_none());
     }
 }

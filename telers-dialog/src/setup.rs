@@ -1,6 +1,6 @@
 use crate::{
     entities::{
-        chat_event_from_update, ChatEvent, EventContext, CHAT_EVENT_KEY, EVENT_CONTEXT_KEY,
+        chat_event_from_update, ChatEvent, EventContext, CHAT_EVENT_KEY, EVENT_BOT_KEY, EVENT_CONTEXT_KEY,
     },
     manager::DialogManager,
     registry::DialogRegistry,
@@ -81,6 +81,7 @@ where
     ) -> impl Future<Output = MiddlewareResult<Client>> + Send {
         let chat_event = chat_event_from_update(request.update.as_ref());
         if let Some(chat_event) = chat_event {
+            request.context.insert(EVENT_BOT_KEY, request.bot.clone());
             let event_context = EventContext::new(request.bot.clone(), chat_event.clone());
             request.context.insert(EVENT_CONTEXT_KEY, event_context);
             request.context.insert(CHAT_EVENT_KEY, chat_event);
@@ -103,7 +104,11 @@ where
         let registry = request.extensions.get::<DialogRegistry>();
         let event = request.context.get::<ChatEvent>(CHAT_EVENT_KEY);
 
+        let mut isolation = None;
         if let (Some(fsm), Some(registry), Some(event)) = (fsm, registry, event) {
+            if let Some(event_context) = request.context.get::<EventContext>(EVENT_CONTEXT_KEY) {
+                isolation = Some((registry.clone(), event_context.clone()));
+            }
             let manager = DialogManager::new(
                 fsm.clone(),
                 registry.clone(),
@@ -112,7 +117,16 @@ where
             );
             request.context.insert(DIALOG_MANAGER_KEY, manager);
         }
-        next(request)
+        async move {
+            match isolation {
+                Some((registry, event_context)) => {
+                    registry
+                        .run_isolated(&event_context, async move { next(request).await })
+                        .await
+                }
+                None => next(request).await,
+            }
+        }
     }
 }
 
@@ -212,7 +226,7 @@ mod tests {
     };
     use crate::{
         dialog,
-        entities::{CHAT_EVENT_KEY, EVENT_CONTEXT_KEY},
+        entities::{EventContext, StartMode, CHAT_EVENT_KEY, EVENT_BOT_KEY, EVENT_CONTEXT_KEY},
         widgets::text,
         window, DialogManager, DialogRegistry,
     };
@@ -245,6 +259,96 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn dialog_manager_middleware_serializes_the_complete_handler_continuation() {
+        let bot = Bot::<Reqwest>::default();
+        let registry = DialogRegistry::new();
+        let request = || {
+            let message: Message = MessageText::new(1, 1, ChatPrivate::new(5), "hello")
+                .from(User::new(5, false, "tester"))
+                .into();
+            let event = crate::entities::ChatEvent::Message(message.clone());
+            let mut context = Context::default();
+            context.insert(
+                "fsm_context",
+                FSMContext::new(
+                    MemoryStorage::new(),
+                    StorageKey::new(bot.id, 5, 5, None, None),
+                ),
+            );
+            context.insert(
+                EVENT_CONTEXT_KEY,
+                EventContext::new(bot.clone(), event.clone()),
+            );
+            context.insert(CHAT_EVENT_KEY, event);
+            let mut extensions = Extensions::default();
+            extensions.insert(registry.clone());
+            Request {
+                bot: bot.clone(),
+                update: Arc::new(Update::Message(UpdateMessage::new(1, message))),
+                context,
+                extensions,
+            }
+        };
+        let first_request = request();
+        let second_request = request();
+        let (first_entered_tx, first_entered_rx) = tokio::sync::oneshot::channel();
+        let (release_tx, release_rx) = tokio::sync::oneshot::channel();
+        let first_next: Next<Reqwest> = Box::new(move |request| {
+            Box::pin(async move {
+                assert!(request.context.contains_key(DIALOG_MANAGER_KEY));
+                first_entered_tx.send(()).expect("first handler entered");
+                release_rx.await.expect("release first handler");
+                Ok(Response {
+                    request,
+                    propagate_result: PropagateEventResult::Unhandled,
+                })
+            })
+        });
+        let first = tokio::spawn(async move {
+            DialogManagerMiddleware::<MemoryStorage>::new()
+                .call(first_request, first_next)
+                .await
+                .expect("first middleware")
+        });
+        first_entered_rx
+            .await
+            .expect("first continuation holds isolation");
+
+        let (second_entered_tx, mut second_entered_rx) = tokio::sync::oneshot::channel();
+        let (attempted_tx, attempted_rx) = tokio::sync::oneshot::channel();
+        let second_next: Next<Reqwest> = Box::new(move |request| {
+            Box::pin(async move {
+                second_entered_tx.send(()).expect("second handler entered");
+                Ok(Response {
+                    request,
+                    propagate_result: PropagateEventResult::Unhandled,
+                })
+            })
+        });
+        let second = tokio::spawn(async move {
+            attempted_tx.send(()).expect("second event attempted");
+            DialogManagerMiddleware::<MemoryStorage>::new()
+                .call(second_request, second_next)
+                .await
+                .expect("second middleware")
+        });
+        attempted_rx.await.expect("second event waiting");
+        assert!(matches!(
+            second_entered_rx.try_recv(),
+            Err(tokio::sync::oneshot::error::TryRecvError::Empty)
+        ));
+        release_tx.send(()).expect("finish first event");
+        first.await.expect("first task completed");
+        tokio::time::timeout(std::time::Duration::from_secs(5), second)
+            .await
+            .expect("second event is released when the handler finishes")
+            .expect("second task completed");
+        second_entered_rx
+            .await
+            .expect("second handler runs after first completes");
+    }
+
+    #[tokio::test]
     async fn middleware_inserts_dialog_event_context_for_message() {
         let message = MessageText::new(1, 1, ChatPrivate::new(10), "hello")
             .from(User::new(10, false, "user"));
@@ -264,6 +368,109 @@ mod tests {
 
         assert!(request.context.contains_key(EVENT_CONTEXT_KEY));
         assert!(request.context.contains_key(CHAT_EVENT_KEY));
+    }
+
+    #[tokio::test]
+    async fn middleware_continues_without_dialog_context_for_senderless_message() {
+        let request = Request::<Reqwest> {
+            bot: Bot::default(),
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                1,
+                MessageText::new(1, 1, ChatPrivate::new(10), "senderless"),
+            ))),
+            context: Context::default(),
+            extensions: Extensions::default(),
+        };
+        let response = DialogContextMiddleware::new()
+            .call(request, unhandled_next())
+            .await
+            .expect("continue routing");
+        assert!(!response.request.context.contains_key(EVENT_CONTEXT_KEY));
+        assert!(!response.request.context.contains_key(CHAT_EVENT_KEY));
+    }
+
+    #[tokio::test]
+    async fn custom_session_dialog_manager_can_start_after_middleware_setup() {
+        let bot = crate::message_manager::tests::mock_bot(&[(
+            200,
+            r#"{"ok":true,"result":{"message_id":20,"date":1,"chat":{"id":1,"type":"private"},"text":"hello"}}"#,
+        )]);
+        let storage = MemoryStorage::new();
+        let fsm = FSMContext::new(storage, StorageKey::new(bot.id, 1, 1, None, None));
+        let mut context = Context::default();
+        context.insert("fsm_context", fsm);
+        let mut extensions = Extensions::default();
+        extensions.insert(
+            DialogRegistry::new()
+                .register(dialog([window("state", [text("hello")])]))
+                .expect("registration"),
+        );
+        let request = Request {
+            bot: (*bot).clone(),
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                1,
+                MessageText::new(1, 1, ChatPrivate::new(1), "/start")
+                    .from(User::new(1, false, "user")),
+            ))),
+            context,
+            extensions,
+        };
+        let next: Next<crate::message_manager::tests::MockSession> = Box::new(|request| {
+            Box::pin(async move {
+                Ok(Response {
+                    request,
+                    propagate_result: PropagateEventResult::Unhandled,
+                })
+            })
+        });
+        let request = DialogContextMiddleware::new()
+            .call(request, next)
+            .await
+            .expect("event middleware")
+            .request;
+        assert_eq!(
+            request
+                .context
+                .get::<EventContext>(EVENT_CONTEXT_KEY)
+                .expect("normalized metadata")
+                .bot_id,
+            bot.id
+        );
+        assert_eq!(
+            request
+                .context
+                .get::<Bot<crate::message_manager::tests::MockSession>>(EVENT_BOT_KEY)
+                .expect("typed event bot")
+                .id,
+            bot.id
+        );
+        let next: Next<crate::message_manager::tests::MockSession> = Box::new(|request| {
+            Box::pin(async move {
+                Ok(Response {
+                    request,
+                    propagate_result: PropagateEventResult::Unhandled,
+                })
+            })
+        });
+        let request = DialogManagerMiddleware::<MemoryStorage>::new()
+            .call(request, next)
+            .await
+            .expect("manager middleware")
+            .request;
+        let manager = DialogManager::<MemoryStorage>::extract(&request)
+            .await
+            .expect("manager extraction");
+
+        let context = manager
+            .start(
+                &request.bot,
+                "state",
+                telers::serialization::Value::default(),
+                StartMode::Normal,
+            )
+            .await
+            .expect("custom client dialog start");
+        assert_eq!(context.state, "state");
     }
 
     #[tokio::test]

@@ -20,13 +20,13 @@ mod window;
 pub use async_trait::async_trait;
 pub use dialog::{dialog, Dialog, IntoDialog};
 pub use entities::{
-    AccessSettings, Data, DefaultAccessValidator, LaunchMode, ResultContext, ShowMode,
+    AccessSettings, Data, DataGetter, DefaultAccessValidator, LaunchMode, ResultContext, ShowMode,
     StackAccessValidator, StartMode, DEFAULT_STACK_ID,
 };
 pub use errors::DialogError;
-pub use manager::DialogManager;
+pub use manager::{BackgroundManager, DialogControl, DialogManager};
 pub use message_manager::MessageManager;
-pub use registry::DialogRegistry;
+pub use registry::{DialogRegistry, EventIsolation};
 pub use setup::{DialogContextMiddleware, DialogManagerMiddleware, DialogObserverExt};
 pub use widgets::media::{InMemoryMediaIdStorage, MediaIdStorage};
 pub use window::{window, IntoWindow, Window};

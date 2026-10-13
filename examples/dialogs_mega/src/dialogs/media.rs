@@ -1,15 +1,15 @@
-//! Media widgets: `StaticMedia` from a URL and `DynamicMedia` from a data field.
+//! Media widgets: static and dynamic photos, galleries, dice and reusable Telegram media.
 //!
 //! The URLs below point at `picsum.photos`, which returns real JPEG images that
 //! Telegram can fetch. Telegram rejects URLs that do not resolve to a raster
 //! image (for example an SVG placeholder), so swap in your own public image URL
 //! or a `file_id` your bot owns when adapting this example.
 
-use telers::serialization::json;
+use telers::{serialization::json, types::{MessageSticker, MessageVideoNote, MessageVoice}};
 use telers_dialog::{
     widgets::{
-        format_text, keyboard, media, text, Button, ButtonAction, DynamicMedia, InlineKeyboard,
-        MediaContentType, MediaScroll, NumberedPager, StaticMedia,
+        format_text, input, keyboard, media, text, Button, ButtonAction, DynamicMedia, InlineKeyboard,
+        MediaContentType, MediaScroll, MessageInput, MessageInputContext, NumberedPager, StaticMedia,
     },
     window, Dialog,
 };
@@ -27,6 +27,18 @@ const GALLERY: &[&str] = &[
     "https://picsum.photos/seed/telers-3/600/400",
     "https://picsum.photos/seed/telers-4/600/400",
 ];
+
+async fn use_sticker(_ctx: MessageInputContext, message: MessageSticker) -> ButtonAction {
+    ButtonAction::set_dialog_value("sticker_file_id", message.sticker.file_id().to_owned())
+}
+
+async fn use_voice(_ctx: MessageInputContext, message: MessageVoice) -> ButtonAction {
+    ButtonAction::set_dialog_value("voice_file_id", message.voice.file_id.to_string())
+}
+
+async fn use_video_note(_ctx: MessageInputContext, message: MessageVideoNote) -> ButtonAction {
+    ButtonAction::set_dialog_value("video_note_file_id", message.video_note.file_id.to_string())
+}
 
 pub fn dialog() -> impl Dialog {
     telers_dialog::dialog([
@@ -50,6 +62,10 @@ pub fn dialog() -> impl Dialog {
                                 ButtonAction::switch_to("media_dynamic"),
                             ]),
                         )])
+                        .row([Button::switch_to("to_dice", "Roll dice", "media_dice")])
+                        .row([Button::switch_to("to_sticker", "Reuse a sticker", "media_sticker")])
+                        .row([Button::switch_to("to_voice", "Reuse a voice message", "media_voice")])
+                        .row([Button::switch_to("to_note", "Reuse a video note", "media_video_note")])
                         .row([main_menu_button()])
                         .build(),
                 ),
@@ -124,6 +140,50 @@ pub fn dialog() -> impl Dialog {
                         .row([main_menu_button()])
                         .build(),
                 ),
+            ],
+        ),
+        window(
+            "media_dice",
+            [
+                text(""),
+                media(StaticMedia::builder(MediaContentType::Dice).emoji("🎲").build()),
+                keyboard(InlineKeyboard::builder()
+                    .row([Button::switch_to("roll", "Roll again", "media_dice")])
+                    .row([Button::switch_to("back", "Back", STATE)])
+                    .row([main_menu_button()]).build()),
+            ],
+        ),
+        window(
+            "media_sticker",
+            [
+                text("Send a sticker to reuse it in this dialog."),
+                input(MessageInput::new(use_sticker)),
+                media(DynamicMedia::from_file_id_field(MediaContentType::Sticker, "sticker_file_id")),
+                keyboard(InlineKeyboard::builder()
+                    .row([Button::switch_to("back", "Back", STATE)])
+                    .row([main_menu_button()]).build()),
+            ],
+        ),
+        window(
+            "media_voice",
+            [
+                text("Send a voice message to reuse it in this dialog."),
+                input(MessageInput::new(use_voice)),
+                media(DynamicMedia::from_file_id_field(MediaContentType::Voice, "voice_file_id")),
+                keyboard(InlineKeyboard::builder()
+                    .row([Button::switch_to("back", "Back", STATE)])
+                    .row([main_menu_button()]).build()),
+            ],
+        ),
+        window(
+            "media_video_note",
+            [
+                text("Send a video note to reuse it in this dialog."),
+                input(MessageInput::new(use_video_note)),
+                media(DynamicMedia::from_file_id_field(MediaContentType::VideoNote, "video_note_file_id")),
+                keyboard(InlineKeyboard::builder()
+                    .row([Button::switch_to("back", "Back", STATE)])
+                    .row([main_menu_button()]).build()),
             ],
         ),
     ])

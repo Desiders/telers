@@ -9,6 +9,70 @@ use super::{
 use crate::entities::{Context, DataMap};
 
 #[tokio::test]
+async fn dice_renders_without_a_file_source() {
+    let ctx = Context::new("", "state", telers::serialization::Value::default());
+    let media = StaticMedia::builder(MediaContentType::Dice)
+        .emoji("🎯")
+        .build();
+    let attachment = media
+        .render_media_for_test(&ctx, &DataMap::new())
+        .await
+        .expect("dice attachment");
+    assert_eq!(attachment.content_type, MediaContentType::Dice);
+    assert_eq!(attachment.emoji.as_deref(), Some("🎯"));
+    assert!(attachment.to_input_file().is_none());
+    assert!(!attachment.content_type.can_edit_in_place());
+}
+
+#[tokio::test]
+async fn dynamic_media_reads_sticker_and_dice_options() {
+    let ctx = Context::new("", "state", telers::serialization::Value::default());
+    let media = DynamicMedia::from_field("media");
+    for (value, content_type) in [
+        (
+            json!({"content_type": "sticker", "file_id": "sticker-1", "emoji": "⭐"}),
+            MediaContentType::Sticker,
+        ),
+        (
+            json!({"content_type": "dice", "emoji": "🎳"}),
+            MediaContentType::Dice,
+        ),
+    ] {
+        let mut data = DataMap::new();
+        data.insert("media".to_owned(), value);
+        let attachment = media
+            .render_media_for_test(&ctx, &data)
+            .await
+            .expect("attachment");
+        assert_eq!(attachment.content_type, content_type);
+        assert!(attachment.emoji.is_some());
+    }
+}
+
+#[tokio::test]
+async fn dynamic_media_accepts_serialized_media_attachment() {
+    let ctx = Context::new("", "state", telers::serialization::Value::default());
+    let attachment = MediaAttachment::builder(MediaContentType::Sticker)
+        .file_id(MediaId::with_unique_id("sticker-1", "unique-1"))
+        .emoji("⭐")
+        .build();
+    let mut data = DataMap::new();
+    data.insert(
+        "media".to_owned(),
+        telers::serialization::to_value(&attachment).expect("serialize attachment"),
+    );
+
+    let rendered = DynamicMedia::from_field("media")
+        .render_media_for_test(&ctx, &data)
+        .await
+        .expect("render serialized media");
+    assert_eq!(rendered.content_type, MediaContentType::Sticker);
+    assert_eq!(rendered.get_file_id(), Some("sticker-1"));
+    assert_eq!(rendered.get_file_unique_id(), Some("unique-1"));
+    assert_eq!(rendered.emoji.as_deref(), Some("⭐"));
+}
+
+#[tokio::test]
 async fn static_media_renders_photo_url() {
     let ctx = Context::new("", "state", telers::serialization::Value::default());
     let data = DataMap::new();

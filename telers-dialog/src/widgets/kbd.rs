@@ -9,6 +9,7 @@
 //! - date selection with [`Calendar`]
 
 mod action;
+mod appearance;
 mod base;
 mod button;
 mod calendar;
@@ -16,9 +17,11 @@ mod callback;
 mod click;
 mod group;
 mod inline_keyboard;
+mod list_group;
 mod macros;
 mod pager;
 mod request;
+mod reply_keyboard;
 mod select;
 mod stateful_select;
 mod when;
@@ -28,6 +31,7 @@ pub(crate) use callback::{format_callback_data, parse_callback_data};
 pub(crate) use select::render_button_row;
 
 pub use action::ButtonAction;
+pub use appearance::ButtonAppearance;
 pub use base::Keyboard;
 pub use button::{Button, ButtonStyle};
 pub use calendar::{
@@ -36,7 +40,8 @@ pub use calendar::{
     CalendarUserConfig, CalendarViewContext, CalendarViews, CalendarViewsBuilder,
 };
 pub use click::ClickContext;
-pub use group::Group;
+pub use group::{Group, KeyboardGroup};
+pub use list_group::ListGroup;
 pub use inline_keyboard::InlineKeyboard;
 pub use pager::{
     sync_scroll, sync_scrolls, BaseScroll, CurrentPage, FirstPage, LastPage, NextPage,
@@ -44,8 +49,9 @@ pub use pager::{
     ScrollingGroup, StubScroll, StubScrollPages, SwitchPage,
 };
 pub use request::{ForceReply, RequestContact, RequestLocation, RequestPoll};
+pub use reply_keyboard::{ReplyButton, ReplyKeyboard, ReplyKeyboardRemove};
 pub use select::{Select, SelectClickContext};
-pub use stateful_select::{Checkbox, Counter, Multiselect, Radio, TimeSelect, Toggle};
+pub use stateful_select::{Checkbox, Counter, Multiselect, OnStateChanged, Radio, StateChange, TimeSelect, Toggle};
 pub use when::{WhenCondition, WhenContext};
 
 #[cfg(test)]

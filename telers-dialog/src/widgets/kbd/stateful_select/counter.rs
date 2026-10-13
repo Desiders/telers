@@ -9,7 +9,11 @@ use super::super::{
     format_callback_data, macros::impl_button_row_helpers, parse_callback_data, render_button_row,
     when::is_allowed, Button, ButtonAction, ClickContext, Keyboard, WhenCondition,
 };
-use crate::entities::{Context, DataMap, RenderContext};
+use super::change::{state_changed_action, OnStateChanged};
+use crate::{
+    entities::{Context, DataMap, RenderContext},
+    widgets::ButtonAppearance,
+};
 
 /// Numeric counter widget stored in `widget_data`.
 ///
@@ -24,9 +28,9 @@ pub struct Counter<WidgetId> {
     minus_text: Cow<'static, str>,
     plus_hidden: bool,
     minus_hidden: bool,
-    /// Lower bound. Kept `<= max` and non-NaN by [`normalize_bounds`], as [`f64::clamp`] requires.
+    /// Lower bound. Kept `<= max` and finite by [`normalize_bounds`], as [`f64::clamp`] requires.
     min: f64,
-    /// Upper bound. Kept `>= min` and non-NaN by [`normalize_bounds`], as [`f64::clamp`] requires.
+    /// Upper bound. Kept `>= min` and finite by [`normalize_bounds`], as [`f64::clamp`] requires.
     max: f64,
     increment: f64,
     default: f64,
@@ -34,11 +38,15 @@ pub struct Counter<WidgetId> {
     header_rows: Vec<Vec<Button>>,
     footer_rows: Vec<Vec<Button>>,
     when: Option<WhenCondition>,
+    on_state_changed: Option<OnStateChanged>,
+    minus_appearance: Option<ButtonAppearance>,
+    value_appearance: Option<ButtonAppearance>,
+    plus_appearance: Option<ButtonAppearance>,
 }
 
 /// Normalizes the counter bounds so that `min <= max` and neither bound is NaN
 fn normalize_bounds(min: f64, max: f64) -> (f64, f64) {
-    match (min.is_nan(), max.is_nan()) {
+    let (min, max) = match (min.is_nan(), max.is_nan()) {
         (true, true) => {
             warn!("Counter `min` and `max` are NaN, falling back to an unbounded range");
             (f64::NEG_INFINITY, f64::INFINITY)
@@ -65,7 +73,8 @@ fn normalize_bounds(min: f64, max: f64) -> (f64, f64) {
             (max, min)
         }
         (false, false) => (min, max),
-    }
+    };
+    (min.clamp(f64::MIN, f64::MAX), max.clamp(f64::MIN, f64::MAX))
 }
 
 #[bon]
@@ -87,11 +96,27 @@ impl<WidgetId> Counter<WidgetId> {
         #[builder(default = 0.0)] default: f64,
         #[builder(default = false)] cycle: bool,
         when: Option<WhenCondition>,
+        on_state_changed: Option<OnStateChanged>,
+        minus_appearance: Option<ButtonAppearance>,
+        value_appearance: Option<ButtonAppearance>,
+        plus_appearance: Option<ButtonAppearance>,
     ) -> Self
     where
         WidgetId: Display,
     {
         let (min, max) = normalize_bounds(min, max);
+        let increment = if increment.is_finite() {
+            increment
+        } else {
+            warn!("Counter increment is nonfinite, falling back to 1");
+            1.0
+        };
+        let default = if default.is_finite() {
+            default
+        } else {
+            warn!("Counter default is nonfinite, falling back to 0");
+            0.0
+        };
         Self {
             id,
             plus_text,
@@ -106,6 +131,10 @@ impl<WidgetId> Counter<WidgetId> {
             header_rows,
             footer_rows,
             when,
+            on_state_changed,
+            minus_appearance,
+            value_appearance,
+            plus_appearance,
         }
     }
 }
@@ -146,23 +175,29 @@ where
 
         let mut counter_row = Vec::new();
         if !self.minus_hidden {
-            counter_row.push(
-                InlineKeyboardButton::new(self.minus_text.as_ref())
-                    .callback_data(format_callback_data(ctx, &self.id, Some("-"))),
-            );
+            let button = InlineKeyboardButton::new(self.minus_text.as_ref())
+                .callback_data(format_callback_data(ctx, &self.id, Some("-")));
+            let button = match &self.minus_appearance {
+                Some(appearance) => appearance.apply(button, render_ctx).await,
+                None => button,
+            };
+            counter_row.push(button);
         }
-        counter_row.push(
-            InlineKeyboardButton::new(render_value(value)).callback_data(format_callback_data(
-                ctx,
-                &self.id,
-                Some(""),
-            )),
-        );
+        let button = InlineKeyboardButton::new(render_value(value))
+            .callback_data(format_callback_data(ctx, &self.id, Some("")));
+        let button = match &self.value_appearance {
+            Some(appearance) => appearance.apply(button, render_ctx).await,
+            None => button,
+        };
+        counter_row.push(button);
         if !self.plus_hidden {
-            counter_row.push(
-                InlineKeyboardButton::new(self.plus_text.as_ref())
-                    .callback_data(format_callback_data(ctx, &self.id, Some("+"))),
-            );
+            let button = InlineKeyboardButton::new(self.plus_text.as_ref())
+                .callback_data(format_callback_data(ctx, &self.id, Some("+")));
+            let button = match &self.plus_appearance {
+                Some(appearance) => appearance.apply(button, render_ctx).await,
+                None => button,
+            };
+            counter_row.push(button);
         }
         rows.push(counter_row.into_boxed_slice());
 
@@ -170,13 +205,14 @@ where
             rows.push(render_button_row(row, render_ctx).await);
         }
 
+        rows.retain(|row| !row.is_empty());
         Some(InlineKeyboardMarkup::new(rows).into())
     }
 
     async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
         let ctx = click.context.as_ref();
         let callback_data = click.callback_data.as_str();
-        let data = &ctx.dialog_data;
+        let data = click.data.as_ref();
         if !self.is_visible(ctx, data).await {
             return None;
         }
@@ -206,6 +242,8 @@ where
                 let mut next = current + self.increment;
                 if next > self.max {
                     next = if self.cycle { self.min } else { self.max };
+                } else if next < self.min {
+                    next = if self.cycle { self.max } else { self.min };
                 }
                 debug!(
                     context_id = %ctx.id,
@@ -214,15 +252,17 @@ where
                     next,
                     "Resolved counter increment callback"
                 );
-                Some(ButtonAction::set_widget_value(
-                    Cow::Owned(self.id.to_string()),
-                    next,
-                ))
+                Some(state_changed_action(
+                    click, self.id.to_string(), Some(current.into()), next.into(),
+                    self.on_state_changed.as_ref(),
+                ).await)
             }
             "-" => {
                 let mut next = current - self.increment;
                 if next < self.min {
                     next = if self.cycle { self.max } else { self.min };
+                } else if next > self.max {
+                    next = if self.cycle { self.min } else { self.max };
                 }
                 debug!(
                     context_id = %ctx.id,
@@ -231,10 +271,10 @@ where
                     next,
                     "Resolved counter decrement callback"
                 );
-                Some(ButtonAction::set_widget_value(
-                    Cow::Owned(self.id.to_string()),
-                    next,
-                ))
+                Some(state_changed_action(
+                    click, self.id.to_string(), Some(current.into()), next.into(),
+                    self.on_state_changed.as_ref(),
+                ).await)
             }
             "" => Some(ButtonAction::noop()),
             _ => None,
@@ -242,11 +282,6 @@ where
     }
 }
 
-#[allow(clippy::cast_possible_truncation)]
 fn render_value(value: f64) -> String {
-    if value.fract() == 0.0 {
-        format!("{}", value as i64)
-    } else {
-        value.to_string()
-    }
+    value.to_string()
 }

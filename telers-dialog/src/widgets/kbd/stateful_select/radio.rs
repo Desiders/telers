@@ -8,7 +8,11 @@ use super::super::{
     format_callback_data, macros::impl_button_row_helpers, parse_callback_data, render_button_row,
     when::is_allowed, Button, ButtonAction, ClickContext, Keyboard, WhenCondition,
 };
-use crate::entities::{Context, DataMap, RenderContext};
+use super::change::{state_changed_action, OnStateChanged};
+use crate::{
+    entities::{Context, DataMap, RenderContext},
+    widgets::ButtonAppearance,
+};
 
 /// Inline-keyboard radio group that stores one selected item id in `widget_data`.
 ///
@@ -37,6 +41,10 @@ pub struct Radio<
     header_rows: Vec<Vec<Button>>,
     footer_rows: Vec<Vec<Button>>,
     when: Option<WhenCondition>,
+    on_state_changed: Option<OnStateChanged>,
+    checked_appearance: Option<ButtonAppearance>,
+    unchecked_appearance: Option<ButtonAppearance>,
+
     #[allow(clippy::type_complexity)]
     marker: PhantomData<fn() -> (ItemsIter, Item, ItemStr, Id)>,
 }
@@ -77,6 +85,9 @@ impl<
         unchecked_renderer: UncheckedRenderer,
         id_getter: IdGetter,
         when: Option<WhenCondition>,
+        on_state_changed: Option<OnStateChanged>,
+        checked_appearance: Option<ButtonAppearance>,
+        unchecked_appearance: Option<ButtonAppearance>,
     ) -> Self
     where
         WidgetId: Display,
@@ -97,6 +108,10 @@ impl<
             header_rows,
             footer_rows,
             when,
+            on_state_changed,
+            checked_appearance,
+            unchecked_appearance,
+
             marker: PhantomData,
         }
     }
@@ -192,6 +207,7 @@ where
             rows.push(render_button_row(row, render_ctx).await);
         }
 
+        let mut buttons = Vec::new();
         for item in (self.items_getter)(data) {
             let item_id = (self.id_getter)(&item).to_string();
             let is_checked = checked.as_deref() == Some(item_id.as_str());
@@ -200,22 +216,28 @@ where
             } else {
                 (self.unchecked_renderer)(&item, data)
             };
-            rows.push(
-                [
-                    InlineKeyboardButton::new(text).callback_data(format_callback_data(
-                        ctx,
-                        &self.id,
-                        Some(&item_id),
-                    )),
-                ]
-                .into(),
-            );
+            let button = InlineKeyboardButton::new(text)
+                .callback_data(format_callback_data(ctx, &self.id, Some(&item_id)));
+            buttons.push((button, is_checked));
+        }
+        for (button, is_checked) in buttons {
+            let appearance = if is_checked {
+                self.checked_appearance.as_ref()
+            } else {
+                self.unchecked_appearance.as_ref()
+            };
+            let button = match appearance {
+                Some(appearance) => appearance.apply(button, render_ctx).await,
+                None => button,
+            };
+            rows.push([button].into());
         }
 
         for row in &self.footer_rows {
             rows.push(render_button_row(row, render_ctx).await);
         }
 
+        rows.retain(|row| !row.is_empty());
         if rows.is_empty() {
             None
         } else {
@@ -226,7 +248,7 @@ where
     async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
         let ctx = click.context.as_ref();
         let callback_data = click.callback_data.as_str();
-        let data = &ctx.dialog_data;
+        let data = click.data.as_ref();
         if !self.is_visible(ctx, data).await {
             return None;
         }
@@ -246,12 +268,18 @@ where
             return None;
         }
         let payload = parsed.payload?;
+        if !(self.items_getter)(data).into_iter().any(|item| (self.id_getter)(&item).to_string() == payload) {
+            return None;
+        }
         debug!(
             context_id = %ctx.id,
             widget_id = %self.id,
             item_id = payload,
             "Resolved radio selection callback"
         );
-        Some(ButtonAction::set_widget_value(self.id.to_string(), payload))
+        let previous = ctx.widget_value_as::<String>(&self.id.to_string()).map(Into::into);
+        Some(state_changed_action(
+            click, self.id.to_string(), previous, payload.into(), self.on_state_changed.as_ref(),
+        ).await)
     }
 }

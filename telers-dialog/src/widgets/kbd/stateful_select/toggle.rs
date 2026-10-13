@@ -8,7 +8,11 @@ use super::super::{
     format_callback_data, macros::impl_button_row_helpers, parse_callback_data, render_button_row,
     when::is_allowed, Button, ButtonAction, ClickContext, Keyboard, WhenCondition,
 };
-use crate::entities::{Context, DataMap, RenderContext};
+use super::change::{state_changed_action, OnStateChanged};
+use crate::{
+    entities::{Context, DataMap, RenderContext},
+    widgets::ButtonAppearance,
+};
 
 /// Single-button cyclic toggle backed by `widget_data`.
 ///
@@ -23,6 +27,9 @@ pub struct Toggle<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr,
     header_rows: Vec<Vec<Button>>,
     footer_rows: Vec<Vec<Button>>,
     when: Option<WhenCondition>,
+    on_state_changed: Option<OnStateChanged>,
+    appearance: Option<ButtonAppearance>,
+
     #[allow(clippy::type_complexity)]
     marker: PhantomData<fn() -> (ItemsIter, Item, ItemStr, Id)>,
 }
@@ -42,6 +49,8 @@ impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id
         item_renderer: ItemRenderer,
         id_getter: IdGetter,
         when: Option<WhenCondition>,
+        on_state_changed: Option<OnStateChanged>,
+        appearance: Option<ButtonAppearance>,
     ) -> Self
     where
         WidgetId: Display,
@@ -60,6 +69,9 @@ impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id
             header_rows,
             footer_rows,
             when,
+            on_state_changed,
+            appearance,
+
             marker: PhantomData,
         }
     }
@@ -127,19 +139,20 @@ where
             let next_idx = (current_idx + 1) % items.len();
             let current_item = &items[current_idx];
             let next_item_id = (self.id_getter)(&items[next_idx]).to_string();
-            rows.push(
-                [
-                    InlineKeyboardButton::new((self.item_renderer)(current_item, data))
-                        .callback_data(format_callback_data(ctx, &self.id, Some(&next_item_id))),
-                ]
-                .into(),
-            );
+            let button = InlineKeyboardButton::new((self.item_renderer)(current_item, data))
+                .callback_data(format_callback_data(ctx, &self.id, Some(&next_item_id)));
+            let button = match &self.appearance {
+                Some(appearance) => appearance.apply(button, render_ctx).await,
+                None => button,
+            };
+            rows.push([button].into());
         }
 
         for row in &self.footer_rows {
             rows.push(render_button_row(row, render_ctx).await);
         }
 
+        rows.retain(|row| !row.is_empty());
         if rows.is_empty() {
             None
         } else {
@@ -150,7 +163,7 @@ where
     async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
         let ctx = click.context.as_ref();
         let callback_data = click.callback_data.as_str();
-        let data = &ctx.dialog_data;
+        let data = click.data.as_ref();
         if !self.is_visible(ctx, data).await {
             return None;
         }
@@ -170,12 +183,22 @@ where
             return None;
         }
         let payload = parsed.payload?;
+        let item_ids: Vec<_> = (self.items_getter)(data).into_iter()
+            .map(|item| (self.id_getter)(&item).to_string()).collect();
+        if !item_ids.iter().any(|id| id == payload) {
+            return None;
+        }
         debug!(
             context_id = %ctx.id,
             widget_id = %self.id,
             item_id = payload,
             "Resolved toggle selection callback"
         );
-        Some(ButtonAction::set_widget_value(self.id.to_string(), payload))
+        let previous = ctx.widget_value_as::<String>(&self.id.to_string())
+            .filter(|value| item_ids.contains(value))
+            .or_else(|| item_ids.first().cloned()).map(Into::into);
+        Some(state_changed_action(
+            click, self.id.to_string(), previous, payload.into(), self.on_state_changed.as_ref(),
+        ).await)
     }
 }

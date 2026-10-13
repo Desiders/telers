@@ -29,14 +29,14 @@ pub struct StaticMedia {
     performer: Option<Cow<'static, str>>,
     title: Option<Cow<'static, str>>,
     supports_streaming: Option<bool>,
+    emoji: Option<Cow<'static, str>>,
 }
 
 #[bon]
 impl StaticMedia {
     /// Create a static media widget for the given content type.
     ///
-    /// At least one of `url`, `file_id`, or `path` must be set, otherwise
-    /// rendering returns `None`.
+    /// Except for dice, at least one of `url`, `file_id`, or `path` must be set.
     #[builder]
     #[must_use]
     pub fn new(
@@ -54,6 +54,7 @@ impl StaticMedia {
         #[builder(into)] performer: Option<Cow<'static, str>>,
         #[builder(into)] title: Option<Cow<'static, str>>,
         supports_streaming: Option<bool>,
+        #[builder(into)] emoji: Option<Cow<'static, str>>,
     ) -> Self {
         Self {
             content_type,
@@ -70,6 +71,7 @@ impl StaticMedia {
             performer,
             title,
             supports_streaming,
+            emoji,
         }
     }
 }
@@ -77,7 +79,7 @@ impl StaticMedia {
 #[async_trait]
 impl Media for StaticMedia {
     async fn render_media(&self, render_ctx: &RenderContext) -> Option<MediaAttachment> {
-        if self.url.is_none() && self.file_id.is_none() && self.path.is_none() {
+        if self.content_type != MediaContentType::Dice && self.url.is_none() && self.file_id.is_none() && self.path.is_none() {
             return None;
         }
 
@@ -106,6 +108,7 @@ impl Media for StaticMedia {
             performer: self.performer.clone(),
             title: self.title.clone(),
             supports_streaming: self.supports_streaming,
+            emoji: self.emoji.clone(),
         })
     }
 }

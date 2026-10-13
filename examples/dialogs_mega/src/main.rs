@@ -5,13 +5,13 @@ use telers::{
     enums::UpdateType,
     errors::HandlerError,
     event::telegram::{Handler, HandlerResult},
-    filters::CommandStart,
+    filters::{Command, CommandStart},
     fsm::{MemoryStorage, Strategy::UserInChat},
     middlewares::outer::FSMContext as FSMContextMiddleware,
     serialization::Value,
     Bot, Dispatcher, Router,
 };
-use telers_dialog::{DialogManager, DialogObserverExt, DialogRegistry, StartMode};
+use telers_dialog::{DialogManager, DialogObserverExt, DialogRegistry, EventIsolation, StartMode};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 type Manager = DialogManager<MemoryStorage>;
@@ -32,14 +32,20 @@ async fn handle_start(bot: Bot, manager: Manager) -> HandlerResult<()> {
 
 fn registry() -> DialogRegistry {
     DialogRegistry::new()
+        .with_event_isolation(EventIsolation::UserInChat)
         .register(dialogs::main_menu::dialog())
+        .and_then(|r| r.register(dialogs::background::dialog()))
         .and_then(|r| r.register(dialogs::text_widgets::dialog()))
         .and_then(|r| r.register(dialogs::template::dialog()))
         .and_then(|r| r.register(dialogs::scrolls::dialog()))
         .and_then(|r| r.register(dialogs::layouts::dialog()))
+        .and_then(|r| r.register(dialogs::lifecycle::dialog()))
+        .and_then(|r| r.register(dialogs::lifecycle::child_dialog()))
         .and_then(|r| r.register(dialogs::selects::dialog()))
         .and_then(|r| r.register(dialogs::multiwidget::dialog()))
         .and_then(|r| r.register(dialogs::counter::dialog()))
+        .and_then(|r| r.register(dialogs::composition::dialog()))
+        .and_then(|r| r.register(dialogs::data_getters::dialog()))
         .and_then(|r| r.register(dialogs::calendar::dialog()))
         .and_then(|r| r.register(dialogs::switch::dialog()))
         .and_then(|r| r.register(dialogs::reply_kbd::dialog()))
@@ -47,6 +53,7 @@ fn registry() -> DialogRegistry {
         .and_then(|r| r.register(dialogs::buttons::dialog()))
         .and_then(|r| r.register(dialogs::button_actions::dialog()))
         .and_then(|r| r.register(dialogs::link_preview::dialog()))
+        .and_then(|r| r.register(dialogs::list_groups::dialog()))
         .and_then(|r| r.register(dialogs::media::dialog()))
         .expect("all mega dialogs register without duplicate states")
 }
@@ -70,6 +77,7 @@ async fn main() {
         .on_message(|observer| {
             observer
                 .register(Handler::new(handle_start).filter(CommandStart::default()))
+                .register(Handler::new(dialogs::background::run).filter(Command::builder().commands(["background"]).build()))
                 .setup_dialogs::<MemoryStorage>()
         })
         .on_callback_query(DialogObserverExt::setup_dialogs::<MemoryStorage>);
