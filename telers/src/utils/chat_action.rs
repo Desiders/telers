@@ -4,7 +4,7 @@
 //! periodically. [`ChatActionSender`] does that in the background: configure it (directly or via a
 //! convenience constructor like [`ChatActionSender::typing`]), call [`ChatActionSender::start`] to
 //! spawn the re-sending task, and keep the returned [`ChatActionGuard`] alive while you work.
-//! Dropping the guard stops sending — the Rust analog of aiogram's `async with ChatActionSender(...)`.
+//! Dropping the guard stops sending.
 //!
 //! # Example
 //! ```no_run
