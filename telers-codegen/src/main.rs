@@ -7,7 +7,7 @@ use std::{
     process,
 };
 use telers_codegen::{
-    file::{camel_to_filename, write_tokens_to_file},
+    file::{camel_to_filename, check_tokens_to_file, write_tokens_to_file},
     generator::{self, methods::struct_name_to_method_name},
     parser::api::Schema,
 };
@@ -40,6 +40,59 @@ struct Args {
     /// Rust path used in generated tests import: `use <path>::types::*;`
     #[arg(long, visible_alias = "types-path")]
     tests_types_path: Option<String>,
+
+    /// Check that the committed output matches the generator instead of writing it
+    #[arg(long, default_value_t = false)]
+    check: bool,
+}
+
+/// Where generated files go, and in `--check` mode where the drift is collected.
+struct Output {
+    check: bool,
+    drifted: Vec<String>,
+}
+
+impl Output {
+    fn new(check: bool) -> Self {
+        Self {
+            check,
+            drifted: Vec::new(),
+        }
+    }
+
+    fn write(&mut self, tokens: &impl Display, dir: &Path, filename: &str) {
+        let result = if self.check {
+            check_tokens_to_file(tokens, dir, filename)
+        } else {
+            write_tokens_to_file(tokens, dir, filename).map(|()| None)
+        };
+
+        match result {
+            Ok(None) => {}
+            Ok(Some(path)) => self.drifted.push(path),
+            Err(err) => {
+                eprintln!(
+                    "Failed to render file '{filename}' in dir '{dir}': {err}\nContent: {tokens}",
+                    dir = dir.display()
+                );
+                process::exit(1);
+            }
+        }
+    }
+
+    /// Report the drifted files and fail, so a CI job can gate on this.
+    fn finish(&self) {
+        if !self.check || self.drifted.is_empty() {
+            return;
+        }
+
+        eprintln!("{} file(s) differ from the generator:", self.drifted.len());
+        for path in &self.drifted {
+            eprintln!("  {path}");
+        }
+        eprintln!("Run `just codegen` and commit the result.");
+        process::exit(1);
+    }
 }
 
 fn apply_schema_transforms(schema: &mut telers_codegen::parser::api::NormalizedSchema) {
@@ -65,7 +118,11 @@ fn apply_schema_transforms(schema: &mut telers_codegen::parser::api::NormalizedS
     schema.modify_get_updates_returns_method();
 }
 
-fn generate_enums(schema: &telers_codegen::parser::api::NormalizedSchema, src_dir: &Path) {
+fn generate_enums(
+    schema: &telers_codegen::parser::api::NormalizedSchema,
+    src_dir: &Path,
+    output: &mut Output,
+) {
     let enums_dir = src_dir.join("enums");
     let enum_names = schema
         .types
@@ -73,32 +130,23 @@ fn generate_enums(schema: &telers_codegen::parser::api::NormalizedSchema, src_di
         .filter(|(_, ty)| !ty.subtypes.is_empty())
         .filter_map(|(name, ty)| {
             let tokens = generator::enums::tokenize_kind_enum_file(ty)?;
-            write_or_exit(&tokens, &enums_dir, &camel_to_filename(name, Some("rs")));
+            output.write(&tokens, &enums_dir, &camel_to_filename(name, Some("rs")));
             Some(name.as_str())
         })
         .collect::<Vec<_>>();
     let mut own_enum_names = vec![];
     for (name, tokens) in &generator::enums::tokenize_own_enums(schema) {
-        write_or_exit(tokens, &enums_dir, &camel_to_filename(name, Some("rs")));
+        output.write(tokens, &enums_dir, &camel_to_filename(name, Some("rs")));
         own_enum_names.push(*name);
     }
     let tokens =
         generator::enums::tokenize_kind_enums_mod(enum_names.as_slice(), own_enum_names.as_slice());
-    write_or_exit(&tokens, src_dir, "enums.rs");
-}
-
-fn write_or_exit(tokens: &impl Display, dir: &Path, filename: &str) {
-    write_tokens_to_file(tokens, dir, filename).unwrap_or_else(|err| {
-        eprintln!(
-            "Failed to write file '{filename}' in dir '{dir}': {err}\nContent: {tokens}",
-            dir = dir.display()
-        );
-        process::exit(1);
-    });
+    output.write(&tokens, src_dir, "enums.rs");
 }
 
 fn main() {
     let args = Args::parse();
+    let mut output = Output::new(args.check);
 
     let schema_content = fs::read_to_string(&args.schema_json_path).unwrap_or_else(|err| {
         eprintln!(
@@ -124,7 +172,7 @@ fn main() {
             .expect("clap guarantees --types-path when --tests is set");
         let tests_dir = args.generated_dir_path.join("tests");
         let tokens = generator::tests::tokenize_tests(&schema, types_path);
-        write_or_exit(&tokens, &tests_dir, "types_generated.rs");
+        output.write(&tokens, &tests_dir, "types_generated.rs");
         println!("Tests generated in one file");
     }
 
@@ -148,16 +196,16 @@ fn main() {
             &known_schema_type_names,
             &known_api_method_names,
         );
-        write_or_exit(&tokens, &types_dir, &camel_to_filename(name, Some("rs")));
+        output.write(&tokens, &types_dir, &camel_to_filename(name, Some("rs")));
     }
     println!("Types generated");
 
     let type_names = schema.types.keys().collect::<Vec<_>>();
     let tokens = generator::types::tokenize_types_mod(type_names.as_slice());
-    write_or_exit(&tokens, &src_dir, "types.rs");
+    output.write(&tokens, &src_dir, "types.rs");
     println!("Types module generated");
 
-    generate_enums(&schema, &src_dir);
+    generate_enums(&schema, &src_dir, &mut output);
     println!("Enums generated");
 
     let methods_dir = src_dir.join("methods");
@@ -167,7 +215,7 @@ fn main() {
             &known_schema_type_names,
             &known_api_method_names,
         );
-        write_or_exit(
+        output.write(
             &tokens,
             &methods_dir,
             &camel_to_filename(&method.name, Some("rs")),
@@ -179,7 +227,7 @@ fn main() {
     let mut to_methods_type_names = vec![];
     for (name, tokens) in &generator::types_helpers::to_methods::tokenize_to_methods_files(&schema)
     {
-        write_or_exit(
+        output.write(
             tokens,
             &to_methods_dir,
             &camel_to_filename(name, Some("rs")),
@@ -188,16 +236,17 @@ fn main() {
     }
     let tokens =
         generator::types_helpers::to_methods::tokenize_to_methods_mod(&to_methods_type_names);
-    write_or_exit(&tokens, &types_dir, "to_methods.rs");
+    output.write(&tokens, &types_dir, "to_methods.rs");
     println!("Type-to-methods helpers generated");
 
     let filters_dir = src_dir.join("filters");
     let tokens = generator::types_helpers::smart_filter::tokenize_smart_filter(&schema);
-    write_or_exit(&tokens, &filters_dir, "smart.rs");
+    output.write(&tokens, &filters_dir, "smart.rs");
     println!("Smart filters generated");
 
     let method_names = schema.methods.values().map(|m| &m.name).collect::<Vec<_>>();
     let tokens = generator::methods::tokenize_methods_mod(method_names.as_slice());
-    write_or_exit(&tokens, &src_dir, "methods.rs");
+    output.write(&tokens, &src_dir, "methods.rs");
     println!("Methods module generated");
+    output.finish();
 }
