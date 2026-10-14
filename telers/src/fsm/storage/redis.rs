@@ -226,9 +226,13 @@ impl<K: KeyBuilder> Redis<K> {
     /// Isolation that locks a key in Redis, so updates of one key are serialized between replicas
     #[inline]
     #[must_use]
-    pub fn event_isolation(&self) -> RedisEventIsolation {
+    pub fn event_isolation(&self) -> RedisEventIsolation<K>
+    where
+        K: Clone,
+    {
         RedisEventIsolation {
             pool: self.pool.clone(),
+            key_builder: self.key_builder.clone(),
             ttl: DEFAULT_LOCK_TTL,
         }
     }
@@ -262,12 +266,13 @@ impl<K> Redis<K> {
 /// so a process that dies mid-update can't hold the key forever.
 /// [`Redis::event_isolation`] returns one with the default ttl.
 #[derive(Clone)]
-pub struct RedisEventIsolation {
+pub struct RedisEventIsolation<K = KeyBuilderImpl> {
     pool: Pool,
+    key_builder: K,
     ttl: Duration,
 }
 
-impl Debug for RedisEventIsolation {
+impl<K: KeyBuilder> Debug for RedisEventIsolation<K> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("RedisEventIsolation")
             .field("ttl", &self.ttl)
@@ -275,7 +280,7 @@ impl Debug for RedisEventIsolation {
     }
 }
 
-impl RedisEventIsolation {
+impl<K: KeyBuilder + Clone> RedisEventIsolation<K> {
     /// How long [`EventIsolation::lock`] sleeps before looking at the lock again
     const RETRY_INTERVAL: Duration = Duration::from_millis(50);
 
@@ -287,23 +292,18 @@ impl RedisEventIsolation {
         self
     }
 
-    fn lock_key(key: &StorageKey) -> String {
-        format!(
-            "{DEFAULT_PREFIX}:lock:{}:{}:{}:{}:{}:{}",
-            key.bot_id,
-            key.chat_id,
-            key.user_id,
-            key.message_thread_id.unwrap_or_default(),
-            key.business_connection_id.as_deref().unwrap_or_default(),
-            key.destiny,
-        )
+    /// The lock guards the data of this key, so it lives in the same namespace and is
+    /// built by the same [`KeyBuilder`]. A custom prefix, a shared `bot_id` or a shared
+    /// `destiny` therefore move the data and its lock together instead of splitting them.
+    fn lock_key(&self, key: &StorageKey) -> String {
+        format!("{}:lock", self.key_builder.build(key, Part::Data))
     }
 }
 
-impl EventIsolation for RedisEventIsolation {
+impl<K: KeyBuilder + Clone + 'static> EventIsolation for RedisEventIsolation<K> {
     #[instrument(skip(self, key), fields(key))]
     fn lock<'a>(&'a self, key: &StorageKey) -> BoxFuture<'a, Result<IsolationGuard, Error>> {
-        let lock_key = Self::lock_key(key);
+        let lock_key = self.lock_key(key);
         let key = format!("{key:?}");
         let ttl = self.ttl;
 
