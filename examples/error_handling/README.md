@@ -1,6 +1,6 @@
 # error_handling
 
-Handles the errors of handlers in one place with the `error` observer, the way `aiogram` does it with error handlers, instead of wrapping every handler body.
+Handles the errors of handlers in one place with the `error` observer, instead of wrapping every handler body.
 
 ## What it does
 
