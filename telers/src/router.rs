@@ -196,9 +196,7 @@
 
 use crate::{
     client::Reqwest,
-    enums::{
-        telegram_observer_type::with_telegram_observer_variants, TelegramObserverType, UpdateType,
-    },
+    enums::{with_telegram_observer_variants, TelegramObserverType, UpdateType},
     errors::EventErrorKind,
     event::{
         bases::PropagateEventResult,

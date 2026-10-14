@@ -1,5 +1,4 @@
 use crate::{
-    file::camel_to_filename,
     generator::{
         doc_utils::{link_prefixed_type_mentions, link_subtype_mentions},
         helpers::{camel_to_snake, format_description},
@@ -129,8 +128,6 @@ pub fn tokenize_kind_enum(type_quote: &NormalizedType) -> Option<TokenStream> {
     let string_impls = string_conversion_impls(&kind_name);
 
     Some(quote! {
-        use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
-
         #( #[doc = #doc_lines] )*
         #strum_derives
         pub enum #kind_name {
@@ -147,18 +144,6 @@ pub fn tokenize_kind_enum(type_quote: &NormalizedType) -> Option<TokenStream> {
         #string_impls
 
         #from_type_impl
-    })
-}
-
-#[must_use]
-pub fn tokenize_kind_enum_file(type_quote: &NormalizedType) -> Option<TokenStream> {
-    let kind_ts = tokenize_kind_enum(type_quote)?;
-    let type_name = format_ident!("{}", type_quote.name);
-
-    Some(quote! {
-        use crate::types::#type_name;
-
-        #kind_ts
     })
 }
 
@@ -203,8 +188,6 @@ pub fn tokenize_enum_parse_mode() -> TokenStream {
         .collect();
 
     quote! {
-        use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
-
         /// This enum represents all possible types of the parse mode
         /// # Documentation
         /// <https://core.telegram.org/bots/api#formatting-options>
@@ -301,9 +284,6 @@ pub fn tokenize_enum_telegram_observer_type(schema: &NormalizedSchema) -> TokenS
     let string_impls = string_conversion_impls(&format_ident!("TelegramObserverType"));
 
     quote! {
-        use crate::{enums::UpdateType, types::Update};
-        use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
-
         /// This enum represents all possible telegram observer types.
         /// It contains all [`UpdateType`] variants plus `Update` and `Error`.
         #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr, Deserialize, Serialize)]
@@ -359,26 +339,8 @@ pub fn tokenize_enum_telegram_observer_type(schema: &NormalizedSchema) -> TokenS
 }
 
 #[must_use]
-pub fn tokenize_kind_enums_mod(type_names: &[&str], own_type_names: &[&str]) -> TokenStream {
-    let all_module_names: Vec<_> = type_names
-        .iter()
-        .chain(own_type_names.iter())
-        .copied()
-        .collect();
-    let mods_quote = all_module_names.iter().map(|&name| {
-        let mod_name = format_ident!("{}", camel_to_filename(name, None));
-        quote! { pub mod #mod_name; }
-    });
-    let uses_quote = type_names.iter().map(|&name| {
-        let mod_name = format_ident!("{}", camel_to_filename(name, None));
-        let kind_name = format_ident!("{name}Type");
-        quote! { pub use #mod_name::#kind_name; }
-    });
-    let own_uses_quote = own_type_names.iter().map(|&name| {
-        let mod_name = format_ident!("{}", camel_to_filename(name, None));
-        let kind_name = format_ident!("{name}");
-        quote! { pub use #mod_name::#kind_name; }
-    });
+pub fn tokenize_kind_enums_mod(type_names: &[&str]) -> TokenStream {
+    let type_idents = type_names.iter().map(|&name| format_ident!("{name}"));
 
     quote! {
         //! Enum helpers and discriminator types for Telegram objects.
@@ -397,8 +359,7 @@ pub fn tokenize_kind_enums_mod(type_names: &[&str], own_type_names: &[&str]) -> 
         //! assert_eq!(request.parse_mode.as_deref(), Some("Markdown"));
         //! ```
 
-        #( #mods_quote )*
-        #( #uses_quote )*
-        #( #own_uses_quote )*
+        use crate::types::{ #( #type_idents ),* };
+        use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
     }
 }

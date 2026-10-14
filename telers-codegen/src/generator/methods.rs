@@ -1,7 +1,6 @@
 #![allow(clippy::too_many_lines)]
 
 use crate::{
-    file::camel_to_filename,
     generator::{
         doc_utils::{
             collect_telegram_type_names, link_known_method_mentions, link_known_type_mentions,
@@ -128,13 +127,13 @@ impl PrepareStepKind {
                 function_name, ..
             } => {
                 let function = format_ident!("{function_name}");
-                quote! { super::#function(&mut files, &mut self.#field_name); }
+                quote! { self::#function(&mut files, &mut self.#field_name); }
             }
             Self::Group {
                 function_name, ..
             } => {
                 let function = format_ident!("{function_name}");
-                quote! { super::#function(&mut files, self.#field_name.iter_mut().collect()); }
+                quote! { self::#function(&mut files, self.#field_name.iter_mut().collect()); }
             }
         }
     }
@@ -150,7 +149,7 @@ impl PrepareStepKind {
                 let binding = format_ident!("{optional_binding}");
                 quote! {
                     if let Some(#binding) = &mut self.#field_name {
-                        super::#function(&mut files, #binding);
+                        self::#function(&mut files, #binding);
                     }
                 }
             }
@@ -162,7 +161,7 @@ impl PrepareStepKind {
                 let binding = format_ident!("{optional_binding}");
                 quote! {
                     if let Some(#binding) = &mut self.#field_name {
-                        super::#function(&mut files, #binding.iter_mut().collect());
+                        self::#function(&mut files, #binding.iter_mut().collect());
                     }
                 }
             }
@@ -486,27 +485,27 @@ fn tokenize_telegram_method_impl(method_quote: &NormalizedMethod) -> TokenStream
 
     if prepare_steps.is_empty() {
         return quote! {
-            impl super::TelegramMethod for #method_name {
+            impl self::TelegramMethod for #method_name {
                 type Method = Self;
                 type Return = #return_type_tokens;
 
-                fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
-                    super::Request::new(#method_api_name, self, None)
+                fn build_request<Client>(self, _bot: &Bot<Client>) -> self::Request<Self::Method> {
+                    self::Request::new(#method_api_name, self, None)
                 }
             }
         };
     }
 
     quote! {
-        impl super::TelegramMethod for #method_name {
+        impl self::TelegramMethod for #method_name {
             type Method = Self;
             type Return = #return_type_tokens;
 
-            fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+            fn build_request<Client>(mut self, _bot: &Bot<Client>) -> self::Request<Self::Method> {
                 let mut files = vec![];
                 #( #prepare_steps )*
 
-                super::Request::new(#method_api_name, self, Some(files))
+                self::Request::new(#method_api_name, self, Some(files))
             }
         }
     }
@@ -523,8 +522,6 @@ pub fn tokenize_method(
         schema_type_names: known_schema_type_names,
         api_method_names: known_api_method_names,
     };
-
-    let import_quotes = [quote! { use crate::client::Bot; }];
 
     let method_name = format_ident!("{}", method_quote.name);
     let mut doc_lines = format_description(&method_quote.description, &method_quote.href);
@@ -569,8 +566,6 @@ pub fn tokenize_method(
     let telegram_method_impl = tokenize_telegram_method_impl(method_quote);
 
     quote! {
-        #( #import_quotes )*
-
         #( #[doc = #doc_lines] )*
         #( #returns_doc )*
         #[derive(Clone, Debug, Serialize)]
@@ -584,17 +579,7 @@ pub fn tokenize_method(
 }
 
 #[must_use]
-pub fn tokenize_methods_mod(method_names: &[&String]) -> TokenStream {
-    let mods_quote = method_names.iter().map(|&name| {
-        let mod_name = format_ident!("{}", camel_to_filename(name, None));
-        quote! { pub mod #mod_name; }
-    });
-    let uses_quote = method_names.iter().map(|&name| {
-        let mod_name = format_ident!("{}", camel_to_filename(name, None));
-        let method_name = format_ident!("{name}");
-        quote! { pub use #mod_name::#method_name; }
-    });
-
+pub fn tokenize_methods_mod() -> TokenStream {
     quote! {
         //! Telegram Bot API methods and their request builders.
         //!
@@ -621,9 +606,9 @@ pub fn tokenize_methods_mod(method_names: &[&String]) -> TokenStream {
         //! }
         //! ```
 
+        use crate::client::Bot;
+
         pub(crate) mod non_telegram;
         pub use non_telegram::*;
-        #( #mods_quote )*
-        #( #uses_quote )*
     }
 }

@@ -1,7 +1,6 @@
 #![allow(clippy::too_many_lines, clippy::missing_panics_doc)]
 
 use crate::{
-    file::camel_to_filename,
     generator::{
         doc_utils::{
             collect_telegram_type_names, link_known_method_mentions, link_known_type_mentions,
@@ -1362,11 +1361,6 @@ pub fn tokenize_type(
         schema_type_names: known_schema_type_names,
         api_method_names: known_api_method_names,
     };
-    let mut import_quotes = vec![];
-    if type_quote.has_extra_fields && type_quote.subtypes.is_empty() {
-        import_quotes.push(quote! { use std::collections::BTreeMap; });
-    }
-
     let type_impls = get_impls_for_types(type_quote, schema);
     let subtype_impls = get_from_impls_for_subtypes(type_quote);
     let type_definition = tokenize_type_definition(type_quote, &ctx);
@@ -1374,7 +1368,6 @@ pub fn tokenize_type(
     let helper_impls = get_helper_impls_for_type(type_quote, schema, &ctx);
 
     quote! {
-        #( #import_quotes )*
         #type_definition
         #builder_impls
         #helper_impls
@@ -1384,16 +1377,12 @@ pub fn tokenize_type(
 }
 
 #[must_use]
-pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
-    let mods_quote = type_names.iter().map(|&name| {
-        let mod_name = format_ident!("{}", camel_to_filename(name, None));
-        quote! { pub mod #mod_name; }
-    });
-    let uses_quote = type_names.iter().map(|&name| {
-        let mod_name = format_ident!("{}", camel_to_filename(name, None));
-        let type_name = format_ident!("{name}");
-        quote! { pub use #mod_name::#type_name; }
-    });
+pub fn tokenize_types_mod(needs_btreemap: bool) -> TokenStream {
+    let btreemap_use = if needs_btreemap {
+        quote! { use std::collections::BTreeMap; }
+    } else {
+        quote! {}
+    };
 
     quote! {
         //! Telegram Bot API data types and helper models.
@@ -1449,11 +1438,11 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
         #![allow(clippy::struct_excessive_bools)]
         #![allow(clippy::large_enum_variant)]
 
+        #btreemap_use
+
         pub(crate) mod non_telegram;
         pub(crate) mod to_methods;
         pub use non_telegram::*;
         pub use to_methods::*;
-        #( #mods_quote )*
-        #( #uses_quote )*
     }
 }

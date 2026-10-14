@@ -1,4 +1,5 @@
 use clap::Parser;
+use proc_macro2::TokenStream;
 use std::{
     collections::HashSet,
     fmt::Display,
@@ -65,26 +66,26 @@ fn apply_schema_transforms(schema: &mut telers_codegen::parser::api::NormalizedS
     schema.modify_get_updates_returns_method();
 }
 
-fn generate_enums(schema: &telers_codegen::parser::api::NormalizedSchema, src_dir: &Path) {
-    let enums_dir = src_dir.join("enums");
-    let enum_names = schema
+fn generate_enums(schema: &telers_codegen::parser::api::NormalizedSchema) -> TokenStream {
+    let mut generated = TokenStream::new();
+    let mut enum_names = vec![];
+    for (name, ty) in schema
         .types
         .iter()
         .filter(|(_, ty)| !ty.subtypes.is_empty())
-        .filter_map(|(name, ty)| {
-            let tokens = generator::enums::tokenize_kind_enum_file(ty)?;
-            write_or_exit(&tokens, &enums_dir, &camel_to_filename(name, Some("rs")));
-            Some(name.as_str())
-        })
-        .collect::<Vec<_>>();
-    let mut own_enum_names = vec![];
-    for (name, tokens) in &generator::enums::tokenize_own_enums(schema) {
-        write_or_exit(tokens, &enums_dir, &camel_to_filename(name, Some("rs")));
-        own_enum_names.push(*name);
+    {
+        if let Some(tokens) = generator::enums::tokenize_kind_enum(ty) {
+            generated.extend(tokens);
+            enum_names.push(name.as_str());
+        }
     }
-    let tokens =
-        generator::enums::tokenize_kind_enums_mod(enum_names.as_slice(), own_enum_names.as_slice());
-    write_or_exit(&tokens, src_dir, "enums.rs");
+    for (_, tokens) in generator::enums::tokenize_own_enums(schema) {
+        generated.extend(tokens);
+    }
+
+    let mut out = generator::enums::tokenize_kind_enums_mod(enum_names.as_slice());
+    out.extend(generated);
+    out
 }
 
 fn write_or_exit(tokens: &impl Display, dir: &Path, filename: &str) {
@@ -141,38 +142,40 @@ fn main() {
             )
         })
         .collect::<std::collections::HashMap<_, _>>();
-    for (name, ty) in &schema.types {
-        let tokens = generator::types::tokenize_type(
+
+    let needs_btreemap = schema
+        .types
+        .values()
+        .any(|ty| ty.has_extra_fields && ty.subtypes.is_empty());
+    // The module header carries the inner doc attributes, so it has to be
+    // emitted before any type definition.
+    let mut generated = generator::types::tokenize_types_mod(needs_btreemap);
+    for ty in schema.types.values() {
+        generated.extend(generator::types::tokenize_type(
             ty,
             &schema,
             &known_schema_type_names,
             &known_api_method_names,
-        );
-        write_or_exit(&tokens, &types_dir, &camel_to_filename(name, Some("rs")));
+        ));
     }
+    write_or_exit(&generated, &src_dir, "types.rs");
     println!("Types generated");
 
-    let type_names = schema.types.keys().collect::<Vec<_>>();
-    let tokens = generator::types::tokenize_types_mod(type_names.as_slice());
-    write_or_exit(&tokens, &src_dir, "types.rs");
-    println!("Types module generated");
-
-    generate_enums(&schema, &src_dir);
+    let tokens = generate_enums(&schema);
+    write_or_exit(&tokens, &src_dir, "enums.rs");
     println!("Enums generated");
 
-    let methods_dir = src_dir.join("methods");
+    // Same as for the types: the header first, so the inner doc attributes stay
+    // at the top of the file.
+    let mut generated = generator::methods::tokenize_methods_mod();
     for method in schema.methods.values() {
-        let tokens = generator::methods::tokenize_method(
+        generated.extend(generator::methods::tokenize_method(
             method,
             &known_schema_type_names,
             &known_api_method_names,
-        );
-        write_or_exit(
-            &tokens,
-            &methods_dir,
-            &camel_to_filename(&method.name, Some("rs")),
-        );
+        ));
     }
+    write_or_exit(&generated, &src_dir, "methods.rs");
     println!("Methods generated");
 
     let to_methods_dir = types_dir.join("to_methods");
@@ -195,9 +198,4 @@ fn main() {
     let tokens = generator::types_helpers::smart_filter::tokenize_smart_filter(&schema);
     write_or_exit(&tokens, &filters_dir, "smart.rs");
     println!("Smart filters generated");
-
-    let method_names = schema.methods.values().map(|m| &m.name).collect::<Vec<_>>();
-    let tokens = generator::methods::tokenize_methods_mod(method_names.as_slice());
-    write_or_exit(&tokens, &src_dir, "methods.rs");
-    println!("Methods module generated");
 }
