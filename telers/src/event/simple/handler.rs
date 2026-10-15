@@ -42,6 +42,12 @@ pub struct Handler {
 
 impl Handler {
     #[must_use]
+    /// Creates a handler from a function or a closure.
+    ///
+    /// # Arguments
+    /// * `handler` - Function called on every trigger of the observer.
+    /// * `args` - Arguments passed to the function, stored in the handler and reused on every
+    ///   trigger.
     pub fn new<H, Args>(handler: H, args: Args) -> Self
     where
         H: HandlerFn<Args>,
@@ -53,6 +59,12 @@ impl Handler {
     }
 
     #[must_use]
+    /// Creates a handler from a [`Service`], for a handler that needs its own state.
+    ///
+    /// # Arguments
+    /// * `service` - Service called on every trigger of the observer.
+    /// * `args` - Arguments passed to the service, stored in the handler and reused on every
+    ///   trigger.
     pub fn new_service<S, Args>(service: S, args: Args) -> Self
     where
         S: Service<Args, Response = ()> + Clone + Send + Sync + 'static,

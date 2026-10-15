@@ -178,6 +178,7 @@ impl User {
 
     #[inline]
     #[must_use]
+    /// Creates a builder of a filter with several values to check.
     pub fn builder() -> Builder {
         Builder::default()
     }
@@ -322,6 +323,7 @@ impl Builder {
 
     #[inline]
     #[must_use]
+    /// Builds the filter out of the values added to the builder.
     pub fn build(self) -> User {
         User::new(
             self.usernames,

@@ -326,6 +326,8 @@ impl Command {
 
     #[inline]
     #[must_use]
+    /// Creates a builder of a filter with several commands, for the flags
+    /// [`Command::one`] and [`Command::many`] do not set.
     pub fn builder() -> Builder {
         Builder::new()
     }

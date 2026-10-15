@@ -17,6 +17,7 @@ pub struct MessageType<const N: usize> {
 impl MessageType<1> {
     #[inline]
     #[must_use]
+    /// Passes an update only when its message is of this one content type.
     pub fn one(content_type: impl Into<enums::MessageType>) -> Self {
         Self {
             types: [content_type.into(); 1],
@@ -27,6 +28,7 @@ impl MessageType<1> {
 impl<const N: usize> MessageType<N> {
     #[inline]
     #[must_use]
+    /// Passes an update only when its message is of one of these content types.
     pub fn many(types: impl Into<[enums::MessageType; N]>) -> Self {
         Self {
             types: types.into(),

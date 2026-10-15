@@ -18,6 +18,7 @@ pub struct ChatType<const N: usize> {
 impl ChatType<1> {
     #[inline]
     #[must_use]
+    /// Passes an update only when its chat is of this one type.
     pub fn one(chat_type: impl Into<enums::ChatType>) -> Self {
         Self {
             chat_types: [chat_type.into(); 1],
@@ -28,6 +29,7 @@ impl ChatType<1> {
 impl<const N: usize> ChatType<N> {
     #[inline]
     #[must_use]
+    /// Passes an update only when its chat is of one of these types.
     pub fn many(chat_types: impl Into<[enums::ChatType; N]>) -> Self {
         Self {
             chat_types: chat_types.into(),

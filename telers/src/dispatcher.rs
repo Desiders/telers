@@ -144,6 +144,7 @@ where
 {
     #[inline]
     #[must_use]
+    /// Creates an empty builder with the defaults of this dispatcher.
     pub fn builder() -> Builder<Client, Propagator> {
         Builder::default()
     }
@@ -620,6 +621,12 @@ impl<Client, Propagator, BackoffType> ServePolling<Client, Propagator, BackoffTy
 
     #[inline]
     #[must_use]
+    /// Stops the polling when the given signal resolves, after the startup and shutdown events
+    /// have been emitted.
+    ///
+    /// # Arguments
+    /// * `signal` - Future the polling waits for, the same one
+    ///   [`shutdown_signal`](crate::utils::signal::shutdown_signal) returns.
     pub fn with_graceful_shutdown<Signal>(
         self,
         signal: Signal,
@@ -734,6 +741,10 @@ impl<Client, Propagator, BackoffType> Serve<Client, Propagator, BackoffType> {
 
     #[inline]
     #[must_use]
+    /// Stops the dispatcher when the given signal resolves.
+    ///
+    /// # Arguments
+    /// * `signal` - Future the dispatcher waits for.
     pub fn with_graceful_shutdown<Signal>(
         self,
         signal: Signal,

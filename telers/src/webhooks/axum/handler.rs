@@ -38,6 +38,11 @@ pub struct UpdatesHandler<Client, Propagator, Backoff> {
 impl<Client, Propagator, Backoff> UpdatesHandler<Client, Propagator, Backoff> {
     #[inline]
     #[must_use]
+    /// Creates a handler that feeds the updates it receives to the given dispatcher.
+    ///
+    /// # Arguments
+    /// * `bot` - Bot the updates are sent to.
+    /// * `dispatcher` - Dispatcher the updates are propagated through.
     pub const fn new(
         bot: Bot<Client>,
         dispatcher: Dispatcher<Client, Propagator, Backoff>,

@@ -31,6 +31,9 @@ impl ChatMemberUpdated {
 
     #[inline]
     #[must_use]
+    /// Also requires the status the member had before the update to be `old`.
+    ///
+    /// Without it the filter passes on any transition into the new status.
     pub const fn old(mut self, old: ChatMemberType) -> Self {
         self.old = Some(old);
         self

@@ -1104,6 +1104,14 @@ pub struct Config<Client> {
 }
 
 impl<Client> Config<Client> {
+    /// Creates a configuration from the two halves of the chain.
+    ///
+    /// [`Default`] takes the defaults of both halves instead, which is what
+    /// [`Router::configure`] uses when it is given no configuration.
+    ///
+    /// # Arguments
+    /// * `outer_middlewares` - Middlewares registered on the router itself.
+    /// * `inner_middlewares` - Middlewares copied from the router into its sub routers.
     #[must_use]
     pub const fn new(
         outer_middlewares: OuterMiddlewaresConfig<Client>,

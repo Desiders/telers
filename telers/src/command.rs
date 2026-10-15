@@ -110,6 +110,12 @@ impl CommandArgsError {
     }
 
     #[must_use]
+    /// Renders the error for a user of the command derive: which field is missing or invalid.
+    ///
+    /// # Arguments
+    /// * `command` - Name of the command the fields belong to.
+    /// * `fields` - Names of the fields, in the order the command declares them. A field that is
+    ///   out of this list is reported by its position instead.
     pub fn describe(&self, command: &str, fields: &[&str]) -> String {
         let field = |index: usize| match fields.get(index) {
             Some(name) => format!("`{name}`"),

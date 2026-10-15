@@ -23,6 +23,8 @@ pub type HandlerResult<T: Into<EventReturn> = EventReturn, E: Into<anyhow::Error
 /// result of the run.
 pub struct Response<Client = Reqwest> {
     pub request: Request<Client>,
+    /// What the handler returned: the [`EventReturn`] that tells the observer how to continue,
+    /// or the error it failed with.
     pub result: HandlerResult,
 }
 

@@ -340,6 +340,7 @@ impl Builder {
 
     #[inline]
     #[must_use]
+    /// Builds the filter out of the patterns added to the builder.
     pub fn build(self) -> Text {
         Text::new(
             self.texts,
