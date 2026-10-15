@@ -1,3 +1,6 @@
+//! Types shared by every observer: [`EventReturn`] and its shortcuts, and [`PropagateEventResult`],
+//! the result that an observer or a router returns after an event.
+
 use super::telegram::response::Response;
 use crate::errors::HandlerError;
 

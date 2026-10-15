@@ -1,5 +1,10 @@
 use std::any::Any;
 
+/// [`Any`] that is [`Clone`] as well, so a boxed value can be cloned without naming its type.
+///
+/// It is implemented for every `Clone + Send + Sync + 'static` type and makes
+/// `Box<dyn AnyClone + Send + Sync>` implement [`Clone`], which is what lets the context and the
+/// extensions of a request be cloned together with it.
 #[allow(clippy::module_name_repetitions)]
 pub trait AnyClone: Any {
     fn clone_box(&self) -> Box<dyn AnyClone + Send + Sync>;

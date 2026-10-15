@@ -1,3 +1,8 @@
+//! The simple observer: the handlers of one event that is not a Telegram update.
+//!
+//! It has no filters and no middlewares, so triggering it simply calls every registered handler
+//! in order of registration and stops at the first error.
+
 use crate::event::{
     service::Service,
     simple::handler::{Handler, HandlerResult},
