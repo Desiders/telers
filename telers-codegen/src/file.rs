@@ -8,12 +8,36 @@ pub fn write_tokens_to_file(
     dir: &Path,
     filename: &str,
 ) -> anyhow::Result<()> {
-    let mut syntax_tree = syn::parse_file(&tokens.to_string())?;
-    configure_serialization(&mut syntax_tree)?;
-    let formatted = prettyplease::unparse(&syntax_tree);
+    let formatted = format_tokens(&tokens)?;
     fs::create_dir_all(dir)?;
     fs::write(dir.join(filename), formatted)?;
     Ok(())
+}
+
+/// Report the path back when the file on disk differs from what the generator would write.
+///
+/// The file on disk is rendered the same way, so formatting applied afterwards does not count as
+/// drift. A file that does not exist, or does not parse, counts as differing.
+pub fn check_tokens_to_file(
+    tokens: impl Display,
+    dir: &Path,
+    filename: &str,
+) -> anyhow::Result<Option<String>> {
+    let formatted = format_tokens(&tokens)?;
+    let path = dir.join(filename);
+    let matches = fs::read_to_string(&path)
+        .ok()
+        .and_then(|existing| format_tokens(&existing).ok())
+        .is_some_and(|existing| existing == formatted);
+
+    Ok((!matches).then(|| path.display().to_string()))
+}
+
+fn format_tokens(tokens: &impl Display) -> anyhow::Result<String> {
+    let mut syntax_tree = syn::parse_file(&tokens.to_string())?;
+    configure_serialization(&mut syntax_tree)?;
+
+    Ok(prettyplease::unparse(&syntax_tree))
 }
 
 #[must_use]

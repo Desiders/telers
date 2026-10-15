@@ -24,7 +24,7 @@ More information about this crate can be found in the [crate documentation][docs
  - **Based on** [aiogram](https://github.com/aiogram/aiogram/). Inspired by the framework written in Python and tries to provide a similar functionality.
  - **Routers**, **Middlewares**, **Filters** and **Handlers**. Provides a powerful system of routers, middlewares, filters and handlers to make your code more readable and maintainable, and simplify the creation of bots.
  - **Extractors**. Have similar system of extractors as in [axum](https://docs.rs/axum/latest/axum/extract/) and [actix](https://actix.rs/docs/extractors/).
- - **Smart filters**. Analog of "magic" filters in `aiogram`.
+ - **Smart filters**. Typed paths into an incoming update with attached checks.
 
 ## Getting started
 
