@@ -1,3 +1,8 @@
+//! Handlers of the [simple observer](super::Observer), used for events like startup and shutdown.
+//!
+//! A [`Handler`] keeps the arguments its function is called with, so the observer can trigger it
+//! without extracting anything from a request, and every handler returns [`HandlerResult`].
+
 use crate::{
     errors::HandlerError,
     event::service::{service_fn, BoxCloneService, Service},
@@ -9,10 +14,16 @@ use std::{
     task::{Context, Poll},
 };
 
+/// Type-erased handler: a clonable service that takes no arguments and returns `()`.
 pub type BoxedCloneHandlerService = BoxCloneService<(), (), HandlerError>;
 
+/// What a simple observer handler returns, where any error stops the observer.
 pub type HandlerResult = Result<(), HandlerError>;
 
+/// Adapter that lets a function or closure be used as a simple observer handler.
+///
+/// It is implemented for every `FnMut` taking up to a fixed number of arguments and returning a
+/// future of `Result<(), E>`, and the arguments of one call are stored in the [`Handler`].
 pub trait HandlerFn<Args>: Clone + Send + Sync + 'static {
     type Error: Into<anyhow::Error>;
     type Future: Future<Output = Result<(), Self::Error>> + Send;
@@ -20,6 +31,10 @@ pub trait HandlerFn<Args>: Clone + Send + Sync + 'static {
     fn call(&mut self, args: Args) -> Self::Future;
 }
 
+/// A simple observer handler: the function to call and the arguments to call it with.
+///
+/// Build it with [`Handler::new`] from a function or closure, or with [`Handler::new_service`]
+/// from a [`Service`]; the observer triggers it as a [`Service`] with an empty request.
 #[derive(Clone)]
 pub struct Handler {
     service: BoxedCloneHandlerService,
@@ -67,6 +82,11 @@ impl Service<()> for Handler {
     }
 }
 
+/// Box a [`HandlerFn`] and its arguments into a [`BoxedCloneHandlerService`].
+///
+/// # Arguments
+/// * `handler` - Function or closure to call on every trigger of the service.
+/// * `args` - Arguments passed to the function on every call.
 pub fn boxed_handler_factory<H, Args>(handler: H, args: Args) -> BoxedCloneHandlerService
 where
     H: HandlerFn<Args>,
@@ -80,6 +100,11 @@ where
     }))
 }
 
+/// Box a [`Service`] and its arguments into a [`BoxedCloneHandlerService`].
+///
+/// # Arguments
+/// * `service` - Service to call on every trigger of the boxed service.
+/// * `args` - Arguments passed to the service on every call.
 pub fn boxed_service_factory<S, Args>(service: S, args: Args) -> BoxedCloneHandlerService
 where
     S: Service<Args, Response = ()> + Clone + Send + Sync + 'static,

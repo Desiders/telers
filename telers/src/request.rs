@@ -1,3 +1,5 @@
+//! The [`Request`], the unit every middleware, filter and handler receives for an incoming update.
+
 use crate::{client::Reqwest, types::Update, Bot, Context, Extensions};
 
 use std::{fmt, sync::Arc};
@@ -11,7 +13,12 @@ use std::{fmt, sync::Arc};
 pub struct Request<Client = Reqwest> {
     pub bot: Bot<Client>,
     pub update: Arc<Update>,
+    /// Key-value storage passed through the routing chain, where middlewares insert data for
+    /// the units that run after them.
     pub context: Context,
+    /// Type map used by the crate itself, which also carries the
+    /// [`EventErrorKind`](crate::errors::EventErrorKind) of a failed propagation to the `error`
+    /// observer.
     pub extensions: Extensions,
 }
 

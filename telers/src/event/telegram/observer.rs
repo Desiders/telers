@@ -1,3 +1,8 @@
+//! The Telegram observer: the handlers of one update type with their filters and middlewares.
+//!
+//! Triggering it checks the filters of every handler in registration order and runs the first one
+//! that passes inside its inner middleware chain, see [`Observer::trigger`].
+
 use crate::{
     errors::EventErrorKind,
     event::{
@@ -20,6 +25,8 @@ use std::{
 };
 use tracing::{event, instrument, Level};
 
+/// Result of triggering the observer: the request after the filters and the inner middlewares ran
+/// and how the propagation of the event ended.
 pub struct Response<Client> {
     pub request: Request<Client>,
     pub propagate_result: PropagateEventResult<Client>,
