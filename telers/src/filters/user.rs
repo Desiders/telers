@@ -1,3 +1,9 @@
+//! The [`User`] filter, which passes an update only when the user it came from matches one of the
+//! usernames, first names, last names, language codes or ids given to the filter.
+//!
+//! [`User`] is built with its own methods or with the [`Builder`], and every method of the filter
+//! only adds another value to check, so the filter passes when any of them matches.
+
 use super::{Filter, FilterResult};
 use crate::{types::User as UserType, Request};
 
@@ -177,6 +183,9 @@ impl User {
     }
 }
 
+/// Builds a [`User`] filter step by step, each method adds another value to check
+///
+/// Created by [`User::builder`], the filter is built with [`build`](Self::build).
 #[derive(Debug, Default, Clone)]
 pub struct Builder {
     usernames: Vec<Cow<'static, str>>,

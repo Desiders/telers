@@ -1,5 +1,12 @@
+//! Waiting for the signals that ask the bot to stop.
+//!
+//! [`shutdown_signal`] resolves when the process is interrupted, so it can be passed to the
+//! graceful shutdown of the dispatcher.
+
 use tokio::signal;
 
+/// Waits for `Ctrl+C`, or for `SIGTERM` on unix, and returns when one of them arrives
+///
 /// # Panics
 /// Failed to install signal handler
 pub async fn shutdown_signal() {

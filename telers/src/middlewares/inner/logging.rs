@@ -1,3 +1,6 @@
+//! The [`Logging`] inner middleware, which times the rest of the chain and logs how the handler
+//! ended and how long it took, so slow handlers and errors are visible in the logs of the bot.
+
 use super::base::{Middleware, MiddlewareResult, Next};
 use crate::{errors::EventErrorKind, event::EventReturn, Request};
 
@@ -7,6 +10,7 @@ use std::{
 };
 use tracing::{event, instrument, Level};
 
+/// Logs the result of the handler and the time it took to reach it
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Logging;
 

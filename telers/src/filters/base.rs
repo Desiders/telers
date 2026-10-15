@@ -1,3 +1,14 @@
+//! The [`Filter`] trait, which every filter implements, and the plumbing that runs the filters
+//! of a handler.
+//!
+//! A filter takes a [`Request`] and tells whether it should be processed further. Any closure
+//! with the same signature is a filter too, because the trait is implemented for them.
+//! [`boxed_filter_factory`] erases the type of a filter into a [`BoxedCloneFilterService`],
+//! which a handler keeps in a list and calls for each incoming update until one of them
+//! rejects it.
+//!
+//! [`Request`]: crate::Request
+
 use super::{And, Invert, Or};
 use crate::{
     client::Reqwest,
@@ -8,9 +19,12 @@ use crate::{
 
 use std::future::Future;
 
+/// A filter of a handler, erased into a cloneable service that takes a request and returns
+/// the request with the verdict of the filter, or the error of the filter with the request
 pub type BoxedCloneFilterService<Client> =
     BoxCloneService<Request<Client>, (bool, Request<Client>), (EventErrorKind, Request<Client>)>;
 
+/// The result of a filter check: whether the request passes and the error of the filter if it doesn't
 #[allow(type_alias_bounds)]
 pub type FilterResult<E: Into<anyhow::Error> = FilterError> = Result<bool, E>;
 
@@ -115,6 +129,8 @@ where
     }
 }
 
+/// Boxes a filter into a service that checks a request with a clone of the filter
+/// and wraps the error of the filter into a [`FilterError`]
 pub fn boxed_filter_factory<Client, F>(filter: F) -> BoxedCloneFilterService<Client>
 where
     Client: Send + Sync + 'static,
