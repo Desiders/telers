@@ -1,7 +1,18 @@
+//! The [`Formatter`] trait shared by the HTML and `MarkdownV2` implementations.
+//!
+//! A formatter wraps text in the markup of one parse mode. [`Formatter::apply_entity`] goes the
+//! other way: it takes plain text plus a [`MessageEntity`] pointing into it and returns the text
+//! with that one entity wrapped, escaping everything around the entity span.
+
 use std::fmt::Display;
 
 use crate::types::MessageEntity;
 
+/// The reason a [`MessageEntity`] could not be applied to the given text.
+/// # Variants
+/// - [`EmptyText`](Self::EmptyText) - the text to format was empty.
+/// - [`IndexOutOfBounds`](Self::IndexOutOfBounds) - the entity's offset or length fell outside the
+///   text, were negative, or split a surrogate pair.
 #[derive(Debug, thiserror::Error)]
 pub enum ErrorKind {
     #[error("The text is empty")]

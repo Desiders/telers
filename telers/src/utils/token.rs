@@ -1,3 +1,6 @@
+//! Bot token helpers: checking the `<bot_id>:<secret>` shape of a token and reading the bot id
+//! out of it.
+
 /// Validate telegram token
 /// # Returns
 /// `true` if token is valid, otherwise `false`
@@ -18,6 +21,9 @@ pub fn validate(token: &str) -> bool {
     })
 }
 
+/// Read the bot id stored before the first `:` of the token.
+/// # Returns
+/// The bot id, or [`None`] if the token does not pass [`validate`].
 #[allow(clippy::missing_panics_doc)]
 #[must_use]
 pub fn extract_bot_id(token: &str) -> Option<i64> {
