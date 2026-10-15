@@ -209,6 +209,8 @@ impl<'a> ArgsCursor<'a> {
         }
     }
 
+    /// Takes the next argument, skipping the separators before it.
+    ///
     /// # Returns
     /// The next argument, or `None` when there are no arguments left.
     pub fn next_arg(&mut self) -> Option<&'a str> {
@@ -231,6 +233,8 @@ impl<'a> ArgsCursor<'a> {
         Some(arg.trim_end())
     }
 
+    /// Takes everything that is left as a single argument, skipping the separators before it.
+    ///
     /// # Returns
     /// Everything that is left after the separators are skipped, as a single argument.
     pub fn take_rest(&mut self) -> &'a str {

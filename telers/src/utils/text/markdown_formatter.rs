@@ -1,4 +1,4 @@
-//! Wrapping text in the `MarkdownV2` markup Telegram's `MarkdownV2` parse mode understands.
+//! Wrapping text in the markup of Telegram's `MarkdownV2` parse mode.
 //!
 //! Each function delegates to the shared [`FORMATTER`], so no instance is needed. They wrap their
 //! argument **as is**, without escaping, which lets their results be nested; escape untrusted text
