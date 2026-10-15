@@ -14,7 +14,7 @@ use std::{
     task::{Context, Poll},
 };
 
-/// Type-erased handler: a clonable service that takes no arguments and returns `()`.
+/// Type-erased handler: a cloneable service that takes no arguments and returns `()`.
 pub type BoxedCloneHandlerService = BoxCloneService<(), (), HandlerError>;
 
 /// What a simple observer handler returns, where any error stops the observer.
