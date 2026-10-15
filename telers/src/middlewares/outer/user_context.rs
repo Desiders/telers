@@ -1,3 +1,10 @@
+//! The [`UserContext`] outer middleware, which pulls the user, the chat, the thread and the business
+//! connection out of an update and puts them into its context, so the filters, the inner middlewares
+//! and the handlers can read them instead of matching on the type of the update again.
+//!
+//! The values are inserted only when the update has them, under the `event_user`, `event_chat`,
+//! `event_message_thread_id` and `event_business_connection_id` keys.
+
 use super::{Middleware, MiddlewareResult, Next};
 use crate::{
     types::{Chat, MaybeInaccessibleMessage, Update, User},

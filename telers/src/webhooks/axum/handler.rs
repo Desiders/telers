@@ -18,6 +18,10 @@ use crate::{
     Bot, Dispatcher,
 };
 
+/// The `axum` handler that receives the updates pushed by Telegram and feeds them to the dispatcher
+///
+/// Created with [`new`](Self::new) from the bot and the dispatcher, and checked by
+/// [`get_updates_router`], which mounts it as a `POST` route.
 #[derive(Clone)]
 pub struct UpdatesHandler<Client, Propagator, Backoff> {
     bot: Bot<Client>,
@@ -169,6 +173,7 @@ where
     }
 }
 
+/// Mounts an [`UpdatesHandler`] as a `POST` route to serve the updates on
 #[inline]
 pub fn get_updates_router<S, Client, Propagator, Backoff>(
     handler: UpdatesHandler<Client, Propagator, Backoff>,

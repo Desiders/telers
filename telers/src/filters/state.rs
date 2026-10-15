@@ -1,8 +1,14 @@
+//! The [`State`] filter, which passes an update only when the FSM state loaded into its context
+//! by the [`FSMContext`](crate::middlewares::outer::FSMContext) middleware is one of the allowed
+//! states, or when there is or isn't a state at all.
+
 use super::{Filter, FilterResult};
 use crate::Request;
 
 use std::{convert::Infallible, future::Future};
 
+/// An empty state type, used by [`State`] when only the presence of a state matters
+/// and it isn't compared with any value
 #[derive(Clone)]
 pub enum Dummy {}
 

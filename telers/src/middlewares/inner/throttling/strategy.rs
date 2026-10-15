@@ -1,3 +1,7 @@
+//! The strategies of the [`Throttling`](super::Throttling) middleware, which decide which ids of
+//! an update form the key the last call of a peer is remembered by: a user in a chat, a whole chat,
+//! a user in a thread and so on.
+
 /// Which peer IDs form the throttling key.
 ///
 /// # Variants

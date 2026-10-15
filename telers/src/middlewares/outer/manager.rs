@@ -1,5 +1,9 @@
+//! The [`Manager`] of the outer middlewares of an observer, which keeps them in the order they
+//! were registered and boxes each of them into a service the chain of a request calls.
+
 use super::base::{boxed_middleware_factory, BoxedCloneMiddlewareService, Middleware};
 
+/// The outer middlewares of an observer in the order they are called
 pub struct Manager<Client> {
     pub middlewares: Vec<BoxedCloneMiddlewareService<Client>>,
 }

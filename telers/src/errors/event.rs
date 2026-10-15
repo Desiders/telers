@@ -32,6 +32,10 @@ pub enum ErrorKind {
 }
 
 impl ErrorKind {
+    /// Looks for an error of the type `E` inside the wrapped error of the handler, middleware or filter
+    ///
+    /// # Returns
+    /// The wrapped error, if it is an `E`
     #[must_use]
     pub fn downcast_ref<E>(&self) -> Option<&E>
     where
