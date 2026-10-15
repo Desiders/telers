@@ -16,6 +16,9 @@ use std::{
     sync::{Arc, LazyLock},
 };
 
+/// Translation of file paths between the bot and the server in
+/// [`local mode`](https://core.telegram.org/bots/api#using-a-local-bot-api-server), where both can see
+/// different directories as the same one.
 pub trait FilesPathWrapper: Debug + Send + Sync {
     /// Converts a path to a local path
     #[must_use]
@@ -190,7 +193,11 @@ impl Default for APIServer {
     }
 }
 
+/// Default configuration of the Telegram Bot API server at `https://api.telegram.org`, which is not in local
+/// mode.
 pub static PRODUCTION: LazyLock<APIServer> = LazyLock::new(APIServer::default);
+/// Configuration of the Telegram Bot API test environment, which serves the same API under
+/// `https://api.telegram.org/test/`.
 pub static TEST: LazyLock<APIServer> = LazyLock::new(|| {
     APIServer::new(
         "https://api.telegram.org/bot{token}/test/{method_name}",
