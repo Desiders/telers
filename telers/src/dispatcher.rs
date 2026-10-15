@@ -38,6 +38,41 @@
 //! If the propagation of an update fails, the dispatcher propagates the error to the `error` observers of the routers,
 //! see the [`router module`] for how errors are handled.
 //!
+//! # Examples
+//!
+//! ```
+//! use telers::{
+//!     enums::UpdateType,
+//!     event::telegram::{Handler, HandlerResult},
+//!     types::Message,
+//!     Bot, Dispatcher, Router,
+//! };
+//!
+//! async fn ping_handler(_bot: Bot, message: Message) -> HandlerResult<()> {
+//!     println!("update from chat {}", message.chat().id());
+//!     Ok(())
+//! }
+//!
+//! # async fn run() {
+//! let bot = Bot::from_env();
+//!
+//! let router =
+//!     Router::new("main").on_message(|observer| observer.register(Handler::new(ping_handler)));
+//!
+//! Dispatcher::builder()
+//!     .main_router(router.configure_default())
+//!     .bot(bot)
+//!     // Ask Telegram only for the updates the routing tree can handle.
+//!     .allowed_update(UpdateType::Message)
+//!     // Seconds a single `getUpdates` call waits before it returns.
+//!     .polling_timeout(30)
+//!     .build()
+//!     .run_polling()
+//!     .await
+//!     .expect("Polling failed");
+//! # }
+//! ```
+//!
 //! Check out the `examples` directory for usage examples.
 //!
 //! [`Router`]: telers::router::Router
@@ -84,6 +119,7 @@ use tracing::{event, field, instrument, Level, Span};
 const GET_UPDATES_SIZE: u8 = 100;
 const CHANNEL_UPDATES_SIZE: usize = 100;
 
+/// Default number of seconds a single `getUpdates` call waits before it returns.
 pub const DEFAULT_POLLING_TIMEOUT: i64 = 30;
 
 /// Dispatcher using to dispatch incoming updates to the main router
@@ -113,6 +149,12 @@ where
     }
 }
 
+/// Builder for a [`Dispatcher`].
+///
+/// Use [`Dispatcher::builder`] instead of constructing this directly. It carries the
+/// configuration for polling ([`Builder::polling_timeout`], [`Builder::backoff`]) and for
+/// which updates the bot asks Telegram for ([`Builder::allowed_update`],
+/// [`Builder::allowed_updates`]).
 pub struct Builder<
     Client = Reqwest,
     Propagator = RouterConfigured,
@@ -562,6 +604,7 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
     }
 }
 
+/// Long polling, returned by [`Dispatcher::run_polling`].
 pub struct ServePolling<Client, Propagator, BackoffType> {
     dispatcher: Dispatcher<Client, Propagator, BackoffType>,
 }
@@ -622,6 +665,7 @@ where
     }
 }
 
+/// Long polling that stops on a signal, returned by [`ServePolling::with_graceful_shutdown`].
 pub struct ServePollingWithGracefulShutdown<Client, Propagator, BackoffType, Signal> {
     dispatcher: Dispatcher<Client, Propagator, BackoffType>,
     signal: Signal,
@@ -672,6 +716,9 @@ where
     }
 }
 
+/// A dispatcher without polling, returned by [`Dispatcher::run_no_polling`].
+///
+/// Polling has to be driven by the caller, usually with a web server.
 pub struct Serve<Client, Propagator, BackoffType> {
     dispatcher: Dispatcher<Client, Propagator, BackoffType>,
 }
@@ -730,6 +777,8 @@ where
     }
 }
 
+/// A dispatcher without polling that stops on a signal, returned by
+/// [`Serve::with_graceful_shutdown`].
 pub struct ServeWithGracefulShutdown<Client, Propagator, BackoffType, Signal> {
     dispatcher: Dispatcher<Client, Propagator, BackoffType>,
     signal: Signal,
