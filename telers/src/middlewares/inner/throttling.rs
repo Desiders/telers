@@ -1,3 +1,10 @@
+//! The [`Throttling`] inner middleware, which lets only the first update of a peer through within
+//! the given rate and skips the rest of them, so a handler isn't called again and again for the
+//! same user, chat or thread.
+//!
+//! The peer is keyed by a [`Strategy`] from the [`strategy`] module, which decides which ids of the
+//! update are counted as the same peer.
+
 use super::base::{Middleware, MiddlewareResult, Next};
 use crate::{
     client::Reqwest,

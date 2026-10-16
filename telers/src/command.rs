@@ -33,12 +33,19 @@ use std::{
     sync::Arc,
 };
 
+/// The way the arguments of a command are separated in the text
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SplitType {
     Whitespace,
     Char(char),
 }
 
+/// The error returned when the arguments of a command can't be parsed into its fields
+///
+/// # Notes
+/// [`Missing`](Self::Missing) and [`InvalidValue`](Self::InvalidValue) carry the position of the field
+/// that failed, which [`parse_args`] fills in, and the [command derive](crate::Command) renders the error
+/// with the name of the command and its fields via [`describe`](Self::describe).
 #[derive(Debug, Clone, thiserror::Error)]
 pub enum CommandArgsError {
     #[error("Missing argument for the field at position {index}")]
@@ -103,6 +110,12 @@ impl CommandArgsError {
     }
 
     #[must_use]
+    /// Renders the error for a user of the command derive: which field is missing or invalid.
+    ///
+    /// # Arguments
+    /// * `command` - Name of the command the fields belong to.
+    /// * `fields` - Names of the fields, in the order the command declares them. A field that is
+    ///   out of this list is reported by its position instead.
     pub fn describe(&self, command: &str, fields: &[&str]) -> String {
         let field = |index: usize| match fields.get(index) {
             Some(name) => format!("`{name}`"),
@@ -202,6 +215,10 @@ impl<'a> ArgsCursor<'a> {
         }
     }
 
+    /// Takes the next argument, skipping the separators before it.
+    ///
+    /// # Returns
+    /// The next argument, or `None` when there are no arguments left.
     pub fn next_arg(&mut self) -> Option<&'a str> {
         self.skip_separators();
 
@@ -222,6 +239,10 @@ impl<'a> ArgsCursor<'a> {
         Some(arg.trim_end())
     }
 
+    /// Takes everything that is left as a single argument, skipping the separators before it.
+    ///
+    /// # Returns
+    /// Everything that is left after the separators are skipped, as a single argument.
     pub fn take_rest(&mut self) -> &'a str {
         self.skip_separators();
 
@@ -347,6 +368,7 @@ impl<T: CommandArg> CommandArg for Vec<T> {
     }
 }
 
+/// A field of a command that takes everything that is left as is, without splitting it into arguments
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Rest(pub Box<str>);
 

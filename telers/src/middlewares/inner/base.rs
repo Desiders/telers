@@ -1,3 +1,9 @@
+//! The inner middlewares themselves: the [`Middleware`] trait, which every inner middleware implements,
+//! and the chain that calls them in registration order before the handler.
+//!
+//! [`wrap_to_next`] folds the middlewares of a handler and the handler itself into a [`Next`] function,
+//! so each middleware calls the rest of the chain and, at the end of it, the handler.
+
 use crate::{
     client::Reqwest,
     errors::EventErrorKind,

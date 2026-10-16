@@ -2,6 +2,30 @@
 //!
 //! [`KeyboardBuilder::add`] flows buttons into rows of at most `adjust` columns, and
 //! [`KeyboardBuilder::row`] appends explicit rows.
+//!
+//! # Examples
+//!
+//! ```
+//! use telers::{types::InlineKeyboardButton, utils::keyboard::InlineKeyboardBuilder};
+//!
+//! let keyboard = InlineKeyboardBuilder::new()
+//!     .add(InlineKeyboardButton::new("Docs").url("https://core.telegram.org/bots/api"))
+//!     .add(InlineKeyboardButton::new("Back").callback_data("back"))
+//!     .as_markup();
+//! ```
+//!
+//! [`KeyboardBuilder::adjust`] re-flows every button into rows of the given width, so the
+//! order the buttons were added in does not matter:
+//!
+//! ```
+//! # use telers::{types::InlineKeyboardButton, utils::keyboard::InlineKeyboardBuilder};
+//! let keyboard = InlineKeyboardBuilder::new()
+//!     .add(InlineKeyboardButton::new("1").callback_data("1"))
+//!     .add(InlineKeyboardButton::new("2").callback_data("2"))
+//!     .add(InlineKeyboardButton::new("3").callback_data("3"))
+//!     .adjust(2)
+//!     .as_markup();
+//! ```
 
 use crate::types::{
     InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup,

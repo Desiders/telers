@@ -46,6 +46,8 @@ use secrecy::ExposeSecret as _;
 use std::{borrow::Cow, time::Duration};
 use tracing::{event, field, instrument, Level, Span};
 
+/// Session that sends every request to the Telegram Bot API over the [`reqwest`] client, the session
+/// [`Bot`] uses unless another one is given to it.
 #[derive(Debug, Clone)]
 pub struct Reqwest {
     client: Client,

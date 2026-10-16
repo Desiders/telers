@@ -1,3 +1,9 @@
+//! The [`Strategy`] of the FSM, which decides which ids of an update identify the object the state
+//! is stored for, so the state can be kept per user in a chat, per chat, per thread and so on.
+//!
+//! [`Strategy::apply`] fills an [`IdPair`] with the ids of the update, dropping the ones the
+//! strategy doesn't distinguish by.
+
 use std::fmt::{self, Display};
 
 /// Strategy for storing and retrieving data.
@@ -84,6 +90,7 @@ impl Strategy {
     }
 }
 
+/// The ids of an update as a [`Strategy`] fills them to key the stored state
 pub struct IdPair {
     pub chat_id: i64,
     pub user_id: i64,

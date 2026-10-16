@@ -1,3 +1,6 @@
+//! The [`ChatMemberUpdated`] filter, which passes only the chat member updates that move a member
+//! from one status to another, so joins, leaves and promotions can be handled separately.
+
 use super::{Filter, FilterResult};
 use crate::{enums::ChatMemberType, Request};
 
@@ -6,6 +9,10 @@ use std::{
     future::{ready, Future},
 };
 
+/// Passes an update only when a member of the chat changed its status to `new`
+///
+/// The status before the update is only checked when it is set with [`old`](Self::old),
+/// otherwise any transition into the new status passes.
 #[derive(Debug, Clone)]
 pub struct ChatMemberUpdated {
     new: ChatMemberType,
@@ -24,6 +31,9 @@ impl ChatMemberUpdated {
 
     #[inline]
     #[must_use]
+    /// Also requires the status the member had before the update to be `old`.
+    ///
+    /// Without it the filter passes on any transition into the new status.
     pub const fn old(mut self, old: ChatMemberType) -> Self {
         self.old = Some(old);
         self

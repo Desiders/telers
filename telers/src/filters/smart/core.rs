@@ -267,6 +267,7 @@ pub enum BranchOperator {
 macro_rules! define_branch {
     (
         branch = $branch:ident,
+        $(#[$meta:meta])*
         path = $path:ident,
         check = $check:ident,
         mode = $mode:ident,
@@ -275,6 +276,7 @@ macro_rules! define_branch {
         impl_bounds = { $($i_bounds:tt)* },
         get_val = |$val_pat:ident| $get_val:expr,
     ) => {
+        $(#[$meta])*
         pub struct $branch<T: $($s_bounds)*> {
             accessor: $accessor<T>,
             conditions: Vec<$check<T>>,
@@ -351,6 +353,10 @@ macro_rules! define_branch {
 }
 define_branch! {
     branch = SmartFilterBranch,
+    /// A group of conditions checked against the same borrowed value of the update
+    ///
+    /// The conditions are combined with the [`BranchOperator`] of the group, and the value is
+    /// taken out of the update once, before the conditions run.
     path = SmartFilterPath,
     check = SmartFilterCheck,
     mode = SmartFilterMode,
@@ -361,6 +367,11 @@ define_branch! {
 }
 define_branch! {
     branch = SmartFilterOwnedBranch,
+    /// A group of conditions checked against the same owned value of the update
+    ///
+    /// The conditions are combined with the [`BranchOperator`] of the group, and the value is
+    /// cloned out of the update once, before the conditions run, so the conditions of the group
+    /// can own it.
     path = SmartFilterOwnedPath,
     check = SmartFilterOwnedCheck,
     mode = SmartFilterOwnedMode,

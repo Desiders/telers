@@ -1,3 +1,11 @@
+//! The outer middlewares themselves: the [`Middleware`] trait, which every outer middleware
+//! implements, and the chain that wraps them around the routing of an update.
+//!
+//! Unlike the inner middlewares, an outer middleware runs before the filters and can change the
+//! [`Request`] itself, so it can reject an update or add data to its [`Context`](crate::context::Context)
+//! for the filters and the handlers. The [`Next`] it receives can only be called once, and it is
+//! the one that runs the rest of the middlewares and, at the end of them, the routing.
+
 use crate::{
     client::Reqwest,
     errors::EventErrorKind,

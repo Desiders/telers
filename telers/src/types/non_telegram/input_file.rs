@@ -1,3 +1,6 @@
+//! This module contains the [`InputFile`] enum and the files it holds: [`FileId`], [`UrlFile`], [`FSFile`],
+//! [`BufferedFile`] and [`StreamFile`].
+
 use bytes::{Bytes, BytesMut};
 use futures_util::{Stream, TryFutureExt as _, TryStreamExt as _};
 #[cfg(not(feature = "deser"))]
@@ -15,6 +18,7 @@ use uuid::Uuid;
 
 const ATTACH_PREFIX: &str = "attach://";
 
+/// Capacity of the buffer a file of the file system is read with: 64 KiB.
 pub const DEFAULT_CAPACITY: usize = 64 * 1024; // 64 KiB
 
 /// This object represents the contents of a file to be uploaded.
@@ -227,6 +231,8 @@ impl From<StreamFile> for InputFile {
     }
 }
 
+/// File that already lies on the Telegram servers and is reused by its identifier, without being uploaded
+/// again.
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct FileId {
     pub(crate) id: String,
@@ -266,6 +272,7 @@ impl Default for FileId {
     }
 }
 
+/// File that Telegram downloads itself from the given URL, without being uploaded.
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct UrlFile {
     pub(crate) url: String,
@@ -297,6 +304,8 @@ impl UrlFile {
     }
 }
 
+/// File on the local file system, read and uploaded while the request is being sent under a generated
+/// `attach://` name.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FSFile {
     pub(crate) id: Uuid,
@@ -402,6 +411,7 @@ impl Hash for FSFile {
     }
 }
 
+/// File whose contents are already in memory and are uploaded as they are under a generated `attach://` name.
 #[derive(Clone, PartialEq, Eq)]
 pub struct BufferedFile {
     pub(crate) id: Uuid,
@@ -486,6 +496,8 @@ impl Hash for BufferedFile {
     }
 }
 
+/// File whose contents are read from a stream while the request is being sent, so they never have to fit in
+/// memory. The stream is taken by the first upload, so every further upload needs a new [`StreamFile`].
 pub struct StreamFile {
     pub(crate) id: Uuid,
     pub(crate) file_name: Option<String>,
@@ -542,6 +554,8 @@ impl StreamFile {
         &self.str_to_file
     }
 
+    /// Moves the stream out of the file, which is left without one and cannot be uploaded again. The
+    /// `attach://` reference stays, so the request still points to the part the stream was moved into.
     #[must_use]
     pub fn take(&mut self) -> Self {
         Self {

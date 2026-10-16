@@ -1,3 +1,40 @@
+//! Filters for the bot commands.
+//!
+//! [`Command`] matches a command by its text, a [`BotCommand`] object, a [`Regex`] or a derived
+//! enum, see [`PatternType`] for the full list. [`CommandStart`] is a shortcut for the `/start`
+//! command, which also matches the deep-link payload.
+//!
+//! # Examples
+//!
+//! ```
+//! use telers::{
+//!     event::telegram::{Handler, HandlerResult},
+//!     filters::{Command, CommandObject},
+//!     types::Message,
+//!     Router,
+//! };
+//!
+//! async fn set_name(message: Message, command: CommandObject) -> HandlerResult<()> {
+//!     // `/name Alex` gives `command.command == "name"` and `command.args == ["Alex"]`
+//!     let _ = (message, command.args);
+//!     Ok(())
+//! }
+//!
+//! let router: Router = Router::new("main").on_message(|observer| {
+//!     observer.register(Handler::new(set_name).filter(Command::one("name")))
+//! });
+//! ```
+//!
+//! Use [`Command::builder`] to change the flags [`Command::one`] defaults to:
+//!
+//! ```
+//! # use telers::filters::Command;
+//! let filter = Command::builder()
+//!     .commands(["help", "h"])
+//!     .ignore_case(true)
+//!     .parse_args(true)
+//!     .build();
+//! ```
 use super::{Filter, FilterResult};
 use crate::{
     client::{Bot, Session},
@@ -289,6 +326,8 @@ impl Command {
 
     #[inline]
     #[must_use]
+    /// Creates a builder of a filter with several commands, for the flags
+    /// [`Command::one`] and [`Command::many`] do not set.
     pub fn builder() -> Builder {
         Builder::new()
     }
@@ -307,6 +346,9 @@ impl Default for Command {
     }
 }
 
+/// Builder for a [`Command`] filter.
+///
+/// Use [`Command::builder`] instead of constructing this directly.
 #[derive(Debug, Clone)]
 pub struct Builder {
     commands: Vec<PatternType>,

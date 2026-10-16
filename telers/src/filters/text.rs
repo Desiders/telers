@@ -1,3 +1,11 @@
+//! The [`Text`] filter, which passes an update only when its text matches one of the patterns:
+//! it is equal to one of the texts or regular expressions, or contains, starts with or ends with
+//! one of the texts. The text is taken from the update, which is the text of the message or its
+//! caption, the text of an inline query, the data of a callback query and the like.
+//!
+//! [`Text`] is built with its own methods or with the [`Builder`], and every method of the filter
+//! only adds a pattern to the builder, so the filter passes when any of the patterns matches.
+
 use super::{Filter, FilterResult};
 use crate::Request;
 
@@ -208,6 +216,9 @@ impl Text {
     }
 }
 
+/// Builds a [`Text`] filter step by step, each method adds another pattern to check
+///
+/// Created by [`Text::builder`], the filter is built with [`build`](Self::build).
 #[derive(Debug, Default, Clone)]
 pub struct Builder {
     texts: Vec<PatternType>,
@@ -329,6 +340,7 @@ impl Builder {
 
     #[inline]
     #[must_use]
+    /// Builds the filter out of the patterns added to the builder.
     pub fn build(self) -> Text {
         Text::new(
             self.texts,

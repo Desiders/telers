@@ -1,3 +1,10 @@
+//! Wrapping text in the markup of Telegram's `HTML` parse mode.
+//!
+//! Each function delegates to the shared [`FORMATTER`], so no instance is needed. They wrap their
+//! argument **as is**, without escaping, which lets their results be nested; escape untrusted
+//! text with [`quote`] first, or use [`Builder`](super::Builder), which escapes every fragment it
+//! applies an entity to.
+
 use super::{formatter::split_by_entity, Formatter as TextFormatter, FormatterErrorKind};
 use crate::types::{
     MessageEntity, MessageEntityCustomEmoji, MessageEntityDateTime, MessageEntityPre,
@@ -275,73 +282,96 @@ impl TextFormatter for Formatter {
     }
 }
 
+/// [`Formatter`] with the default tags, shared by the functions of this module.
 pub const FORMATTER: Formatter = Formatter::new();
 
+/// Wrap `text` in the bold tag (`<b>` by default).
 #[inline]
 pub fn bold(text: impl Display) -> String {
     FORMATTER.bold(text)
 }
 
+/// Wrap `text` in the italic tag (`<i>` by default).
 #[inline]
 pub fn italic(text: impl Display) -> String {
     FORMATTER.italic(text)
 }
 
+/// Wrap `text` in the underline tag (`<u>` by default).
 #[inline]
 pub fn underline(text: impl Display) -> String {
     FORMATTER.underline(text)
 }
 
+/// Wrap `text` in the strikethrough tag (`<s>` by default).
 #[inline]
 pub fn strikethrough(text: impl Display) -> String {
     FORMATTER.strikethrough(text)
 }
 
+/// Wrap `text` in the spoiler tag (`<tg-spoiler>` by default), which clients hide until tapped.
 #[inline]
 pub fn spoiler(text: impl Display) -> String {
     FORMATTER.spoiler(text)
 }
 
+/// Wrap `text` in a `<blockquote>` tag.
 #[inline]
 pub fn blockquote(text: impl Display) -> String {
     FORMATTER.blockquote(text)
 }
 
+/// Wrap `text` in a `<blockquote expandable>` tag, which clients let the reader expand.
 #[inline]
 pub fn expandable_blockquote(text: impl Display) -> String {
     FORMATTER.expandable_blockquote(text)
 }
 
+/// Wrap `text` in a link opening `url`.
+/// # Arguments
+/// * `text` - Text shown as the link label.
+/// * `url` - URL opened when the link is tapped.
 #[inline]
 pub fn text_link(text: impl Display, url: impl Display) -> String {
     FORMATTER.text_link(text, url)
 }
 
+/// Wrap `text` in a link to `tg://user?id=<user_id>`, which mentions the user by id, so they need
+/// no username.
 #[inline]
 pub fn text_mention(text: impl Display, user_id: i64) -> String {
     FORMATTER.text_mention(text, user_id)
 }
 
+/// Wrap `text` in an emoji tag carrying `emoji_id`, which makes the client show that custom emoji.
+/// # Arguments
+/// * `text` - Emoji shown instead when the user cannot see the custom one.
+/// * `emoji_id` - Id of the custom emoji.
 #[inline]
 pub fn custom_emoji(text: impl Display, emoji_id: impl Display) -> String {
     FORMATTER.custom_emoji(text, emoji_id)
 }
 
+/// Wrap `text` in a `<code>` tag, rendering it as inline monowidth text.
 #[inline]
 pub fn code(text: impl Display) -> String {
     FORMATTER.code(text)
 }
 
+/// Wrap `text` in a `<pre>` tag, rendering it as a monowidth block.
 #[inline]
 pub fn pre(text: impl Display) -> String {
     FORMATTER.pre(text)
 }
 
+/// Wrap `text` in a `<pre>` block whose `<code>` tag carries `class="language-<language>"`, which
+/// lets the client highlight `text`.
 #[inline]
 pub fn pre_language(text: impl Display, language: impl Display) -> String {
     FORMATTER.pre_language(text, language)
 }
 
+/// Escape `&`, `<` and `>` in `text` so it can be passed as HTML content.
 #[inline]
 pub fn quote(text: impl Display) -> String {
     FORMATTER.quote(text)

@@ -1,3 +1,11 @@
+//! Build the text of a message in one of Telegram's parse modes, and render it back from
+//! entities.
+//!
+//! [`Builder`] assembles a message from plain and formatted fragments, [`Formatter`] and its HTML
+//! and `MarkdownV2` implementations wrap single fragments in the markup of that parse mode, and
+//! [`Renderer`] turns a text plus its [`MessageEntity`](crate::types::MessageEntity) list back
+//! into one formatted string.
+
 pub mod builder;
 pub mod formatter;
 pub mod html_formatter;

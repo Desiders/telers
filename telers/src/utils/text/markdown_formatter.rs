@@ -1,3 +1,10 @@
+//! Wrapping text in the markup of Telegram's `MarkdownV2` parse mode.
+//!
+//! Each function delegates to the shared [`FORMATTER`], so no instance is needed. They wrap their
+//! argument **as is**, without escaping, which lets their results be nested; escape untrusted text
+//! with [`quote`] first, or use [`Builder`](super::Builder), which escapes every fragment it
+//! applies an entity to.
+
 use super::{formatter::split_by_entity, Formatter as TextFormatter, FormatterErrorKind};
 use crate::types::{
     MessageEntity, MessageEntityCustomEmoji, MessageEntityDateTime, MessageEntityPre,
@@ -268,78 +275,111 @@ impl TextFormatter for Formatter {
     }
 }
 
+/// [`Formatter`] instance shared by the functions of this module.
 pub const FORMATTER: Formatter = Formatter::new();
 
+/// Wrap `text` in `*`, which clients render as bold text.
 #[inline]
 pub fn bold(text: impl Display) -> String {
     FORMATTER.bold(text)
 }
 
+/// Wrap `text` in `_`, which clients render as italic text.
 #[inline]
 pub fn italic(text: impl Display) -> String {
     FORMATTER.italic(text)
 }
 
+/// Wrap `text` in `__`, which clients render as underlined text.
 #[inline]
 pub fn underline(text: impl Display) -> String {
     FORMATTER.underline(text)
 }
 
+/// Wrap `text` in `~`, which clients render as struck-through text.
 #[inline]
 pub fn strikethrough(text: impl Display) -> String {
     FORMATTER.strikethrough(text)
 }
 
+/// Wrap `text` in `||`, which clients hide until tapped.
 #[inline]
 pub fn spoiler(text: impl Display) -> String {
     FORMATTER.spoiler(text)
 }
 
+/// Prefix every line of `text` with `>`, quoting the whole block.
 #[inline]
 pub fn blockquote(text: impl Display) -> String {
     FORMATTER.blockquote(text)
 }
 
+/// Prefix every line of `text` with `>` and append `||`, which lets the reader expand the quote.
 #[inline]
 pub fn expandable_blockquote(text: impl Display) -> String {
     FORMATTER.expandable_blockquote(text)
 }
 
+/// Wrap `text` in a link opening `url`.
+/// # Arguments
+/// * `text` - Text shown as the link label.
+/// * `url` - URL opened when the link is tapped.
 #[inline]
 pub fn text_link(text: impl Display, url: &str) -> String {
     FORMATTER.text_link(text, url)
 }
 
+/// Wrap `text` in a link to `tg://user?id=<user_id>`, which mentions the user by id, so they need
+/// no username.
 #[inline]
 pub fn text_mention(text: impl Display, user_id: i64) -> String {
     FORMATTER.text_mention(text, user_id)
 }
 
+/// Wrap `text` in an image link to `tg://emoji?id=<emoji_id>`, which makes the client show that
+/// custom emoji.
+/// # Arguments
+/// * `text` - Emoji shown instead when the user cannot see the custom one.
+/// * `emoji_id` - Id of the custom emoji.
 #[inline]
 pub fn custom_emoji(text: impl Display, emoji_id: &str) -> String {
     FORMATTER.custom_emoji(text, emoji_id)
 }
 
+/// Wrap `text` in backticks, rendering it as inline monowidth text.
 #[inline]
 pub fn code(text: impl Display) -> String {
     FORMATTER.code(text)
 }
 
+/// Wrap `text` in a fenced code block, rendering it as a monowidth block.
 #[inline]
 pub fn pre(text: impl Display) -> String {
     FORMATTER.pre(text)
 }
 
+/// Wrap `text` in a fenced code block tagged with `language`, which lets the client highlight it.
 #[inline]
 pub fn pre_language(text: impl Display, language: &str) -> String {
     FORMATTER.pre_language(text, language)
 }
 
+/// Wrap `text` in a link to `tg://time?unix=<unix_time>`, which clients render in the reader's own
+/// time zone.
+/// # Arguments
+/// * `text` - Text shown as the link label.
+/// * `unix_time` - Seconds since the Unix epoch.
 #[inline]
 pub fn date_time(text: impl Display, unix_time: i64) -> String {
     FORMATTER.date_time(text, unix_time)
 }
 
+/// Wrap `text` in a link to `tg://time?unix=<unix_time>&format=<date_time_format>`, which clients
+/// render with the given format in the reader's own time zone.
+/// # Arguments
+/// * `text` - Text shown as the link label.
+/// * `unix_time` - Seconds since the Unix epoch.
+/// * `date_time_format` - Format the client uses to render the timestamp.
 #[inline]
 pub fn date_time_with_format(
     text: impl Display,
@@ -349,6 +389,7 @@ pub fn date_time_with_format(
     FORMATTER.date_time_with_format(text, unix_time, date_time_format)
 }
 
+/// Escape every `MarkdownV2` special character in `text` with a backslash.
 #[inline]
 pub fn quote(text: impl Display) -> String {
     FORMATTER.quote(text)

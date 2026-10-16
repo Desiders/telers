@@ -1,8 +1,15 @@
+//! The [`ChatType`] filter, which passes an update only when the chat it belongs to is of
+//! one of the given types, so private chats, groups, supergroups and channels can be
+//! handled separately.
+
 use super::{Filter, FilterResult};
 use crate::{enums, Request};
 
 use std::{convert::Infallible, future::Future};
 
+/// Passes an update only when the type of its chat is one of `chat_types`
+///
+/// Created with [`one`](Self::one) for a single type or [`many`](Self::many) for several.
 #[derive(Debug, Clone)]
 pub struct ChatType<const N: usize> {
     chat_types: [enums::ChatType; N],
@@ -11,6 +18,7 @@ pub struct ChatType<const N: usize> {
 impl ChatType<1> {
     #[inline]
     #[must_use]
+    /// Passes an update only when its chat is of this one type.
     pub fn one(chat_type: impl Into<enums::ChatType>) -> Self {
         Self {
             chat_types: [chat_type.into(); 1],
@@ -21,6 +29,7 @@ impl ChatType<1> {
 impl<const N: usize> ChatType<N> {
     #[inline]
     #[must_use]
+    /// Passes an update only when its chat is of one of these types.
     pub fn many(chat_types: impl Into<[enums::ChatType; N]>) -> Self {
         Self {
             chat_types: chat_types.into(),

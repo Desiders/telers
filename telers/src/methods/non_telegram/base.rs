@@ -1,3 +1,6 @@
+//! This module contains the [`TelegramMethod`] trait, which every method in [`crate::methods`] implements,
+//! and the helpers that collect the files of a request into the `multipart/form-data` part before it is sent.
+
 use crate::{
     client::Bot,
     serialization::{self, Deserialize, DeserializeOwned, Serialize},
@@ -101,6 +104,14 @@ pub trait TelegramMethod {
     }
 }
 
+/// Moves the file into the list of parts sent as `multipart/form-data`.
+///
+/// A file that is only referenced, by its `file_id` or by a URL, is left where it is, because Telegram
+/// gets its contents itself. A file from the file system, from memory or from a stream is taken out of
+/// `file`, which is left holding nothing but the `attach://` reference to the part it was moved into.
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `file` - File to collect
 pub fn prepare_file(files: &mut Vec<InputFile>, file: &mut InputFile) {
     match file {
         InputFile::FS(_) | InputFile::Buffered(_) | InputFile::Stream(_) => {
@@ -113,12 +124,22 @@ pub fn prepare_file(files: &mut Vec<InputFile>, file: &mut InputFile) {
     }
 }
 
+/// Collects the file only when there is one, so an absent file stays absent.
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `file` - File to collect, if it is set
 pub fn prepare_optional_file(files: &mut Vec<InputFile>, file: &mut Option<InputFile>) {
     if let Some(file) = file {
         prepare_file(files, file);
     }
 }
 
+/// Collects the media of an [`InputMedia`] item together with the files its variant carries: the thumbnail
+/// of an animation, an audio or a document, the extra photo of a live photo, the thumbnail and the cover
+/// of a video.
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `input_media` - Item to collect the files of
 pub fn prepare_input_media(files: &mut Vec<InputFile>, input_media: &mut InputMedia) {
     match input_media {
         InputMedia::Animation(inner) => {
@@ -148,6 +169,10 @@ pub fn prepare_input_media(files: &mut Vec<InputFile>, input_media: &mut InputMe
     }
 }
 
+/// Collects the files of every item of an [`InputMedia`] group, in the order of the group.
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `input_media_group` - Items of the group
 pub fn prepare_input_media_group(
     files: &mut Vec<InputFile>,
     input_media_group: Vec<&mut InputMedia>,
@@ -157,16 +182,29 @@ pub fn prepare_input_media_group(
     }
 }
 
+/// Collects the sticker of an [`InputSticker`].
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `input_sticker` - Sticker to collect the file of
 pub fn prepare_input_sticker(files: &mut Vec<InputFile>, input_sticker: &mut InputSticker) {
     prepare_file(files, &mut input_sticker.sticker);
 }
 
+/// Collects the sticker of every item of an [`InputSticker`] set, in the order of the set.
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `input_stickers` - Items of the set
 pub fn prepare_input_stickers(files: &mut Vec<InputFile>, input_stickers: Vec<&mut InputSticker>) {
     for input_sticker in input_stickers {
         prepare_input_sticker(files, input_sticker);
     }
 }
 
+/// Collects the media of an [`InputPaidMedia`] item together with the files its variant carries: the extra
+/// photo of a live photo, the thumbnail and the cover of a video.
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `input_paid_media` - Item to collect the files of
 pub fn prepare_input_paid_media(files: &mut Vec<InputFile>, input_paid_media: &mut InputPaidMedia) {
     match input_paid_media {
         InputPaidMedia::LivePhoto(inner) => {
@@ -184,6 +222,11 @@ pub fn prepare_input_paid_media(files: &mut Vec<InputFile>, input_paid_media: &m
     }
 }
 
+/// Collects the media of an [`InputPollMedia`] item together with the files its variant carries. A location
+/// or a venue holds no file and is left as it is.
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `input_poll_media` - Item to collect the files of
 pub fn prepare_input_poll_media(files: &mut Vec<InputFile>, input_poll_media: &mut InputPollMedia) {
     match input_poll_media {
         InputPollMedia::Animation(inner) => {
@@ -214,6 +257,11 @@ pub fn prepare_input_poll_media(files: &mut Vec<InputFile>, input_poll_media: &m
     }
 }
 
+/// Collects the media of an [`InputPollOptionMedia`] item together with the files its variant carries. A link,
+/// a location or a venue holds no file and is left as it is.
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `input_poll_option_media` - Item to collect the files of
 pub fn prepare_input_poll_option_media(
     files: &mut Vec<InputFile>,
     input_poll_option_media: &mut InputPollOptionMedia,
@@ -244,6 +292,11 @@ pub fn prepare_input_poll_option_media(
     }
 }
 
+/// Collects the files of the media of every option of a poll, in the order of the options. An option without
+/// media is skipped.
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `input_poll_options` - Options of the poll
 pub fn prepare_input_poll_options(
     files: &mut Vec<InputFile>,
     input_poll_options: Vec<&mut InputPollOption>,
@@ -255,6 +308,11 @@ pub fn prepare_input_poll_options(
     }
 }
 
+/// Collects the media of an [`InputRichMessageMediaContent`] item together with the files its variant carries:
+/// the thumbnail of an animation, an audio or a document, the thumbnail and the cover of a video.
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `content` - Item to collect the files of
 pub fn prepare_input_rich_message_media_content(
     files: &mut Vec<InputFile>,
     content: &mut InputRichMessageMediaContent,
@@ -286,6 +344,11 @@ pub fn prepare_input_rich_message_media_content(
     }
 }
 
+/// Collects the files of an [`InputRichBlock`] and, when the block holds other blocks, of all of them, as a
+/// collage, a slideshow, a details block or a list does.
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `block` - Block to collect the files of
 pub fn prepare_input_rich_block(files: &mut Vec<InputFile>, block: &mut InputRichBlock) {
     match block {
         InputRichBlock::Animation(inner) => {
@@ -352,6 +415,10 @@ pub fn prepare_input_rich_block(files: &mut Vec<InputFile>, block: &mut InputRic
     }
 }
 
+/// Collects the files of the media and of the blocks of an [`InputRichMessage`], in the order they are given.
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `input_rich_message` - Message to collect the files of
 pub fn prepare_input_rich_message(
     files: &mut Vec<InputFile>,
     input_rich_message: &mut InputRichMessage,
@@ -368,6 +435,11 @@ pub fn prepare_input_rich_message(
     }
 }
 
+/// Collects the files of an [`InputMessageContent`]. Only rich message content carries files, every other
+/// variant is left as it is.
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `content` - Content to collect the files of
 pub fn prepare_input_message_content(
     files: &mut Vec<InputFile>,
     content: &mut InputMessageContent,
@@ -377,6 +449,10 @@ pub fn prepare_input_message_content(
     }
 }
 
+/// Collects the files of the content only when there is one, so an absent content stays absent.
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `content` - Content to collect the files of, if it is set
 pub fn prepare_optional_input_message_content(
     files: &mut Vec<InputFile>,
     content: &mut Option<InputMessageContent>,
@@ -386,6 +462,11 @@ pub fn prepare_optional_input_message_content(
     }
 }
 
+/// Collects the files of the content each answer of an inline query would send, in the order of the results.
+/// An answer that carries no content, a game, is left as it is.
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `results` - Results of the query
 pub fn prepare_inline_query_results(
     files: &mut Vec<InputFile>,
     results: Vec<&mut InlineQueryResult>,
@@ -468,6 +549,10 @@ pub fn prepare_inline_query_results(
     }
 }
 
+/// Collects the files of every item of an [`InputPaidMedia`] group, in the order of the group.
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `input_paid_media_group` - Items of the group
 pub fn prepare_input_paid_media_group(
     files: &mut Vec<InputFile>,
     input_paid_media_group: Vec<&mut InputPaidMedia>,
@@ -477,6 +562,10 @@ pub fn prepare_input_paid_media_group(
     }
 }
 
+/// Collects the photo or the video of an [`InputStoryContent`].
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `input_story_content` - Content to collect the file of
 pub fn prepare_input_story_content(
     files: &mut Vec<InputFile>,
     input_story_content: &mut InputStoryContent,
@@ -491,6 +580,10 @@ pub fn prepare_input_story_content(
     }
 }
 
+/// Collects the static photo or the animation of an [`InputProfilePhoto`].
+/// # Arguments
+/// * `files` - Collected files of the request
+/// * `input_profile_photo` - Profile photo to collect the file of
 pub fn prepare_input_profile_photo(
     files: &mut Vec<InputFile>,
     input_profile_photo: &mut InputProfilePhoto,

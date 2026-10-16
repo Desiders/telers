@@ -237,6 +237,13 @@ use std::{
 };
 use tracing::{event, instrument, Level};
 
+/// Result of propagating an event through a router: the request as it was after the outer
+/// middleware chain finished, together with how the propagation ended.
+///
+/// [`PropagateEventResult::Handled`] carries the response of the handler that ran,
+/// [`PropagateEventResult::Rejected`] means a common filter or
+/// [`EventReturn::Cancel`](crate::event::EventReturn::Cancel) stopped the propagation, and
+/// [`PropagateEventResult::Unhandled`] means no handler matched.
 pub struct Response<Client> {
     /// Request after routing and outer middleware cleanup.
     /// Modify this request during outer cleanup. Public propagation copies it into
@@ -265,6 +272,11 @@ impl<Client> fmt::Debug for Response<Client> {
     }
 }
 
+/// Routing of an event through a router: its update observer, the observer of every update type,
+/// the `error` observer and all sub routers.
+///
+/// The [`Dispatcher`](crate::Dispatcher) propagates every incoming update through these methods,
+/// so implementing them is what turns a router into something the dispatcher can run.
 pub trait PropagateEvent<Client>: Clone + Send + Sync + 'static {
     /// Propagate event
     /// # Errors
@@ -763,6 +775,11 @@ impl<Client> Clone for Router<Client> {
 
 macro_rules! define_configured_struct {
     ($(($variant:ident, $observer:ident)),+ $(,)?) => {
+        /// A [`Router`] with its middleware chains already built, ready to propagate events.
+        ///
+        /// It comes from [`Router::configure`], which copies the inner middlewares of the router
+        /// into its sub routers and applies a [`Config`]; cloning it is cheap because the sub
+        /// routers are shared.
         pub struct Configured<Client = Reqwest> {
             name: &'static str,
             sub_routers: Arc<[Configured<Client>]>,
@@ -971,6 +988,7 @@ macro_rules! define_middleware_config {
         { $($field:ident),+ $(,)? }
         , default_builder: $default_builder:expr $(,)?
     ) => {
+        #[doc = concat!("Middlewares implementing `", stringify!($middleware_trait), "` for every Telegram observer, stored as one boxed slice per observer.")]
         pub struct $config<Client> {
             $(pub $field: Box<[$service]>,)+
         }
@@ -1001,6 +1019,7 @@ macro_rules! define_middleware_config {
             }
         }
 
+        #[doc = concat!("Step by step builder of the `", stringify!($config), "` of `", stringify!($middleware_trait), "` middlewares, with one vector per observer.")]
         pub struct $builder<Client> {
             $(pub $field: Vec<$service>,)+
         }
@@ -1074,12 +1093,25 @@ macro_rules! define_inner_middleware_config_for_observers {
 }
 with_telegram_observer_variants!(define_inner_middleware_config_for_observers);
 
+/// Outer and inner middlewares applied to every observer of a router when it is configured.
+///
+/// [`Config::default`] fills both halves with the default middlewares and [`Config::new`] takes
+/// them as they are; [`Router::configure`] registers them on the router itself, while the inner
+/// middlewares already registered on the router are copied into the sub routers.
 pub struct Config<Client> {
     outer_middlewares: OuterMiddlewaresConfig<Client>,
     inner_middlewares: InnerMiddlewaresConfig<Client>,
 }
 
 impl<Client> Config<Client> {
+    /// Creates a configuration from the two halves of the chain.
+    ///
+    /// [`Default`] takes the defaults of both halves instead, which is what
+    /// [`Router::configure`] uses when it is given no configuration.
+    ///
+    /// # Arguments
+    /// * `outer_middlewares` - Middlewares registered on the router itself.
+    /// * `inner_middlewares` - Middlewares copied from the router into its sub routers.
     #[must_use]
     pub const fn new(
         outer_middlewares: OuterMiddlewaresConfig<Client>,

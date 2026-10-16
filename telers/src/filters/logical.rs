@@ -12,6 +12,10 @@
 use super::{Filter, FilterResult};
 use crate::{Either, Request};
 
+/// Passes a request only when both filters pass, the second one is checked
+/// only when the first passes and the error keeps the side it came from.
+///
+/// Usually created with [`Filter::and`] instead of calling it directly.
 #[derive(Clone)]
 pub struct And<F, S>(pub F, pub S);
 
@@ -29,6 +33,10 @@ where
     }
 }
 
+/// Passes a request when at least one of the filters passes, the second one is checked
+/// only when the first doesn't and the error keeps the side it came from.
+///
+/// Usually created with [`Filter::or`] instead of calling it directly.
 #[derive(Clone)]
 pub struct Or<F, S>(pub F, pub S);
 
@@ -46,6 +54,9 @@ where
     }
 }
 
+/// Passes a request only when the wrapped filter doesn't, forwarding its error as is.
+///
+/// Usually created with [`Filter::invert`] instead of calling it directly.
 #[derive(Clone)]
 pub struct Invert<F>(pub F);
 

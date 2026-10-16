@@ -1,3 +1,9 @@
+//! Assembling a message text from plain and formatted fragments.
+//!
+//! Every method consumes and returns the builder, so fragments are appended in one expression.
+//! [`text`](Builder::text) appends a fragment as is and [`quote`](Builder::quote) appends it
+//! escaped; the remaining methods append the fragment wrapped in the entity's markup.
+
 use std::fmt::Display;
 
 use super::{Formatter, FormatterErrorKind};
@@ -13,6 +19,14 @@ use crate::types::{
 
 use tracing::{event, Level};
 
+/// Accumulates a message text, formatting every fragment added to it with `F`.
+///
+/// Each fragment is formatted and escaped on its own, so chaining methods never re-processes the
+/// markup an earlier call produced and never escapes a fragment twice.
+///
+/// # Arguments
+/// * `formatter` - [`Formatter`] used to format and escape the fragments, fixing the parse mode
+///   of the resulting text.
 #[derive(Debug, Default)]
 pub struct Builder<F> {
     formatter: F,

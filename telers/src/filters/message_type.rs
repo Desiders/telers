@@ -1,8 +1,14 @@
+//! The [`MessageType`] filter, which passes an update only when its message is of one of the given
+//! content types, so text, photo, audio and the other contents can be handled separately.
+
 use super::{Filter, FilterResult};
 use crate::{enums, Request};
 
 use std::{convert::Infallible, future::Future};
 
+/// Passes an update only when its message is of one of `types`
+///
+/// Created with [`one`](Self::one) for a single content type or [`many`](Self::many) for several.
 #[derive(Debug, Clone)]
 pub struct MessageType<const N: usize> {
     types: [enums::MessageType; N],
@@ -11,6 +17,7 @@ pub struct MessageType<const N: usize> {
 impl MessageType<1> {
     #[inline]
     #[must_use]
+    /// Passes an update only when its message is of this one content type.
     pub fn one(content_type: impl Into<enums::MessageType>) -> Self {
         Self {
             types: [content_type.into(); 1],
@@ -21,6 +28,7 @@ impl MessageType<1> {
 impl<const N: usize> MessageType<N> {
     #[inline]
     #[must_use]
+    /// Passes an update only when its message is of one of these content types.
     pub fn many(types: impl Into<[enums::MessageType; N]>) -> Self {
         Self {
             types: types.into(),

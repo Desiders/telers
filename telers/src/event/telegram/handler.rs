@@ -1,3 +1,8 @@
+//! Handlers of the [Telegram observer](super::Observer).
+//!
+//! A [`Handler`] pairs the service that runs the handler with the filters checked before it, and
+//! the arguments of the handler function are [`Extractor`]s of the incoming [`Request`].
+
 use super::response::{IntoHandlerResult, Response};
 use crate::{
     errors::{EventErrorKind, ExtractionError, HandlerError},
@@ -23,6 +28,11 @@ use tracing::{event, instrument, Level};
 pub(crate) type BoxedCloneHandlerService<Client> =
     BoxCloneService<Request<Client>, Response<Client>, ExtractionError>;
 
+/// Adapter that lets a function or closure be used as a Telegram observer handler.
+///
+/// It is implemented for every `FnMut` taking up to a fixed number of arguments and returning a
+/// future of something that converts into a handler result, that is an [`EventReturn`], a `()`,
+/// an [`Infallible`](std::convert::Infallible) or a `Result` of those.
 pub trait HandlerFn<Args>: Clone + Send + Sync + 'static {
     type Response: IntoHandlerResult;
     type Future: Future<Output = Self::Response> + Send;
@@ -30,6 +40,10 @@ pub trait HandlerFn<Args>: Clone + Send + Sync + 'static {
     fn call(&mut self, args: Args) -> Self::Future;
 }
 
+/// A Telegram observer handler: the service that runs it and the filters checked before it.
+///
+/// Filters are added with [`Handler::filter`] and are checked in registration order, so the
+/// handler runs only when all of them pass and its arguments are extracted successfully.
 pub struct Handler<Client> {
     pub(crate) service: BoxedCloneHandlerService<Client>,
     pub(crate) filters: Vec<BoxedCloneFilterService<Client>>,
@@ -67,6 +81,10 @@ impl<Client> Handler<Client> {
         }
     }
 
+    /// Add a filter that the request must pass before the handler runs.
+    ///
+    /// The filter is appended to the ones already registered and all of them are checked in
+    /// registration order.
     #[must_use]
     pub fn filter(self, val: impl Filter<Client>) -> Self
     where
