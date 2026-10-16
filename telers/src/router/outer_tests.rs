@@ -12,7 +12,9 @@ use crate::{
         telegram::{Handler, HandlerFn},
         EventReturn,
     },
-    middlewares::{InnerMiddleware, InnerNext, OuterMiddleware, OuterNext},
+    middlewares::{
+        InnerMiddleware, InnerMiddlewareResponse, InnerNext, OuterMiddleware, OuterNext,
+    },
     types::{ChatPrivate, MessageText, Update, UpdateMessage},
     Bot, Context, Extensions, Request,
 };
@@ -85,6 +87,105 @@ fn recording_inner_middleware(calls: CallLog) -> impl InnerMiddleware<Reqwest> {
             result
         }
     }
+}
+
+fn recording_inner_middleware_with_context(
+    calls: CallLog,
+    before: &'static str,
+    after: &'static str,
+) -> impl InnerMiddleware<Reqwest> {
+    move |mut request: Request<Reqwest>, next: InnerNext<Reqwest>| {
+        let calls = calls.clone();
+
+        async move {
+            calls.lock().unwrap().push(before);
+            request.context.insert(before, true);
+
+            let mut result = next(request).await;
+
+            calls.lock().unwrap().push(after);
+            if let Ok(response) = &mut result {
+                response.request.context.insert(after, true);
+            }
+
+            result
+        }
+    }
+}
+
+fn child_with_all_middlewares(calls: &CallLog) -> Router {
+    Router::new("child")
+        .on_all(|observer| {
+            observer
+                .register_outer_middleware(recording_outer_middleware(
+                    calls.clone(),
+                    "child outer before",
+                    "child outer after",
+                ))
+                .register_inner_middleware(recording_inner_middleware_with_context(
+                    calls.clone(),
+                    "child inner before",
+                    "child inner after",
+                ))
+        })
+        .on_update(|observer| {
+            observer.register(recording_handler(
+                calls.clone(),
+                "update handler",
+                EventReturn::Skip,
+            ))
+        })
+        .on_message(|observer| {
+            observer.register(recording_handler(
+                calls.clone(),
+                "message handler",
+                EventReturn::Finish,
+            ))
+        })
+}
+
+fn child_with_error_handler(calls: &CallLog, middleware_failure: bool) -> Router {
+    let handler_calls = calls.clone();
+    let error_calls = calls.clone();
+
+    Router::new("child")
+        .on_message(|observer| {
+            observer
+                .register_outer_middleware(recording_outer_middleware(
+                    calls.clone(),
+                    "child outer before",
+                    "child outer after",
+                ))
+                .register(Handler::new(move || {
+                    let calls = handler_calls.clone();
+
+                    async move {
+                        calls.lock().unwrap().push("failing handler");
+                        Err::<EventReturn, _>(HandlerError::from_display("handler failed"))
+                    }
+                }))
+        })
+        .on_error(|observer| {
+            observer
+                .register_inner_middleware(recording_inner_middleware_with_context(
+                    calls.clone(),
+                    "child error before",
+                    "child error after",
+                ))
+                .register(Handler::new(move |error: EventErrorKind| {
+                    let calls = error_calls.clone();
+
+                    async move {
+                        if middleware_failure {
+                            assert!(matches!(error, EventErrorKind::Middleware(_)));
+                        } else {
+                            assert!(matches!(error, EventErrorKind::Handler(_)));
+                        }
+                        calls.lock().unwrap().push("error handler");
+                        EventReturn::Finish
+                    }
+                }))
+        })
 }
 
 fn recording_handler(calls: CallLog, label: &'static str, result: EventReturn) -> Handler<Reqwest> {
@@ -1078,5 +1179,864 @@ async fn test_cloned_router_keeps_nested_startup_and_shutdown_order() {
                 "sibling shutdown",
             ]
         );
+    }
+}
+
+#[tokio::test]
+async fn test_inner_registration_before_and_after_including_children() {
+    for include_first in [false, true] {
+        let calls = Arc::new(Mutex::new(Vec::new()));
+        let handler_calls = calls.clone();
+        let grandchild = Router::new("grandchild").on_message(|observer| {
+            observer
+                .register_inner_middleware(recording_inner_middleware_with_context(
+                    calls.clone(),
+                    "grandchild before",
+                    "grandchild after",
+                ))
+                .register(Handler::new(move |context: Context| {
+                    let calls = handler_calls.clone();
+
+                    async move {
+                        for key in ["config before", "parent first before", "child before"] {
+                            assert_eq!(context.get::<bool>(key), Some(&true));
+                        }
+                        calls.lock().unwrap().push("handler");
+                        EventReturn::Finish
+                    }
+                }))
+        });
+        let child = Router::new("child")
+            .on_message(|observer| {
+                observer.register_inner_middleware(recording_inner_middleware_with_context(
+                    calls.clone(),
+                    "child before",
+                    "child after",
+                ))
+            })
+            .include(grandchild);
+        let register_parent = |router: Router| {
+            router.on_message(|observer| {
+                observer
+                    .register_inner_middleware(recording_inner_middleware_with_context(
+                        calls.clone(),
+                        "parent first before",
+                        "parent first after",
+                    ))
+                    .register_inner_middleware(recording_inner_middleware_with_context(
+                        calls.clone(),
+                        "parent second before",
+                        "parent second after",
+                    ))
+            })
+        };
+        let router = if include_first {
+            register_parent(Router::new("parent").include(child))
+        } else {
+            register_parent(Router::new("parent")).include(child)
+        };
+        let mut router = router.configure(Config::new(
+            OuterMiddlewaresConfig::new(),
+            InnerMiddlewaresConfig::builder()
+                .message(recording_inner_middleware_with_context(
+                    calls.clone(),
+                    "config before",
+                    "config after",
+                ))
+                .build(),
+        ));
+
+        for _ in 0..2 {
+            calls.lock().unwrap().clear();
+            let response = router
+                .propagate_event(UpdateType::Message, test_request())
+                .await
+                .unwrap();
+
+            assert_finished(&response);
+            assert_eq!(
+                *calls.lock().unwrap(),
+                [
+                    "config before",
+                    "parent first before",
+                    "parent second before",
+                    "child before",
+                    "grandchild before",
+                    "handler",
+                    "grandchild after",
+                    "child after",
+                    "parent second after",
+                    "parent first after",
+                    "config after",
+                ]
+            );
+            for key in ["config after", "parent first after", "child after"] {
+                assert_eq!(response.request.context.get::<bool>(key), Some(&true));
+            }
+        }
+    }
+}
+
+#[tokio::test]
+async fn test_config_and_local_outer_wrap_inherited_inner_in_router_tree() {
+    let calls = Arc::new(Mutex::new(Vec::new()));
+    let grandchild = Router::new("grandchild").on_message(|observer| {
+        observer
+            .register_outer_middleware(recording_outer_middleware(
+                calls.clone(),
+                "grandchild outer before",
+                "grandchild outer after",
+            ))
+            .register_inner_middleware(recording_inner_middleware_with_context(
+                calls.clone(),
+                "grandchild inner before",
+                "grandchild inner after",
+            ))
+            .register(recording_handler(
+                calls.clone(),
+                "handler",
+                EventReturn::Finish,
+            ))
+    });
+    let child = Router::new("child")
+        .include(grandchild)
+        .on_message(|observer| {
+            observer
+                .register_inner_middleware(recording_inner_middleware_with_context(
+                    calls.clone(),
+                    "child inner before",
+                    "child inner after",
+                ))
+                .register_outer_middleware(recording_outer_middleware(
+                    calls.clone(),
+                    "child outer before",
+                    "child outer after",
+                ))
+        });
+    let router = Router::new("parent")
+        .on_message(|observer| {
+            observer
+                .register_inner_middleware(recording_inner_middleware_with_context(
+                    calls.clone(),
+                    "parent inner before",
+                    "parent inner after",
+                ))
+                .register_outer_middleware(recording_outer_middleware(
+                    calls.clone(),
+                    "parent outer before",
+                    "parent outer after",
+                ))
+        })
+        .include(child);
+    let mut router = router.configure(Config::new(
+        OuterMiddlewaresConfig::builder()
+            .message(recording_outer_middleware(
+                calls.clone(),
+                "config outer before",
+                "config outer after",
+            ))
+            .build(),
+        InnerMiddlewaresConfig::builder()
+            .message(recording_inner_middleware_with_context(
+                calls.clone(),
+                "config inner before",
+                "config inner after",
+            ))
+            .build(),
+    ));
+
+    let response = router
+        .propagate_event(UpdateType::Message, test_request())
+        .await
+        .unwrap();
+
+    assert_finished(&response);
+    assert_eq!(
+        *calls.lock().unwrap(),
+        [
+            "config outer before",
+            "parent outer before",
+            "child outer before",
+            "grandchild outer before",
+            "config inner before",
+            "parent inner before",
+            "child inner before",
+            "grandchild inner before",
+            "handler",
+            "grandchild inner after",
+            "child inner after",
+            "parent inner after",
+            "config inner after",
+            "grandchild outer after",
+            "child outer after",
+            "parent outer after",
+            "config outer after",
+        ]
+    );
+}
+
+#[tokio::test]
+async fn test_all_and_observer_specific_registration_keep_observer_scopes() {
+    let calls = Arc::new(Mutex::new(Vec::new()));
+    let child = child_with_all_middlewares(&calls);
+    let router = Router::new("parent")
+        .on_all(|observer| {
+            observer
+                .register_inner_middleware(recording_inner_middleware_with_context(
+                    calls.clone(),
+                    "parent inner before",
+                    "parent inner after",
+                ))
+                .register_outer_middleware(recording_outer_middleware(
+                    calls.clone(),
+                    "parent outer before",
+                    "parent outer after",
+                ))
+        })
+        .on_message(|observer| {
+            observer
+                .register_inner_middleware(recording_inner_middleware_with_context(
+                    calls.clone(),
+                    "message inner before",
+                    "message inner after",
+                ))
+                .register_outer_middleware(recording_outer_middleware(
+                    calls.clone(),
+                    "message outer before",
+                    "message outer after",
+                ))
+        })
+        .include(child);
+    let mut router = router.configure(Config::new(
+        OuterMiddlewaresConfig::builder()
+            .all(recording_outer_middleware(
+                calls.clone(),
+                "config outer before",
+                "config outer after",
+            ))
+            .build(),
+        InnerMiddlewaresConfig::builder()
+            .all(recording_inner_middleware_with_context(
+                calls.clone(),
+                "config inner before",
+                "config inner after",
+            ))
+            .build(),
+    ));
+
+    let response = router
+        .propagate_event(UpdateType::Message, test_request())
+        .await
+        .unwrap();
+
+    assert_finished(&response);
+    assert_eq!(
+        *calls.lock().unwrap(),
+        [
+            "config outer before",
+            "parent outer before",
+            "config outer before",
+            "parent outer before",
+            "message outer before",
+            "child outer before",
+            "config inner before",
+            "parent inner before",
+            "child inner before",
+            "update handler",
+            "child inner after",
+            "parent inner after",
+            "config inner after",
+            "child outer before",
+            "config inner before",
+            "parent inner before",
+            "message inner before",
+            "child inner before",
+            "message handler",
+            "child inner after",
+            "message inner after",
+            "parent inner after",
+            "config inner after",
+            "child outer after",
+            "child outer after",
+            "message outer after",
+            "parent outer after",
+            "config outer after",
+            "parent outer after",
+            "config outer after",
+        ]
+    );
+}
+
+#[tokio::test]
+async fn test_manager_and_builder_registration_preserve_order() {
+    let calls = Arc::new(Mutex::new(Vec::new()));
+    let child = Router::new("child").on_message(|observer| {
+        observer
+            .register_inner_middleware(recording_inner_middleware_with_context(
+                calls.clone(),
+                "child inner before",
+                "child inner after",
+            ))
+            .register(recording_handler(
+                calls.clone(),
+                "handler",
+                EventReturn::Finish,
+            ))
+    });
+    let router = Router::new("parent")
+        .include(child)
+        .on_message(|mut observer| {
+            observer
+                .inner_middlewares
+                .register(recording_inner_middleware_with_context(
+                    calls.clone(),
+                    "parent second before",
+                    "parent second after",
+                ));
+            observer.inner_middlewares.register_at_position(
+                0,
+                recording_inner_middleware_with_context(
+                    calls.clone(),
+                    "parent first before",
+                    "parent first after",
+                ),
+            );
+            observer
+                .outer_middlewares
+                .register(recording_outer_middleware(
+                    calls.clone(),
+                    "outer second before",
+                    "outer second after",
+                ));
+            observer.outer_middlewares.register_at_position(
+                0,
+                recording_outer_middleware(
+                    calls.clone(),
+                    "outer first before",
+                    "outer first after",
+                ),
+            );
+            observer
+        });
+    let mut router = router.configure(Config::new(
+        OuterMiddlewaresConfig::builder()
+            .message(recording_outer_middleware(
+                calls.clone(),
+                "config outer before",
+                "config outer after",
+            ))
+            .build(),
+        InnerMiddlewaresConfig::builder()
+            .message(recording_inner_middleware_with_context(
+                calls.clone(),
+                "config first before",
+                "config first after",
+            ))
+            .message(recording_inner_middleware_with_context(
+                calls.clone(),
+                "config second before",
+                "config second after",
+            ))
+            .build(),
+    ));
+
+    let response = router
+        .propagate_event(UpdateType::Message, test_request())
+        .await
+        .unwrap();
+
+    assert_finished(&response);
+    assert_eq!(
+        *calls.lock().unwrap(),
+        [
+            "config outer before",
+            "outer first before",
+            "outer second before",
+            "config first before",
+            "config second before",
+            "parent first before",
+            "parent second before",
+            "child inner before",
+            "handler",
+            "child inner after",
+            "parent second after",
+            "parent first after",
+            "config second after",
+            "config first after",
+            "outer second after",
+            "outer first after",
+            "config outer after",
+        ]
+    );
+}
+
+#[tokio::test]
+async fn test_inherited_inner_skip_tries_next_child_handler() {
+    let calls = Arc::new(Mutex::new(Vec::new()));
+    let middleware_calls = calls.clone();
+    let child = Router::new("child").on_message(|observer| {
+        observer
+            .register_inner_middleware(recording_inner_middleware_with_context(
+                calls.clone(),
+                "child before",
+                "child after",
+            ))
+            .registers([
+                recording_handler(calls.clone(), "skipped handler", EventReturn::Finish).filter(
+                    |request: &mut Request| {
+                        request.context.insert("skip", true);
+                        ready(Ok::<_, Infallible>(true))
+                    },
+                ),
+                recording_handler(calls.clone(), "finish handler", EventReturn::Finish).filter(
+                    |request: &mut Request| {
+                        request.context.insert("skip", false);
+                        ready(Ok::<_, Infallible>(true))
+                    },
+                ),
+            ])
+    });
+    let router = Router::new("parent")
+        .on_message(|observer| {
+            observer.register_inner_middleware(move |request: Request, next: InnerNext| {
+                let calls = middleware_calls.clone();
+
+                async move {
+                    calls.lock().unwrap().push("skip middleware");
+                    if request.context.get::<bool>("skip") == Some(&true) {
+                        return Ok(InnerMiddlewareResponse {
+                            request,
+                            result: Ok(EventReturn::Skip),
+                        });
+                    }
+                    next(request).await
+                }
+            })
+        })
+        .include(child);
+    let mut router = router.configure(Config::new(
+        OuterMiddlewaresConfig::new(),
+        InnerMiddlewaresConfig::builder()
+            .message(recording_inner_middleware_with_context(
+                calls.clone(),
+                "config before",
+                "config after",
+            ))
+            .build(),
+    ));
+
+    let response = router
+        .propagate_event(UpdateType::Message, test_request())
+        .await
+        .unwrap();
+
+    assert_finished(&response);
+    assert_eq!(
+        *calls.lock().unwrap(),
+        [
+            "config before",
+            "skip middleware",
+            "config after",
+            "config before",
+            "skip middleware",
+            "child before",
+            "finish handler",
+            "child after",
+            "config after",
+        ]
+    );
+}
+
+#[tokio::test]
+async fn test_inherited_inner_cancel_prunes_subtree_and_allows_sibling() {
+    let calls = Arc::new(Mutex::new(Vec::new()));
+    let middleware_calls = calls.clone();
+    let cancelled_child = Router::new("cancelled child")
+        .on_message(|observer| {
+            observer
+                .filter(|request: &mut Request| {
+                    request.context.insert("cancel", true);
+                    ready(Ok::<_, Infallible>(true))
+                })
+                .register(recording_handler(
+                    calls.clone(),
+                    "cancelled handler",
+                    EventReturn::Finish,
+                ))
+        })
+        .include(Router::new("descendant").on_message(|observer| {
+            observer.register(recording_handler(
+                calls.clone(),
+                "descendant handler",
+                EventReturn::Finish,
+            ))
+        }));
+    let mut router = configure_router(
+        Router::new("parent")
+            .on_message(|observer| {
+                observer
+                    .register_inner_middleware(recording_inner_middleware_with_context(
+                        calls.clone(),
+                        "parent before",
+                        "parent after",
+                    ))
+                    .register_inner_middleware(move |request: Request, next: InnerNext| {
+                        let calls = middleware_calls.clone();
+
+                        async move {
+                            calls.lock().unwrap().push("cancel middleware");
+                            if request.context.get::<bool>("cancel") == Some(&true) {
+                                return Ok(InnerMiddlewareResponse {
+                                    request,
+                                    result: Ok(EventReturn::Cancel),
+                                });
+                            }
+                            assert!(request.context.get::<bool>("cancel").is_none());
+                            next(request).await
+                        }
+                    })
+            })
+            .include(cancelled_child)
+            .include(Router::new("sibling").on_message(|observer| {
+                observer.register(recording_handler(
+                    calls.clone(),
+                    "sibling handler",
+                    EventReturn::Finish,
+                ))
+            })),
+    );
+
+    let response = router
+        .propagate_event(UpdateType::Message, test_request())
+        .await
+        .unwrap();
+
+    assert_finished(&response);
+    assert_eq!(
+        *calls.lock().unwrap(),
+        [
+            "parent before",
+            "cancel middleware",
+            "parent after",
+            "parent before",
+            "cancel middleware",
+            "sibling handler",
+            "parent after",
+        ]
+    );
+}
+
+#[tokio::test]
+async fn test_rejected_filters_do_not_run_inherited_inner_middlewares() {
+    let calls = Arc::new(Mutex::new(Vec::new()));
+    let common_filter_calls = calls.clone();
+    let handler_filter_calls = calls.clone();
+    let rejected_child = Router::new("rejected child")
+        .on_message(|observer| {
+            observer
+                .filter(move |_request: &mut Request| {
+                    common_filter_calls.lock().unwrap().push("common filter");
+                    ready(Ok::<_, Infallible>(false))
+                })
+                .register(recording_handler(
+                    calls.clone(),
+                    "rejected handler",
+                    EventReturn::Finish,
+                ))
+        })
+        .include(Router::new("rejected descendant").on_message(|observer| {
+            observer.register(recording_handler(
+                calls.clone(),
+                "rejected descendant handler",
+                EventReturn::Finish,
+            ))
+        }));
+    let unhandled_child = Router::new("unhandled child")
+        .on_message(|observer| {
+            observer.register(
+                recording_handler(calls.clone(), "filtered handler", EventReturn::Finish).filter(
+                    move |_request: &mut Request| {
+                        handler_filter_calls.lock().unwrap().push("handler filter");
+                        ready(Ok::<_, Infallible>(false))
+                    },
+                ),
+            )
+        })
+        .include(Router::new("grandchild").on_message(|observer| {
+            observer.register(recording_handler(
+                calls.clone(),
+                "grandchild handler",
+                EventReturn::Finish,
+            ))
+        }));
+    let mut router = configure_router(
+        Router::new("parent")
+            .on_message(|observer| {
+                observer
+                    .register_outer_middleware(recording_outer_middleware(
+                        calls.clone(),
+                        "outer before",
+                        "outer after",
+                    ))
+                    .register_inner_middleware(recording_inner_middleware_with_context(
+                        calls.clone(),
+                        "parent inner before",
+                        "parent inner after",
+                    ))
+            })
+            .include(rejected_child)
+            .include(unhandled_child),
+    );
+
+    let response = router
+        .propagate_event(UpdateType::Message, test_request())
+        .await
+        .unwrap();
+
+    assert_finished(&response);
+    assert_eq!(
+        *calls.lock().unwrap(),
+        [
+            "outer before",
+            "common filter",
+            "handler filter",
+            "parent inner before",
+            "grandchild handler",
+            "parent inner after",
+            "outer after",
+        ]
+    );
+}
+
+#[tokio::test]
+async fn test_inherited_inner_runs_for_parent_and_child_handler_attempts() {
+    let calls = Arc::new(Mutex::new(Vec::new()));
+    let mut router = configure_router(
+        Router::new("parent")
+            .on_message(|observer| {
+                observer
+                    .register_outer_middleware(recording_outer_middleware(
+                        calls.clone(),
+                        "outer before",
+                        "outer after",
+                    ))
+                    .register_inner_middleware(recording_inner_middleware_with_context(
+                        calls.clone(),
+                        "parent inner before",
+                        "parent inner after",
+                    ))
+                    .register(recording_handler(
+                        calls.clone(),
+                        "parent handler",
+                        EventReturn::Skip,
+                    ))
+            })
+            .include(Router::new("child").on_message(|observer| {
+                observer
+                    .register_inner_middleware(recording_inner_middleware_with_context(
+                        calls.clone(),
+                        "child inner before",
+                        "child inner after",
+                    ))
+                    .register(recording_handler(
+                        calls.clone(),
+                        "child handler",
+                        EventReturn::Finish,
+                    ))
+            })),
+    );
+
+    let response = router
+        .propagate_event(UpdateType::Message, test_request())
+        .await
+        .unwrap();
+
+    assert_finished(&response);
+    assert_eq!(
+        *calls.lock().unwrap(),
+        [
+            "outer before",
+            "parent inner before",
+            "parent handler",
+            "parent inner after",
+            "parent inner before",
+            "child inner before",
+            "child handler",
+            "child inner after",
+            "parent inner after",
+            "outer after",
+        ]
+    );
+}
+
+#[tokio::test]
+async fn test_child_errors_unwind_outer_and_run_inherited_error_inner() {
+    for middleware_failure in [false, true] {
+        let calls = Arc::new(Mutex::new(Vec::new()));
+        let middleware_calls = calls.clone();
+        let child = child_with_error_handler(&calls, middleware_failure);
+        let router = Router::new("parent")
+            .on_message(|observer| {
+                observer
+                    .register_outer_middleware(recording_outer_middleware(
+                        calls.clone(),
+                        "parent outer before",
+                        "parent outer after",
+                    ))
+                    .register_inner_middleware(recording_inner_middleware_with_context(
+                        calls.clone(),
+                        "parent inner before",
+                        "parent inner after",
+                    ))
+                    .register_inner_middleware(move |request: Request, next: InnerNext| {
+                        let calls = middleware_calls.clone();
+
+                        async move {
+                            if middleware_failure {
+                                calls.lock().unwrap().push("failing middleware");
+                                return Err(EventErrorKind::Middleware(
+                                    MiddlewareError::from_display("middleware failed"),
+                                ));
+                            }
+                            next(request).await
+                        }
+                    })
+            })
+            .on_error(|observer| {
+                observer.register_inner_middleware(recording_inner_middleware_with_context(
+                    calls.clone(),
+                    "parent error before",
+                    "parent error after",
+                ))
+            })
+            .include(child);
+        let mut router = router.configure(Config::new(
+            OuterMiddlewaresConfig::new(),
+            InnerMiddlewaresConfig::builder()
+                .error(recording_inner_middleware_with_context(
+                    calls.clone(),
+                    "config error before",
+                    "config error after",
+                ))
+                .build(),
+        ));
+
+        let response = router
+            .propagate_event_with_error_handling(UpdateType::Message, test_request())
+            .await
+            .unwrap();
+
+        assert_finished(&response);
+        assert_eq!(
+            *calls.lock().unwrap(),
+            [
+                "parent outer before",
+                "child outer before",
+                "parent inner before",
+                if middleware_failure {
+                    "failing middleware"
+                } else {
+                    "failing handler"
+                },
+                "parent inner after",
+                "child outer after",
+                "parent outer after",
+                "config error before",
+                "parent error before",
+                "child error before",
+                "error handler",
+                "child error after",
+                "parent error after",
+                "config error after",
+            ]
+        );
+    }
+}
+
+#[tokio::test]
+async fn test_outer_short_circuit_controls_siblings_without_running_inner() {
+    for reject in [false, true] {
+        let calls = Arc::new(Mutex::new(Vec::new()));
+        let outer_calls = calls.clone();
+        let child = Router::new("short circuit child").on_message(|observer| {
+            observer
+                .register_outer_middleware(move |request: Request, _next: OuterNext| {
+                    let calls = outer_calls.clone();
+
+                    async move {
+                        calls.lock().unwrap().push("short circuit outer");
+                        Ok(Response {
+                            request,
+                            propagate_result: if reject {
+                                PropagateEventResult::Rejected
+                            } else {
+                                PropagateEventResult::Unhandled
+                            },
+                        })
+                    }
+                })
+                .register(recording_handler(
+                    calls.clone(),
+                    "skipped handler",
+                    EventReturn::Finish,
+                ))
+        });
+        let mut router = configure_router(
+            Router::new("parent")
+                .on_message(|observer| {
+                    observer
+                        .register_outer_middleware(recording_outer_middleware(
+                            calls.clone(),
+                            "parent outer before",
+                            "parent outer after",
+                        ))
+                        .register_inner_middleware(recording_inner_middleware_with_context(
+                            calls.clone(),
+                            "parent inner before",
+                            "parent inner after",
+                        ))
+                })
+                .include(child)
+                .include(Router::new("sibling").on_message(|observer| {
+                    observer.register(recording_handler(
+                        calls.clone(),
+                        "sibling handler",
+                        EventReturn::Finish,
+                    ))
+                })),
+        );
+
+        let response = router
+            .propagate_event(UpdateType::Message, test_request())
+            .await
+            .unwrap();
+
+        if reject {
+            assert!(matches!(
+                response.propagate_result,
+                PropagateEventResult::Rejected
+            ));
+            assert_eq!(
+                *calls.lock().unwrap(),
+                [
+                    "parent outer before",
+                    "short circuit outer",
+                    "parent outer after",
+                ]
+            );
+        } else {
+            assert_finished(&response);
+            assert_eq!(
+                *calls.lock().unwrap(),
+                [
+                    "parent outer before",
+                    "short circuit outer",
+                    "parent inner before",
+                    "sibling handler",
+                    "parent inner after",
+                    "parent outer after",
+                ]
+            );
+        }
     }
 }
