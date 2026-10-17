@@ -48,6 +48,10 @@ impl super::TelegramMethod for AnswerWebAppQuery {
     type Method = Self;
     type Return = crate::types::SentWebAppMessage;
 
+    fn method_name(&self) -> &'static str {
+        "answerWebAppQuery"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("answerWebAppQuery", self, None)
     }

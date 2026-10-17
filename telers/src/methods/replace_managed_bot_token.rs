@@ -34,6 +34,10 @@ impl super::TelegramMethod for ReplaceManagedBotToken {
     type Method = Self;
     type Return = Box<str>;
 
+    fn method_name(&self) -> &'static str {
+        "replaceManagedBotToken"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("replaceManagedBotToken", self, None)
     }

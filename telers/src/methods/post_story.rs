@@ -255,6 +255,10 @@ impl super::TelegramMethod for PostStory {
     type Method = Self;
     type Return = crate::types::Story;
 
+    fn method_name(&self) -> &'static str {
+        "postStory"
+    }
+
     fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
         super::prepare_input_story_content(&mut files, &mut self.content);

@@ -34,6 +34,10 @@ impl super::TelegramMethod for GetStickerSet {
     type Method = Self;
     type Return = crate::types::StickerSet;
 
+    fn method_name(&self) -> &'static str {
+        "getStickerSet"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getStickerSet", self, None)
     }

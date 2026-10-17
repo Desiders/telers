@@ -127,6 +127,10 @@ impl super::TelegramMethod for SavePreparedInlineMessage {
     type Method = Self;
     type Return = crate::types::PreparedInlineMessage;
 
+    fn method_name(&self) -> &'static str {
+        "savePreparedInlineMessage"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("savePreparedInlineMessage", self, None)
     }

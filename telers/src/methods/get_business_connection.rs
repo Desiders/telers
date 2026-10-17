@@ -34,6 +34,10 @@ impl super::TelegramMethod for GetBusinessConnection {
     type Method = Self;
     type Return = crate::types::BusinessConnection;
 
+    fn method_name(&self) -> &'static str {
+        "getBusinessConnection"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getBusinessConnection", self, None)
     }

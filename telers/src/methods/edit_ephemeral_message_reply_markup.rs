@@ -85,6 +85,10 @@ impl super::TelegramMethod for EditEphemeralMessageReplyMarkup {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "editEphemeralMessageReplyMarkup"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("editEphemeralMessageReplyMarkup", self, None)
     }

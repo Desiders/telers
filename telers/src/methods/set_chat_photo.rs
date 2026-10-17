@@ -48,6 +48,10 @@ impl super::TelegramMethod for SetChatPhoto {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "setChatPhoto"
+    }
+
     fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
         super::prepare_file(&mut files, &mut self.photo);

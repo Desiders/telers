@@ -2,12 +2,17 @@
 //!
 //! Components are:
 //! - [`base`] module with basic types and traits for sending requests
+//! - [`manager`] module with a [`Session`] that calls outgoing middlewares
 //! - [`reqwest`] module with reqwest client implementation
 //!
 //! Check each submodule for more information.
 
 pub mod base;
+pub mod manager;
 pub mod reqwest;
 
-pub use self::reqwest::Reqwest;
+pub use self::{
+    manager::{Logging, Middleware, Next, SessionManager},
+    reqwest::Reqwest,
+};
 pub use base::{ClientResponse, ClientStreamResponse, ContentStream, Session, StatusCode};

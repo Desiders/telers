@@ -24,6 +24,10 @@ impl super::TelegramMethod for GetWebhookInfo {
     type Method = Self;
     type Return = crate::types::WebhookInfo;
 
+    fn method_name(&self) -> &'static str {
+        "getWebhookInfo"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getWebhookInfo", self, None)
     }

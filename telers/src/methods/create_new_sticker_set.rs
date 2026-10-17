@@ -145,6 +145,10 @@ impl super::TelegramMethod for CreateNewStickerSet {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "createNewStickerSet"
+    }
+
     fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
         super::prepare_input_stickers(&mut files, self.stickers.iter_mut().collect());

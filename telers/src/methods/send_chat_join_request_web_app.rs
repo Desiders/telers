@@ -48,6 +48,10 @@ impl super::TelegramMethod for SendChatJoinRequestWebApp {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "sendChatJoinRequestWebApp"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("sendChatJoinRequestWebApp", self, None)
     }

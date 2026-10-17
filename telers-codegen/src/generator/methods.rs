@@ -490,6 +490,10 @@ fn tokenize_telegram_method_impl(method_quote: &NormalizedMethod) -> TokenStream
                 type Method = Self;
                 type Return = #return_type_tokens;
 
+                fn method_name(&self) -> &'static str {
+                    #method_api_name
+                }
+
                 fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
                     super::Request::new(#method_api_name, self, None)
                 }
@@ -501,6 +505,10 @@ fn tokenize_telegram_method_impl(method_quote: &NormalizedMethod) -> TokenStream
         impl super::TelegramMethod for #method_name {
             type Method = Self;
             type Return = #return_type_tokens;
+
+            fn method_name(&self) -> &'static str {
+                #method_api_name
+            }
 
             fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
                 let mut files = vec![];

@@ -382,6 +382,10 @@ impl super::TelegramMethod for SendMessage {
     type Method = Self;
     type Return = crate::types::Message;
 
+    fn method_name(&self) -> &'static str {
+        "sendMessage"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("sendMessage", self, None)
     }

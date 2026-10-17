@@ -64,7 +64,13 @@
 
 pub mod download;
 
-use super::{session::base::Session, Reqwest};
+use super::{
+    session::{
+        base::Session,
+        manager::{Middleware, SessionManager},
+    },
+    Reqwest,
+};
 
 use crate::{
     errors::{SessionErrorKind, TelegramErrorKind},
@@ -183,8 +189,8 @@ pub struct Bot<Client = Reqwest> {
     token: Arc<SecretString>,
     /// Bot id, extracted from the token
     pub id: i64,
-    /// Client for sending requests to Telegram API
-    client: Client,
+    /// Client for sending requests to Telegram API, with the outgoing middlewares around it
+    client: SessionManager<Client>,
     /// Bot username, requested with [`GetMe`] by [`Bot::username`] and then kept for every clone
     username: Arc<OnceCell<Option<Box<str>>>>,
 }
@@ -203,7 +209,7 @@ impl<Client> Bot<Client> {
         Self {
             token: Arc::new(SecretString::from(token.into_boxed_str())),
             id,
-            client,
+            client: SessionManager::new(client),
             username: Arc::new(OnceCell::new()),
         }
     }
@@ -228,6 +234,26 @@ impl<Client> Bot<Client> {
     pub fn token(&self) -> &SecretString {
         &self.token
     }
+
+    /// Add an outgoing [`Middleware`] that every request of this bot goes through
+    ///
+    /// ```rust
+    /// use telers::{Bot, Logging};
+    ///
+    /// let bot = Bot::new("123:token").on_middleware(Logging::new().ignore_methods(["getUpdates"]));
+    /// ```
+    #[must_use]
+    pub fn on_middleware<M>(self, middleware: M) -> Self
+    where
+        M: Middleware + Send + Sync + 'static,
+    {
+        Self {
+            token: self.token,
+            id: self.id,
+            client: self.client.on_middleware(middleware),
+            username: self.username,
+        }
+    }
 }
 
 impl<Client: Default> Default for Bot<Client> {
@@ -237,7 +263,7 @@ impl<Client: Default> Default for Bot<Client> {
         Self {
             token: Arc::new(SecretString::from(Box::<str>::from(""))),
             id: 0,
-            client: Client::default(),
+            client: SessionManager::new(Client::default()),
             username: Arc::new(OnceCell::new()),
         }
     }
@@ -613,13 +639,17 @@ mod tests {
         type Method = ();
         type Return = i64;
 
+        fn method_name(&self) -> &'static str {
+            "test"
+        }
+
         fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
             Request::new("test", (), None)
         }
     }
 
     fn attempts(bot: &Bot<MockSession>) -> usize {
-        bot.client.attempts.load(Ordering::SeqCst)
+        bot.client.session().attempts.load(Ordering::SeqCst)
     }
 
     #[tokio::test]

@@ -82,6 +82,10 @@ impl super::TelegramMethod for SetStickerSetThumbnail {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "setStickerSetThumbnail"
+    }
+
     fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
         if let Some(file) = &mut self.thumbnail {

@@ -48,6 +48,10 @@ impl super::TelegramMethod for TransferBusinessAccountStars {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "transferBusinessAccountStars"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("transferBusinessAccountStars", self, None)
     }

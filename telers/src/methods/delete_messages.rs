@@ -75,6 +75,10 @@ impl super::TelegramMethod for DeleteMessages {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "deleteMessages"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("deleteMessages", self, None)
     }

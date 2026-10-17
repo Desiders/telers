@@ -60,6 +60,10 @@ impl super::TelegramMethod for UploadStickerFile {
     type Method = Self;
     type Return = crate::types::File;
 
+    fn method_name(&self) -> &'static str {
+        "uploadStickerFile"
+    }
+
     fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
         super::prepare_file(&mut files, &mut self.sticker);

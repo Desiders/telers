@@ -34,6 +34,10 @@ impl super::TelegramMethod for GetChat {
     type Method = Self;
     type Return = crate::types::ChatFullInfo;
 
+    fn method_name(&self) -> &'static str {
+        "getChat"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getChat", self, None)
     }

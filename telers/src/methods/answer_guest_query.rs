@@ -48,6 +48,10 @@ impl super::TelegramMethod for AnswerGuestQuery {
     type Method = Self;
     type Return = crate::types::SentGuestMessage;
 
+    fn method_name(&self) -> &'static str {
+        "answerGuestQuery"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("answerGuestQuery", self, None)
     }

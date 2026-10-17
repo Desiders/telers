@@ -387,6 +387,10 @@ impl super::TelegramMethod for CopyMessage {
     type Method = Self;
     type Return = crate::types::MessageId;
 
+    fn method_name(&self) -> &'static str {
+        "copyMessage"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("copyMessage", self, None)
     }
