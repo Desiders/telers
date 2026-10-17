@@ -897,10 +897,9 @@ mod tests {
 
     #[test]
     fn test_guest_message_subscription_resolves_child_handler() {
-        let router =
-            Router::<Reqwest>::new("main").include(Router::new("guest").on_guest_message(|observer| {
-                observer.register(Handler::new(|| async { EventReturn::Finish }))
-            }));
+        let router = Router::<Reqwest>::new("main").include(Router::new("guest").on_guest_message(
+            |observer| observer.register(Handler::new(|| async { EventReturn::Finish })),
+        ));
         let allowed_updates = router.resolve_used_update_types();
         assert_eq!(allowed_updates.len(), 1);
         assert!(allowed_updates.contains("guest_message"));
@@ -960,7 +959,9 @@ mod tests {
                     },
                 )
             })
-            .on_message(|observer| observer.register(Handler::new(|| async { EventReturn::Cancel })))
+            .on_message(|observer| {
+                observer.register(Handler::new(|| async { EventReturn::Cancel }))
+            })
             .include(Router::new("guest").on_guest_message(|observer| {
                 observer.register(Handler::new(
                     |update: UpdateGuestMessage, message: Message, context: Context| async move {
