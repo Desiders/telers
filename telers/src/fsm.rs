@@ -39,11 +39,13 @@ pub mod storage;
 pub mod strategy;
 
 pub use context::Context;
-pub use storage::{Storage, StorageKey};
+pub use storage::{
+    DisabledEventIsolation, EventIsolation, IsolationGuard, Storage, StorageKey, DEFAULT_DESTINY,
+};
 pub use strategy::Strategy;
 
 #[cfg(feature = "redis-storage")]
 pub use storage::{KeyBuilderImpl as RedisDefaultKeyBuilder, Redis as RedisStorage};
 
 #[cfg(feature = "memory-storage")]
-pub use storage::Memory as MemoryStorage;
+pub use storage::{Memory as MemoryStorage, MemoryEventIsolation};

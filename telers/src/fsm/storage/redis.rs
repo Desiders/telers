@@ -1,16 +1,25 @@
-use super::{Error, Storage, StorageKey};
+use super::{Error, EventIsolation, IsolationGuard, Storage, StorageKey};
 
 use crate::serialization::{DeserializeOwned, Serialize};
 use deadpool_redis::{Config, ConfigError, Connection, CreatePoolError, Pool, PoolError, Runtime};
+use futures_util::future::BoxFuture;
 use redis::{IntoConnectionInfo, RedisError};
 use std::{
     collections::HashMap,
     fmt::{self, Debug, Display, Formatter},
+    io::{Error as IoError, ErrorKind},
+    time::Duration,
 };
 use tracing::{event, field, instrument, Level, Span};
+use uuid::Uuid;
 
 const DEFAULT_PREFIX: &str = "fsm";
 const DEFAULT_SEPARATOR: &str = ":";
+/// How long Redis keeps a lock, so a dead process can't hold one key forever
+const DEFAULT_LOCK_TTL: Duration = Duration::from_secs(30);
+/// Delete the lock only while the token still matches, so a slow holder can't unlock its successor
+const RELEASE_LOCK: &str = "if redis.call('get', KEYS[1]) == ARGV[1] then return \
+                            redis.call('del', KEYS[1]) else return 0 end";
 
 #[derive(Debug)]
 pub enum Part {
@@ -213,6 +222,20 @@ impl<K: KeyBuilder> Redis<K> {
             ..self
         }
     }
+
+    /// Isolation that locks a key in Redis, so updates of one key are serialized between replicas
+    #[inline]
+    #[must_use]
+    pub fn event_isolation(&self) -> RedisEventIsolation<K>
+    where
+        K: Clone,
+    {
+        RedisEventIsolation {
+            pool: self.pool.clone(),
+            key_builder: self.key_builder.clone(),
+            ttl: DEFAULT_LOCK_TTL,
+        }
+    }
 }
 
 impl Redis {
@@ -233,6 +256,158 @@ impl Redis {
 impl<K> Redis<K> {
     async fn get_connection(&self) -> Result<Connection, PoolError> {
         self.pool.get().await
+    }
+}
+
+/// Isolation that locks a key in Redis, so updates of one key are serialized between replicas
+///
+/// # Notes
+/// The lock is a key with a random token as its value, and Redis expires it after the ttl,
+/// so a process that dies mid-update can't hold the key forever.
+/// [`Redis::event_isolation`] returns one with the default ttl.
+#[derive(Clone)]
+pub struct RedisEventIsolation<K = KeyBuilderImpl> {
+    pool: Pool,
+    key_builder: K,
+    ttl: Duration,
+}
+
+impl<K: KeyBuilder> Debug for RedisEventIsolation<K> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("RedisEventIsolation")
+            .field("ttl", &self.ttl)
+            .finish_non_exhaustive()
+    }
+}
+
+impl<K: KeyBuilder + Clone> RedisEventIsolation<K> {
+    /// How long [`EventIsolation::lock`] sleeps before looking at the lock again
+    const RETRY_INTERVAL: Duration = Duration::from_millis(50);
+
+    /// Sets how long Redis keeps the lock before dropping it
+    #[inline]
+    #[must_use]
+    pub fn with_ttl(mut self, ttl: Duration) -> Self {
+        self.ttl = ttl;
+        self
+    }
+
+    /// The lock guards the data of this key, so it lives in the same namespace and is
+    /// built by the same [`KeyBuilder`]. A custom prefix, a shared `bot_id` or a shared
+    /// `destiny` therefore move the data and its lock together instead of splitting them.
+    fn lock_key(&self, key: &StorageKey) -> String {
+        format!("{}:lock", self.key_builder.build(key, Part::Data))
+    }
+}
+
+impl<K: KeyBuilder + Clone + 'static> EventIsolation for RedisEventIsolation<K> {
+    #[instrument(skip(self, key), fields(key))]
+    fn lock<'a>(&'a self, key: &StorageKey) -> BoxFuture<'a, Result<IsolationGuard, Error>> {
+        let lock_key = self.lock_key(key);
+        let key = format!("{key:?}");
+        let ttl = self.ttl;
+
+        Box::pin(async move {
+            let token = Uuid::new_v4().to_string();
+            let mut connection = self.pool.get().await.map_err(|err| {
+                event!(Level::ERROR, error = %err, "Failed to get redis connection");
+
+                Error::new(
+                    format!("Failed to get redis connection. Storage key: {key}"),
+                    err,
+                )
+            })?;
+
+            Span::current().record("key", lock_key.as_str());
+
+            let mut waited = Duration::ZERO;
+            loop {
+                let acquired: Option<String> = redis::cmd("SET")
+                    .arg(&lock_key)
+                    .arg(&token)
+                    .arg("NX")
+                    .arg("PX")
+                    .arg(ttl.as_millis())
+                    .query_async(&mut connection)
+                    .await
+                    .map_err(|err| {
+                        event!(Level::ERROR, error = %err, "Failed to acquire isolation lock");
+
+                        Error::new(
+                            format!("Failed to acquire isolation lock. Storage key: {key}"),
+                            err,
+                        )
+                    })?;
+
+                if acquired.is_some() {
+                    break;
+                }
+
+                // Redis expires the lock itself after the ttl, so waiting longer can't succeed
+                if waited >= ttl {
+                    return Err(Error::new(
+                        format!("Isolation lock is taken. Storage key: {key}"),
+                        IoError::new(ErrorKind::TimedOut, "another update holds the lock"),
+                    ));
+                }
+
+                tokio::time::sleep(Self::RETRY_INTERVAL).await;
+                waited += Self::RETRY_INTERVAL;
+            }
+
+            Ok(Box::new(RedisIsolationGuard {
+                pool: self.pool.clone(),
+                lock_key,
+                token,
+            }) as IsolationGuard)
+        })
+    }
+}
+
+/// Releases the Redis lock on drop, but only while this process still owns it
+struct RedisIsolationGuard {
+    pool: Pool,
+    lock_key: String,
+    token: String,
+}
+
+impl Drop for RedisIsolationGuard {
+    fn drop(&mut self) {
+        let Ok(runtime) = tokio::runtime::Handle::try_current() else {
+            event!(
+                Level::ERROR,
+                "Failed to release isolation lock, no tokio runtime. Redis will drop it once the \
+                 ttl is over"
+            );
+
+            return;
+        };
+
+        let pool = self.pool.clone();
+        let lock_key = self.lock_key.clone();
+        let token = self.token.clone();
+
+        let _release = runtime.spawn(async move {
+            let Ok(mut connection) = pool.get().await else {
+                event!(
+                    Level::ERROR,
+                    "Failed to get redis connection to release isolation lock"
+                );
+
+                return;
+            };
+
+            if let Err(err) = redis::cmd("EVAL")
+                .arg(RELEASE_LOCK)
+                .arg(1)
+                .arg(lock_key)
+                .arg(token)
+                .query_async::<i64>(&mut connection)
+                .await
+            {
+                event!(Level::ERROR, error = %err, "Failed to release isolation lock");
+            }
+        });
     }
 }
 

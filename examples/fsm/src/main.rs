@@ -2,7 +2,7 @@ use telers::{
     enums::{MessageType::Text, UpdateType},
     event::telegram::{Handler, HandlerResult},
     filters::{CommandStart, MessageType, State as StateFilter},
-    fsm::{Context as FSMContext, MemoryStorage, Strategy::UserInChat},
+    fsm::{Context as FSMContext, MemoryEventIsolation, MemoryStorage, Strategy::UserInChat},
     methods::SendMessage,
     middlewares::outer::FSMContext as FSMContextMiddleware,
     types::{Message, MessageText},
@@ -103,9 +103,14 @@ async fn main() {
 
     let router = Router::new("main")
         // Register fsm middleware for possible managing states and fsm data (e.g. user's name and language for this example)
+        // `isolation` makes the updates of one user wait for each other, so two of them cannot
+        // read the same state and then overwrite each other
         .on_update(|observer| {
-            observer
-                .register_outer_middleware(FSMContextMiddleware::new(storage).strategy(UserInChat))
+            observer.register_outer_middleware(
+                FSMContextMiddleware::new(storage)
+                    .strategy(UserInChat)
+                    .isolation(MemoryEventIsolation::new()),
+            )
         })
         .on_message(|observer| {
             observer.registers([
