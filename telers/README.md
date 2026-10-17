@@ -106,6 +106,7 @@ For more, check out the [crate documentation][docs] and the [examples below][exa
  - [Finite state machine][examples/fsm]. This example shows how to use a finite state machine (conversation).
  - [Dialogs][examples/dialogs_mega]. This example shows how to build a multi-step dialog with `telers-dialog`.
  - [Business connection][examples/business_connection]. This example shows how to handle `business_connection` and `business_message` updates.
+ - [Guest messages][examples/guest_messages]. This example shows how to receive guest messages and reply to guest queries.
  - [FSM and business connection][examples/fsm_and_business_connection]. This example shows how to keep a separate state machine per business connection.
  - [Error handling][examples/error_handling]. This example shows how to handle errors of handlers, filters and middlewares in one place.
  - [Router tree][examples/router_tree]. This example shows how to create a router tree.
@@ -151,6 +152,7 @@ This project is licensed under either of the following licenses, at your option:
 [examples/extensions]: https://github.com/Desiders/telers/tree/dev-1.x/examples/extensions
 [examples/managed_bot]: https://github.com/Desiders/telers/tree/dev-1.x/examples/managed_bot
 [examples/business_connection]: https://github.com/Desiders/telers/tree/dev-1.x/examples/business_connection
+[examples/guest_messages]: https://github.com/Desiders/telers/tree/dev-1.x/examples/guest_messages
 [examples/commands]: https://github.com/Desiders/telers/tree/dev-1.x/examples/commands
 [examples/dialogs_mega]: https://github.com/Desiders/telers/tree/dev-1.x/examples/dialogs_mega
 [examples/ephemeral_messages]: https://github.com/Desiders/telers/tree/dev-1.x/examples/ephemeral_messages

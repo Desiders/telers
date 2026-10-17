@@ -842,8 +842,11 @@ mod tests {
             bases::{EventReturn, PropagateEventResult},
             telegram::Handler,
         },
+        methods::TelegramMethod as _,
+        middlewares::{InnerNext, OuterNext},
         router::Router,
-        types::{ChatPrivate, MessageText, UpdateMessage},
+        serialization::{json, to_value},
+        types::{Chat, ChatPrivate, Message, MessageText, UpdateGuestMessage, UpdateMessage, User},
     };
 
     use std::convert::Infallible;
@@ -890,6 +893,101 @@ mod tests {
             PropagateEventResult::Handled(_) => {}
             _ => panic!("Unexpected result"),
         }
+    }
+
+    #[test]
+    fn test_guest_message_subscription_resolves_child_handler() {
+        let router =
+            Router::<Reqwest>::new("main").include(Router::new("guest").on_guest_message(|observer| {
+                observer.register(Handler::new(|| async { EventReturn::Finish }))
+            }));
+        let allowed_updates = router.resolve_used_update_types();
+        assert_eq!(allowed_updates.len(), 1);
+        assert!(allowed_updates.contains("guest_message"));
+
+        let dispatcher = Dispatcher::builder()
+            .allowed_updates(allowed_updates)
+            .main_router(router.configure_default())
+            .build();
+        assert_eq!(dispatcher.allowed_updates.len(), 1);
+        assert_eq!(dispatcher.allowed_updates[0].as_ref(), "guest_message");
+        let method = GetUpdates::new().allowed_updates(dispatcher.allowed_updates);
+        assert_eq!(
+            to_value(&method).unwrap(),
+            json!({"allowed_updates": ["guest_message"]})
+        );
+    }
+
+    #[tokio::test]
+    async fn test_guest_message_polling_response_dispatches_to_child_handler() {
+        let content = r#"{
+            "ok": true,
+            "result": [{
+                "update_id": 123,
+                "guest_message": {
+                    "message_id": 42,
+                    "date": 1778198400,
+                    "chat": {"id": -100123, "type": "supergroup", "title": "Guest chat"},
+                    "from": {"id": 456, "is_bot": false, "first_name": "Guest"},
+                    "text": "@guest_bot Hello 👋",
+                    "guest_query_id": "9223372036854775806"
+                }
+            }]
+        }"#;
+        let updates = GetUpdates::build_response(content).unwrap().result.unwrap();
+        assert_eq!(updates.len(), 1);
+        let Either::Left(update) = updates.into_vec().pop().unwrap() else {
+            panic!("The guest update should not fall back to UpdateUnparsed");
+        };
+        assert_eq!(UpdateType::from(&update), UpdateType::GuestMessage);
+
+        let router = Router::new("main")
+            .on_update(|observer| {
+                observer.register_outer_middleware(
+                    |mut request: Request, next: OuterNext| async move {
+                        request.context.insert("outer", true);
+                        next(request).await
+                    },
+                )
+            })
+            .on_guest_message(|observer| {
+                observer.register_inner_middleware(
+                    |mut request: Request, next: InnerNext| async move {
+                        request.context.insert("inner", true);
+                        let mut response = next(request).await?;
+                        response.request.context.insert("cleanup", true);
+                        Ok(response)
+                    },
+                )
+            })
+            .on_message(|observer| observer.register(Handler::new(|| async { EventReturn::Cancel })))
+            .include(Router::new("guest").on_guest_message(|observer| {
+                observer.register(Handler::new(
+                    |update: UpdateGuestMessage, message: Message, context: Context| async move {
+                        assert_eq!(update.update_id, 123);
+                        assert_eq!(message.message_id(), 42);
+                        assert_eq!(message.guest_query_id(), Some("9223372036854775806"));
+                        assert_eq!(message.text(), Some("@guest_bot Hello 👋"));
+                        assert_eq!(context.get::<User>("event_user").unwrap().id, 456);
+                        assert_eq!(context.get::<Chat>("event_chat").unwrap().id(), -100_123);
+                        assert_eq!(context.get::<bool>("outer"), Some(&true));
+                        assert_eq!(context.get::<bool>("inner"), Some(&true));
+                        EventReturn::Finish
+                    },
+                ))
+            }));
+        let mut dispatcher = Dispatcher::builder()
+            .main_router(router.configure_default())
+            .build();
+        let response = dispatcher
+            .feed_update(Bot::<Reqwest>::default(), Arc::new(update))
+            .await
+            .unwrap();
+        let PropagateEventResult::Handled(handler_response) = response.propagate_result else {
+            panic!("The child guest handler should handle the update");
+        };
+        assert_eq!(handler_response.result.unwrap(), EventReturn::Finish);
+        assert_eq!(response.request.context.get::<bool>("cleanup"), Some(&true));
     }
 
     #[derive(Clone)]
