@@ -36,7 +36,7 @@ cargo add telers
 
 ```toml
 [dependencies]
-telers = "1.0.0-beta.9"
+telers = "1.0.0-beta.10"
 tokio = { version = "1", features = ["macros", "rt"] }
 ```
 
