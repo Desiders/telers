@@ -67,6 +67,10 @@ impl super::TelegramMethod for SetChatMenuButton {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "setChatMenuButton"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("setChatMenuButton", self, None)
     }

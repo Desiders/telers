@@ -48,6 +48,10 @@ impl super::TelegramMethod for GetMyDefaultAdministratorRights {
     type Method = Self;
     type Return = crate::types::ChatAdministratorRights;
 
+    fn method_name(&self) -> &'static str {
+        "getMyDefaultAdministratorRights"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getMyDefaultAdministratorRights", self, None)
     }

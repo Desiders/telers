@@ -223,6 +223,10 @@ impl super::TelegramMethod for EditMessageLiveLocation {
     type Method = Self;
     type Return = crate::Either<crate::types::Message, bool>;
 
+    fn method_name(&self) -> &'static str {
+        "editMessageLiveLocation"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("editMessageLiveLocation", self, None)
     }

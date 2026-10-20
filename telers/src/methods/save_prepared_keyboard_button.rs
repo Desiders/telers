@@ -48,6 +48,10 @@ impl super::TelegramMethod for SavePreparedKeyboardButton {
     type Method = Self;
     type Return = crate::types::PreparedKeyboardButton;
 
+    fn method_name(&self) -> &'static str {
+        "savePreparedKeyboardButton"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("savePreparedKeyboardButton", self, None)
     }

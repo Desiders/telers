@@ -105,6 +105,10 @@ impl TelegramMethod for NativeMethod {
     type Method = NativeData;
     type Return = NativeData;
 
+    fn method_name(&self) -> &'static str {
+        "nativeMethod"
+    }
+
     fn build_request<Client>(
         self,
         _bot: &telers::Bot<Client>,

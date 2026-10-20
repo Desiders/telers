@@ -75,6 +75,10 @@ impl super::TelegramMethod for GetUserProfileAudios {
     type Method = Self;
     type Return = crate::types::UserProfileAudios;
 
+    fn method_name(&self) -> &'static str {
+        "getUserProfileAudios"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getUserProfileAudios", self, None)
     }

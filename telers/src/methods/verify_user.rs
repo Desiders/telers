@@ -56,6 +56,10 @@ impl super::TelegramMethod for VerifyUser {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "verifyUser"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("verifyUser", self, None)
     }

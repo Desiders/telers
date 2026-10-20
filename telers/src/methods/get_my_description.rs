@@ -48,6 +48,10 @@ impl super::TelegramMethod for GetMyDescription {
     type Method = Self;
     type Return = crate::types::BotDescription;
 
+    fn method_name(&self) -> &'static str {
+        "getMyDescription"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getMyDescription", self, None)
     }

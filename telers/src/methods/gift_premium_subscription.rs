@@ -162,6 +162,10 @@ impl super::TelegramMethod for GiftPremiumSubscription {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "giftPremiumSubscription"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("giftPremiumSubscription", self, None)
     }

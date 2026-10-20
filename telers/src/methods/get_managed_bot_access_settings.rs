@@ -34,6 +34,10 @@ impl super::TelegramMethod for GetManagedBotAccessSettings {
     type Method = Self;
     type Return = crate::types::BotAccessSettings;
 
+    fn method_name(&self) -> &'static str {
+        "getManagedBotAccessSettings"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getManagedBotAccessSettings", self, None)
     }

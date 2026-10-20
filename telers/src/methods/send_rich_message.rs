@@ -280,6 +280,10 @@ impl super::TelegramMethod for SendRichMessage {
     type Method = Self;
     type Return = crate::types::Message;
 
+    fn method_name(&self) -> &'static str {
+        "sendRichMessage"
+    }
+
     fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
         super::prepare_input_rich_message(&mut files, &mut self.rich_message);

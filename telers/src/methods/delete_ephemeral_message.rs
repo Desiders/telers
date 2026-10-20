@@ -60,6 +60,10 @@ impl super::TelegramMethod for DeleteEphemeralMessage {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "deleteEphemeralMessage"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("deleteEphemeralMessage", self, None)
     }

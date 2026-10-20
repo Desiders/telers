@@ -337,6 +337,10 @@ impl super::TelegramMethod for SendVideoNote {
     type Method = Self;
     type Return = crate::types::Message;
 
+    fn method_name(&self) -> &'static str {
+        "sendVideoNote"
+    }
+
     fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
         super::prepare_file(&mut files, &mut self.video_note);

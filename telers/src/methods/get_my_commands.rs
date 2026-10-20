@@ -67,6 +67,10 @@ impl super::TelegramMethod for GetMyCommands {
     type Method = Self;
     type Return = Box<[crate::types::BotCommand]>;
 
+    fn method_name(&self) -> &'static str {
+        "getMyCommands"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getMyCommands", self, None)
     }

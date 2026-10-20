@@ -34,6 +34,10 @@ impl super::TelegramMethod for DeleteStickerFromSet {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "deleteStickerFromSet"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("deleteStickerFromSet", self, None)
     }

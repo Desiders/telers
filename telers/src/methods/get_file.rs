@@ -35,6 +35,10 @@ impl super::TelegramMethod for GetFile {
     type Method = Self;
     type Return = crate::types::File;
 
+    fn method_name(&self) -> &'static str {
+        "getFile"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getFile", self, None)
     }

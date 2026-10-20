@@ -45,6 +45,10 @@ impl super::TelegramMethod for SetStickerSetTitle {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "setStickerSetTitle"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("setStickerSetTitle", self, None)
     }

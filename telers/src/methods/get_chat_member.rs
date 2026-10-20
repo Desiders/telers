@@ -48,6 +48,10 @@ impl super::TelegramMethod for GetChatMember {
     type Method = Self;
     type Return = crate::types::ChatMember;
 
+    fn method_name(&self) -> &'static str {
+        "getChatMember"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getChatMember", self, None)
     }

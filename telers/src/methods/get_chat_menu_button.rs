@@ -48,6 +48,10 @@ impl super::TelegramMethod for GetChatMenuButton {
     type Method = Self;
     type Return = crate::types::MenuButton;
 
+    fn method_name(&self) -> &'static str {
+        "getChatMenuButton"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getChatMenuButton", self, None)
     }

@@ -34,6 +34,10 @@ impl super::TelegramMethod for CloseGeneralForumTopic {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "closeGeneralForumTopic"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("closeGeneralForumTopic", self, None)
     }

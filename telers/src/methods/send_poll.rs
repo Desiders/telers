@@ -890,6 +890,10 @@ impl super::TelegramMethod for SendPoll {
     type Method = Self;
     type Return = crate::types::Message;
 
+    fn method_name(&self) -> &'static str {
+        "sendPoll"
+    }
+
     fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
         super::prepare_input_poll_options(&mut files, self.options.iter_mut().collect());

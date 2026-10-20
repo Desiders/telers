@@ -399,6 +399,10 @@ impl super::TelegramMethod for SendPaidMedia {
     type Method = Self;
     type Return = crate::types::Message;
 
+    fn method_name(&self) -> &'static str {
+        "sendPaidMedia"
+    }
+
     fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
         super::prepare_input_paid_media_group(&mut files, self.media.iter_mut().collect());

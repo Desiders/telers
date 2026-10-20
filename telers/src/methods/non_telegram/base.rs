@@ -75,6 +75,13 @@ pub trait TelegramMethod {
     #[must_use]
     fn build_request<Client>(self, bot: &Bot<Client>) -> Request<Self::Method>;
 
+    /// Name of the method in the Telegram API, for example `sendMessage`.
+    ///
+    /// It is the name the API expects, not the name of the Rust type, and outgoing
+    /// middlewares use it to tell one request from another.
+    #[must_use]
+    fn method_name(&self) -> &'static str;
+
     /// This method is called when a response is received from Telegram API.
     /// It's need for parsing a response from Telegram API.
     /// # Errors

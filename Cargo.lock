@@ -2017,6 +2017,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "outgoing_request_middlewares"
+version = "0.1.0"
+dependencies = [
+ "telers",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "parking"
 version = "2.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

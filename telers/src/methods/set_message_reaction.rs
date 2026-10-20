@@ -128,6 +128,10 @@ impl super::TelegramMethod for SetMessageReaction {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "setMessageReaction"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("setMessageReaction", self, None)
     }

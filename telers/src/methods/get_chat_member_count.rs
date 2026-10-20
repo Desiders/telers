@@ -34,6 +34,10 @@ impl super::TelegramMethod for GetChatMemberCount {
     type Method = Self;
     type Return = i64;
 
+    fn method_name(&self) -> &'static str {
+        "getChatMemberCount"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getChatMemberCount", self, None)
     }

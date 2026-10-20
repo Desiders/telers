@@ -103,6 +103,10 @@ impl super::TelegramMethod for SetMyCommands {
     type Method = Self;
     type Return = bool;
 
+    fn method_name(&self) -> &'static str {
+        "setMyCommands"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("setMyCommands", self, None)
     }

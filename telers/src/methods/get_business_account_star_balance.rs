@@ -34,6 +34,10 @@ impl super::TelegramMethod for GetBusinessAccountStarBalance {
     type Method = Self;
     type Return = crate::types::StarAmount;
 
+    fn method_name(&self) -> &'static str {
+        "getBusinessAccountStarBalance"
+    }
+
     fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         super::Request::new("getBusinessAccountStarBalance", self, None)
     }
