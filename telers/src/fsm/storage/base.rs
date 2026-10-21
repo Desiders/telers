@@ -2,6 +2,8 @@ use crate::{
     errors::{HandlerError, MiddlewareError},
     serialization::{DeserializeOwned, Serialize},
 };
+
+use futures_util::future::BoxFuture;
 use std::{
     borrow::Cow, collections::HashMap, error::Error as StdError, fmt::Debug, future::Future,
 };
@@ -213,6 +215,33 @@ pub trait Storage: Clone {
     /// * `key` - Specified key to remove data
     fn remove_data(&self, key: &StorageKey)
         -> impl Future<Output = Result<(), Self::Error>> + Send;
+}
+
+/// Keeps the lock held until it is dropped
+pub type IsolationGuard = Box<dyn Send>;
+
+/// Locks a state key for the duration of an update,
+/// so two updates of one key can't interleave their reads and writes
+/// # Notes
+/// Every storage ships its own implementation:
+/// `Memory` locks one key inside the current process,
+/// `Redis` locks the key in Redis itself, so the lock also holds between replicas,
+/// and [`DisabledEventIsolation`] locks nothing and is the default
+pub trait EventIsolation: Send + Sync + 'static {
+    /// Locks `key`, returning a guard that holds it until dropped
+    /// # Errors
+    /// If the lock can't be taken
+    fn lock(&self, key: &StorageKey) -> BoxFuture<'_, Result<IsolationGuard, Error>>;
+}
+
+/// Isolation that locks nothing, which is the default
+#[derive(Debug, Default, Clone, Copy)]
+pub struct DisabledEventIsolation;
+
+impl EventIsolation for DisabledEventIsolation {
+    fn lock(&self, _key: &StorageKey) -> BoxFuture<'_, Result<IsolationGuard, Error>> {
+        Box::pin(async { Ok(Box::new(()) as IsolationGuard) })
+    }
 }
 
 impl<'a, S> Storage for &'a S
