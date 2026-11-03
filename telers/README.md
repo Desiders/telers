@@ -121,6 +121,8 @@ You may consider checking out [this directory][examples] for more examples.
 
 Found a project that uses `telers`? Open a pull request and add it here.
 
+- [Juzo | Chat Manager](https://github.com/JuzoCode/juzo-cm)
+
 ## Community
 ### Telegram
 - 🇺🇸 [@telers_en](https://t.me/telers_en)
