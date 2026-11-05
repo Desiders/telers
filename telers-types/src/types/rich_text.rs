@@ -141,7 +141,7 @@ impl RichText {
 
     /// Helper method for field `custom_emoji_id`.
     ///
-    /// Unique identifier of the custom emoji. Use [`GetCustomEmojiStickers`](https://core.telegram.org/bots/api#getcustomemojistickers) to get full information about the sticker.
+    /// Unique identifier of the custom emoji. Use [`telers_methods::methods::GetCustomEmojiStickers`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_custom_emoji_stickers/struct.GetCustomEmojiStickers.html) to get full information about the sticker.
     #[must_use]
     pub fn custom_emoji_id(&self) -> Option<&str> {
         match self {

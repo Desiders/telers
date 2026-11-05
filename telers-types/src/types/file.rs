@@ -1,4 +1,4 @@
-/// This object represents a file ready to be downloaded. The file can be downloaded via the link `https://api.telegram.org/file/bot<token>/<file_path>`. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling [`GetFile`](https://core.telegram.org/bots/api#getfile).
+/// This object represents a file ready to be downloaded. The file can be downloaded via the link `https://api.telegram.org/file/bot<token>/<file_path>`. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling [`telers_methods::methods::GetFile`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_file/struct.GetFile.html).
 /// # Documentation
 /// <https://core.telegram.org/bots/api#file>
 #[derive(Clone, Debug)]

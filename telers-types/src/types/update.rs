@@ -199,7 +199,7 @@ impl Update {
 
     /// Helper method for field `guest_message`.
     ///
-    /// New guest message. The bot can use the field `Message.guest_query_id` and the method [`AnswerGuestQuery`](https://core.telegram.org/bots/api#answerguestquery) to send a message in response.
+    /// New guest message. The bot can use the field `Message.guest_query_id` and the method [`telers_methods::methods::AnswerGuestQuery`](https://docs.rs/telers-methods/latest/telers_methods/methods/answer_guest_query/struct.AnswerGuestQuery.html) to send a message in response.
     #[must_use]
     pub fn guest_message(&self) -> Option<&crate::types::Message> {
         match self {

@@ -34,8 +34,8 @@ fn link_method_mentions(doc: &str, ctx: &TypeDocContext<'_>) -> String {
         doc = doc.replace(
             &format!("[`crate::methods::{name}`]"),
             &format!(
-                "[`{name}`](https://core.telegram.org/bots/api#{})",
-                name.to_lowercase()
+                "[`telers_methods::methods::{name}`](https://docs.rs/telers-methods/latest/telers_methods/methods/{}/struct.{name}.html)",
+                camel_to_filename(name, None)
             ),
         );
     }

@@ -7,7 +7,7 @@
 pub struct ManagedBotUpdated {
     /// User that created the bot
     pub user: Box<crate::types::User>,
-    /// Information about the bot. Token of the bot can be fetched using the method [`GetManagedBotToken`](https://core.telegram.org/bots/api#getmanagedbottoken).
+    /// Information about the bot. Token of the bot can be fetched using the method [`telers_methods::methods::GetManagedBotToken`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_managed_bot_token/struct.GetManagedBotToken.html).
     pub bot: Box<crate::types::User>,
 }
 impl ManagedBotUpdated {
@@ -15,7 +15,7 @@ impl ManagedBotUpdated {
     ///
     /// # Arguments
     /// * `user` - User that created the bot
-    /// * `bot` - Information about the bot. Token of the bot can be fetched using the method [`GetManagedBotToken`](https://core.telegram.org/bots/api#getmanagedbottoken).
+    /// * `bot` - Information about the bot. Token of the bot can be fetched using the method [`telers_methods::methods::GetManagedBotToken`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_managed_bot_token/struct.GetManagedBotToken.html).
     #[must_use]
     pub fn new<T0: Into<crate::types::User>, T1: Into<crate::types::User>>(
         user: T0,
@@ -34,7 +34,7 @@ impl ManagedBotUpdated {
         self
     }
 
-    /// Information about the bot. Token of the bot can be fetched using the method [`GetManagedBotToken`](https://core.telegram.org/bots/api#getmanagedbottoken).
+    /// Information about the bot. Token of the bot can be fetched using the method [`telers_methods::methods::GetManagedBotToken`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_managed_bot_token/struct.GetManagedBotToken.html).
     #[must_use]
     pub fn bot<T: Into<crate::types::User>>(mut self, val: T) -> Self {
         self.bot = Box::new(val.into());

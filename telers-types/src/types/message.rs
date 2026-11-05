@@ -1951,7 +1951,7 @@ impl Message {
 
     /// Helper method for field `guest_query_id`.
     ///
-    /// The unique identifier for the guest query. Use this identifier with the method [`AnswerGuestQuery`](https://core.telegram.org/bots/api#answerguestquery) to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
+    /// The unique identifier for the guest query. Use this identifier with the method [`telers_methods::methods::AnswerGuestQuery`](https://docs.rs/telers-methods/latest/telers_methods/methods/answer_guest_query/struct.AnswerGuestQuery.html) to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
     #[must_use]
     pub fn guest_query_id(&self) -> Option<&str> {
         match self {

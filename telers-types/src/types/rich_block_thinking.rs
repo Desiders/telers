@@ -1,4 +1,4 @@
-/// A block with a `Thinking...` placeholder, corresponding to the custom HTML tag `<tg-thinking>`. The block may be used only in [`SendRichMessageDraft`](https://core.telegram.org/bots/api#sendrichmessagedraft), therefore it can't be received in messages. See <https://t.me/addemoji/AIActions> for examples of custom emoji that are recommended for usage in the block.
+/// A block with a `Thinking...` placeholder, corresponding to the custom HTML tag `<tg-thinking>`. The block may be used only in [`telers_methods::methods::SendRichMessageDraft`](https://docs.rs/telers-methods/latest/telers_methods/methods/send_rich_message_draft/struct.SendRichMessageDraft.html), therefore it can't be received in messages. See <https://t.me/addemoji/AIActions> for examples of custom emoji that are recommended for usage in the block.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#richblockthinking>
 #[derive(Clone, Debug)]

@@ -11,7 +11,7 @@ pub struct Game {
     pub description: Box<str>,
     /// Photo that will be displayed in the game message in chats
     pub photo: Box<[crate::types::PhotoSize]>,
-    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls [`SetGameScore`](https://core.telegram.org/bots/api#setgamescore), or manually edited using [`EditMessageText`](https://core.telegram.org/bots/api#editmessagetext). 0-4096 characters.
+    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls [`telers_methods::methods::SetGameScore`](https://docs.rs/telers-methods/latest/telers_methods/methods/set_game_score/struct.SetGameScore.html), or manually edited using [`telers_methods::methods::EditMessageText`](https://docs.rs/telers-methods/latest/telers_methods/methods/edit_message_text/struct.EditMessageText.html). 0-4096 characters.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub text: Option<Box<str>>,
@@ -99,14 +99,14 @@ impl Game {
         self
     }
 
-    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls [`SetGameScore`](https://core.telegram.org/bots/api#setgamescore), or manually edited using [`EditMessageText`](https://core.telegram.org/bots/api#editmessagetext). 0-4096 characters.
+    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls [`telers_methods::methods::SetGameScore`](https://docs.rs/telers-methods/latest/telers_methods/methods/set_game_score/struct.SetGameScore.html), or manually edited using [`telers_methods::methods::EditMessageText`](https://docs.rs/telers-methods/latest/telers_methods/methods/edit_message_text/struct.EditMessageText.html). 0-4096 characters.
     #[must_use]
     pub fn text<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.text = Some(val.into());
         self
     }
 
-    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls [`SetGameScore`](https://core.telegram.org/bots/api#setgamescore), or manually edited using [`EditMessageText`](https://core.telegram.org/bots/api#editmessagetext). 0-4096 characters.
+    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls [`telers_methods::methods::SetGameScore`](https://docs.rs/telers-methods/latest/telers_methods/methods/set_game_score/struct.SetGameScore.html), or manually edited using [`telers_methods::methods::EditMessageText`](https://docs.rs/telers-methods/latest/telers_methods/methods/edit_message_text/struct.EditMessageText.html). 0-4096 characters.
     #[must_use]
     pub fn text_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.text = val.map(Into::into);

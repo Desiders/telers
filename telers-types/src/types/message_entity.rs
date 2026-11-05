@@ -56,7 +56,7 @@ pub enum MessageEntity {
 impl MessageEntity {
     /// Helper method for field `custom_emoji_id`.
     ///
-    /// For `custom_emoji` only, unique identifier of the custom emoji. Use [`GetCustomEmojiStickers`](https://core.telegram.org/bots/api#getcustomemojistickers) to get full information about the sticker.
+    /// For `custom_emoji` only, unique identifier of the custom emoji. Use [`telers_methods::methods::GetCustomEmojiStickers`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_custom_emoji_stickers/struct.GetCustomEmojiStickers.html) to get full information about the sticker.
     #[must_use]
     pub fn custom_emoji_id(&self) -> Option<&str> {
         match self {

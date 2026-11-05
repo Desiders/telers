@@ -21,7 +21,7 @@ pub struct ChatJoinRequest {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub invite_link: Option<crate::types::ChatInviteLink>,
-    /// Identifier of the join request query; for bots assigned to process join requests only. If present, then the bot must call [`SendChatJoinRequestWebApp`](https://core.telegram.org/bots/api#sendchatjoinrequestwebapp) or directly call [`AnswerChatJoinRequestQuery`](https://core.telegram.org/bots/api#answerchatjoinrequestquery) within 10 seconds.
+    /// Identifier of the join request query; for bots assigned to process join requests only. If present, then the bot must call [`telers_methods::methods::SendChatJoinRequestWebApp`](https://docs.rs/telers-methods/latest/telers_methods/methods/send_chat_join_request_web_app/struct.SendChatJoinRequestWebApp.html) or directly call [`telers_methods::methods::AnswerChatJoinRequestQuery`](https://docs.rs/telers-methods/latest/telers_methods/methods/answer_chat_join_request_query/struct.AnswerChatJoinRequestQuery.html) within 10 seconds.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub query_id: Option<Box<str>>,
@@ -119,14 +119,14 @@ impl ChatJoinRequest {
         self
     }
 
-    /// Identifier of the join request query; for bots assigned to process join requests only. If present, then the bot must call [`SendChatJoinRequestWebApp`](https://core.telegram.org/bots/api#sendchatjoinrequestwebapp) or directly call [`AnswerChatJoinRequestQuery`](https://core.telegram.org/bots/api#answerchatjoinrequestquery) within 10 seconds.
+    /// Identifier of the join request query; for bots assigned to process join requests only. If present, then the bot must call [`telers_methods::methods::SendChatJoinRequestWebApp`](https://docs.rs/telers-methods/latest/telers_methods/methods/send_chat_join_request_web_app/struct.SendChatJoinRequestWebApp.html) or directly call [`telers_methods::methods::AnswerChatJoinRequestQuery`](https://docs.rs/telers-methods/latest/telers_methods/methods/answer_chat_join_request_query/struct.AnswerChatJoinRequestQuery.html) within 10 seconds.
     #[must_use]
     pub fn query_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.query_id = Some(val.into());
         self
     }
 
-    /// Identifier of the join request query; for bots assigned to process join requests only. If present, then the bot must call [`SendChatJoinRequestWebApp`](https://core.telegram.org/bots/api#sendchatjoinrequestwebapp) or directly call [`AnswerChatJoinRequestQuery`](https://core.telegram.org/bots/api#answerchatjoinrequestquery) within 10 seconds.
+    /// Identifier of the join request query; for bots assigned to process join requests only. If present, then the bot must call [`telers_methods::methods::SendChatJoinRequestWebApp`](https://docs.rs/telers-methods/latest/telers_methods/methods/send_chat_join_request_web_app/struct.SendChatJoinRequestWebApp.html) or directly call [`telers_methods::methods::AnswerChatJoinRequestQuery`](https://docs.rs/telers-methods/latest/telers_methods/methods/answer_chat_join_request_query/struct.AnswerChatJoinRequestQuery.html) within 10 seconds.
     #[must_use]
     pub fn query_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.query_id = val.map(Into::into);
