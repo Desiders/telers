@@ -42,14 +42,17 @@ jobs:
       run: >-
         cargo hack check --workspace
         --exclude telers --exclude telers-dialog --exclude telers-methods --exclude telers-types --exclude dialogs_mega
+        --exclude telers-types-common --exclude telers-types-input --exclude telers-types-messages
         --each-feature --no-dev-deps
         --skip default,full,storages,rustls-tls,webhooks-axum,redis-storage
     - name: Check features with Serde
       run: >-
         cargo hack check -p telers -p telers-dialog -p telers-methods -p telers-types -p dialogs_mega --features serde
+        -p telers-types-common -p telers-types-input -p telers-types-messages
         --each-feature --no-dev-deps
         --skip default,full,storages,rustls-tls,webhooks-axum,redis-storage
     - name: Check minimal Deser
       run: >-
         cargo hack check -p telers -p telers-dialog -p telers-methods -p telers-types
+        -p telers-types-common -p telers-types-input -p telers-types-messages
         --no-default-features --features deser --no-dev-deps

@@ -23,10 +23,17 @@ pub fn update_manifest_versions(
         }
     };
 
-    if matches!(
-        manifest["package"]["name"].as_str(),
-        Some("telers-types" | "telers-methods")
-    ) {
+    let crate_names = [
+        "telers-types",
+        "telers-methods",
+        "telers-types-common",
+        "telers-types-input",
+        "telers-types-messages",
+    ];
+    if manifest["package"]["name"]
+        .as_str()
+        .is_some_and(|name| crate_names.contains(&name))
+    {
         let value = manifest["package"]["version"]
             .as_value_mut()
             .context("expected a string package.version")?;
@@ -39,7 +46,7 @@ pub fn update_manifest_versions(
         set_version(value, version.to_string());
     }
 
-    for name in ["telers-types", "telers-methods"] {
+    for name in crate_names {
         if let Some(value) = manifest
             .get_mut("dependencies")
             .and_then(Item::as_table_like_mut)

@@ -1424,7 +1424,7 @@ pub fn tokenize_type(
 }
 
 #[must_use]
-pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
+pub fn tokenize_type_modules(type_names: &[&String]) -> TokenStream {
     let mods_quote = type_names.iter().map(|&name| {
         let mod_name = format_ident!("{}", camel_to_filename(name, None));
         quote! { pub mod #mod_name; }
@@ -1435,6 +1435,15 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
         quote! { pub use #mod_name::#type_name; }
     });
 
+    quote! {
+        #( #mods_quote )*
+        #( #uses_quote )*
+    }
+}
+
+#[must_use]
+pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
+    let modules = tokenize_type_modules(type_names);
     quote! {
         //! Telegram Bot API data types and helper models.
         //!
@@ -1481,9 +1490,9 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
         #![allow(clippy::struct_excessive_bools)]
         #![allow(clippy::large_enum_variant)]
 
-        pub(crate) mod non_telegram;
-        pub use non_telegram::*;
-        #( #mods_quote )*
-        #( #uses_quote )*
+        pub use telers_types_common::types::*;
+        pub use telers_types_input::types::*;
+        pub use telers_types_messages::types::*;
+        #modules
     }
 }

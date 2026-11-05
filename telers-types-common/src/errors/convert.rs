@@ -2,13 +2,13 @@
 //! For example, if you try to convert an [`Update`] to a [`Message`] type, but the update represents a [`CallbackQuery`], you got this error.
 //!
 //!
-//! [`Update`]: crate::types::Update
-//! [`Message`]: crate::types::Message
-//! [`CallbackQuery`]: crate::types::CallbackQuery
+//! [`Update`]: https://docs.rs/telers-types/latest/telers_types/types/update/enum.Update.html
+//! [`Message`]: https://docs.rs/telers-types-messages/latest/telers_types_messages/types/message/enum.Message.html
+//! [`CallbackQuery`]: https://docs.rs/telers-types/latest/telers_types/types/callback_query/struct.CallbackQuery.html
 
 /// This error can occur when type be converted to the desired type.
-/// For example, if you try to convert an [`crate::types::Update`] to a [`crate::types::Message`] type,
-/// but the update represents a [`crate::types::CallbackQuery`], you got this error.
+/// For example, if you try to convert an [`Update`](https://docs.rs/telers-types/latest/telers_types/types/update/enum.Update.html) to a [`Message`](https://docs.rs/telers-types-messages/latest/telers_types_messages/types/message/enum.Message.html) type,
+/// but the update represents a [`CallbackQuery`](https://docs.rs/telers-types/latest/telers_types/types/callback_query/struct.CallbackQuery.html), you got this error.
 #[derive(Debug, thiserror::Error)]
 #[error("Can't convert from `{from_raw_type}` to `{to_raw_type}`")]
 pub struct ConvertToType {

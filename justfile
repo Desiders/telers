@@ -26,5 +26,5 @@ build:
 
 # Generate Telegram API bindings and their framework integration
 codegen:
-    cargo run -p telers-codegen -- --schema telers-codegen/schemas/api.json --gen-dir telers --types-gen-dir telers-types --methods-gen-dir telers-methods --tests --types-path telers_types
-    cargo +nightly fmt -p telers -p telers-types -p telers-methods
+    cargo run -p telers-codegen -- --schema telers-codegen/schemas/api.json --gen-dir telers --types-gen-dir telers-types --common-gen-dir telers-types-common --input-gen-dir telers-types-input --messages-gen-dir telers-types-messages --methods-gen-dir telers-methods --tests --types-path telers_types
+    cargo +nightly fmt -p telers -p telers-types -p telers-types-common -p telers-types-input -p telers-types-messages -p telers-methods

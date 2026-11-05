@@ -11,6 +11,9 @@ COPY telers-dialog telers-dialog
 COPY telers-macros telers-macros
 COPY telers-methods telers-methods
 COPY telers-types telers-types
+COPY telers-types-common telers-types-common
+COPY telers-types-input telers-types-input
+COPY telers-types-messages telers-types-messages
 COPY examples/dialogs_mega examples/dialogs_mega
 RUN cargo build --release --package dialogs_mega
 
