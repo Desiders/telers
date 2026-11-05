@@ -67,5 +67,4 @@ cargo tree -p telers-methods --edges normal --locked
 ```
 
 Generated methods live under `src/methods`. Run `just codegen` from the workspace
-root to regenerate them alongside types and framework helpers. See
-[`telers-codegen`](../telers-codegen/README.md) for the output directory options.
+root to regenerate them alongside types and framework helpers.
