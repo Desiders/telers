@@ -3103,7 +3103,6 @@ dependencies = [
  "deadpool-redis",
  "deser",
  "deser-json",
- "deser-value",
  "form_urlencoded",
  "futures-util",
  "hmac",
@@ -3116,7 +3115,6 @@ dependencies = [
  "secrecy",
  "serde",
  "serde_json",
- "serde_stacker",
  "serde_with",
  "sha2",
  "strum",
@@ -3132,7 +3130,6 @@ dependencies = [
  "tokio-util",
  "tower",
  "tracing",
- "uuid",
 ]
 
 [[package]]

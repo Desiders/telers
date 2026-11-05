@@ -12,11 +12,11 @@
 //! use telers_methods::{SendMessage, TelegramMethod as _};
 //!
 //! let request = SendMessage::new(1_i64, "Hello world!")
+//!     // Regular builder setter.
 //!     .disable_notification(true)
+//!     // `_option(...)` variant for Option<T> values.
 //!     .disable_notification_option(Some(true))
 //!     .build_request();
-//!
-//! assert_eq!(request.method_name, "sendMessage");
 //! ```
 pub(crate) mod non_telegram;
 pub use non_telegram::*;

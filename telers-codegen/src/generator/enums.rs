@@ -360,71 +360,35 @@ pub fn tokenize_enum_telegram_observer_type(schema: &NormalizedSchema) -> TokenS
 
 #[must_use]
 pub fn tokenize_kind_enums_mod(type_names: &[&str], own_type_names: &[&str]) -> TokenStream {
-    tokenize_kind_enums_mod_inner(type_names, own_type_names, true)
-}
-
-/// Generate discriminator exports for the standalone types crate.
-#[must_use]
-pub fn tokenize_kind_enums_mod_without_framework(
-    type_names: &[&str],
-    own_type_names: &[&str],
-) -> TokenStream {
-    tokenize_kind_enums_mod_inner(type_names, own_type_names, false)
-}
-
-fn tokenize_kind_enums_mod_inner(
-    type_names: &[&str],
-    own_type_names: &[&str],
-    framework_docs: bool,
-) -> TokenStream {
-    let mut exports = type_names
+    let all_module_names: Vec<_> = type_names
         .iter()
-        .map(|&name| (camel_to_filename(name, None), format!("{name}Type")))
-        .chain(
-            own_type_names
-                .iter()
-                .map(|&name| (camel_to_filename(name, None), name.to_owned())),
-        )
-        .collect::<Vec<_>>();
-    exports.sort_by(|left, right| left.0.cmp(&right.0));
-    let mods_quote = exports.iter().map(|(module, _)| {
-        let mod_name = format_ident!("{module}");
+        .chain(own_type_names.iter())
+        .copied()
+        .collect();
+    let mods_quote = all_module_names.iter().map(|&name| {
+        let mod_name = format_ident!("{}", camel_to_filename(name, None));
         quote! { pub mod #mod_name; }
     });
-    let uses_quote = exports.iter().map(|(module, name)| {
-        let mod_name = format_ident!("{module}");
+    let uses_quote = type_names.iter().map(|&name| {
+        let mod_name = format_ident!("{}", camel_to_filename(name, None));
+        let kind_name = format_ident!("{name}Type");
+        quote! { pub use #mod_name::#kind_name; }
+    });
+    let own_uses_quote = own_type_names.iter().map(|&name| {
+        let mod_name = format_ident!("{}", camel_to_filename(name, None));
         let kind_name = format_ident!("{name}");
         quote! { pub use #mod_name::#kind_name; }
     });
 
-    let docs = if framework_docs {
-        quote! {
-            //! Enum helpers and discriminator types for Telegram objects.
-            //!
-            //! This module contains:
-            //! - generated `*Type` enums for polymorphic Telegram objects (for example `MessageType`)
-            //! - hand-authored enums like [`ParseMode`]
-            //!
-            //! # Examples
-            //! ```rust
-            //! use telers::{enums::ParseMode, methods::SendMessage};
-            //!
-            //! let request = SendMessage::new(1_i64, "*Hello world!*")
-            //!     .parse_mode(ParseMode::Markdown);
-            //!
-            //! assert_eq!(request.parse_mode.as_deref(), Some("Markdown"));
-            //! ```
-        }
-    } else {
-        quote! {
-            //! Enum helpers and discriminator types for Telegram objects.
-            //!
-            //! Includes generated `*Type` discriminators and [`ParseMode`].
-        }
-    };
     quote! {
-        #docs
+        //! Enum helpers and discriminator types for Telegram objects.
+        //!
+        //! This module contains:
+        //! - generated `*Type` enums for polymorphic Telegram objects (for example `MessageType`)
+        //! - hand-authored enums like [`ParseMode`]
+
         #( #mods_quote )*
         #( #uses_quote )*
+        #( #own_uses_quote )*
     }
 }

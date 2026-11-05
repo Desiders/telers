@@ -478,13 +478,11 @@ fn builder_impl_for_method(
 }
 
 #[must_use]
-fn tokenize_telegram_method_impl(method_quote: &NormalizedMethod, standalone: bool) -> TokenStream {
+fn tokenize_telegram_method_impl(method_quote: &NormalizedMethod) -> TokenStream {
     let method_name = format_ident!("{}", method_quote.name);
     let method_api_name = struct_name_to_method_name(&method_quote.name);
     let return_type_tokens = tokenize_method_return_type(&method_quote.returns);
     let prepare_steps = collect_prepare_steps(method_quote);
-    let client_generic = (!standalone).then(|| quote! { <Client> });
-    let bot_argument = (!standalone).then(|| quote! { , _bot: &Bot<Client> });
 
     if prepare_steps.is_empty() {
         return quote! {
@@ -492,7 +490,7 @@ fn tokenize_telegram_method_impl(method_quote: &NormalizedMethod, standalone: bo
                 type Method = Self;
                 type Return = #return_type_tokens;
 
-                fn build_request #client_generic (self #bot_argument) -> super::Request<Self::Method> {
+                fn build_request(self) -> super::Request<Self::Method> {
                     super::Request::new(#method_api_name, self, None)
                 }
             }
@@ -504,7 +502,7 @@ fn tokenize_telegram_method_impl(method_quote: &NormalizedMethod, standalone: bo
             type Method = Self;
             type Return = #return_type_tokens;
 
-            fn build_request #client_generic (mut self #bot_argument) -> super::Request<Self::Method> {
+            fn build_request(mut self) -> super::Request<Self::Method> {
                 let mut files = vec![];
                 #( #prepare_steps )*
 
@@ -521,42 +519,10 @@ pub fn tokenize_method(
     known_schema_type_names: &HashSet<String>,
     known_api_method_names: &HashMap<String, String>,
 ) -> TokenStream {
-    tokenize_method_inner(
-        method_quote,
-        known_schema_type_names,
-        known_api_method_names,
-        false,
-    )
-}
-
-/// Generate a method that can build requests independently of a framework client.
-#[must_use]
-#[allow(clippy::implicit_hasher)]
-pub fn tokenize_method_without_client(
-    method_quote: &NormalizedMethod,
-    known_schema_type_names: &HashSet<String>,
-    known_api_method_names: &HashMap<String, String>,
-) -> TokenStream {
-    tokenize_method_inner(
-        method_quote,
-        known_schema_type_names,
-        known_api_method_names,
-        true,
-    )
-}
-
-fn tokenize_method_inner(
-    method_quote: &NormalizedMethod,
-    known_schema_type_names: &HashSet<String>,
-    known_api_method_names: &HashMap<String, String>,
-    standalone: bool,
-) -> TokenStream {
     let ctx = MethodDocContext {
         schema_type_names: known_schema_type_names,
         api_method_names: known_api_method_names,
     };
-
-    let client_import = (!standalone).then(|| quote! { use crate::client::Bot; });
 
     let method_name = format_ident!("{}", method_quote.name);
     let mut doc_lines = format_description(&method_quote.description, &method_quote.href);
@@ -598,11 +564,9 @@ fn tokenize_method_inner(
         }
     });
     let builder_impl = builder_impl_for_method(method_quote, &ctx);
-    let telegram_method_impl = tokenize_telegram_method_impl(method_quote, standalone);
+    let telegram_method_impl = tokenize_telegram_method_impl(method_quote);
 
     quote! {
-        #client_import
-
         #( #[doc = #doc_lines] )*
         #( #returns_doc )*
         #[derive(Clone, Debug, Serialize)]
@@ -617,16 +581,6 @@ fn tokenize_method_inner(
 
 #[must_use]
 pub fn tokenize_methods_mod(method_names: &[&String]) -> TokenStream {
-    tokenize_methods_mod_inner(method_names, false)
-}
-
-/// Generate method exports and an example without a framework client dependency.
-#[must_use]
-pub fn tokenize_methods_mod_without_client(method_names: &[&String]) -> TokenStream {
-    tokenize_methods_mod_inner(method_names, true)
-}
-
-fn tokenize_methods_mod_inner(method_names: &[&String], standalone: bool) -> TokenStream {
     let mods_quote = method_names.iter().map(|&name| {
         let mod_name = format_ident!("{}", camel_to_filename(name, None));
         quote! { pub mod #mod_name; }
@@ -636,38 +590,6 @@ fn tokenize_methods_mod_inner(method_names: &[&String], standalone: bool) -> Tok
         let method_name = format_ident!("{name}");
         quote! { pub use #mod_name::#method_name; }
     });
-
-    let example = if standalone {
-        quote! {
-            //! ```rust
-            //! use telers_methods::{SendMessage, TelegramMethod as _};
-            //!
-            //! let request = SendMessage::new(1_i64, "Hello world!")
-            //!     .disable_notification(true)
-            //!     .disable_notification_option(Some(true))
-            //!     .build_request();
-            //!
-            //! assert_eq!(request.method_name, "sendMessage");
-            //! ```
-        }
-    } else {
-        quote! {
-            //! ```rust
-            //! use telers::{errors::SessionErrorKind, methods::SendMessage, Bot};
-            //!
-            //! async fn send_text(bot: Bot) -> Result<(), SessionErrorKind> {
-            //!     let request = SendMessage::new(1_i64, "Hello world!")
-            //!         // Regular builder setter.
-            //!         .disable_notification(true)
-            //!         // `_option(...)` variant for Option<T> values.
-            //!         .disable_notification_option(Some(true));
-            //!
-            //!     bot.send(request).await?;
-            //!     Ok(())
-            //! }
-            //! ```
-        }
-    };
 
     quote! {
         //! Telegram Bot API methods and their request builders.
@@ -680,144 +602,20 @@ fn tokenize_methods_mod_inner(method_names: &[&String], standalone: bool) -> Tok
         //!   (including `None` to clear/unset a field)
         //!
         //! # Examples
-        #example
+        //! ```rust
+        //! use telers_methods::{SendMessage, TelegramMethod as _};
+        //!
+        //! let request = SendMessage::new(1_i64, "Hello world!")
+        //!     // Regular builder setter.
+        //!     .disable_notification(true)
+        //!     // `_option(...)` variant for Option<T> values.
+        //!     .disable_notification_option(Some(true))
+        //!     .build_request();
+        //! ```
 
         pub(crate) mod non_telegram;
         pub use non_telegram::*;
         #( #mods_quote )*
         #( #uses_quote )*
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::parser::api::{NormalizedSchema, Schema};
-
-    fn schema() -> NormalizedSchema {
-        Schema::parse_from_json(include_str!("../../schemas/api.json"))
-            .unwrap()
-            .normalize()
-    }
-
-    fn telegram_method_impl(tokens: TokenStream) -> syn::ItemImpl {
-        syn::parse2::<syn::File>(tokens)
-            .unwrap()
-            .items
-            .into_iter()
-            .find_map(|item| match item {
-                syn::Item::Impl(item)
-                    if item.trait_.as_ref().is_some_and(|(_, path, _)| {
-                        path.segments.last().unwrap().ident == "TelegramMethod"
-                    }) =>
-                {
-                    Some(item)
-                }
-                _ => None,
-            })
-            .unwrap()
-    }
-
-    #[test]
-    fn every_standalone_method_builds_requests_without_a_client() {
-        let schema = schema();
-        let names = schema.types.keys().cloned().collect();
-        let methods = schema
-            .methods
-            .values()
-            .map(|method| {
-                (
-                    struct_name_to_method_name(&method.name),
-                    method.name.clone(),
-                )
-            })
-            .collect();
-
-        for method in schema.methods.values() {
-            let tokens = tokenize_method_without_client(method, &names, &methods);
-            assert!(
-                !tokens.to_string().contains("crate :: client"),
-                "{}",
-                method.name
-            );
-            let implementation = telegram_method_impl(tokens);
-            let build_request = implementation
-                .items
-                .iter()
-                .find_map(|item| match item {
-                    syn::ImplItem::Fn(item) if item.sig.ident == "build_request" => Some(item),
-                    _ => None,
-                })
-                .unwrap();
-            assert!(
-                build_request.sig.generics.params.is_empty(),
-                "{}",
-                method.name
-            );
-            assert_eq!(build_request.sig.inputs.len(), 1, "{}", method.name);
-            let syn::FnArg::Receiver(receiver) = &build_request.sig.inputs[0] else {
-                panic!("{} must consume self", method.name);
-            };
-            assert!(receiver.reference.is_none(), "{}", method.name);
-        }
-    }
-
-    #[test]
-    fn standalone_requests_preserve_attachment_preparation_and_return_types() {
-        let mut schema = schema();
-        schema.modify_get_updates_returns_method();
-        for (name, prepare_function) in [
-            ("sendPhoto", "prepare_file"),
-            ("sendMediaGroup", "prepare_input_media_group"),
-            ("sendPaidMedia", "prepare_input_paid_media_group"),
-        ] {
-            let implementation = tokenize_telegram_method_impl(&schema.methods[name], true);
-            let tokens = implementation.to_string();
-            assert!(tokens.contains(prepare_function), "{name}");
-            assert!(tokens.contains("Some (files)"), "{name}");
-            assert!(!tokens.contains("Bot"), "{name}");
-        }
-
-        let implementation = telegram_method_impl(tokenize_telegram_method_impl(
-            &schema.methods["getUpdates"],
-            true,
-        ));
-        let return_type = implementation
-            .items
-            .into_iter()
-            .find_map(|item| match item {
-                syn::ImplItem::Type(item) if item.ident == "Return" => Some(item.ty),
-                _ => None,
-            })
-            .unwrap();
-        let expected_return_type: syn::Type = syn::parse_quote! {
-            Box<[crate::Either<crate::types::Update, crate::types::UpdateUnparsed>]>
-        };
-        assert_eq!(return_type, expected_return_type);
-    }
-
-    #[test]
-    fn standalone_module_examples_build_requests_without_the_framework() {
-        let name = "SendMessage".to_owned();
-        let module = tokenize_methods_mod_without_client(&[&name]);
-        syn::parse2::<syn::File>(module.clone()).unwrap();
-        let tokens = module.to_string();
-        assert!(tokens.contains("use telers_methods::{SendMessage, TelegramMethod as _}"));
-        assert!(tokens.contains(".build_request()"));
-        assert!(!tokens.contains("use telers::"));
-        assert!(!tokens.contains("Bot}"));
-        assert!(tokens.contains("pub use non_telegram :: *"));
-        assert!(tokens.contains("pub use send_message :: SendMessage"));
-    }
-
-    #[test]
-    fn legacy_generation_keeps_the_bot_argument_and_send_example() {
-        let schema = schema();
-        let method = &schema.methods["sendMessage"];
-        let tokens = tokenize_method(method, &HashSet::new(), &HashMap::new()).to_string();
-        assert!(tokens.contains("use crate :: client :: Bot"));
-        assert!(tokens.contains("build_request < Client > (self , _bot : & Bot < Client >)"));
-        let module = tokenize_methods_mod(&[&method.name]).to_string();
-        assert!(module.contains("bot.send(request).await?"));
     }
 }

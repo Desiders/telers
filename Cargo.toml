@@ -17,5 +17,3 @@ lto = "thin"
 telers = { path = "telers" }
 telers-macros = { path = "telers-macros" }
 telers-codegen = { path = "telers-codegen" }
-telers-types = { path = "telers-types" }
-telers-methods = { path = "telers-methods" }

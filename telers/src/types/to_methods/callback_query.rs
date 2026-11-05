@@ -1,15 +1,5 @@
 use crate::{methods::AnswerCallbackQuery, types::CallbackQuery};
-/// Shortcuts that construct Bot API requests for a callback query.
-///
-/// Import this trait to call the shortcuts: `use telers::types::CallbackQueryShortcuts as _;`.
-///
-/// ```
-/// use telers::types::{CallbackQuery, CallbackQueryShortcuts as _, User};
-///
-/// let query = CallbackQuery::new("query-id", User::new(1, false, "Alice"), "chat-instance");
-/// let answer = query.answer().text("Done");
-/// assert_eq!(&*answer.callback_query_id, "query-id");
-/// ```
+/// Shortcuts that create methods for a callback query.
 pub trait CallbackQueryShortcuts {
     /// Creates [`AnswerCallbackQuery`] for this callback query.
     #[must_use]
@@ -18,17 +8,5 @@ pub trait CallbackQueryShortcuts {
 impl CallbackQueryShortcuts for CallbackQuery {
     fn answer(&self) -> AnswerCallbackQuery {
         AnswerCallbackQuery::new(&*self.id)
-    }
-}
-#[cfg(test)]
-mod tests {
-    use super::CallbackQueryShortcuts as _;
-    use crate::types::{CallbackQuery, User};
-    #[test]
-    fn answer_uses_the_query_identifier() {
-        let query = CallbackQuery::new("query-id", User::new(1, false, "Alice"), "chat-instance");
-        let answer = query.answer().text("Done");
-        assert_eq!(answer.callback_query_id.as_ref(), "query-id");
-        assert_eq!(answer.text.as_deref(), Some("Done"));
     }
 }

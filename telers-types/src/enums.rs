@@ -1,6 +1,8 @@
 //! Enum helpers and discriminator types for Telegram objects.
 //!
-//! Includes generated `*Type` discriminators and [`ParseMode`].
+//! This module contains:
+//! - generated `*Type` enums for polymorphic Telegram objects (for example `MessageType`)
+//! - hand-authored enums like [`ParseMode`]
 pub mod background_fill;
 pub mod background_type;
 pub mod bot_command_scope;

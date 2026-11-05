@@ -19,28 +19,25 @@ use crate::{
     },
 };
 
-use proc_macro2::{Ident, TokenStream, TokenTree};
+use proc_macro2::{Ident, TokenStream};
 use quote::{ToTokens, format_ident, quote};
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 struct TypeDocContext<'a> {
     schema_type_names: &'a HashSet<String>,
     api_method_names: &'a HashMap<String, String>,
-    external_method_docs: bool,
 }
 
 fn link_method_mentions(doc: &str, ctx: &TypeDocContext<'_>) -> String {
     let mut doc = link_known_method_mentions(doc, ctx.api_method_names);
-    if ctx.external_method_docs {
-        for name in ctx.api_method_names.values() {
-            doc = doc.replace(
-                &format!("[`crate::methods::{name}`]"),
-                &format!(
-                    "[`{name}`](https://core.telegram.org/bots/api#{})",
-                    name.to_lowercase()
-                ),
-            );
-        }
+    for name in ctx.api_method_names.values() {
+        doc = doc.replace(
+            &format!("[`crate::methods::{name}`]"),
+            &format!(
+                "[`{name}`](https://core.telegram.org/bots/api#{})",
+                name.to_lowercase()
+            ),
+        );
     }
     doc
 }
@@ -357,15 +354,6 @@ pub fn get_impls_for_types(
     type_quote: &NormalizedType,
     schema: &NormalizedSchema,
 ) -> Vec<TokenStream> {
-    let mut impls = get_pure_impls_for_types(type_quote, schema);
-    impls.extend(get_extractor_impls_for_type(type_quote, schema));
-    impls
-}
-
-fn get_pure_impls_for_types(
-    type_quote: &NormalizedType,
-    schema: &NormalizedSchema,
-) -> Vec<TokenStream> {
     let name = format_ident!("{}", type_quote.name);
 
     let mut impl_quotes = vec![];
@@ -565,25 +553,6 @@ fn get_extractor_impls_for_type(
     impls
 }
 
-fn collect_schema_type_imports(
-    tokens: TokenStream,
-    schema: &NormalizedSchema,
-    imports: &mut BTreeSet<String>,
-) {
-    for token in tokens {
-        match token {
-            TokenTree::Group(group) => collect_schema_type_imports(group.stream(), schema, imports),
-            TokenTree::Ident(ident) => {
-                let name = ident.to_string();
-                if schema.types.contains_key(&name) {
-                    imports.insert(name);
-                }
-            }
-            _ => {}
-        }
-    }
-}
-
 /// Generate the framework-owned extractor implementations for external API types.
 #[must_use]
 pub fn tokenize_type_extractors(schema: &NormalizedSchema) -> TokenStream {
@@ -593,14 +562,8 @@ pub fn tokenize_type_extractors(schema: &NormalizedSchema) -> TokenStream {
         .into_iter()
         .flat_map(|ty| get_extractor_impls_for_type(ty, schema))
         .collect::<TokenStream>();
-    let mut imports = BTreeSet::new();
-    collect_schema_type_imports(impls.clone(), schema, &mut imports);
-    let imports = (!imports.is_empty()).then(|| {
-        let names = imports.iter().map(|name| format_ident!("{name}"));
-        quote! { use crate::types::{#(#names),*}; }
-    });
     quote! {
-        #imports
+        use crate::types::*;
         #impls
     }
 }
@@ -1435,54 +1398,16 @@ pub fn tokenize_type(
     known_schema_type_names: &HashSet<String>,
     known_api_method_names: &HashMap<String, String>,
 ) -> TokenStream {
-    tokenize_type_inner(
-        type_quote,
-        schema,
-        known_schema_type_names,
-        known_api_method_names,
-        true,
-    )
-}
-
-/// Generate API data and conversion helpers without framework extractors.
-#[must_use]
-pub fn tokenize_type_without_extractors(
-    type_quote: &NormalizedType,
-    schema: &NormalizedSchema,
-    known_schema_type_names: &HashSet<String>,
-    known_api_method_names: &HashMap<String, String>,
-) -> TokenStream {
-    tokenize_type_inner(
-        type_quote,
-        schema,
-        known_schema_type_names,
-        known_api_method_names,
-        false,
-    )
-}
-
-fn tokenize_type_inner(
-    type_quote: &NormalizedType,
-    schema: &NormalizedSchema,
-    known_schema_type_names: &HashSet<String>,
-    known_api_method_names: &HashMap<String, String>,
-    include_extractors: bool,
-) -> TokenStream {
     let ctx = TypeDocContext {
         schema_type_names: known_schema_type_names,
         api_method_names: known_api_method_names,
-        external_method_docs: !include_extractors,
     };
     let mut import_quotes = vec![];
     if type_quote.has_extra_fields && type_quote.subtypes.is_empty() {
         import_quotes.push(quote! { use std::collections::BTreeMap; });
     }
 
-    let type_impls = if include_extractors {
-        get_impls_for_types(type_quote, schema)
-    } else {
-        get_pure_impls_for_types(type_quote, schema)
-    };
+    let type_impls = get_impls_for_types(type_quote, schema);
     let subtype_impls = get_from_impls_for_subtypes(type_quote);
     let type_definition = tokenize_type_definition(type_quote, &ctx);
     let builder_impls = builder_impl_for_type(type_quote, &ctx);
@@ -1495,34 +1420,6 @@ fn tokenize_type_inner(
         #helper_impls
         #( #type_impls )*
         #( #subtype_impls )*
-    }
-}
-
-/// Generate a standalone type module without method shortcuts or framework dependencies.
-#[must_use]
-pub fn tokenize_types_mod_without_framework(type_names: &[&String]) -> TokenStream {
-    let mods = type_names.iter().map(|name| {
-        let module = format_ident!("{}", camel_to_filename(name, None));
-        quote! { pub mod #module; }
-    });
-    let uses = type_names.iter().map(|name| {
-        let module = format_ident!("{}", camel_to_filename(name, None));
-        let name = format_ident!("{name}");
-        quote! { pub use #module::#name; }
-    });
-    quote! {
-        //! Telegram Bot API data types, builders and conversion helpers.
-        //!
-        //! These types are independent of the HTTP client and bot framework.
-        //! Polymorphic objects such as [`Message`] expose helpers such as `message.chat()`.
-        //! Optional builder fields also provide `_option(...)` setters for `Option<T>` values.
-        #![allow(clippy::too_many_arguments)]
-        #![allow(clippy::struct_excessive_bools)]
-        #![allow(clippy::large_enum_variant)]
-        pub(crate) mod non_telegram;
-        pub use non_telegram::*;
-        #(#mods)*
-        #(#uses)*
     }
 }
 
@@ -1552,17 +1449,9 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
         //! split subtypes. In these cases, use generated helper methods like `message.chat()`
         //! and `message.text()` instead of field access like `message.chat`.
         //!
-        //! Messages, their subtypes and callback queries also have shortcuts that create methods for them
-        //! with the fields filled from the object, for example `message.answer(text)` creates
-        //! [`crate::methods::SendMessage`] to the chat of the message, `message.reply(text)` also as a reply to it,
-        //! and `callback_query.answer()` creates [`crate::methods::AnswerCallbackQuery`].
-        //! Optional fields are set with the builders of the method, as usual.
-        //! The text and the caption of a message are rendered back to HTML or `MarkdownV2` with their entities
-        //! by the shortcuts of [`crate::types::MessageRenderers`].
-        //!
         //! # Examples
         //! ```rust
-        //! use telers::types::{ChatIdKind, InlineKeyboardButton, InlineKeyboardMarkup};
+        //! use telers_types::types::{ChatIdKind, InlineKeyboardButton, InlineKeyboardMarkup};
         //!
         //! let chat_id = ChatIdKind::id(1);
         //! let keyboard = InlineKeyboardMarkup::new([[
@@ -1578,7 +1467,7 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
         //! ```
         //!
         //! ```rust
-        //! use telers::types::Message;
+        //! use telers_types::types::Message;
         //!
         //! fn inspect_message(message: &Message) {
         //!     // `Message` is an enum, so helper methods provide unified access.
@@ -1593,107 +1482,8 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
         #![allow(clippy::large_enum_variant)]
 
         pub(crate) mod non_telegram;
-        pub(crate) mod to_methods;
         pub use non_telegram::*;
-        pub use to_methods::*;
         #( #mods_quote )*
         #( #uses_quote )*
-    }
-}
-
-#[cfg(test)]
-mod split_tests {
-    use super::*;
-    use crate::parser::api::Schema;
-
-    fn schema() -> NormalizedSchema {
-        let mut schema = Schema::parse_from_json(
-            r#"{
-            "version": "1.0", "release_date": "2026-01-01", "changelog": "test",
-            "types": {
-                "Update": {
-                    "name": "Update", "href": "https://core.telegram.org/bots/api#update",
-                    "description": ["An incoming update"],
-                    "fields": [
-                        {"name": "update_id", "required": true, "types": ["Integer"]},
-                        {"name": "message", "required": false, "types": ["Message"]}
-                    ]
-                },
-                "Message": {
-                    "name": "Message", "href": "https://core.telegram.org/bots/api#message",
-                    "description": ["Use `sendMessage` to send a message"],
-                    "fields": [{"name": "message_id", "required": true, "types": ["Integer"]}]
-                }
-            }
-        }"#,
-        )
-        .unwrap()
-        .normalize();
-        schema.split_update_types();
-        schema
-    }
-
-    fn extractor_types(tokens: TokenStream) -> Vec<String> {
-        syn::parse2::<syn::File>(tokens)
-            .unwrap()
-            .items
-            .into_iter()
-            .filter_map(|item| {
-                let syn::Item::Impl(item) = item else {
-                    return None;
-                };
-                let (_, path, _) = item.trait_?;
-                (path.segments.last()?.ident == "Extractor")
-                    .then(|| item.self_ty.to_token_stream().to_string())
-            })
-            .collect()
-    }
-
-    #[test]
-    fn standalone_update_types_keep_conversions_and_move_extractors_to_framework() {
-        let schema = schema();
-        let names = schema.types.keys().cloned().collect();
-        let methods = HashMap::from([("sendMessage".to_owned(), "SendMessage".to_owned())]);
-        for ty in schema.types.values() {
-            let standalone = tokenize_type_without_extractors(ty, &schema, &names, &methods);
-            assert!(extractor_types(standalone.clone()).is_empty());
-            let rendered = standalone.to_string();
-            assert!(!rendered.contains("crate :: Request"));
-            assert!(!rendered.contains("crate::methods::"));
-            if ty.is_update() {
-                assert!(rendered.contains("TryFrom < Update > for crate :: types :: Message"));
-            }
-            if ty.name == "Message" {
-                assert!(rendered.contains("https://core.telegram.org/bots/api#sendmessage"));
-            }
-        }
-        let extractors = extractor_types(tokenize_type_extractors(&schema));
-        assert!(extractors.contains(&"Update".to_owned()));
-        assert!(extractors.contains(&"std :: sync :: Arc < Update >".to_owned()));
-        assert!(extractors.contains(&"UpdateMessage".to_owned()));
-        assert!(extractors.contains(&"Message".to_owned()));
-    }
-
-    #[test]
-    fn standalone_module_has_no_framework_shortcuts() {
-        let name = "Message".to_owned();
-        let standalone = tokenize_types_mod_without_framework(&[&name]).to_string();
-        assert!(!standalone.contains("to_methods"));
-        assert!(!standalone.contains("crate::methods"));
-        assert!(standalone.contains("pub use message :: Message"));
-        syn::parse2::<syn::File>(tokenize_types_mod_without_framework(&[&name])).unwrap();
-    }
-
-    #[test]
-    fn extractor_imports_are_explicit_and_sorted() {
-        let schema = schema();
-        let module = syn::parse2::<syn::File>(tokenize_type_extractors(&schema)).unwrap();
-        let syn::Item::Use(import) = &module.items[0] else {
-            panic!("extractor module must import its API types");
-        };
-        let expected: syn::ItemUse = syn::parse_quote! {
-            use crate::types::{Message, Update, UpdateMessage};
-        };
-        assert_eq!(import, &expected);
     }
 }

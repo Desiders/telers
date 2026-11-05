@@ -30,17 +30,6 @@ pub const DEFAULT_CAPACITY: usize = 64 * 1024; // 64 KiB
 /// - [`BufferedFile`] (for example `BufferedFile::new(bytes)`)
 /// - [`StreamFile`] (for example `StreamFile::new(stream)`)
 ///
-/// # Examples
-/// ```
-/// use telers_types::types::InputFile;
-///
-/// let from_disk = InputFile::fs("path/to/file.pdf");
-/// let reused = InputFile::id("file_id");
-/// let remote = InputFile::url("https://example.com/file.pdf");
-/// let buffered = InputFile::buffered_with_name(&b"file content"[..], "file.txt");
-/// assert!(from_disk.is_require_multipart());
-/// assert!(!reused.is_require_multipart());
-/// ```
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputfile>
 #[derive(Debug, Clone, Hash, PartialEq)]

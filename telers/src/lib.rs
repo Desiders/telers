@@ -61,7 +61,6 @@
 
 extern crate self as telers;
 
-pub mod serialization;
 mod serializers;
 
 pub(crate) mod any;
@@ -74,7 +73,6 @@ pub mod client;
 pub mod command;
 pub mod context;
 pub mod dispatcher;
-pub mod either;
 pub mod enums;
 pub mod errors;
 pub mod event;
@@ -94,11 +92,12 @@ pub mod utils;
 pub mod webhooks;
 
 pub use telers_macros::{CallbackData, Command, FromContext, FromEvent, State};
+pub use telers_methods::{either, Either};
+pub use telers_types::serialization;
 
 pub use client::Bot;
 pub use context::Context;
 pub use dispatcher::{Builder as DispatcherBuilder, Dispatcher};
-pub use either::Either;
 pub use extensions::{Extension, Extensions};
 pub use extractor::Extractor;
 pub use filters::{Filter, FilterResult};

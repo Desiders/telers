@@ -8,9 +8,6 @@
 #[cfg(all(not(feature = "deser"), not(feature = "serde")))]
 compile_error!("enable either the `serde` or `deser` serialization feature");
 
-/// Whether the selected serialization backend is Deser rather than Serde.
-pub const USES_DESER: bool = cfg!(feature = "deser");
-
 #[cfg(feature = "deser")]
 pub use deser::{de::DeserializeOwned, Deserialize, Error, Serialize};
 #[cfg(feature = "deser")]
