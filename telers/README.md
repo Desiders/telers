@@ -42,20 +42,6 @@ tokio = { version = "1", features = ["macros", "rt"] }
 
 Requires Rust 1.88 or newer.
 
-Applications that only need Telegram Bot API objects and JSON serialization can use
-[`telers-types`](../telers-types) independently, without an HTTP client or the bot
-framework. `telers::types` and `telers::enums` re-export the same objects. Handler
-extraction and request shortcuts remain in `telers`; callback query shortcuts need
-`use telers::types::CallbackQueryShortcuts as _;`.
-
-Applications that need request builders with their own transport can use
-[`telers-methods`](../telers-methods). It depends on `telers-types` and contains
-method parameters, upload collection and response parsing. `telers::methods`
-re-exports the same method structs, so they can still be passed to `Bot::send`.
-The framework keeps its existing `TelegramMethod` trait for custom methods;
-standalone methods implement the corresponding client-independent trait in
-`telers-methods` and work with `Bot::send` automatically.
-
 To enable logging, you may also want to add `tracing` and `tracing-subscriber`.
 
 Create a bot with [@BotFather](https://t.me/BotFather) to get a token, then put it in the `BOT_TOKEN` environment variable and run the following echo bot:
