@@ -13,6 +13,7 @@ use crate::{
     },
 };
 
+use std::{error::Error, fmt::Write, iter};
 use tracing::{event, instrument, Level};
 
 /// This object represents a request to Telegram API
@@ -606,9 +607,7 @@ pub fn prepare_input_profile_photo(
     }
 }
 
-use std::{fmt::Write, iter};
-
-fn format_error_report(err: &impl std::error::Error) -> String {
+fn format_error_report(err: &impl Error) -> String {
     let mut output = String::new();
     writeln!(&mut output, "{err}").unwrap();
 
