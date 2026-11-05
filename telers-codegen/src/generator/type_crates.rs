@@ -6,11 +6,18 @@ pub enum TypeCrate {
     Common,
     Input,
     Messages,
+    Resources,
     Facade,
 }
 
 impl TypeCrate {
-    pub const ALL: [Self; 4] = [Self::Common, Self::Input, Self::Messages, Self::Facade];
+    pub const ALL: [Self; 5] = [
+        Self::Common,
+        Self::Input,
+        Self::Messages,
+        Self::Resources,
+        Self::Facade,
+    ];
 }
 
 fn dependency_closure(name: &str, graph: &HashMap<&str, HashSet<String>>) -> HashSet<String> {
@@ -59,8 +66,10 @@ pub fn assign_type_crates(schema: &NormalizedSchema) -> BTreeMap<String, TypeCra
                 .any(|name| name.starts_with("Input") || name.starts_with("InlineQueryResult"))
             {
                 TypeCrate::Input
-            } else {
+            } else if message_dependencies.contains(name) {
                 TypeCrate::Common
+            } else {
+                TypeCrate::Resources
             };
             (name.clone(), owner)
         })

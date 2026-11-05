@@ -1,4 +1,4 @@
-/// This object contains information about the users whose identifiers were shared with the bot using a [`crate::types::KeyboardButtonRequestUsers`] button.
+/// This object contains information about the users whose identifiers were shared with the bot using a [`telers_types_resources::types::KeyboardButtonRequestUsers`](https://docs.rs/telers-types-resources/latest/telers_types_resources/types/keyboard_button_request_users/struct.KeyboardButtonRequestUsers.html) button.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#usersshared>
 #[derive(Clone, Debug)]

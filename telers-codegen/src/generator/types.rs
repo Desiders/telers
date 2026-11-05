@@ -26,6 +26,7 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 struct TypeDocContext<'a> {
     schema_type_names: &'a HashSet<String>,
     api_method_names: &'a HashMap<String, String>,
+    external_type_links: &'a HashMap<String, String>,
 }
 
 fn link_method_mentions(doc: &str, ctx: &TypeDocContext<'_>) -> String {
@@ -75,7 +76,11 @@ fn format_field_arg_doc(field: &NormalizedField, ctx: &TypeDocContext<'_>) -> St
 
 #[must_use]
 fn link_schema_type_mentions(doc: &str, ctx: &TypeDocContext<'_>) -> String {
-    link_known_type_mentions(doc, ctx.schema_type_names)
+    let mut doc = link_known_type_mentions(doc, ctx.schema_type_names);
+    for (name, link) in ctx.external_type_links {
+        doc = doc.replace(&format!("[`crate::types::{name}`]"), link);
+    }
+    doc
 }
 
 impl ToTokens for TypeKindInField {
@@ -1397,10 +1402,12 @@ pub fn tokenize_type(
     schema: &NormalizedSchema,
     known_schema_type_names: &HashSet<String>,
     known_api_method_names: &HashMap<String, String>,
+    external_type_links: &HashMap<String, String>,
 ) -> TokenStream {
     let ctx = TypeDocContext {
         schema_type_names: known_schema_type_names,
         api_method_names: known_api_method_names,
+        external_type_links,
     };
     let mut import_quotes = vec![];
     if type_quote.has_extra_fields && type_quote.subtypes.is_empty() {

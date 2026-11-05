@@ -10,7 +10,7 @@ use std::collections::BTreeMap;
 pub struct EncryptedPassportElementUnknown {
     /// Raw `type` value of the variant unknown to this version of the library
     pub r#type: Box<str>,
-    /// Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
+    /// Base64-encoded element hash for using in [`telers_types_resources::types::PassportElementErrorUnspecified`](https://docs.rs/telers-types-resources/latest/telers_types_resources/types/passport_element_error_unspecified/struct.PassportElementErrorUnspecified.html)
     pub hash: Box<str>,
     #[cfg_attr(not(feature = "deser"), serde(flatten))]
     #[cfg_attr(feature = "deser", deser(flatten))]
@@ -21,7 +21,7 @@ impl EncryptedPassportElementUnknown {
     ///
     /// # Arguments
     /// * `type` - Raw `type` value of the variant unknown to this version of the library
-    /// * `hash` - Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
+    /// * `hash` - Base64-encoded element hash for using in [`telers_types_resources::types::PassportElementErrorUnspecified`](https://docs.rs/telers-types-resources/latest/telers_types_resources/types/passport_element_error_unspecified/struct.PassportElementErrorUnspecified.html)
     #[must_use]
     pub fn new<T0: Into<Box<str>>, T1: Into<Box<str>>>(r#type: T0, hash: T1) -> Self {
         Self {
@@ -38,7 +38,7 @@ impl EncryptedPassportElementUnknown {
         self
     }
 
-    /// Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
+    /// Base64-encoded element hash for using in [`telers_types_resources::types::PassportElementErrorUnspecified`](https://docs.rs/telers-types-resources/latest/telers_types_resources/types/passport_element_error_unspecified/struct.PassportElementErrorUnspecified.html)
     #[must_use]
     pub fn hash<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.hash = val.into();

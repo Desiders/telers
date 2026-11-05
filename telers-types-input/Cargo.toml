@@ -9,8 +9,8 @@ license = "MIT OR Apache-2.0"
 
 [features]
 default = ["serde"]
-serde = ["dep:serde", "telers-types-common/serde"]
-deser = ["dep:deser", "telers-types-common/deser"]
+serde = ["dep:serde", "telers-types-common/serde", "telers-types-resources/serde"]
+deser = ["dep:deser", "telers-types-common/deser", "telers-types-resources/deser"]
 
 [dependencies]
 bytes = { version = "1.5", default-features = false, features = ["std"] }
@@ -20,6 +20,7 @@ serde = { version = "1.0", default-features = false, features = ["derive", "std"
 strum = { version = "0.28", default-features = false, features = ["std"] }
 strum_macros = { version = "0.28", default-features = false }
 telers-types-common = { version = "10", path = "../telers-types-common", default-features = false }
+telers-types-resources = { version = "10", path = "../telers-types-resources", default-features = false }
 tokio = { version = "1.36", default-features = false, features = ["fs", "io-util"] }
 tokio-util = { version = "0.7", default-features = false, features = ["codec"] }
 tracing = { version = "0.1", default-features = false, features = ["std"] }

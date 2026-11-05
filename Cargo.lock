@@ -3233,6 +3233,7 @@ dependencies = [
  "strum",
  "strum_macros",
  "telers-types-common",
+ "telers-types-resources",
  "tokio",
  "tokio-util",
  "tracing",
@@ -3241,6 +3242,17 @@ dependencies = [
 
 [[package]]
 name = "telers-types-messages"
+version = "10.3.0"
+dependencies = [
+ "deser",
+ "serde",
+ "strum",
+ "strum_macros",
+ "telers-types-common",
+]
+
+[[package]]
+name = "telers-types-resources"
 version = "10.3.0"
 dependencies = [
  "deser",

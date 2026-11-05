@@ -98,7 +98,7 @@ impl EncryptedPassportElement {
 
     /// Helper method for field `hash`.
     ///
-    /// Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
+    /// Base64-encoded element hash for using in [`telers_types_resources::types::PassportElementErrorUnspecified`](https://docs.rs/telers-types-resources/latest/telers_types_resources/types/passport_element_error_unspecified/struct.PassportElementErrorUnspecified.html)
     #[must_use]
     pub fn hash(&self) -> &str {
         match self {

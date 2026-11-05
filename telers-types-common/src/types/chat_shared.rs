@@ -1,4 +1,4 @@
-/// This object contains information about a chat that was shared with the bot using a [`crate::types::KeyboardButtonRequestChat`] button.
+/// This object contains information about a chat that was shared with the bot using a [`telers_types_resources::types::KeyboardButtonRequestChat`](https://docs.rs/telers-types-resources/latest/telers_types_resources/types/keyboard_button_request_chat/struct.KeyboardButtonRequestChat.html) button.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatshared>
 #[derive(Clone, Debug)]

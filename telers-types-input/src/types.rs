@@ -2,6 +2,7 @@
 #![allow(clippy::struct_excessive_bools)]
 #![allow(clippy::large_enum_variant)]
 pub use telers_types_common::types::*;
+pub use telers_types_resources::types::*;
 pub(crate) mod non_telegram;
 pub use non_telegram::*;
 pub mod inline_query_result;

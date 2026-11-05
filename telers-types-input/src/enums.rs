@@ -1,4 +1,5 @@
 pub use telers_types_common::enums::*;
+pub use telers_types_resources::enums::*;
 pub mod inline_query_result;
 pub mod inline_query_result_audio_kind;
 pub mod inline_query_result_document_kind;

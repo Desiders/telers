@@ -21,7 +21,7 @@ pub struct EncryptedPassportElementDriverLicense {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub translation: Option<Box<[crate::types::PassportFile]>>,
-    /// Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
+    /// Base64-encoded element hash for using in [`telers_types_resources::types::PassportElementErrorUnspecified`](https://docs.rs/telers-types-resources/latest/telers_types_resources/types/passport_element_error_unspecified/struct.PassportElementErrorUnspecified.html)
     pub hash: Box<str>,
 }
 impl EncryptedPassportElementDriverLicense {
@@ -31,7 +31,7 @@ impl EncryptedPassportElementDriverLicense {
     /// * `data` - Base64-encoded encrypted Telegram Passport element data provided by the user; available only for `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport` and `address` types. Can be decrypted and verified using the accompanying [`crate::types::EncryptedCredentials`].
     /// * `front_side` - Encrypted file with the front side of the document, provided by the user; available only for `passport`, `driver_license`, `identity_card` and `internal_passport`. The file can be decrypted and verified using the accompanying [`crate::types::EncryptedCredentials`].
     /// * `reverse_side` - Encrypted file with the reverse side of the document, provided by the user; available only for `driver_license` and `identity_card`. The file can be decrypted and verified using the accompanying [`crate::types::EncryptedCredentials`].
-    /// * `hash` - Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
+    /// * `hash` - Base64-encoded element hash for using in [`telers_types_resources::types::PassportElementErrorUnspecified`](https://docs.rs/telers-types-resources/latest/telers_types_resources/types/passport_element_error_unspecified/struct.PassportElementErrorUnspecified.html)
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -139,7 +139,7 @@ impl EncryptedPassportElementDriverLicense {
         self
     }
 
-    /// Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
+    /// Base64-encoded element hash for using in [`telers_types_resources::types::PassportElementErrorUnspecified`](https://docs.rs/telers-types-resources/latest/telers_types_resources/types/passport_element_error_unspecified/struct.PassportElementErrorUnspecified.html)
     #[must_use]
     pub fn hash<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.hash = val.into();

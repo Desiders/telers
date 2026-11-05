@@ -13,7 +13,7 @@ pub struct EncryptedPassportElementUtilityBill {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub translation: Option<Box<[crate::types::PassportFile]>>,
-    /// Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
+    /// Base64-encoded element hash for using in [`telers_types_resources::types::PassportElementErrorUnspecified`](https://docs.rs/telers-types-resources/latest/telers_types_resources/types/passport_element_error_unspecified/struct.PassportElementErrorUnspecified.html)
     pub hash: Box<str>,
 }
 impl EncryptedPassportElementUtilityBill {
@@ -21,7 +21,7 @@ impl EncryptedPassportElementUtilityBill {
     ///
     /// # Arguments
     /// * `files` - Array of encrypted files with documents provided by the user; available only for `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`crate::types::EncryptedCredentials`].
-    /// * `hash` - Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
+    /// * `hash` - Base64-encoded element hash for using in [`telers_types_resources::types::PassportElementErrorUnspecified`](https://docs.rs/telers-types-resources/latest/telers_types_resources/types/passport_element_error_unspecified/struct.PassportElementErrorUnspecified.html)
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -118,7 +118,7 @@ impl EncryptedPassportElementUtilityBill {
         self
     }
 
-    /// Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
+    /// Base64-encoded element hash for using in [`telers_types_resources::types::PassportElementErrorUnspecified`](https://docs.rs/telers-types-resources/latest/telers_types_resources/types/passport_element_error_unspecified/struct.PassportElementErrorUnspecified.html)
     #[must_use]
     pub fn hash<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.hash = val.into();

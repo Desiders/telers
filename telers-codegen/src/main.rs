@@ -2,7 +2,7 @@ use clap::Parser;
 use quote::quote;
 use semver::Version;
 use std::{
-    collections::{BTreeMap, HashSet},
+    collections::{BTreeMap, HashMap, HashSet},
     fmt::Display,
     fs,
     path::{Path, PathBuf},
@@ -48,6 +48,10 @@ struct Args {
     #[arg(long = "messages-gen-dir", value_name = "PATH")]
     messages_generated_dir_path: PathBuf,
 
+    /// Path to the resource models crate directory
+    #[arg(long = "resources-gen-dir", value_name = "PATH")]
+    resources_generated_dir_path: PathBuf,
+
     /// Path to the methods crate directory
     #[arg(long = "methods-gen-dir", value_name = "PATH")]
     methods_generated_dir_path: PathBuf,
@@ -80,6 +84,7 @@ impl Args {
             TypeCrate::Common => &self.common_generated_dir_path,
             TypeCrate::Input => &self.input_generated_dir_path,
             TypeCrate::Messages => &self.messages_generated_dir_path,
+            TypeCrate::Resources => &self.resources_generated_dir_path,
             TypeCrate::Facade => &self.types_generated_dir_path,
         }
     }
@@ -218,6 +223,10 @@ fn generate_enums(
                 pub use telers_types_input::enums::*;
                 pub use telers_types_messages::enums::*;
             },
+            TypeCrate::Input => quote! {
+                pub use telers_types_common::enums::*;
+                pub use telers_types_resources::enums::*;
+            },
             _ => quote! { pub use telers_types_common::enums::*; },
         };
         let tokens = generator::enums::tokenize_kind_enums_mod(
@@ -291,13 +300,37 @@ fn main() {
                 method.name.clone(),
             )
         })
-        .collect::<std::collections::HashMap<_, _>>();
+        .collect::<HashMap<_, _>>();
+    let resource_type_links = owners
+        .iter()
+        .filter(|(_, owner)| **owner == TypeCrate::Resources)
+        .map(|(name, _)| {
+            let kind = if schema.types[name].subtypes.is_empty() {
+                "struct"
+            } else {
+                "enum"
+            };
+            let path = format!(
+                "[`telers_types_resources::types::{name}`](https://docs.rs/telers-types-resources/latest/telers_types_resources/types/{}/{kind}.{name}.html)",
+                camel_to_filename(name, None)
+            );
+            (name.clone(), path)
+        })
+        .collect::<HashMap<_, _>>();
+    let no_external_type_links = HashMap::new();
     for (name, ty) in &schema.types {
+        let external_type_links = if matches!(owners[name], TypeCrate::Common | TypeCrate::Messages)
+        {
+            &resource_type_links
+        } else {
+            &no_external_type_links
+        };
         let tokens = generator::types::tokenize_type(
             ty,
             &schema,
             &known_schema_type_names,
             &known_api_method_names,
+            external_type_links,
         );
         let types_dir = args.type_crate_dir(owners[name]).join("src/types");
         output.write(&tokens, &types_dir, &camel_to_filename(name, Some("rs")));
@@ -316,7 +349,9 @@ fn main() {
             let modules = generator::types::tokenize_type_modules(&type_names);
             let common = (owner != TypeCrate::Common)
                 .then(|| quote! { pub use telers_types_common::types::*; });
-            let helpers = (owner != TypeCrate::Messages).then(|| {
+            let resources = (owner == TypeCrate::Input)
+                .then(|| quote! { pub use telers_types_resources::types::*; });
+            let helpers = matches!(owner, TypeCrate::Common | TypeCrate::Input).then(|| {
                 quote! {
                     pub(crate) mod non_telegram;
                     pub use non_telegram::*;
@@ -327,6 +362,7 @@ fn main() {
                 #![allow(clippy::struct_excessive_bools)]
                 #![allow(clippy::large_enum_variant)]
                 #common
+                #resources
                 #helpers
                 #modules
             }

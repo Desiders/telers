@@ -29,6 +29,7 @@ pub fn update_manifest_versions(
         "telers-types-common",
         "telers-types-input",
         "telers-types-messages",
+        "telers-types-resources",
     ];
     if manifest["package"]["name"]
         .as_str()
