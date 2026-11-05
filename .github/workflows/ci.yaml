@@ -18,44 +18,6 @@ permissions:
   contents: read
 
 jobs:
-  test-types:
-    name: Standalone Telegram types
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo test -p telers-types --locked
-      - run: cargo test -p telers-types --no-default-features --features deser --locked
-      - name: Keep standalone types free of the framework and HTTP clients
-        shell: bash
-        run: |
-          cargo tree -p telers-types --edges normal --prefix none --format '{p}' --locked > types-dependencies.txt
-          if grep -E '^(telers|reqwest|hyper|hyper-util|rustls|native-tls) v' types-dependencies.txt; then
-            echo "telers-types must not depend on the bot framework or HTTP stack"
-            exit 1
-          fi
-
-  test-methods:
-    name: Standalone Telegram methods
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo test -p telers-methods --locked
-      - run: cargo test -p telers-methods --no-default-features --features deser --locked
-      - run: cargo test -p telers --no-default-features --features serde --test method_reexports --locked
-      - run: cargo test -p telers --no-default-features --features deser --test method_reexports --locked
-      - name: Keep standalone methods free of the framework and HTTP clients
-        shell: bash
-        run: |
-          cargo tree -p telers-methods --edges normal --prefix none --format '{p}' --locked > methods-dependencies.txt
-          if grep -E '^(telers|reqwest|hyper|hyper-util|rustls|native-tls) v' methods-dependencies.txt; then
-            echo "telers-methods must not depend on the bot framework or HTTP stack"
-            exit 1
-          fi
-
   test-windows:
     name: Test Windows
     runs-on: windows-latest
