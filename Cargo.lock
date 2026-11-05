@@ -3180,7 +3180,7 @@ dependencies = [
 
 [[package]]
 name = "telers-methods"
-version = "0.1.0"
+version = "10.3.0"
 dependencies = [
  "anyhow",
  "deser",
@@ -3194,7 +3194,7 @@ dependencies = [
 
 [[package]]
 name = "telers-types"
-version = "0.1.0"
+version = "10.3.0"
 dependencies = [
  "bytes",
  "deser",
