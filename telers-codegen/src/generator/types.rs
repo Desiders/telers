@@ -28,6 +28,20 @@ struct TypeDocContext<'a> {
     api_method_names: &'a HashMap<String, String>,
 }
 
+fn link_method_mentions(doc: &str, ctx: &TypeDocContext<'_>) -> String {
+    let mut doc = link_known_method_mentions(doc, ctx.api_method_names);
+    for name in ctx.api_method_names.values() {
+        doc = doc.replace(
+            &format!("[`crate::methods::{name}`]"),
+            &format!(
+                "[`telers_methods::methods::{name}`](https://docs.rs/telers-methods/latest/telers_methods/methods/{}/struct.{name}.html)",
+                camel_to_filename(name, None)
+            ),
+        );
+    }
+    doc
+}
+
 enum AccessExpr {
     Plain(TokenStream),
     Optional(TokenStream),
@@ -45,7 +59,7 @@ fn format_field_doc(description: &str, kind: &TypeKindInField, ctx: &TypeDocCont
     collect_telegram_type_names(kind, &mut names);
     let doc = format_attr_description(description);
     let doc = link_known_type_mentions(&doc, &names);
-    let doc = link_known_method_mentions(&doc, ctx.api_method_names);
+    let doc = link_method_mentions(&doc, ctx);
     normalize_doc_line_prefix(&link_schema_type_mentions(&doc, ctx))
 }
 
@@ -55,7 +69,7 @@ fn format_field_arg_doc(field: &NormalizedField, ctx: &TypeDocContext<'_>) -> St
     let mut names = HashSet::new();
     collect_telegram_type_names(&field.r#type, &mut names);
     let doc = link_known_type_mentions(&doc, &names);
-    let doc = link_known_method_mentions(&doc, ctx.api_method_names);
+    let doc = link_method_mentions(&doc, ctx);
     normalize_doc_line_prefix(&link_schema_type_mentions(&doc, ctx))
 }
 
@@ -143,7 +157,7 @@ fn tokenize_type_definition(type_quote: &NormalizedType, ctx: &TypeDocContext<'_
             if line.trim().is_empty() {
                 return line;
             }
-            let line = link_known_method_mentions(&line, ctx.api_method_names);
+            let line = link_method_mentions(&line, ctx);
             normalize_doc_line_prefix(&link_schema_type_mentions(&line, ctx))
         })
         .collect();
@@ -387,40 +401,9 @@ pub fn get_impls_for_types(
                 }
             }
         });
-        impl_quotes.push(quote! {
-            impl<Client> crate::Extractor<Client> for #name
-            {
-                type Error = crate::errors::ConvertToTypeError;
-                fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
-                    let val = TryFrom::try_from((*request.update).clone());
-                    async move { val }
-                }
-            }
-        });
     }
 
     if type_quote.is_update() {
-        impl_quotes.push(quote! {
-            impl<Client> crate::Extractor<Client> for Update
-            {
-                type Error = std::convert::Infallible;
-                fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
-                    let val = (*request.update).clone();
-                    async move { Ok(val) }
-                }
-            }
-        });
-        impl_quotes.push(quote! {
-            impl<Client> crate::Extractor<Client> for std::sync::Arc<Update>
-            {
-                type Error = std::convert::Infallible;
-                fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
-                    let val = request.update.clone();
-                    async move { Ok(val) }
-                }
-            }
-        });
-
         // We need to collect all types that can be got from update variants,
         // for example `Message` from `UpdateMessage` and `UpdateBusinessMessage`,
         // so that we can generate `impl From<Update> for Message` for each of variants.
@@ -474,16 +457,6 @@ pub fn get_impls_for_types(
                     }
                 }
             });
-            impl_quotes.push(quote! {
-                impl<Client> crate::Extractor<Client> for #variant_field_ty_path
-                {
-                    type Error = crate::errors::ConvertToTypeError;
-                    fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
-                        let val = (*request.update).clone().try_into();
-                        async move { val }
-                    }
-                }
-            });
 
             // If update inner type is an enum (for example `Message`), also expose
             // extractors for each of its variants (for example `MessageText`).
@@ -511,21 +484,88 @@ pub fn get_impls_for_types(
                         }
                     }
                 });
-                impl_quotes.push(quote! {
-                    impl<Client> crate::Extractor<Client> for #subtype_ty_path
-                    {
-                        type Error = crate::errors::ConvertToTypeError;
-                        fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
-                            let val = (*request.update).clone().try_into();
-                            async move { val }
-                        }
-                    }
-                });
             }
         }
     }
 
     impl_quotes
+}
+
+fn get_extractor_impls_for_type(
+    ty: &NormalizedType,
+    schema: &NormalizedSchema,
+) -> Vec<TokenStream> {
+    let mut impls = Vec::new();
+    let mut names = Vec::new();
+    if ty.is_update_variant() {
+        names.push(ty.name.as_str());
+    }
+    if ty.is_update() {
+        impls.push(quote! {
+            impl<Client> crate::Extractor<Client> for Update {
+                type Error = std::convert::Infallible;
+                fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+                    let val = (*request.update).clone();
+                    async move { Ok(val) }
+                }
+            }
+            impl<Client> crate::Extractor<Client> for std::sync::Arc<Update> {
+                type Error = std::convert::Infallible;
+                fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+                    let val = request.update.clone();
+                    async move { Ok(val) }
+                }
+            }
+        });
+        let mut seen = HashSet::new();
+        for subtype in &ty.subtypes {
+            let variant = &schema.types[&subtype.ty_name];
+            let field = variant
+                .update_variant_ty_field()
+                .expect("Update variant must have its payload");
+            let TypeKindInField::Telegram(name) = &field.r#type else {
+                panic!("Update variant payload must be a Telegram type");
+            };
+            if seen.insert(name.as_str()) {
+                names.push(name);
+                if let Some(inner) = schema.types.get(name) {
+                    for subtype in &inner.subtypes {
+                        if seen.insert(subtype.ty_name.as_str()) {
+                            names.push(&subtype.ty_name);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    for name in names {
+        let name = format_ident!("{name}");
+        impls.push(quote! {
+            impl<Client> crate::Extractor<Client> for #name {
+                type Error = crate::errors::ConvertToTypeError;
+                fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+                    let val = (*request.update).clone().try_into();
+                    async move { val }
+                }
+            }
+        });
+    }
+    impls
+}
+
+/// Generate the framework-owned extractor implementations for external API types.
+#[must_use]
+pub fn tokenize_type_extractors(schema: &NormalizedSchema) -> TokenStream {
+    let mut types = schema.types.values().collect::<Vec<_>>();
+    types.sort_by(|left, right| left.name.cmp(&right.name));
+    let impls = types
+        .into_iter()
+        .flat_map(|ty| get_extractor_impls_for_type(ty, schema))
+        .collect::<TokenStream>();
+    quote! {
+        use crate::types::*;
+        #impls
+    }
 }
 
 #[must_use]
@@ -1409,17 +1449,9 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
         //! split subtypes. In these cases, use generated helper methods like `message.chat()`
         //! and `message.text()` instead of field access like `message.chat`.
         //!
-        //! Messages, their subtypes and callback queries also have shortcuts that create methods for them
-        //! with the fields filled from the object, for example `message.answer(text)` creates
-        //! [`crate::methods::SendMessage`] to the chat of the message, `message.reply(text)` also as a reply to it,
-        //! and `callback_query.answer()` creates [`crate::methods::AnswerCallbackQuery`].
-        //! Optional fields are set with the builders of the method, as usual.
-        //! The text and the caption of a message are rendered back to HTML or `MarkdownV2` with their entities
-        //! by the shortcuts of [`crate::types::MessageRenderers`].
-        //!
         //! # Examples
         //! ```rust
-        //! use telers::types::{ChatIdKind, InlineKeyboardButton, InlineKeyboardMarkup};
+        //! use telers_types::types::{ChatIdKind, InlineKeyboardButton, InlineKeyboardMarkup};
         //!
         //! let chat_id = ChatIdKind::id(1);
         //! let keyboard = InlineKeyboardMarkup::new([[
@@ -1435,7 +1467,7 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
         //! ```
         //!
         //! ```rust
-        //! use telers::types::Message;
+        //! use telers_types::types::Message;
         //!
         //! fn inspect_message(message: &Message) {
         //!     // `Message` is an enum, so helper methods provide unified access.
@@ -1450,9 +1482,7 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
         #![allow(clippy::large_enum_variant)]
 
         pub(crate) mod non_telegram;
-        pub(crate) mod to_methods;
         pub use non_telegram::*;
-        pub use to_methods::*;
         #( #mods_quote )*
         #( #uses_quote )*
     }

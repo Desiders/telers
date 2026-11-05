@@ -1,4 +1,5 @@
 use clap::Parser;
+use semver::Version;
 use std::{
     collections::HashSet,
     fmt::Display,
@@ -7,7 +8,9 @@ use std::{
     process,
 };
 use telers_codegen::{
-    file::{camel_to_filename, check_tokens_to_file, write_tokens_to_file},
+    file::{
+        camel_to_filename, check_tokens_to_file, update_manifest_versions, write_tokens_to_file,
+    },
     generator::{self, methods::struct_name_to_method_name},
     parser::api::Schema,
 };
@@ -23,6 +26,14 @@ struct Args {
         default_value = "./generated"
     )]
     generated_dir_path: PathBuf,
+
+    /// Path to the types crate directory
+    #[arg(long = "types-gen-dir", value_name = "PATH")]
+    types_generated_dir_path: PathBuf,
+
+    /// Path to the methods crate directory
+    #[arg(long = "methods-gen-dir", value_name = "PATH")]
+    methods_generated_dir_path: PathBuf,
 
     /// Path to schema JSON file
     #[arg(long, visible_alias = "schema", value_name = "PATH")]
@@ -80,6 +91,20 @@ impl Output {
         }
     }
 
+    fn update_versions(&mut self, dir: &Path, api_version: &Version) {
+        match update_manifest_versions(dir, api_version, self.check) {
+            Ok(None) => {}
+            Ok(Some(path)) => self.drifted.push(path),
+            Err(err) => {
+                eprintln!(
+                    "Failed to update version in '{}': {err}",
+                    dir.join("Cargo.toml").display()
+                );
+                process::exit(1);
+            }
+        }
+    }
+
     /// Report the drifted files and fail, so a CI job can gate on this.
     fn finish(&self) {
         if !self.check || self.drifted.is_empty() {
@@ -121,6 +146,7 @@ fn apply_schema_transforms(schema: &mut telers_codegen::parser::api::NormalizedS
 fn generate_enums(
     schema: &telers_codegen::parser::api::NormalizedSchema,
     src_dir: &Path,
+    framework_src_dir: &Path,
     output: &mut Output,
 ) {
     let enums_dir = src_dir.join("enums");
@@ -136,8 +162,16 @@ fn generate_enums(
         .collect::<Vec<_>>();
     let mut own_enum_names = vec![];
     for (name, tokens) in &generator::enums::tokenize_own_enums(schema) {
-        output.write(tokens, &enums_dir, &camel_to_filename(name, Some("rs")));
-        own_enum_names.push(*name);
+        if *name == "TelegramObserverType" {
+            output.write(
+                tokens,
+                &framework_src_dir.join("enums"),
+                &camel_to_filename(name, Some("rs")),
+            );
+        } else {
+            output.write(tokens, &enums_dir, &camel_to_filename(name, Some("rs")));
+            own_enum_names.push(*name);
+        }
     }
     let tokens =
         generator::enums::tokenize_kind_enums_mod(enum_names.as_slice(), own_enum_names.as_slice());
@@ -163,6 +197,20 @@ fn main() {
         })
         .normalize();
 
+    let version = schema
+        .version
+        .strip_prefix("Bot API ")
+        .unwrap_or(&schema.version);
+    let api_version = Version::parse(version)
+        .or_else(|_| Version::parse(&format!("{version}.0")))
+        .unwrap_or_else(|err| {
+            eprintln!("Invalid schema version '{}': {err}", schema.version);
+            process::exit(1);
+        });
+    output.update_versions(&args.types_generated_dir_path, &api_version);
+    output.update_versions(&args.methods_generated_dir_path, &api_version);
+    output.update_versions(&args.generated_dir_path, &api_version);
+
     apply_schema_transforms(&mut schema);
 
     if args.generate_tests {
@@ -170,14 +218,16 @@ fn main() {
             .tests_types_path
             .as_deref()
             .expect("clap guarantees --types-path when --tests is set");
-        let tests_dir = args.generated_dir_path.join("tests");
+        let tests_dir = args.types_generated_dir_path.join("tests");
         let tokens = generator::tests::tokenize_tests(&schema, types_path);
         output.write(&tokens, &tests_dir, "types_generated.rs");
         println!("Tests generated in one file");
     }
 
     let src_dir = args.generated_dir_path.join("src");
-    let types_dir = src_dir.join("types");
+    let types_src_dir = args.types_generated_dir_path.join("src");
+    let methods_src_dir = args.methods_generated_dir_path.join("src");
+    let types_dir = types_src_dir.join("types");
     let known_schema_type_names = schema.types.keys().cloned().collect::<HashSet<_>>();
     let known_api_method_names = schema
         .methods
@@ -202,13 +252,17 @@ fn main() {
 
     let type_names = schema.types.keys().collect::<Vec<_>>();
     let tokens = generator::types::tokenize_types_mod(type_names.as_slice());
-    output.write(&tokens, &src_dir, "types.rs");
+    output.write(&tokens, &types_src_dir, "types.rs");
     println!("Types module generated");
 
-    generate_enums(&schema, &src_dir, &mut output);
+    generate_enums(&schema, &types_src_dir, &src_dir, &mut output);
     println!("Enums generated");
 
-    let methods_dir = src_dir.join("methods");
+    let tokens = generator::types::tokenize_type_extractors(&schema);
+    output.write(&tokens, &src_dir, "type_extractors.rs");
+    println!("Type extractors generated");
+
+    let methods_dir = methods_src_dir.join("methods");
     for method in schema.methods.values() {
         let tokens = generator::methods::tokenize_method(
             method,
@@ -223,6 +277,7 @@ fn main() {
     }
     println!("Methods generated");
 
+    let types_dir = src_dir.join("types");
     let to_methods_dir = types_dir.join("to_methods");
     let mut to_methods_type_names = vec![];
     for (name, tokens) in &generator::types_helpers::to_methods::tokenize_to_methods_files(&schema)
@@ -246,7 +301,7 @@ fn main() {
 
     let method_names = schema.methods.values().map(|m| &m.name).collect::<Vec<_>>();
     let tokens = generator::methods::tokenize_methods_mod(method_names.as_slice());
-    output.write(&tokens, &src_dir, "methods.rs");
+    output.write(&tokens, &methods_src_dir, "methods.rs");
     println!("Methods module generated");
     output.finish();
 }

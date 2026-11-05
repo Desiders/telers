@@ -490,7 +490,7 @@ fn tokenize_telegram_method_impl(method_quote: &NormalizedMethod) -> TokenStream
                 type Method = Self;
                 type Return = #return_type_tokens;
 
-                fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+                fn build_request(self) -> super::Request<Self::Method> {
                     super::Request::new(#method_api_name, self, None)
                 }
             }
@@ -502,7 +502,7 @@ fn tokenize_telegram_method_impl(method_quote: &NormalizedMethod) -> TokenStream
             type Method = Self;
             type Return = #return_type_tokens;
 
-            fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+            fn build_request(mut self) -> super::Request<Self::Method> {
                 let mut files = vec![];
                 #( #prepare_steps )*
 
@@ -523,8 +523,6 @@ pub fn tokenize_method(
         schema_type_names: known_schema_type_names,
         api_method_names: known_api_method_names,
     };
-
-    let import_quotes = [quote! { use crate::client::Bot; }];
 
     let method_name = format_ident!("{}", method_quote.name);
     let mut doc_lines = format_description(&method_quote.description, &method_quote.href);
@@ -569,8 +567,6 @@ pub fn tokenize_method(
     let telegram_method_impl = tokenize_telegram_method_impl(method_quote);
 
     quote! {
-        #( #import_quotes )*
-
         #( #[doc = #doc_lines] )*
         #( #returns_doc )*
         #[derive(Clone, Debug, Serialize)]
@@ -607,18 +603,14 @@ pub fn tokenize_methods_mod(method_names: &[&String]) -> TokenStream {
         //!
         //! # Examples
         //! ```rust
-        //! use telers::{methods::SendMessage, errors::SessionErrorKind, Bot};
+        //! use telers_methods::{SendMessage, TelegramMethod as _};
         //!
-        //! async fn send_text(bot: Bot) -> Result<(), SessionErrorKind> {
-        //!     let request = SendMessage::new(1_i64, "Hello world!")
-        //!         // Regular builder setter.
-        //!         .disable_notification(true)
-        //!         // `_option(...)` variant for Option<T> values.
-        //!         .disable_notification_option(Some(true));
-        //!
-        //!     bot.send(request).await?;
-        //!     Ok(())
-        //! }
+        //! let request = SendMessage::new(1_i64, "Hello world!")
+        //!     // Regular builder setter.
+        //!     .disable_notification(true)
+        //!     // `_option(...)` variant for Option<T> values.
+        //!     .disable_notification_option(Some(true))
+        //!     .build_request();
         //! ```
 
         pub(crate) mod non_telegram;

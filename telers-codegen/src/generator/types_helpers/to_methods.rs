@@ -27,6 +27,7 @@ pub fn tokenize_to_methods_mod(type_names: &[&str]) -> TokenStream {
 
     quote! {
         #( #mods_quote )*
+        pub use callback_query::CallbackQueryShortcuts;
         pub use message::{MessageRenderers, MessageShortcuts};
     }
 }

@@ -77,12 +77,12 @@ mod tests {
 
     #[cfg(feature = "deser")]
     impl Serialize for Binary<'_> {
-        fn serialize(
-            &self,
+        fn serialize<'a>(
+            value: &'a Self,
             _state: &mut ::deser::State,
-        ) -> Result<::deser::ser::Chunk<'_>, ::deser::Error> {
-            Ok(::deser::ser::Chunk::Atom(::deser::Atom::Bytes(
-                self.0.into(),
+        ) -> Result<::deser::ser::Emit<'a>, ::deser::Error> {
+            Ok(::deser::ser::Emit::Atom(::deser::Atom::Bytes(
+                value.0.into(),
             )))
         }
     }
