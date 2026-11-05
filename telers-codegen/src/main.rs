@@ -1,4 +1,5 @@
 use clap::Parser;
+use semver::Version;
 use std::{
     collections::HashSet,
     fmt::Display,
@@ -7,7 +8,9 @@ use std::{
     process,
 };
 use telers_codegen::{
-    file::{camel_to_filename, check_tokens_to_file, write_tokens_to_file},
+    file::{
+        camel_to_filename, check_tokens_to_file, update_manifest_versions, write_tokens_to_file,
+    },
     generator::{self, methods::struct_name_to_method_name},
     parser::api::Schema,
 };
@@ -82,6 +85,20 @@ impl Output {
                 eprintln!(
                     "Failed to render file '{filename}' in dir '{dir}': {err}\nContent: {tokens}",
                     dir = dir.display()
+                );
+                process::exit(1);
+            }
+        }
+    }
+
+    fn update_versions(&mut self, dir: &Path, api_version: &Version) {
+        match update_manifest_versions(dir, api_version, self.check) {
+            Ok(None) => {}
+            Ok(Some(path)) => self.drifted.push(path),
+            Err(err) => {
+                eprintln!(
+                    "Failed to update version in '{}': {err}",
+                    dir.join("Cargo.toml").display()
                 );
                 process::exit(1);
             }
@@ -179,6 +196,20 @@ fn main() {
             process::exit(1);
         })
         .normalize();
+
+    let version = schema
+        .version
+        .strip_prefix("Bot API ")
+        .unwrap_or(&schema.version);
+    let api_version = Version::parse(version)
+        .or_else(|_| Version::parse(&format!("{version}.0")))
+        .unwrap_or_else(|err| {
+            eprintln!("Invalid schema version '{}': {err}", schema.version);
+            process::exit(1);
+        });
+    output.update_versions(&args.types_generated_dir_path, &api_version);
+    output.update_versions(&args.methods_generated_dir_path, &api_version);
+    output.update_versions(&args.generated_dir_path, &api_version);
 
     apply_schema_transforms(&mut schema);
 

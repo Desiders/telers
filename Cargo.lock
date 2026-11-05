@@ -3144,9 +3144,11 @@ dependencies = [
  "proc-macro2",
  "quote",
  "regex",
+ "semver",
  "serde",
  "serde_json",
  "syn 2.0.119",
+ "toml_edit",
 ]
 
 [[package]]
@@ -3477,6 +3479,7 @@ dependencies = [
  "indexmap 2.14.2",
  "toml_datetime",
  "toml_parser",
+ "toml_writer",
  "winnow",
 ]
 
