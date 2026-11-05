@@ -41,8 +41,9 @@ pub fn from_value<T: DeserializeOwned>(value: Value) -> Result<T, Error> {
 /// Returns an error if the value cannot be represented as JSON.
 #[cfg(feature = "deser")]
 pub fn to_string_pretty<T: Serialize + ?Sized>(value: &T) -> Result<String, Error> {
-    deser_json::SerializerConfig::new()
+    deser_json::SerializerConfig::builder()
         .pretty(deser_json::Indent::Spaces(2))
+        .build()
         .to_string(&value)
 }
 

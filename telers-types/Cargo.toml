@@ -16,9 +16,9 @@ deser = ["dep:deser", "dep:deser-json", "dep:deser-value"]
 
 [dependencies]
 bytes = { version = "1.5", default-features = false, features = ["std"] }
-deser = { version = "=0.9.1", features = ["derive"], optional = true }
-deser-json = { version = "=0.9.1", optional = true }
-deser-value = { version = "=0.9.1", optional = true }
+deser = { version = "0.10", features = ["derive"], optional = true }
+deser-json = { version = "0.10", optional = true }
+deser-value = { version = "0.10", optional = true }
 futures-util = { version = "0.3", default-features = false, features = ["std"] }
 serde = { version = "1.0", default-features = false, features = ["derive", "std"], optional = true }
 serde_json = { version = "1.0", default-features = false, features = ["std", "unbounded_depth"], optional = true }

@@ -808,9 +808,9 @@ dependencies = [
 
 [[package]]
 name = "deser"
-version = "0.9.1"
+version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73f38758df3495e682a29dd0c1a6326fed4ad46a274b85ea36799884127202bf"
+checksum = "d76d6df21374422dad94c9ee880dcb7b7038fa853d8c98677cc6d17b01866945"
 dependencies = [
  "deser-core",
  "deser-derive",
@@ -818,9 +818,9 @@ dependencies = [
 
 [[package]]
 name = "deser-core"
-version = "0.9.1"
+version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12bd36a68e8d14a98ad4107016d65f3af3e851185f3176f05d873aaec9328472"
+checksum = "02f55809b557fd7b0edb219ea51b4368ed8bc03794d4850ffc20c7152139e7b0"
 dependencies = [
  "bigdecimal",
  "indexmap 2.14.2",
@@ -831,9 +831,9 @@ dependencies = [
 
 [[package]]
 name = "deser-derive"
-version = "0.9.1"
+version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eca8164527abd9115827cc18284c01ebf597b2f5cf4b2e87f0e56b7654fb1c01"
+checksum = "27b603a9e0a47996eb048e2e3a74cf505c283e94fa9f4bcb6efa9bc7824dd879"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -842,20 +842,21 @@ dependencies = [
 
 [[package]]
 name = "deser-json"
-version = "0.9.1"
+version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9f11fb5ad1e6dd92b89f2083154047651a2cb950f35019e8385a8681352ca6f2"
+checksum = "7b2e6b0b2ca4daf985f1de5554bf586290e2eab7f954858cf6a98466e942ba27"
 dependencies = [
  "deser-core",
+ "itoa",
  "simdutf8",
  "zmij",
 ]
 
 [[package]]
 name = "deser-value"
-version = "0.9.1"
+version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d92341b8f09ca41e6a5e9f5eed1f7f2c8025cd11922ce9b1cdb2bbe90e5faf7"
+checksum = "8dce5a64c8cb0da3fcc7881bf0e0ef6b41d77c7f2d1588f6d31248716e41ef99"
 dependencies = [
  "deser-core",
  "indexmap 2.14.2",

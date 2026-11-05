@@ -3,39 +3,39 @@
 use super::Error;
 use crate::serialization::Serialize;
 use ::deser::{
-    ser::{Chunk, Layer, Next, SerializeDriver, Serializer},
-    Atom, BytesFormat, Event, State,
+    ser::{Emit, Layer, Next, SerializeDriver, SerializeRef, Serializer},
+    Atom, BytesFormat, Context, Event, State,
 };
 use reqwest::multipart::{Form, Part};
 
-pub(super) fn serialize(data: &(impl Serialize + ?Sized)) -> Result<Form, Error> {
+pub(super) fn serialize<T: Serialize + ?Sized>(data: &T) -> Result<Form, Error> {
     let mut state = State::new();
-    let emitted = Serialize::serialize(data, &mut state)?;
+    let emitted = T::serialize(data, &mut state)?;
     let result = (|| {
         let mut form = Form::new();
         match emitted {
-            Chunk::Struct(mut fields) => {
+            Emit::Struct(mut fields) => {
                 while let Some((key, value)) = fields.next(&mut state)? {
-                    form = form.part(key.into_owned(), part(&*value)?);
+                    form = form.part(key.into_owned(), part(value.get())?);
                 }
             }
-            Chunk::Map(mut fields) => loop {
+            Emit::Map(mut fields) => loop {
                 let key = {
                     let Some(key) = fields.next_key(&mut state)? else {
                         break;
                     };
-                    let json = deser_json::to_string(&*key)?;
+                    let json = deser_json::to_string(&key.get())?;
                     deser_json::from_str::<String>(&json)?
                 };
                 let value = fields.next_value(&mut state)?;
-                form = form.part(key, part(&*value)?);
+                form = form.part(key, part(value.get())?);
             },
-            Chunk::Forward(value) => return serialize(&*value),
+            Emit::Forward(value) => return serialize(&value.get()),
             _ => return Err(Error::top_level("expected a struct or string-keyed map")),
         }
         Ok(form)
     })();
-    let finished = Serialize::finish(data, &mut state);
+    let finished = T::finish(data, &mut state);
     result.and_then(|form| {
         finished?;
         Ok(form)
@@ -67,14 +67,16 @@ impl Layer for ScalarLayer {
     }
 }
 
-fn part(value: &dyn Serialize) -> Result<Part, Error> {
-    let mut driver = SerializeDriver::new(value);
+fn part(value: SerializeRef<'_>) -> Result<Part, Error> {
+    let mut driver = SerializeDriver::from_ref(value);
     // Scalar floats use Display and scalar bytes remain raw, as with Serde.
     driver.push_layer(ScalarLayer {
         first: true,
     });
-    let config = deser_json::SerializerConfig::new().bytes(BytesFormat::SEQ);
-    let mut serializer = deser_json::Serializer::with_config(&config);
+    let config = deser_json::SerializerConfig::builder()
+        .context(Context::with(BytesFormat::SEQ))
+        .build();
+    let mut serializer = deser_json::Serializer::with_config(config);
     Serializer::drive(&mut serializer, &mut driver)?;
     if let Some(bytes) = driver.state_mut().get_mut::<PartBytes>().0.take() {
         return Ok(Part::bytes(bytes));

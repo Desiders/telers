@@ -613,8 +613,11 @@ impl PartialEq for StreamFile {
 
 #[cfg(feature = "deser")]
 impl deser::Serialize for InputFile {
-    fn serialize(&self, state: &mut deser::State) -> Result<deser::ser::Chunk<'_>, deser::Error> {
-        <str as deser::Serialize>::serialize(self.str_to_file(), state)
+    fn serialize<'a>(
+        value: &'a Self,
+        state: &mut deser::State,
+    ) -> Result<deser::ser::Emit<'a>, deser::Error> {
+        <str as deser::Serialize>::serialize(value.str_to_file(), state)
     }
 }
 
