@@ -21,5 +21,5 @@ deser-json = { version = "0.10", optional = true }
 serde = { version = "1.0", default-features = false, features = ["derive", "std"], optional = true }
 serde_json = { version = "1.0", default-features = false, features = ["std", "unbounded_depth"], optional = true }
 serde_stacker = { version = "0.1", default-features = false, optional = true }
-telers-types = { version = "10.3", path = "../telers-types", default-features = false }
+telers-types = { version = "10", path = "../telers-types", default-features = false }
 tracing = { version = "0.1", default-features = false, features = ["attributes", "std"] }
