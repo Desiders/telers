@@ -447,6 +447,22 @@ pub fn tokenize_message_to_methods(schema: &NormalizedSchema) -> TokenStream {
         .iter()
         .map(|subtype| format_ident!("{}", subtype.ty_name))
         .collect::<Vec<_>>();
+    let type_imports = [
+        "EphemeralMessageParameters",
+        "ReplyParameters",
+        &type_quote.name,
+    ]
+    .into_iter()
+    .chain(
+        type_quote
+            .subtypes
+            .iter()
+            .map(|subtype| subtype.ty_name.as_str()),
+    )
+    .collect::<BTreeSet<_>>()
+    .into_iter()
+    .map(|name| format_ident!("{name}"))
+    .collect::<Vec<_>>();
 
     // The subtypes share the fields the shortcuts read, so any of them describes the fields
     let fields = &schema
@@ -551,9 +567,11 @@ pub fn tokenize_message_to_methods(schema: &NormalizedSchema) -> TokenStream {
         .collect::<Vec<_>>();
 
     quote! {
-        use crate::types::{EphemeralMessageParameters, ReplyParameters, #type_name, #( #subtype_names ),*};
-        use crate::methods::{#( #method_names ),*};
-        use crate::utils::text::Renderer;
+        use crate::{
+            methods::{#( #method_names ),*},
+            types::{#( #type_imports ),*},
+            utils::text::Renderer,
+        };
 
         /// Shortcuts that create methods for the message with its fields filled,
         /// for example [`MessageShortcuts::answer`] creates [`SendMessage`] to the chat of the message.
@@ -591,9 +609,7 @@ pub fn tokenize_message_to_methods(schema: &NormalizedSchema) -> TokenStream {
             /// Renders the message text and its entities as an HTML string, if the message has text.
             #[must_use]
             fn html_text(&self) -> Option<String> {
-                self.text().map(|text| {
-                    Renderer::new(text, self.entities().unwrap_or(&[])).as_html()
-                })
+                self.text().map(|text| Renderer::new(text, self.entities().unwrap_or(&[])).as_html())
             }
             /// Renders the message text and its entities as a `MarkdownV2` string, if the message has text.
             #[must_use]

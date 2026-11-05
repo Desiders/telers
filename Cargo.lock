@@ -3124,6 +3124,8 @@ dependencies = [
  "subtle",
  "takecell",
  "telers-macros",
+ "telers-methods",
+ "telers-types",
  "thiserror",
  "tokio",
  "tokio-test",
@@ -3176,6 +3178,41 @@ dependencies = [
  "syn 2.0.119",
  "telers",
  "trybuild",
+]
+
+[[package]]
+name = "telers-methods"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "deser",
+ "deser-json",
+ "serde",
+ "serde_json",
+ "serde_stacker",
+ "telers-types",
+ "tracing",
+]
+
+[[package]]
+name = "telers-types"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "deser",
+ "deser-json",
+ "deser-value",
+ "futures-util",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "strum",
+ "strum_macros",
+ "thiserror",
+ "tokio",
+ "tokio-util",
+ "tracing",
+ "uuid",
 ]
 
 [[package]]

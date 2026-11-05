@@ -1,0 +1,31 @@
+[package]
+name = "telers-methods"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88.0"
+description = "Telegram Bot API methods and request builders independent of an HTTP client"
+repository = "https://github.com/Desiders/telers"
+license = "MIT OR Apache-2.0"
+keywords = ["telegram", "telegram-bot-api", "telers"]
+categories = ["api-bindings"]
+
+[package.metadata.docs.rs]
+all-features = true
+
+[features]
+default = ["serde"]
+serde = ["telers-types/serde", "dep:serde", "dep:serde_json", "dep:serde_stacker"]
+deser = ["telers-types/deser", "dep:deser", "dep:deser-json"]
+
+[dependencies]
+anyhow = { version = "1.0", default-features = false, features = ["std"] }
+deser = { version = "=0.9.1", features = ["derive"], optional = true }
+deser-json = { version = "=0.9.1", optional = true }
+serde = { version = "1.0", default-features = false, features = ["derive", "std"], optional = true }
+serde_json = { version = "1.0", default-features = false, features = ["std", "unbounded_depth"], optional = true }
+serde_stacker = { version = "0.1", default-features = false, optional = true }
+telers-types = { version = "0.1.0", path = "../telers-types", default-features = false }
+tracing = { version = "0.1", default-features = false, features = ["attributes", "std"] }
+
+[dev-dependencies]
+serde_json = "1.0"

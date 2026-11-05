@@ -86,6 +86,7 @@ pub mod methods;
 pub mod middlewares;
 pub mod request;
 pub mod router;
+mod type_extractors;
 pub mod types;
 pub mod utils;
 

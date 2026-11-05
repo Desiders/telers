@@ -118,7 +118,7 @@ impl Reqwest {
         for file in files {
             match file {
                 InputFile::FS(file) => {
-                    let id = file.id.to_string();
+                    let id = file.id().to_string();
                     let file_name = file.file_name().map(ToOwned::to_owned);
                     let body = Body::wrap_stream(file.stream());
 
@@ -131,21 +131,24 @@ impl Reqwest {
                     form = form.part(id, part);
                 }
                 InputFile::Buffered(file) => {
-                    let id = file.id.to_string();
+                    let id = file.id().to_string();
+                    let file_name = file.file_name().map(ToOwned::to_owned);
+                    let body = Body::from(file.into_bytes());
 
-                    let part = if let Some(file_name) = file.file_name {
-                        Part::stream(Body::from(file.bytes)).file_name(file_name)
+                    let part = if let Some(file_name) = file_name {
+                        Part::stream(body).file_name(file_name)
                     } else {
-                        Part::stream(Body::from(file.bytes)).file_name(id.clone())
+                        Part::stream(body).file_name(id.clone())
                     };
 
                     form = form.part(id, part);
                 }
                 InputFile::Stream(file) => {
-                    let id = file.id.to_string();
-                    let body = Body::wrap_stream(file.stream.expect("file stream is empty"));
+                    let id = file.id().to_string();
+                    let file_name = file.file_name().map(ToOwned::to_owned);
+                    let body = Body::wrap_stream(file.into_stream().expect("file stream is empty"));
 
-                    let part = if let Some(file_name) = file.file_name {
+                    let part = if let Some(file_name) = file_name {
                         Part::stream(body).file_name(file_name)
                     } else {
                         Part::stream(body).file_name(id.clone())
@@ -330,26 +333,33 @@ mod tests {
 
     #[tokio::test]
     async fn multipart_upload_keeps_attachment_reference_and_file_bytes() {
-        let file = InputFile::buffered_with_name(&b"photo bytes"[..], "photo.jpg");
-        let reference = file.str_to_file().to_owned();
-        let client = Reqwest::default();
-        let bot = Bot::with_client("123:token", client.clone());
-        let request = SendPhoto::new(123_i64, file)
-            .caption("caption")
-            .build_request(&bot);
-        let form = client
-            .build_form_data(request.data, request.files)
-            .await
-            .unwrap();
-        let chunks: Vec<_> = form.into_stream().try_collect().await.unwrap();
-        let bytes: Vec<_> = chunks.into_iter().flatten().collect();
-        let body = String::from_utf8(bytes).unwrap();
-        assert!(body.contains(&format!("\r\n\r\n{reference}\r\n")));
-        assert!(body.contains(&format!(
-            "name=\"{}\"",
-            reference.trim_start_matches("attach://")
-        )));
-        assert!(body.contains("filename=\"photo.jpg\""));
-        assert!(body.contains("\r\n\r\nphoto bytes\r\n"));
+        for file in [
+            InputFile::buffered_with_name(&b"photo bytes"[..], "photo.jpg"),
+            InputFile::stream_with_name(
+                futures_util::stream::iter([Ok(bytes::Bytes::from_static(b"photo bytes"))]),
+                "photo.jpg",
+            ),
+        ] {
+            let reference = file.str_to_file().to_owned();
+            let client = Reqwest::default();
+            let bot = Bot::with_client("123:token", client.clone());
+            let request = SendPhoto::new(123_i64, file)
+                .caption("caption")
+                .build_request(&bot);
+            let form = client
+                .build_form_data(request.data, request.files)
+                .await
+                .unwrap();
+            let chunks: Vec<_> = form.into_stream().try_collect().await.unwrap();
+            let bytes: Vec<_> = chunks.into_iter().flatten().collect();
+            let body = String::from_utf8(bytes).unwrap();
+            assert!(body.contains(&format!("\r\n\r\n{reference}\r\n")));
+            assert!(body.contains(&format!(
+                "name=\"{}\"",
+                reference.trim_start_matches("attach://")
+            )));
+            assert!(body.contains("filename=\"photo.jpg\""));
+            assert!(body.contains("\r\n\r\nphoto bytes\r\n"));
+        }
     }
 }

@@ -19,8 +19,8 @@ default-tls = ["reqwest/native-tls"]
 rustls-tls = ["reqwest/rustls"]
 
 # Deser replaces Serde throughout the library when enabled.
-deser = ["dep:deser", "dep:deser-json", "dep:deser-value"]
-serde = ["dep:serde", "dep:serde_json", "dep:serde_stacker", "dep:serde_with"]
+deser = ["telers-methods/deser", "telers-types/deser", "dep:deser", "dep:deser-json", "dep:deser-value"]
+serde = ["telers-methods/serde", "telers-types/serde", "dep:serde", "dep:serde_json", "dep:serde_stacker", "dep:serde_with"]
 
 # Include all possible features
 full = ["storages", "default-signal"]
@@ -80,6 +80,8 @@ strum_macros = { version = "0.28", default-features = false }
 subtle = { version = "2.6", default-features = false, features = ["std"], optional = true }
 takecell = { version = "=0.1.1", default-features = false }
 telers-macros = { path = "../telers-macros", version = "1.0.0-beta.3", features = ["default"] }
+telers-methods = { path = "../telers-methods", version = "0.1.0", default-features = false }
+telers-types = { path = "../telers-types", version = "0.1.0", default-features = false }
 thiserror = { version = "2.0", default-features = false, features = ["std"] }
 tokio = { version = "1.36", default-features = false, features = ["sync", "macros", "fs", "io-util"] }
 tokio-util = { version = "0.7", default-features = false, features = ["codec"] }

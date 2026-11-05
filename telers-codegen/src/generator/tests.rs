@@ -41,8 +41,10 @@ pub fn tokenize_tests(schema: &NormalizedSchema, types_path: &str) -> TokenStrea
     }
 
     quote! {
-        use #types_path::types::*;
-        use #types_path::serialization::{Serialize, DeserializeOwned};
+        use #types_path::{
+            serialization::{DeserializeOwned, Serialize},
+            types::*,
+        };
 
         fn must_parse<T: DeserializeOwned>(type_name: &str, value: &serde_json::Value) -> T {
             #types_path::serialization::from_str(&value.to_string()).unwrap_or_else(|err| {

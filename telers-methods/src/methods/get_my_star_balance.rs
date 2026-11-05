@@ -1,0 +1,29 @@
+/// A method to get the current Telegram Stars balance of the bot. Requires no parameters. On success, returns a [`crate::types::StarAmount`] object.
+/// # Documentation
+/// <https://core.telegram.org/bots/api#getmystarbalance>
+/// # Returns
+/// - `crate::types::StarAmount`
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(deser::Serialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
+pub struct GetMyStarBalance {}
+impl GetMyStarBalance {
+    /// Creates a new `GetMyStarBalance`.
+    #[must_use]
+    pub const fn new() -> Self {
+        Self {}
+    }
+}
+impl Default for GetMyStarBalance {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+impl super::TelegramMethod for GetMyStarBalance {
+    type Method = Self;
+    type Return = crate::types::StarAmount;
+
+    fn build_request(self) -> super::Request<Self::Method> {
+        super::Request::new("getMyStarBalance", self, None)
+    }
+}
