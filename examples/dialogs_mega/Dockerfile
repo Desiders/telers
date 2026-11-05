@@ -9,6 +9,8 @@ COPY telers telers
 COPY telers-codegen telers-codegen
 COPY telers-dialog telers-dialog
 COPY telers-macros telers-macros
+COPY telers-methods telers-methods
+COPY telers-types telers-types
 COPY examples/dialogs_mega examples/dialogs_mega
 RUN cargo build --release --package dialogs_mega
 
