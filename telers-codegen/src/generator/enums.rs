@@ -359,12 +359,7 @@ pub fn tokenize_enum_telegram_observer_type(schema: &NormalizedSchema) -> TokenS
 }
 
 #[must_use]
-pub fn tokenize_kind_enums_mod(
-    type_names: &[&str],
-    own_type_names: &[&str],
-    imports: &TokenStream,
-    facade: bool,
-) -> TokenStream {
+pub fn tokenize_kind_enums_mod(type_names: &[&str], own_type_names: &[&str]) -> TokenStream {
     let all_module_names: Vec<_> = type_names
         .iter()
         .chain(own_type_names.iter())
@@ -385,18 +380,13 @@ pub fn tokenize_kind_enums_mod(
         quote! { pub use #mod_name::#kind_name; }
     });
 
-    let doc = facade.then(|| {
-        quote! {
-            //! Enum helpers and discriminator types for Telegram objects.
-            //!
-            //! This module contains:
-            //! - generated `*Type` enums for polymorphic Telegram objects (for example `MessageType`)
-            //! - hand-authored enums like [`ParseMode`]
-        }
-    });
     quote! {
-        #doc
-        #imports
+        //! Enum helpers and discriminator types for Telegram objects.
+        //!
+        //! This module contains:
+        //! - generated `*Type` enums for polymorphic Telegram objects (for example `MessageType`)
+        //! - hand-authored enums like [`ParseMode`]
+
         #( #mods_quote )*
         #( #uses_quote )*
         #( #own_uses_quote )*

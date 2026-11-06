@@ -26,7 +26,6 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 struct TypeDocContext<'a> {
     schema_type_names: &'a HashSet<String>,
     api_method_names: &'a HashMap<String, String>,
-    external_type_links: &'a HashMap<String, String>,
 }
 
 fn link_method_mentions(doc: &str, ctx: &TypeDocContext<'_>) -> String {
@@ -76,11 +75,7 @@ fn format_field_arg_doc(field: &NormalizedField, ctx: &TypeDocContext<'_>) -> St
 
 #[must_use]
 fn link_schema_type_mentions(doc: &str, ctx: &TypeDocContext<'_>) -> String {
-    let mut doc = link_known_type_mentions(doc, ctx.schema_type_names);
-    for (name, link) in ctx.external_type_links {
-        doc = doc.replace(&format!("[`crate::types::{name}`]"), link);
-    }
-    doc
+    link_known_type_mentions(doc, ctx.schema_type_names)
 }
 
 impl ToTokens for TypeKindInField {
@@ -1402,12 +1397,10 @@ pub fn tokenize_type(
     schema: &NormalizedSchema,
     known_schema_type_names: &HashSet<String>,
     known_api_method_names: &HashMap<String, String>,
-    external_type_links: &HashMap<String, String>,
 ) -> TokenStream {
     let ctx = TypeDocContext {
         schema_type_names: known_schema_type_names,
         api_method_names: known_api_method_names,
-        external_type_links,
     };
     let mut import_quotes = vec![];
     if type_quote.has_extra_fields && type_quote.subtypes.is_empty() {
@@ -1431,7 +1424,7 @@ pub fn tokenize_type(
 }
 
 #[must_use]
-pub fn tokenize_type_modules(type_names: &[&String]) -> TokenStream {
+pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
     let mods_quote = type_names.iter().map(|&name| {
         let mod_name = format_ident!("{}", camel_to_filename(name, None));
         quote! { pub mod #mod_name; }
@@ -1442,15 +1435,6 @@ pub fn tokenize_type_modules(type_names: &[&String]) -> TokenStream {
         quote! { pub use #mod_name::#type_name; }
     });
 
-    quote! {
-        #( #mods_quote )*
-        #( #uses_quote )*
-    }
-}
-
-#[must_use]
-pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
-    let modules = tokenize_type_modules(type_names);
     quote! {
         //! Telegram Bot API data types and helper models.
         //!
@@ -1497,9 +1481,9 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
         #![allow(clippy::struct_excessive_bools)]
         #![allow(clippy::large_enum_variant)]
 
-        pub use telers_types_common::types::*;
-        pub use telers_types_input::types::*;
-        pub use telers_types_messages::types::*;
-        #modules
+        pub(crate) mod non_telegram;
+        pub use non_telegram::*;
+        #( #mods_quote )*
+        #( #uses_quote )*
     }
 }

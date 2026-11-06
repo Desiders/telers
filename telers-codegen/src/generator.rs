@@ -6,7 +6,6 @@ pub mod helpers;
 pub mod methods;
 pub mod serialization;
 pub mod tests;
-pub mod type_crates;
 pub mod type_utils;
 pub mod types;
 pub mod types_helpers;

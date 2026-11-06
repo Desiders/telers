@@ -3198,68 +3198,21 @@ dependencies = [
 name = "telers-types"
 version = "10.3.0"
 dependencies = [
- "deser",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "telers-types-common",
- "telers-types-input",
- "telers-types-messages",
-]
-
-[[package]]
-name = "telers-types-common"
-version = "10.3.0"
-dependencies = [
+ "bytes",
  "deser",
  "deser-json",
  "deser-value",
+ "futures-util",
  "serde",
  "serde_json",
+ "serde_with",
  "strum",
  "strum_macros",
  "thiserror",
-]
-
-[[package]]
-name = "telers-types-input"
-version = "10.3.0"
-dependencies = [
- "bytes",
- "deser",
- "futures-util",
- "serde",
- "strum",
- "strum_macros",
- "telers-types-common",
- "telers-types-resources",
  "tokio",
  "tokio-util",
  "tracing",
  "uuid",
-]
-
-[[package]]
-name = "telers-types-messages"
-version = "10.3.0"
-dependencies = [
- "deser",
- "serde",
- "strum",
- "strum_macros",
- "telers-types-common",
-]
-
-[[package]]
-name = "telers-types-resources"
-version = "10.3.0"
-dependencies = [
- "deser",
- "serde",
- "strum",
- "strum_macros",
- "telers-types-common",
 ]
 
 [[package]]

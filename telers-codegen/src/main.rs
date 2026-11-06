@@ -1,8 +1,7 @@
 use clap::Parser;
-use quote::quote;
 use semver::Version;
 use std::{
-    collections::{BTreeMap, HashMap, HashSet},
+    collections::HashSet,
     fmt::Display,
     fs,
     path::{Path, PathBuf},
@@ -12,11 +11,7 @@ use telers_codegen::{
     file::{
         camel_to_filename, check_tokens_to_file, update_manifest_versions, write_tokens_to_file,
     },
-    generator::{
-        self,
-        methods::struct_name_to_method_name,
-        type_crates::{TypeCrate, assign_type_crates},
-    },
+    generator::{self, methods::struct_name_to_method_name},
     parser::api::Schema,
 };
 
@@ -35,22 +30,6 @@ struct Args {
     /// Path to the types crate directory
     #[arg(long = "types-gen-dir", value_name = "PATH")]
     types_generated_dir_path: PathBuf,
-
-    /// Path to the shared types crate directory
-    #[arg(long = "common-gen-dir", value_name = "PATH")]
-    common_generated_dir_path: PathBuf,
-
-    /// Path to the input models crate directory
-    #[arg(long = "input-gen-dir", value_name = "PATH")]
-    input_generated_dir_path: PathBuf,
-
-    /// Path to the message models crate directory
-    #[arg(long = "messages-gen-dir", value_name = "PATH")]
-    messages_generated_dir_path: PathBuf,
-
-    /// Path to the resource models crate directory
-    #[arg(long = "resources-gen-dir", value_name = "PATH")]
-    resources_generated_dir_path: PathBuf,
 
     /// Path to the methods crate directory
     #[arg(long = "methods-gen-dir", value_name = "PATH")]
@@ -76,18 +55,6 @@ struct Args {
     /// Check that the committed output matches the generator instead of writing it
     #[arg(long, default_value_t = false)]
     check: bool,
-}
-
-impl Args {
-    fn type_crate_dir(&self, owner: TypeCrate) -> &Path {
-        match owner {
-            TypeCrate::Common => &self.common_generated_dir_path,
-            TypeCrate::Input => &self.input_generated_dir_path,
-            TypeCrate::Messages => &self.messages_generated_dir_path,
-            TypeCrate::Resources => &self.resources_generated_dir_path,
-            TypeCrate::Facade => &self.types_generated_dir_path,
-        }
-    }
 }
 
 /// Where generated files go, and in `--check` mode where the drift is collected.
@@ -178,65 +145,37 @@ fn apply_schema_transforms(schema: &mut telers_codegen::parser::api::NormalizedS
 
 fn generate_enums(
     schema: &telers_codegen::parser::api::NormalizedSchema,
-    args: &Args,
-    owners: &BTreeMap<String, TypeCrate>,
+    src_dir: &Path,
+    framework_src_dir: &Path,
     output: &mut Output,
 ) {
+    let enums_dir = src_dir.join("enums");
+    let enum_names = schema
+        .types
+        .iter()
+        .filter(|(_, ty)| !ty.subtypes.is_empty())
+        .filter_map(|(name, ty)| {
+            let tokens = generator::enums::tokenize_kind_enum_file(ty)?;
+            output.write(&tokens, &enums_dir, &camel_to_filename(name, Some("rs")));
+            Some(name.as_str())
+        })
+        .collect::<Vec<_>>();
     let mut own_enum_names = vec![];
     for (name, tokens) in &generator::enums::tokenize_own_enums(schema) {
-        let dir = if *name == "TelegramObserverType" {
-            args.generated_dir_path.join("src")
+        if *name == "TelegramObserverType" {
+            output.write(
+                tokens,
+                &framework_src_dir.join("enums"),
+                &camel_to_filename(name, Some("rs")),
+            );
         } else {
+            output.write(tokens, &enums_dir, &camel_to_filename(name, Some("rs")));
             own_enum_names.push(*name);
-            args.common_generated_dir_path.join("src")
-        };
-        output.write(
-            tokens,
-            &dir.join("enums"),
-            &camel_to_filename(name, Some("rs")),
-        );
+        }
     }
-    for owner in TypeCrate::ALL {
-        let src_dir = args.type_crate_dir(owner).join("src");
-        let enum_names = owners
-            .iter()
-            .filter(|(_, group)| **group == owner)
-            .filter_map(|(name, _)| {
-                let tokens = generator::enums::tokenize_kind_enum_file(&schema.types[name])?;
-                output.write(
-                    &tokens,
-                    &src_dir.join("enums"),
-                    &camel_to_filename(name, Some("rs")),
-                );
-                Some(name.as_str())
-            })
-            .collect::<Vec<_>>();
-        let own_names = if owner == TypeCrate::Common {
-            own_enum_names.as_slice()
-        } else {
-            &[]
-        };
-        let imports = match owner {
-            TypeCrate::Common => quote! {},
-            TypeCrate::Facade => quote! {
-                pub use telers_types_common::enums::*;
-                pub use telers_types_input::enums::*;
-                pub use telers_types_messages::enums::*;
-            },
-            TypeCrate::Input => quote! {
-                pub use telers_types_common::enums::*;
-                pub use telers_types_resources::enums::*;
-            },
-            _ => quote! { pub use telers_types_common::enums::*; },
-        };
-        let tokens = generator::enums::tokenize_kind_enums_mod(
-            &enum_names,
-            own_names,
-            &imports,
-            owner == TypeCrate::Facade,
-        );
-        output.write(&tokens, &src_dir, "enums.rs");
-    }
+    let tokens =
+        generator::enums::tokenize_kind_enums_mod(enum_names.as_slice(), own_enum_names.as_slice());
+    output.write(&tokens, src_dir, "enums.rs");
 }
 
 fn main() {
@@ -268,14 +207,11 @@ fn main() {
             eprintln!("Invalid schema version '{}': {err}", schema.version);
             process::exit(1);
         });
-    for owner in TypeCrate::ALL {
-        output.update_versions(args.type_crate_dir(owner), &api_version);
-    }
+    output.update_versions(&args.types_generated_dir_path, &api_version);
     output.update_versions(&args.methods_generated_dir_path, &api_version);
     output.update_versions(&args.generated_dir_path, &api_version);
 
     apply_schema_transforms(&mut schema);
-    let owners = assign_type_crates(&schema);
 
     if args.generate_tests {
         let types_path = args
@@ -289,7 +225,9 @@ fn main() {
     }
 
     let src_dir = args.generated_dir_path.join("src");
+    let types_src_dir = args.types_generated_dir_path.join("src");
     let methods_src_dir = args.methods_generated_dir_path.join("src");
+    let types_dir = types_src_dir.join("types");
     let known_schema_type_names = schema.types.keys().cloned().collect::<HashSet<_>>();
     let known_api_method_names = schema
         .methods
@@ -300,78 +238,24 @@ fn main() {
                 method.name.clone(),
             )
         })
-        .collect::<HashMap<_, _>>();
-    let resource_type_links = owners
-        .iter()
-        .filter(|(_, owner)| **owner == TypeCrate::Resources)
-        .map(|(name, _)| {
-            let kind = if schema.types[name].subtypes.is_empty() {
-                "struct"
-            } else {
-                "enum"
-            };
-            let path = format!(
-                "[`telers_types_resources::types::{name}`](https://docs.rs/telers-types-resources/latest/telers_types_resources/types/{}/{kind}.{name}.html)",
-                camel_to_filename(name, None)
-            );
-            (name.clone(), path)
-        })
-        .collect::<HashMap<_, _>>();
-    let no_external_type_links = HashMap::new();
+        .collect::<std::collections::HashMap<_, _>>();
     for (name, ty) in &schema.types {
-        let external_type_links = if matches!(owners[name], TypeCrate::Common | TypeCrate::Messages)
-        {
-            &resource_type_links
-        } else {
-            &no_external_type_links
-        };
         let tokens = generator::types::tokenize_type(
             ty,
             &schema,
             &known_schema_type_names,
             &known_api_method_names,
-            external_type_links,
         );
-        let types_dir = args.type_crate_dir(owners[name]).join("src/types");
         output.write(&tokens, &types_dir, &camel_to_filename(name, Some("rs")));
     }
     println!("Types generated");
 
-    for owner in TypeCrate::ALL {
-        let type_names = owners
-            .iter()
-            .filter(|(_, group)| **group == owner)
-            .map(|(name, _)| name)
-            .collect::<Vec<_>>();
-        let tokens = if owner == TypeCrate::Facade {
-            generator::types::tokenize_types_mod(&type_names)
-        } else {
-            let modules = generator::types::tokenize_type_modules(&type_names);
-            let common = (owner != TypeCrate::Common)
-                .then(|| quote! { pub use telers_types_common::types::*; });
-            let resources = (owner == TypeCrate::Input)
-                .then(|| quote! { pub use telers_types_resources::types::*; });
-            let helpers = matches!(owner, TypeCrate::Common | TypeCrate::Input).then(|| {
-                quote! {
-                    pub(crate) mod non_telegram;
-                    pub use non_telegram::*;
-                }
-            });
-            quote! {
-                #![allow(clippy::too_many_arguments)]
-                #![allow(clippy::struct_excessive_bools)]
-                #![allow(clippy::large_enum_variant)]
-                #common
-                #resources
-                #helpers
-                #modules
-            }
-        };
-        output.write(&tokens, &args.type_crate_dir(owner).join("src"), "types.rs");
-    }
+    let type_names = schema.types.keys().collect::<Vec<_>>();
+    let tokens = generator::types::tokenize_types_mod(type_names.as_slice());
+    output.write(&tokens, &types_src_dir, "types.rs");
     println!("Types module generated");
 
-    generate_enums(&schema, &args, &owners, &mut output);
+    generate_enums(&schema, &types_src_dir, &src_dir, &mut output);
     println!("Enums generated");
 
     let tokens = generator::types::tokenize_type_extractors(&schema);
