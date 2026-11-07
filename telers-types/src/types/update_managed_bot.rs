@@ -49,6 +49,22 @@ impl From<UpdateManagedBot> for crate::types::ManagedBotUpdated {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::update::deserialize_0!(
-    UpdateManagedBot, managed_bot : crate ::types::ManagedBotUpdated
-);
+impl<'de> serde::Deserialize<'de> for UpdateManagedBot {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "UpdateManagedBot",
+            fields: &["update_id", "managed_bot"],
+            specific: &["managed_bot"],
+            sequence: "struct UpdateManagedBot with 2 elements",
+        };
+        let (common, (value_managed_bot,)) = crate::deserialization::update::read_0::<
+            D,
+            crate::types::ManagedBotUpdated,
+        >(deserializer, meta)?;
+        Ok(Self {
+            update_id: common.update_id,
+            managed_bot: value_managed_bot,
+        })
+    }
+}

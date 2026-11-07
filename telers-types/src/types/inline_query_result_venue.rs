@@ -267,11 +267,89 @@ impl InlineQueryResultVenue {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::inline_query_result::deserialize_5!(
-    InlineQueryResultVenue, latitude : f64, longitude : f64, title : Box < str >, address
-    : Box < str >, foursquare_id : Option < Box < str > >, foursquare_type : Option < Box
-    < str > >, google_place_id : Option < Box < str > >, google_place_type : Option < Box
-    < str > >, input_message_content : Option < crate ::types::InputMessageContent >,
-    thumbnail_url : Option < Box < str > >, thumbnail_width : Option < i64 >,
-    thumbnail_height : Option < i64 >
-);
+impl<'de> serde::Deserialize<'de> for InlineQueryResultVenue {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InlineQueryResultVenue",
+            fields: &[
+                "id",
+                "latitude",
+                "longitude",
+                "title",
+                "address",
+                "foursquare_id",
+                "foursquare_type",
+                "google_place_id",
+                "google_place_type",
+                "reply_markup",
+                "input_message_content",
+                "thumbnail_url",
+                "thumbnail_width",
+                "thumbnail_height",
+            ],
+            specific: &[
+                "latitude",
+                "longitude",
+                "title",
+                "address",
+                "foursquare_id",
+                "foursquare_type",
+                "google_place_id",
+                "google_place_type",
+                "input_message_content",
+                "thumbnail_url",
+                "thumbnail_width",
+                "thumbnail_height",
+            ],
+            sequence: "struct InlineQueryResultVenue with 14 elements",
+        };
+        let (
+            common,
+            (
+                value_latitude,
+                value_longitude,
+                value_title,
+                value_address,
+                value_foursquare_id,
+                value_foursquare_type,
+                value_google_place_id,
+                value_google_place_type,
+                value_input_message_content,
+                value_thumbnail_url,
+                value_thumbnail_width,
+                value_thumbnail_height,
+            ),
+        ) = crate::deserialization::inline_query_result::read_5::<
+            D,
+            f64,
+            f64,
+            Box<str>,
+            Box<str>,
+            Option<Box<str>>,
+            Option<Box<str>>,
+            Option<Box<str>>,
+            Option<Box<str>>,
+            Option<crate::types::InputMessageContent>,
+            Option<Box<str>>,
+            Option<i64>,
+            Option<i64>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            id: common.id,
+            latitude: value_latitude,
+            longitude: value_longitude,
+            title: value_title,
+            address: value_address,
+            foursquare_id: value_foursquare_id,
+            foursquare_type: value_foursquare_type,
+            google_place_id: value_google_place_id,
+            google_place_type: value_google_place_type,
+            reply_markup: common.reply_markup,
+            input_message_content: value_input_message_content,
+            thumbnail_url: value_thumbnail_url,
+            thumbnail_width: value_thumbnail_width,
+            thumbnail_height: value_thumbnail_height,
+        })
+    }
+}

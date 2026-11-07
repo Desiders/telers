@@ -213,6 +213,40 @@ impl InlineQueryResultCachedDocument {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::inline_query_result_document_kind::deserialize_0!(
-    InlineQueryResultCachedDocument, document_file_id : Box < str >
-);
+impl<'de> serde::Deserialize<'de> for InlineQueryResultCachedDocument {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InlineQueryResultCachedDocument",
+            fields: &[
+                "id",
+                "title",
+                "document_file_id",
+                "description",
+                "caption",
+                "parse_mode",
+                "caption_entities",
+                "reply_markup",
+                "input_message_content",
+            ],
+            specific: &["document_file_id"],
+            sequence: "struct InlineQueryResultCachedDocument with 9 elements",
+        };
+        let (common, (value_document_file_id,)) =
+            crate::deserialization::inline_query_result_document_kind::read_0::<D, Box<str>>(
+                deserializer,
+                meta,
+            )?;
+        Ok(Self {
+            id: common.id,
+            title: common.title,
+            document_file_id: value_document_file_id,
+            description: common.description,
+            caption: common.caption,
+            parse_mode: common.parse_mode,
+            caption_entities: common.caption_entities,
+            reply_markup: common.reply_markup,
+            input_message_content: common.input_message_content,
+        })
+    }
+}

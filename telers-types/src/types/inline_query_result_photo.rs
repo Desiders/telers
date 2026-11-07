@@ -289,7 +289,51 @@ impl InlineQueryResultPhoto {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::inline_query_result_photo_kind::deserialize_1!(
-    InlineQueryResultPhoto, photo_url : Box < str >, thumbnail_url : Box < str >,
-    photo_width : Option < i64 >, photo_height : Option < i64 >
-);
+impl<'de> serde::Deserialize<'de> for InlineQueryResultPhoto {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InlineQueryResultPhoto",
+            fields: &[
+                "id",
+                "photo_url",
+                "thumbnail_url",
+                "photo_width",
+                "photo_height",
+                "title",
+                "description",
+                "caption",
+                "parse_mode",
+                "caption_entities",
+                "show_caption_above_media",
+                "reply_markup",
+                "input_message_content",
+            ],
+            specific: &["photo_url", "thumbnail_url", "photo_width", "photo_height"],
+            sequence: "struct InlineQueryResultPhoto with 13 elements",
+        };
+        let (common, (value_photo_url, value_thumbnail_url, value_photo_width, value_photo_height)) =
+            crate::deserialization::inline_query_result_photo_kind::read_1::<
+                D,
+                Box<str>,
+                Box<str>,
+                Option<i64>,
+                Option<i64>,
+            >(deserializer, meta)?;
+        Ok(Self {
+            id: common.id,
+            photo_url: value_photo_url,
+            thumbnail_url: value_thumbnail_url,
+            photo_width: value_photo_width,
+            photo_height: value_photo_height,
+            title: common.title,
+            description: common.description,
+            caption: common.caption,
+            parse_mode: common.parse_mode,
+            caption_entities: common.caption_entities,
+            show_caption_above_media: common.show_caption_above_media,
+            reply_markup: common.reply_markup,
+            input_message_content: common.input_message_content,
+        })
+    }
+}

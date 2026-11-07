@@ -221,6 +221,41 @@ impl GiveawayWinnersStar {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::giveaway_winners::deserialize_0!(
-    GiveawayWinnersStar, prize_star_count : i64
-);
+impl<'de> serde::Deserialize<'de> for GiveawayWinnersStar {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "GiveawayWinnersStar",
+            fields: &[
+                "chat",
+                "giveaway_message_id",
+                "winners_selection_date",
+                "winner_count",
+                "winners",
+                "additional_chat_count",
+                "prize_star_count",
+                "unclaimed_prize_count",
+                "only_new_members",
+                "was_refunded",
+                "prize_description",
+            ],
+            specific: &["prize_star_count"],
+            sequence: "struct GiveawayWinnersStar with 11 elements",
+        };
+        let (common, (value_prize_star_count,)) =
+            crate::deserialization::giveaway_winners::read_0::<D, i64>(deserializer, meta)?;
+        Ok(Self {
+            chat: common.chat,
+            giveaway_message_id: common.giveaway_message_id,
+            winners_selection_date: common.winners_selection_date,
+            winner_count: common.winner_count,
+            winners: common.winners,
+            additional_chat_count: common.additional_chat_count,
+            prize_star_count: value_prize_star_count,
+            unclaimed_prize_count: common.unclaimed_prize_count,
+            only_new_members: common.only_new_members,
+            was_refunded: common.was_refunded,
+            prize_description: common.prize_description,
+        })
+    }
+}

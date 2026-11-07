@@ -30,4 +30,18 @@ impl TransactionPartnerUserBusinessAccountTransfer {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::chat_member::deserialize_2!(TransactionPartnerUserBusinessAccountTransfer,);
+impl<'de> serde::Deserialize<'de> for TransactionPartnerUserBusinessAccountTransfer {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "TransactionPartnerUserBusinessAccountTransfer",
+            fields: &["user"],
+            specific: &[],
+            sequence: "struct TransactionPartnerUserBusinessAccountTransfer with 1 element",
+        };
+        let (common, ()) = crate::deserialization::chat_member::read_2::<D>(deserializer, meta)?;
+        Ok(Self {
+            user: common.user,
+        })
+    }
+}

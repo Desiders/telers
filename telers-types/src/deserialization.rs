@@ -31,12 +31,6 @@ fn seq_field<'de, A: SeqAccess<'de>, T: Deserialize<'de>>(
     seq.next_element()?
         .ok_or_else(|| A::Error::invalid_length(index, expected))
 }
-pub(crate) const fn field_name(name: &'static str) -> &'static str {
-    match name.as_bytes() {
-        [b'r', b'#', ..] => name.split_at(2).1,
-        _ => name,
-    }
-}
 #[derive(Clone, Copy)]
 pub(crate) struct Meta {
     pub(crate) name: &'static str,
@@ -237,26 +231,6 @@ pub(crate) mod chat {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        ($name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1,)) = $crate::deserialization::chat::read_0:: < D, $P0, $P1
-            > (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            "is_direct_messages"] }, specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1))] }, sequence :
-            concat!("struct ", stringify!($name), " with 4 elements"), },) ?; Ok(Self {
-            id : common.id, is_direct_messages : common.is_direct_messages, $field_0 :
-            value_0, $field_1 : value_1, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1<P0> {
         meta: Meta,
         marker: PhantomData<(P0,)>,
@@ -322,24 +296,6 @@ pub(crate) mod chat {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) = $crate::deserialization::chat::read_1:: < D, $P0 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            "is_direct_messages"] }, specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0))] }, sequence :
-            concat!("struct ", stringify!($name), " with 3 elements"), },) ?; Ok(Self {
-            id : common.id, is_direct_messages : common.is_direct_messages, $field_0 :
-            value_0, }) } }
-        };
-    }
-    pub(crate) use deserialize_1;
     struct Visitor2<P0, P1, P2> {
         meta: Meta,
         marker: PhantomData<(P0, P1, P2)>,
@@ -429,31 +385,6 @@ pub(crate) mod chat {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_2 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2,)) = $crate::deserialization::chat::read_2:: < D,
-            $P0, $P1, $P2 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            "is_direct_messages"] }, specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2))] }, sequence :
-            concat!("struct ", stringify!($name), " with 5 elements"), },) ?; Ok(Self {
-            id : common.id, is_direct_messages : common.is_direct_messages, $field_0 :
-            value_0, $field_1 : value_1, $field_2 : value_2, }) } }
-        };
-    }
-    pub(crate) use deserialize_2;
 }
 pub(crate) mod chat_full_info {
     use super::{
@@ -848,62 +779,6 @@ pub(crate) mod chat_full_info {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty, $field_4:ident : $P4:ty, $field_5:ident :
-            $P5:ty, $field_6:ident : $P6:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3, value_4, value_5, value_6,)) =
-            $crate::deserialization::chat_full_info::read_0:: < D, $P0, $P1, $P2, $P3,
-            $P4, $P5, $P6 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            "is_direct_messages", "accent_color_id", "max_reaction_count", "photo",
-            $crate::deserialization::field_name(stringify!($field_2)),
-            "available_reactions", "background_custom_emoji_id",
-            "profile_accent_color_id", "profile_background_custom_emoji_id",
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)), "pinned_message",
-            "accepted_gift_types",
-            $crate::deserialization::field_name(stringify!($field_5)),
-            "message_auto_delete_time", "has_hidden_members", "has_protected_content",
-            "has_visible_history",
-            $crate::deserialization::field_name(stringify!($field_6)),
-            "unique_gift_colors", "paid_message_star_count", "guard_bot", "community"] },
-            specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6))] }, sequence :
-            concat!("struct ", stringify!($name), " with 26 elements"), },) ?; Ok(Self {
-            accent_color_id : common.accent_color_id, accepted_gift_types : common
-            .accepted_gift_types, available_reactions : common.available_reactions,
-            background_custom_emoji_id : common.background_custom_emoji_id, community :
-            common.community, guard_bot : common.guard_bot, has_hidden_members : common
-            .has_hidden_members, has_protected_content : common.has_protected_content,
-            has_visible_history : common.has_visible_history, id : common.id,
-            is_direct_messages : common.is_direct_messages, max_reaction_count : common
-            .max_reaction_count, message_auto_delete_time : common
-            .message_auto_delete_time, paid_message_star_count : common
-            .paid_message_star_count, photo : common.photo, pinned_message : common
-            .pinned_message, profile_accent_color_id : common.profile_accent_color_id,
-            profile_background_custom_emoji_id : common
-            .profile_background_custom_emoji_id, unique_gift_colors : common
-            .unique_gift_colors, $field_0 : value_0, $field_1 : value_1, $field_2 :
-            value_2, $field_3 : value_3, $field_4 : value_4, $field_5 : value_5, $field_6
-            : value_6, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1<P0, P1, P2, P3> {
         meta: Meta,
         marker: PhantomData<(P0, P1, P2, P3)>,
@@ -1112,52 +987,6 @@ pub(crate) mod chat_full_info {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3,)) =
-            $crate::deserialization::chat_full_info::read_1:: < D, $P0, $P1, $P2, $P3 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            "is_direct_messages", "accent_color_id", "max_reaction_count", "photo",
-            "available_reactions", "background_custom_emoji_id",
-            "profile_accent_color_id", "profile_background_custom_emoji_id",
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)), "pinned_message",
-            $crate::deserialization::field_name(stringify!($field_3)),
-            "accepted_gift_types", "message_auto_delete_time", "has_hidden_members",
-            "has_protected_content", "has_visible_history", "unique_gift_colors",
-            "paid_message_star_count", "guard_bot", "community"] }, specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3))] }, sequence :
-            concat!("struct ", stringify!($name), " with 23 elements"), },) ?; Ok(Self {
-            accent_color_id : common.accent_color_id, accepted_gift_types : common
-            .accepted_gift_types, available_reactions : common.available_reactions,
-            background_custom_emoji_id : common.background_custom_emoji_id, community :
-            common.community, guard_bot : common.guard_bot, has_hidden_members : common
-            .has_hidden_members, has_protected_content : common.has_protected_content,
-            has_visible_history : common.has_visible_history, id : common.id,
-            is_direct_messages : common.is_direct_messages, max_reaction_count : common
-            .max_reaction_count, message_auto_delete_time : common
-            .message_auto_delete_time, paid_message_star_count : common
-            .paid_message_star_count, photo : common.photo, pinned_message : common
-            .pinned_message, profile_accent_color_id : common.profile_accent_color_id,
-            profile_background_custom_emoji_id : common
-            .profile_background_custom_emoji_id, unique_gift_colors : common
-            .unique_gift_colors, $field_0 : value_0, $field_1 : value_1, $field_2 :
-            value_2, $field_3 : value_3, }) } }
-        };
-    }
-    pub(crate) use deserialize_1;
     struct Visitor2<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15> {
         meta: Meta,
         marker: PhantomData<(
@@ -1529,86 +1358,6 @@ pub(crate) mod chat_full_info {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_2 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty, $field_4:ident : $P4:ty, $field_5:ident :
-            $P5:ty, $field_6:ident : $P6:ty, $field_7:ident : $P7:ty, $field_8:ident :
-            $P8:ty, $field_9:ident : $P9:ty, $field_10:ident : $P10:ty, $field_11:ident :
-            $P11:ty, $field_12:ident : $P12:ty, $field_13:ident : $P13:ty,
-            $field_14:ident : $P14:ty, $field_15:ident : $P15:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3, value_4, value_5, value_6, value_7,
-            value_8, value_9, value_10, value_11, value_12, value_13, value_14,
-            value_15,)) = $crate::deserialization::chat_full_info::read_2:: < D, $P0,
-            $P1, $P2, $P3, $P4, $P5, $P6, $P7, $P8, $P9, $P10, $P11, $P12, $P13, $P14,
-            $P15 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            "is_direct_messages", "accent_color_id", "max_reaction_count", "photo",
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6)),
-            $crate::deserialization::field_name(stringify!($field_7)),
-            $crate::deserialization::field_name(stringify!($field_8)),
-            "available_reactions", "background_custom_emoji_id",
-            "profile_accent_color_id", "profile_background_custom_emoji_id",
-            $crate::deserialization::field_name(stringify!($field_9)),
-            $crate::deserialization::field_name(stringify!($field_10)),
-            $crate::deserialization::field_name(stringify!($field_11)),
-            $crate::deserialization::field_name(stringify!($field_12)),
-            $crate::deserialization::field_name(stringify!($field_13)), "pinned_message",
-            "accepted_gift_types", "message_auto_delete_time", "has_hidden_members",
-            "has_protected_content", "has_visible_history",
-            $crate::deserialization::field_name(stringify!($field_14)),
-            $crate::deserialization::field_name(stringify!($field_15)),
-            "unique_gift_colors", "paid_message_star_count", "guard_bot", "community"] },
-            specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6)),
-            $crate::deserialization::field_name(stringify!($field_7)),
-            $crate::deserialization::field_name(stringify!($field_8)),
-            $crate::deserialization::field_name(stringify!($field_9)),
-            $crate::deserialization::field_name(stringify!($field_10)),
-            $crate::deserialization::field_name(stringify!($field_11)),
-            $crate::deserialization::field_name(stringify!($field_12)),
-            $crate::deserialization::field_name(stringify!($field_13)),
-            $crate::deserialization::field_name(stringify!($field_14)),
-            $crate::deserialization::field_name(stringify!($field_15))] }, sequence :
-            concat!("struct ", stringify!($name), " with 35 elements"), },) ?; Ok(Self {
-            accent_color_id : common.accent_color_id, accepted_gift_types : common
-            .accepted_gift_types, available_reactions : common.available_reactions,
-            background_custom_emoji_id : common.background_custom_emoji_id, community :
-            common.community, guard_bot : common.guard_bot, has_hidden_members : common
-            .has_hidden_members, has_protected_content : common.has_protected_content,
-            has_visible_history : common.has_visible_history, id : common.id,
-            is_direct_messages : common.is_direct_messages, max_reaction_count : common
-            .max_reaction_count, message_auto_delete_time : common
-            .message_auto_delete_time, paid_message_star_count : common
-            .paid_message_star_count, photo : common.photo, pinned_message : common
-            .pinned_message, profile_accent_color_id : common.profile_accent_color_id,
-            profile_background_custom_emoji_id : common
-            .profile_background_custom_emoji_id, unique_gift_colors : common
-            .unique_gift_colors, $field_0 : value_0, $field_1 : value_1, $field_2 :
-            value_2, $field_3 : value_3, $field_4 : value_4, $field_5 : value_5, $field_6
-            : value_6, $field_7 : value_7, $field_8 : value_8, $field_9 : value_9,
-            $field_10 : value_10, $field_11 : value_11, $field_12 : value_12, $field_13 :
-            value_13, $field_14 : value_14, $field_15 : value_15, }) } }
-        };
-    }
-    pub(crate) use deserialize_2;
     struct Visitor3<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16, P17> {
         meta: Meta,
         marker: PhantomData<(
@@ -2004,93 +1753,6 @@ pub(crate) mod chat_full_info {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_3 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty, $field_4:ident : $P4:ty, $field_5:ident :
-            $P5:ty, $field_6:ident : $P6:ty, $field_7:ident : $P7:ty, $field_8:ident :
-            $P8:ty, $field_9:ident : $P9:ty, $field_10:ident : $P10:ty, $field_11:ident :
-            $P11:ty, $field_12:ident : $P12:ty, $field_13:ident : $P13:ty,
-            $field_14:ident : $P14:ty, $field_15:ident : $P15:ty, $field_16:ident :
-            $P16:ty, $field_17:ident : $P17:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3, value_4, value_5, value_6, value_7,
-            value_8, value_9, value_10, value_11, value_12, value_13, value_14, value_15,
-            value_16, value_17,)) = $crate::deserialization::chat_full_info::read_3:: <
-            D, $P0, $P1, $P2, $P3, $P4, $P5, $P6, $P7, $P8, $P9, $P10, $P11, $P12, $P13,
-            $P14, $P15, $P16, $P17 > (deserializer, $crate::deserialization::Meta { name
-            : stringify!($name), fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            "is_direct_messages", "accent_color_id", "max_reaction_count", "photo",
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            "available_reactions", "background_custom_emoji_id",
-            "profile_accent_color_id", "profile_background_custom_emoji_id",
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6)),
-            $crate::deserialization::field_name(stringify!($field_7)),
-            $crate::deserialization::field_name(stringify!($field_8)), "pinned_message",
-            $crate::deserialization::field_name(stringify!($field_9)),
-            "accepted_gift_types",
-            $crate::deserialization::field_name(stringify!($field_10)),
-            $crate::deserialization::field_name(stringify!($field_11)),
-            "message_auto_delete_time",
-            $crate::deserialization::field_name(stringify!($field_12)),
-            "has_hidden_members", "has_protected_content", "has_visible_history",
-            $crate::deserialization::field_name(stringify!($field_13)),
-            $crate::deserialization::field_name(stringify!($field_14)),
-            $crate::deserialization::field_name(stringify!($field_15)),
-            $crate::deserialization::field_name(stringify!($field_16)),
-            $crate::deserialization::field_name(stringify!($field_17)),
-            "unique_gift_colors", "paid_message_star_count", "guard_bot", "community"] },
-            specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6)),
-            $crate::deserialization::field_name(stringify!($field_7)),
-            $crate::deserialization::field_name(stringify!($field_8)),
-            $crate::deserialization::field_name(stringify!($field_9)),
-            $crate::deserialization::field_name(stringify!($field_10)),
-            $crate::deserialization::field_name(stringify!($field_11)),
-            $crate::deserialization::field_name(stringify!($field_12)),
-            $crate::deserialization::field_name(stringify!($field_13)),
-            $crate::deserialization::field_name(stringify!($field_14)),
-            $crate::deserialization::field_name(stringify!($field_15)),
-            $crate::deserialization::field_name(stringify!($field_16)),
-            $crate::deserialization::field_name(stringify!($field_17))] }, sequence :
-            concat!("struct ", stringify!($name), " with 37 elements"), },) ?; Ok(Self {
-            accent_color_id : common.accent_color_id, accepted_gift_types : common
-            .accepted_gift_types, available_reactions : common.available_reactions,
-            background_custom_emoji_id : common.background_custom_emoji_id, community :
-            common.community, guard_bot : common.guard_bot, has_hidden_members : common
-            .has_hidden_members, has_protected_content : common.has_protected_content,
-            has_visible_history : common.has_visible_history, id : common.id,
-            is_direct_messages : common.is_direct_messages, max_reaction_count : common
-            .max_reaction_count, message_auto_delete_time : common
-            .message_auto_delete_time, paid_message_star_count : common
-            .paid_message_star_count, photo : common.photo, pinned_message : common
-            .pinned_message, profile_accent_color_id : common.profile_accent_color_id,
-            profile_background_custom_emoji_id : common
-            .profile_background_custom_emoji_id, unique_gift_colors : common
-            .unique_gift_colors, $field_0 : value_0, $field_1 : value_1, $field_2 :
-            value_2, $field_3 : value_3, $field_4 : value_4, $field_5 : value_5, $field_6
-            : value_6, $field_7 : value_7, $field_8 : value_8, $field_9 : value_9,
-            $field_10 : value_10, $field_11 : value_11, $field_12 : value_12, $field_13 :
-            value_13, $field_14 : value_14, $field_15 : value_15, $field_16 : value_16,
-            $field_17 : value_17, }) } }
-        };
-    }
-    pub(crate) use deserialize_3;
 }
 pub(crate) mod chat_member {
     use super::{
@@ -2492,78 +2154,6 @@ pub(crate) mod chat_member {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty, $field_4:ident : $P4:ty, $field_5:ident :
-            $P5:ty, $field_6:ident : $P6:ty, $field_7:ident : $P7:ty, $field_8:ident :
-            $P8:ty, $field_9:ident : $P9:ty, $field_10:ident : $P10:ty, $field_11:ident :
-            $P11:ty, $field_12:ident : $P12:ty, $field_13:ident : $P13:ty,
-            $field_14:ident : $P14:ty, $field_15:ident : $P15:ty, $field_16:ident :
-            $P16:ty, $field_17:ident : $P17:ty, $field_18:ident : $P18:ty,
-            $field_19:ident : $P19:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3, value_4, value_5, value_6, value_7,
-            value_8, value_9, value_10, value_11, value_12, value_13, value_14, value_15,
-            value_16, value_17, value_18, value_19,)) =
-            $crate::deserialization::chat_member::read_0:: < D, $P0, $P1, $P2, $P3, $P4,
-            $P5, $P6, $P7, $P8, $P9, $P10, $P11, $P12, $P13, $P14, $P15, $P16, $P17,
-            $P18, $P19 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["user",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6)),
-            $crate::deserialization::field_name(stringify!($field_7)),
-            $crate::deserialization::field_name(stringify!($field_8)),
-            $crate::deserialization::field_name(stringify!($field_9)),
-            $crate::deserialization::field_name(stringify!($field_10)),
-            $crate::deserialization::field_name(stringify!($field_11)),
-            $crate::deserialization::field_name(stringify!($field_12)),
-            $crate::deserialization::field_name(stringify!($field_13)),
-            $crate::deserialization::field_name(stringify!($field_14)),
-            $crate::deserialization::field_name(stringify!($field_15)),
-            $crate::deserialization::field_name(stringify!($field_16)),
-            $crate::deserialization::field_name(stringify!($field_17)),
-            $crate::deserialization::field_name(stringify!($field_18)),
-            $crate::deserialization::field_name(stringify!($field_19))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6)),
-            $crate::deserialization::field_name(stringify!($field_7)),
-            $crate::deserialization::field_name(stringify!($field_8)),
-            $crate::deserialization::field_name(stringify!($field_9)),
-            $crate::deserialization::field_name(stringify!($field_10)),
-            $crate::deserialization::field_name(stringify!($field_11)),
-            $crate::deserialization::field_name(stringify!($field_12)),
-            $crate::deserialization::field_name(stringify!($field_13)),
-            $crate::deserialization::field_name(stringify!($field_14)),
-            $crate::deserialization::field_name(stringify!($field_15)),
-            $crate::deserialization::field_name(stringify!($field_16)),
-            $crate::deserialization::field_name(stringify!($field_17)),
-            $crate::deserialization::field_name(stringify!($field_18)),
-            $crate::deserialization::field_name(stringify!($field_19))] }, sequence :
-            concat!("struct ", stringify!($name), " with 21 elements"), },) ?; Ok(Self {
-            user : common.user, $field_0 : value_0, $field_1 : value_1, $field_2 :
-            value_2, $field_3 : value_3, $field_4 : value_4, $field_5 : value_5, $field_6
-            : value_6, $field_7 : value_7, $field_8 : value_8, $field_9 : value_9,
-            $field_10 : value_10, $field_11 : value_11, $field_12 : value_12, $field_13 :
-            value_13, $field_14 : value_14, $field_15 : value_15, $field_16 : value_16,
-            $field_17 : value_17, $field_18 : value_18, $field_19 : value_19, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1<P0> {
         meta: Meta,
         marker: PhantomData<(P0,)>,
@@ -2626,22 +2216,6 @@ pub(crate) mod chat_member {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) = $crate::deserialization::chat_member::read_1:: < D, $P0 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["user",
-            $crate::deserialization::field_name(stringify!($field_0))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0))] },
-            sequence : concat!("struct ", stringify!($name), " with 2 elements"), },) ?;
-            Ok(Self { user : common.user, $field_0 : value_0, }) } }
-        };
-    }
-    pub(crate) use deserialize_1;
     struct Visitor2 {
         meta: Meta,
         marker: PhantomData<()>,
@@ -2697,20 +2271,6 @@ pub(crate) mod chat_member {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_2 {
-        ($name:ident,) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common, ()) =
-            $crate::deserialization::chat_member::read_2:: < D, > (deserializer,
-            $crate::deserialization::Meta { name : stringify!($name), fields : const { &
-            ["user"] }, specific : const { & [] }, sequence : concat!("struct ",
-            stringify!($name), " with 1 element"), },) ?; Ok(Self { user : common.user,
-            }) } }
-        };
-    }
-    pub(crate) use deserialize_2;
     struct Visitor3<P0, P1> {
         meta: Meta,
         marker: PhantomData<(P0, P1)>,
@@ -2785,24 +2345,6 @@ pub(crate) mod chat_member {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_3 {
-        ($name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1,)) = $crate::deserialization::chat_member::read_3:: < D,
-            $P0, $P1 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)), "user",
-            $crate::deserialization::field_name(stringify!($field_1))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1))] }, sequence :
-            concat!("struct ", stringify!($name), " with 3 elements"), },) ?; Ok(Self {
-            user : common.user, $field_0 : value_0, $field_1 : value_1, }) } }
-        };
-    }
-    pub(crate) use deserialize_3;
     struct Visitor4<P0, P1> {
         meta: Meta,
         marker: PhantomData<(P0, P1)>,
@@ -2876,24 +2418,6 @@ pub(crate) mod chat_member {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_4 {
-        ($name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1,)) = $crate::deserialization::chat_member::read_4:: < D,
-            $P0, $P1 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["user",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1))] }, sequence :
-            concat!("struct ", stringify!($name), " with 3 elements"), },) ?; Ok(Self {
-            user : common.user, $field_0 : value_0, $field_1 : value_1, }) } }
-        };
-    }
-    pub(crate) use deserialize_4;
     struct Visitor5<
         P0,
         P1,
@@ -3243,75 +2767,6 @@ pub(crate) mod chat_member {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_5 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty, $field_4:ident : $P4:ty, $field_5:ident :
-            $P5:ty, $field_6:ident : $P6:ty, $field_7:ident : $P7:ty, $field_8:ident :
-            $P8:ty, $field_9:ident : $P9:ty, $field_10:ident : $P10:ty, $field_11:ident :
-            $P11:ty, $field_12:ident : $P12:ty, $field_13:ident : $P13:ty,
-            $field_14:ident : $P14:ty, $field_15:ident : $P15:ty, $field_16:ident :
-            $P16:ty, $field_17:ident : $P17:ty, $field_18:ident : $P18:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3, value_4, value_5, value_6, value_7,
-            value_8, value_9, value_10, value_11, value_12, value_13, value_14, value_15,
-            value_16, value_17, value_18,)) =
-            $crate::deserialization::chat_member::read_5:: < D, $P0, $P1, $P2, $P3, $P4,
-            $P5, $P6, $P7, $P8, $P9, $P10, $P11, $P12, $P13, $P14, $P15, $P16, $P17, $P18
-            > (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)), "user",
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6)),
-            $crate::deserialization::field_name(stringify!($field_7)),
-            $crate::deserialization::field_name(stringify!($field_8)),
-            $crate::deserialization::field_name(stringify!($field_9)),
-            $crate::deserialization::field_name(stringify!($field_10)),
-            $crate::deserialization::field_name(stringify!($field_11)),
-            $crate::deserialization::field_name(stringify!($field_12)),
-            $crate::deserialization::field_name(stringify!($field_13)),
-            $crate::deserialization::field_name(stringify!($field_14)),
-            $crate::deserialization::field_name(stringify!($field_15)),
-            $crate::deserialization::field_name(stringify!($field_16)),
-            $crate::deserialization::field_name(stringify!($field_17)),
-            $crate::deserialization::field_name(stringify!($field_18))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6)),
-            $crate::deserialization::field_name(stringify!($field_7)),
-            $crate::deserialization::field_name(stringify!($field_8)),
-            $crate::deserialization::field_name(stringify!($field_9)),
-            $crate::deserialization::field_name(stringify!($field_10)),
-            $crate::deserialization::field_name(stringify!($field_11)),
-            $crate::deserialization::field_name(stringify!($field_12)),
-            $crate::deserialization::field_name(stringify!($field_13)),
-            $crate::deserialization::field_name(stringify!($field_14)),
-            $crate::deserialization::field_name(stringify!($field_15)),
-            $crate::deserialization::field_name(stringify!($field_16)),
-            $crate::deserialization::field_name(stringify!($field_17)),
-            $crate::deserialization::field_name(stringify!($field_18))] }, sequence :
-            concat!("struct ", stringify!($name), " with 20 elements"), },) ?; Ok(Self {
-            user : common.user, $field_0 : value_0, $field_1 : value_1, $field_2 :
-            value_2, $field_3 : value_3, $field_4 : value_4, $field_5 : value_5, $field_6
-            : value_6, $field_7 : value_7, $field_8 : value_8, $field_9 : value_9,
-            $field_10 : value_10, $field_11 : value_11, $field_12 : value_12, $field_13 :
-            value_13, $field_14 : value_14, $field_15 : value_15, $field_16 : value_16,
-            $field_17 : value_17, $field_18 : value_18, }) } }
-        };
-    }
-    pub(crate) use deserialize_5;
     struct Visitor6<P0, P1, P2> {
         meta: Meta,
         marker: PhantomData<(P0, P1, P2)>,
@@ -3397,31 +2852,6 @@ pub(crate) mod chat_member {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_6 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2,)) =
-            $crate::deserialization::chat_member::read_6:: < D, $P0, $P1, $P2 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["user",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2))] }, sequence :
-            concat!("struct ", stringify!($name), " with 4 elements"), },) ?; Ok(Self {
-            user : common.user, $field_0 : value_0, $field_1 : value_1, $field_2 :
-            value_2, }) } }
-        };
-    }
-    pub(crate) use deserialize_6;
     struct Visitor7<P0, P1, P2> {
         meta: Meta,
         marker: PhantomData<(P0, P1, P2)>,
@@ -3508,31 +2938,6 @@ pub(crate) mod chat_member {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_7 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2,)) =
-            $crate::deserialization::chat_member::read_7:: < D, $P0, $P1, $P2 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["user",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2))] }, sequence :
-            concat!("struct ", stringify!($name), " with 4 elements"), },) ?; Ok(Self {
-            user : common.user, $field_0 : value_0, $field_1 : value_1, $field_2 :
-            value_2, }) } }
-        };
-    }
-    pub(crate) use deserialize_7;
 }
 pub(crate) mod encrypted_passport_element {
     use super::{
@@ -3638,23 +3043,6 @@ pub(crate) mod encrypted_passport_element {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) = $crate::deserialization::encrypted_passport_element::read_0:: <
-            D, $P0 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)), "hash"] },
-            specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0))] }, sequence :
-            concat!("struct ", stringify!($name), " with 2 elements"), },) ?; Ok(Self {
-            hash : common.hash, $field_0 : value_0, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1<P0, P1> {
         meta: Meta,
         marker: PhantomData<(P0, P1)>,
@@ -3727,26 +3115,6 @@ pub(crate) mod encrypted_passport_element {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        ($name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1,)) =
-            $crate::deserialization::encrypted_passport_element::read_1:: < D, $P0, $P1 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)), "hash"] },
-            specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1))] }, sequence :
-            concat!("struct ", stringify!($name), " with 3 elements"), },) ?; Ok(Self {
-            hash : common.hash, $field_0 : value_0, $field_1 : value_1, }) } }
-        };
-    }
-    pub(crate) use deserialize_1;
     struct Visitor2<P0, P1, P2, P3, P4> {
         meta: Meta,
         marker: PhantomData<(P0, P1, P2, P3, P4)>,
@@ -3850,36 +3218,6 @@ pub(crate) mod encrypted_passport_element {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_2 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty, $field_4:ident : $P4:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3, value_4,)) =
-            $crate::deserialization::encrypted_passport_element::read_2:: < D, $P0, $P1,
-            $P2, $P3, $P4 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)), "hash"] },
-            specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4))] }, sequence :
-            concat!("struct ", stringify!($name), " with 6 elements"), },) ?; Ok(Self {
-            hash : common.hash, $field_0 : value_0, $field_1 : value_1, $field_2 :
-            value_2, $field_3 : value_3, $field_4 : value_4, }) } }
-        };
-    }
-    pub(crate) use deserialize_2;
     struct Visitor3<P0, P1, P2, P3> {
         meta: Meta,
         marker: PhantomData<(P0, P1, P2, P3)>,
@@ -3974,34 +3312,6 @@ pub(crate) mod encrypted_passport_element {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_3 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3,)) =
-            $crate::deserialization::encrypted_passport_element::read_3:: < D, $P0, $P1,
-            $P2, $P3 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)), "hash"] },
-            specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3))] }, sequence :
-            concat!("struct ", stringify!($name), " with 5 elements"), },) ?; Ok(Self {
-            hash : common.hash, $field_0 : value_0, $field_1 : value_1, $field_2 :
-            value_2, $field_3 : value_3, }) } }
-        };
-    }
-    pub(crate) use deserialize_3;
 }
 pub(crate) mod external_reply_info {
     use super::{
@@ -4155,25 +3465,6 @@ pub(crate) mod external_reply_info {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) = $crate::deserialization::external_reply_info::read_0:: < D, $P0
-            > (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["origin", "chat", "message_id", "link_preview_options",
-            "has_media_spoiler",
-            $crate::deserialization::field_name(stringify!($field_0))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0))] },
-            sequence : concat!("struct ", stringify!($name), " with 6 elements"), },) ?;
-            Ok(Self { chat : common.chat, has_media_spoiler : common.has_media_spoiler,
-            link_preview_options : common.link_preview_options, message_id : common
-            .message_id, origin : common.origin, $field_0 : value_0, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1 {
         meta: Meta,
         marker: PhantomData<()>,
@@ -4256,23 +3547,6 @@ pub(crate) mod external_reply_info {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        ($name:ident,) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common, ()) =
-            $crate::deserialization::external_reply_info::read_1:: < D, > (deserializer,
-            $crate::deserialization::Meta { name : stringify!($name), fields : const { &
-            ["origin", "chat", "message_id", "link_preview_options", "has_media_spoiler"]
-            }, specific : const { & [] }, sequence : concat!("struct ",
-            stringify!($name), " with 5 elements"), },) ?; Ok(Self { chat : common.chat,
-            has_media_spoiler : common.has_media_spoiler, link_preview_options : common
-            .link_preview_options, message_id : common.message_id, origin : common
-            .origin, }) } }
-        };
-    }
-    pub(crate) use deserialize_1;
 }
 pub(crate) mod giveaway {
     use super::{
@@ -4448,28 +3722,6 @@ pub(crate) mod giveaway {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) = $crate::deserialization::giveaway::read_0:: < D, $P0 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["chats", "winners_selection_date", "winner_count",
-            "only_new_members", "has_public_winners", "prize_description",
-            "country_codes", $crate::deserialization::field_name(stringify!($field_0))]
-            }, specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0))] }, sequence :
-            concat!("struct ", stringify!($name), " with 8 elements"), },) ?; Ok(Self {
-            chats : common.chats, country_codes : common.country_codes,
-            has_public_winners : common.has_public_winners, only_new_members : common
-            .only_new_members, prize_description : common.prize_description, winner_count
-            : common.winner_count, winners_selection_date : common
-            .winners_selection_date, $field_0 : value_0, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
 }
 pub(crate) mod giveaway_winners {
     use super::{
@@ -4683,31 +3935,6 @@ pub(crate) mod giveaway_winners {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) = $crate::deserialization::giveaway_winners::read_0:: < D, $P0 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["chat", "giveaway_message_id", "winners_selection_date",
-            "winner_count", "winners", "additional_chat_count",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            "unclaimed_prize_count", "only_new_members", "was_refunded",
-            "prize_description"] }, specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0))] }, sequence :
-            concat!("struct ", stringify!($name), " with 11 elements"), },) ?; Ok(Self {
-            additional_chat_count : common.additional_chat_count, chat : common.chat,
-            giveaway_message_id : common.giveaway_message_id, only_new_members : common
-            .only_new_members, prize_description : common.prize_description,
-            unclaimed_prize_count : common.unclaimed_prize_count, was_refunded : common
-            .was_refunded, winner_count : common.winner_count, winners : common.winners,
-            winners_selection_date : common.winners_selection_date, $field_0 : value_0,
-            }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
 }
 pub(crate) mod inline_query_result {
     use super::{
@@ -4887,41 +4114,6 @@ pub(crate) mod inline_query_result {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty, $field_4:ident : $P4:ty, $field_5:ident :
-            $P5:ty, $field_6:ident : $P6:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3, value_4, value_5, value_6,)) =
-            $crate::deserialization::inline_query_result::read_0:: < D, $P0, $P1, $P2,
-            $P3, $P4, $P5, $P6 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)), "reply_markup",
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6))] }, sequence :
-            concat!("struct ", stringify!($name), " with 9 elements"), },) ?; Ok(Self {
-            id : common.id, reply_markup : common.reply_markup, $field_0 : value_0,
-            $field_1 : value_1, $field_2 : value_2, $field_3 : value_3, $field_4 :
-            value_4, $field_5 : value_5, $field_6 : value_6, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1<P0, P1> {
         meta: Meta,
         marker: PhantomData<(P0, P1)>,
@@ -5002,25 +4194,6 @@ pub(crate) mod inline_query_result {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        ($name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1,)) = $crate::deserialization::inline_query_result::read_1::
-            < D, $P0, $P1 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)), "reply_markup",
-            $crate::deserialization::field_name(stringify!($field_1))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1))] }, sequence :
-            concat!("struct ", stringify!($name), " with 4 elements"), },) ?; Ok(Self {
-            id : common.id, reply_markup : common.reply_markup, $field_0 : value_0,
-            $field_1 : value_1, }) } }
-        };
-    }
-    pub(crate) use deserialize_1;
     struct Visitor2<P0, P1, P2, P3, P4, P5, P6, P7> {
         meta: Meta,
         marker: PhantomData<(P0, P1, P2, P3, P4, P5, P6, P7)>,
@@ -5159,43 +4332,6 @@ pub(crate) mod inline_query_result {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_2 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty, $field_4:ident : $P4:ty, $field_5:ident :
-            $P5:ty, $field_6:ident : $P6:ty, $field_7:ident : $P7:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3, value_4, value_5, value_6, value_7,)) =
-            $crate::deserialization::inline_query_result::read_2:: < D, $P0, $P1, $P2,
-            $P3, $P4, $P5, $P6, $P7 > (deserializer, $crate::deserialization::Meta { name
-            : stringify!($name), fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)), "reply_markup",
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6)),
-            $crate::deserialization::field_name(stringify!($field_7))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6)),
-            $crate::deserialization::field_name(stringify!($field_7))] }, sequence :
-            concat!("struct ", stringify!($name), " with 10 elements"), },) ?; Ok(Self {
-            id : common.id, reply_markup : common.reply_markup, $field_0 : value_0,
-            $field_1 : value_1, $field_2 : value_2, $field_3 : value_3, $field_4 :
-            value_4, $field_5 : value_5, $field_6 : value_6, $field_7 : value_7, }) } }
-        };
-    }
-    pub(crate) use deserialize_2;
     struct Visitor3<P0> {
         meta: Meta,
         marker: PhantomData<(P0,)>,
@@ -5265,24 +4401,6 @@ pub(crate) mod inline_query_result {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_3 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) = $crate::deserialization::inline_query_result::read_3:: < D, $P0
-            > (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)), "reply_markup"] },
-            specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0))] }, sequence :
-            concat!("struct ", stringify!($name), " with 3 elements"), },) ?; Ok(Self {
-            id : common.id, reply_markup : common.reply_markup, $field_0 : value_0, }) }
-            }
-        };
-    }
-    pub(crate) use deserialize_3;
     struct Visitor4<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10> {
         meta: Meta,
         marker: PhantomData<(P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10)>,
@@ -5448,52 +4566,6 @@ pub(crate) mod inline_query_result {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_4 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty, $field_4:ident : $P4:ty, $field_5:ident :
-            $P5:ty, $field_6:ident : $P6:ty, $field_7:ident : $P7:ty, $field_8:ident :
-            $P8:ty, $field_9:ident : $P9:ty, $field_10:ident : $P10:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3, value_4, value_5, value_6, value_7,
-            value_8, value_9, value_10,)) =
-            $crate::deserialization::inline_query_result::read_4:: < D, $P0, $P1, $P2,
-            $P3, $P4, $P5, $P6, $P7, $P8, $P9, $P10 > (deserializer,
-            $crate::deserialization::Meta { name : stringify!($name), fields : const { &
-            ["id", $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6)), "reply_markup",
-            $crate::deserialization::field_name(stringify!($field_7)),
-            $crate::deserialization::field_name(stringify!($field_8)),
-            $crate::deserialization::field_name(stringify!($field_9)),
-            $crate::deserialization::field_name(stringify!($field_10))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6)),
-            $crate::deserialization::field_name(stringify!($field_7)),
-            $crate::deserialization::field_name(stringify!($field_8)),
-            $crate::deserialization::field_name(stringify!($field_9)),
-            $crate::deserialization::field_name(stringify!($field_10))] }, sequence :
-            concat!("struct ", stringify!($name), " with 13 elements"), },) ?; Ok(Self {
-            id : common.id, reply_markup : common.reply_markup, $field_0 : value_0,
-            $field_1 : value_1, $field_2 : value_2, $field_3 : value_3, $field_4 :
-            value_4, $field_5 : value_5, $field_6 : value_6, $field_7 : value_7, $field_8
-            : value_8, $field_9 : value_9, $field_10 : value_10, }) } }
-        };
-    }
-    pub(crate) use deserialize_4;
     struct Visitor5<P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11> {
         meta: Meta,
         marker: PhantomData<(P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11)>,
@@ -5668,56 +4740,6 @@ pub(crate) mod inline_query_result {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_5 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty, $field_4:ident : $P4:ty, $field_5:ident :
-            $P5:ty, $field_6:ident : $P6:ty, $field_7:ident : $P7:ty, $field_8:ident :
-            $P8:ty, $field_9:ident : $P9:ty, $field_10:ident : $P10:ty, $field_11:ident :
-            $P11:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3, value_4, value_5, value_6, value_7,
-            value_8, value_9, value_10, value_11,)) =
-            $crate::deserialization::inline_query_result::read_5:: < D, $P0, $P1, $P2,
-            $P3, $P4, $P5, $P6, $P7, $P8, $P9, $P10, $P11 > (deserializer,
-            $crate::deserialization::Meta { name : stringify!($name), fields : const { &
-            ["id", $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6)),
-            $crate::deserialization::field_name(stringify!($field_7)), "reply_markup",
-            $crate::deserialization::field_name(stringify!($field_8)),
-            $crate::deserialization::field_name(stringify!($field_9)),
-            $crate::deserialization::field_name(stringify!($field_10)),
-            $crate::deserialization::field_name(stringify!($field_11))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6)),
-            $crate::deserialization::field_name(stringify!($field_7)),
-            $crate::deserialization::field_name(stringify!($field_8)),
-            $crate::deserialization::field_name(stringify!($field_9)),
-            $crate::deserialization::field_name(stringify!($field_10)),
-            $crate::deserialization::field_name(stringify!($field_11))] }, sequence :
-            concat!("struct ", stringify!($name), " with 14 elements"), },) ?; Ok(Self {
-            id : common.id, reply_markup : common.reply_markup, $field_0 : value_0,
-            $field_1 : value_1, $field_2 : value_2, $field_3 : value_3, $field_4 :
-            value_4, $field_5 : value_5, $field_6 : value_6, $field_7 : value_7, $field_8
-            : value_8, $field_9 : value_9, $field_10 : value_10, $field_11 : value_11, })
-            } }
-        };
-    }
-    pub(crate) use deserialize_5;
 }
 pub(crate) mod inline_query_result_audio_kind {
     use super::{
@@ -5918,37 +4940,6 @@ pub(crate) mod inline_query_result_audio_kind {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3,)) =
-            $crate::deserialization::inline_query_result_audio_kind::read_0:: < D, $P0,
-            $P1, $P2, $P3 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)), "caption",
-            "parse_mode", "caption_entities",
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)), "reply_markup",
-            "input_message_content"] }, specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3))] }, sequence :
-            concat!("struct ", stringify!($name), " with 10 elements"), },) ?; Ok(Self {
-            caption : common.caption, caption_entities : common.caption_entities, id :
-            common.id, input_message_content : common.input_message_content, parse_mode :
-            common.parse_mode, reply_markup : common.reply_markup, $field_0 : value_0,
-            $field_1 : value_1, $field_2 : value_2, $field_3 : value_3, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1<P0> {
         meta: Meta,
         marker: PhantomData<(P0,)>,
@@ -6043,28 +5034,6 @@ pub(crate) mod inline_query_result_audio_kind {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) =
-            $crate::deserialization::inline_query_result_audio_kind::read_1:: < D, $P0 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)), "caption",
-            "parse_mode", "caption_entities", "reply_markup", "input_message_content"] },
-            specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0))] }, sequence :
-            concat!("struct ", stringify!($name), " with 7 elements"), },) ?; Ok(Self {
-            caption : common.caption, caption_entities : common.caption_entities, id :
-            common.id, input_message_content : common.input_message_content, parse_mode :
-            common.parse_mode, reply_markup : common.reply_markup, $field_0 : value_0, })
-            } }
-        };
-    }
-    pub(crate) use deserialize_1;
 }
 pub(crate) mod inline_query_result_document_kind {
     use super::{
@@ -6253,28 +5222,6 @@ pub(crate) mod inline_query_result_document_kind {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) =
-            $crate::deserialization::inline_query_result_document_kind::read_0:: < D, $P0
-            > (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["id", "title",
-            $crate::deserialization::field_name(stringify!($field_0)), "description",
-            "caption", "parse_mode", "caption_entities", "reply_markup",
-            "input_message_content"] }, specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0))] }, sequence :
-            concat!("struct ", stringify!($name), " with 9 elements"), },) ?; Ok(Self {
-            caption : common.caption, caption_entities : common.caption_entities,
-            description : common.description, id : common.id, input_message_content :
-            common.input_message_content, parse_mode : common.parse_mode, reply_markup :
-            common.reply_markup, title : common.title, $field_0 : value_0, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1<P0, P1, P2, P3, P4> {
         meta: Meta,
         marker: PhantomData<(P0, P1, P2, P3, P4)>,
@@ -6421,40 +5368,6 @@ pub(crate) mod inline_query_result_document_kind {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty, $field_4:ident : $P4:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3, value_4,)) =
-            $crate::deserialization::inline_query_result_document_kind::read_1:: < D,
-            $P0, $P1, $P2, $P3, $P4 > (deserializer, $crate::deserialization::Meta { name
-            : stringify!($name), fields : const { & ["id", "title", "caption",
-            "parse_mode", "caption_entities",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)), "description",
-            "reply_markup", "input_message_content",
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4))] }, sequence :
-            concat!("struct ", stringify!($name), " with 13 elements"), },) ?; Ok(Self {
-            caption : common.caption, caption_entities : common.caption_entities,
-            description : common.description, id : common.id, input_message_content :
-            common.input_message_content, parse_mode : common.parse_mode, reply_markup :
-            common.reply_markup, title : common.title, $field_0 : value_0, $field_1 :
-            value_1, $field_2 : value_2, $field_3 : value_3, $field_4 : value_4, }) } }
-        };
-    }
-    pub(crate) use deserialize_1;
 }
 pub(crate) mod inline_query_result_gif_kind {
     use super::{
@@ -6645,28 +5558,6 @@ pub(crate) mod inline_query_result_gif_kind {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) = $crate::deserialization::inline_query_result_gif_kind::read_0::
-            < D, $P0 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)), "title",
-            "caption", "parse_mode", "caption_entities", "show_caption_above_media",
-            "reply_markup", "input_message_content"] }, specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0))] }, sequence :
-            concat!("struct ", stringify!($name), " with 9 elements"), },) ?; Ok(Self {
-            caption : common.caption, caption_entities : common.caption_entities, id :
-            common.id, input_message_content : common.input_message_content, parse_mode :
-            common.parse_mode, reply_markup : common.reply_markup,
-            show_caption_above_media : common.show_caption_above_media, title : common
-            .title, $field_0 : value_0, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1<P0, P1, P2, P3, P4, P5> {
         meta: Meta,
         marker: PhantomData<(P0, P1, P2, P3, P4, P5)>,
@@ -6819,44 +5710,6 @@ pub(crate) mod inline_query_result_gif_kind {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty, $field_4:ident : $P4:ty, $field_5:ident :
-            $P5:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3, value_4, value_5,)) =
-            $crate::deserialization::inline_query_result_gif_kind::read_1:: < D, $P0,
-            $P1, $P2, $P3, $P4, $P5 > (deserializer, $crate::deserialization::Meta { name
-            : stringify!($name), fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)), "title",
-            "caption", "parse_mode", "caption_entities", "show_caption_above_media",
-            "reply_markup", "input_message_content"] }, specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5))] }, sequence :
-            concat!("struct ", stringify!($name), " with 14 elements"), },) ?; Ok(Self {
-            caption : common.caption, caption_entities : common.caption_entities, id :
-            common.id, input_message_content : common.input_message_content, parse_mode :
-            common.parse_mode, reply_markup : common.reply_markup,
-            show_caption_above_media : common.show_caption_above_media, title : common
-            .title, $field_0 : value_0, $field_1 : value_1, $field_2 : value_2, $field_3
-            : value_3, $field_4 : value_4, $field_5 : value_5, }) } }
-        };
-    }
-    pub(crate) use deserialize_1;
 }
 pub(crate) mod inline_query_result_photo_kind {
     use super::{
@@ -7057,30 +5910,6 @@ pub(crate) mod inline_query_result_photo_kind {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) =
-            $crate::deserialization::inline_query_result_photo_kind::read_0:: < D, $P0 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)), "title",
-            "description", "caption", "parse_mode", "caption_entities",
-            "show_caption_above_media", "reply_markup", "input_message_content"] },
-            specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0))] }, sequence :
-            concat!("struct ", stringify!($name), " with 10 elements"), },) ?; Ok(Self {
-            caption : common.caption, caption_entities : common.caption_entities,
-            description : common.description, id : common.id, input_message_content :
-            common.input_message_content, parse_mode : common.parse_mode, reply_markup :
-            common.reply_markup, show_caption_above_media : common
-            .show_caption_above_media, title : common.title, $field_0 : value_0, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1<P0, P1, P2, P3> {
         meta: Meta,
         marker: PhantomData<(P0, P1, P2, P3)>,
@@ -7222,40 +6051,6 @@ pub(crate) mod inline_query_result_photo_kind {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3,)) =
-            $crate::deserialization::inline_query_result_photo_kind::read_1:: < D, $P0,
-            $P1, $P2, $P3 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)), "title",
-            "description", "caption", "parse_mode", "caption_entities",
-            "show_caption_above_media", "reply_markup", "input_message_content"] },
-            specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3))] }, sequence :
-            concat!("struct ", stringify!($name), " with 13 elements"), },) ?; Ok(Self {
-            caption : common.caption, caption_entities : common.caption_entities,
-            description : common.description, id : common.id, input_message_content :
-            common.input_message_content, parse_mode : common.parse_mode, reply_markup :
-            common.reply_markup, show_caption_above_media : common
-            .show_caption_above_media, title : common.title, $field_0 : value_0, $field_1
-            : value_1, $field_2 : value_2, $field_3 : value_3, }) } }
-        };
-    }
-    pub(crate) use deserialize_1;
 }
 pub(crate) mod inline_query_result_video_kind {
     use super::{
@@ -7458,30 +6253,6 @@ pub(crate) mod inline_query_result_video_kind {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) =
-            $crate::deserialization::inline_query_result_video_kind::read_0:: < D, $P0 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)), "title",
-            "description", "caption", "parse_mode", "caption_entities",
-            "show_caption_above_media", "reply_markup", "input_message_content"] },
-            specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0))] }, sequence :
-            concat!("struct ", stringify!($name), " with 10 elements"), },) ?; Ok(Self {
-            caption : common.caption, caption_entities : common.caption_entities,
-            description : common.description, id : common.id, input_message_content :
-            common.input_message_content, parse_mode : common.parse_mode, reply_markup :
-            common.reply_markup, show_caption_above_media : common
-            .show_caption_above_media, title : common.title, $field_0 : value_0, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1<P0, P1, P2, P3, P4, P5> {
         meta: Meta,
         marker: PhantomData<(P0, P1, P2, P3, P4, P5)>,
@@ -7642,45 +6413,6 @@ pub(crate) mod inline_query_result_video_kind {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty, $field_4:ident : $P4:ty, $field_5:ident :
-            $P5:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3, value_4, value_5,)) =
-            $crate::deserialization::inline_query_result_video_kind::read_1:: < D, $P0,
-            $P1, $P2, $P3, $P4, $P5 > (deserializer, $crate::deserialization::Meta { name
-            : stringify!($name), fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)), "title",
-            "caption", "parse_mode", "caption_entities", "show_caption_above_media",
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)), "description",
-            "reply_markup", "input_message_content"] }, specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5))] }, sequence :
-            concat!("struct ", stringify!($name), " with 15 elements"), },) ?; Ok(Self {
-            caption : common.caption, caption_entities : common.caption_entities,
-            description : common.description, id : common.id, input_message_content :
-            common.input_message_content, parse_mode : common.parse_mode, reply_markup :
-            common.reply_markup, show_caption_above_media : common
-            .show_caption_above_media, title : common.title, $field_0 : value_0, $field_1
-            : value_1, $field_2 : value_2, $field_3 : value_3, $field_4 : value_4,
-            $field_5 : value_5, }) } }
-        };
-    }
-    pub(crate) use deserialize_1;
 }
 pub(crate) mod inline_query_result_voice_kind {
     use super::{
@@ -7859,28 +6591,6 @@ pub(crate) mod inline_query_result_voice_kind {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) =
-            $crate::deserialization::inline_query_result_voice_kind::read_0:: < D, $P0 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)), "title",
-            "caption", "parse_mode", "caption_entities", "reply_markup",
-            "input_message_content"] }, specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0))] }, sequence :
-            concat!("struct ", stringify!($name), " with 8 elements"), },) ?; Ok(Self {
-            caption : common.caption, caption_entities : common.caption_entities, id :
-            common.id, input_message_content : common.input_message_content, parse_mode :
-            common.parse_mode, reply_markup : common.reply_markup, title : common.title,
-            $field_0 : value_0, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1<P0, P1> {
         meta: Meta,
         marker: PhantomData<(P0, P1)>,
@@ -7992,30 +6702,6 @@ pub(crate) mod inline_query_result_voice_kind {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        ($name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1,)) =
-            $crate::deserialization::inline_query_result_voice_kind::read_1:: < D, $P0,
-            $P1 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["id",
-            $crate::deserialization::field_name(stringify!($field_0)), "title",
-            "caption", "parse_mode", "caption_entities",
-            $crate::deserialization::field_name(stringify!($field_1)), "reply_markup",
-            "input_message_content"] }, specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1))] }, sequence :
-            concat!("struct ", stringify!($name), " with 9 elements"), },) ?; Ok(Self {
-            caption : common.caption, caption_entities : common.caption_entities, id :
-            common.id, input_message_content : common.input_message_content, parse_mode :
-            common.parse_mode, reply_markup : common.reply_markup, title : common.title,
-            $field_0 : value_0, $field_1 : value_1, }) } }
-        };
-    }
-    pub(crate) use deserialize_1;
 }
 pub(crate) mod input_media {
     use super::{
@@ -8203,41 +6889,6 @@ pub(crate) mod input_media {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty, $field_4:ident : $P4:ty, $field_5:ident :
-            $P5:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3, value_4, value_5,)) =
-            $crate::deserialization::input_media::read_0:: < D, $P0, $P1, $P2, $P3, $P4,
-            $P5 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["media",
-            $crate::deserialization::field_name(stringify!($field_0)), "caption",
-            "parse_mode", "caption_entities",
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5))] }, sequence :
-            concat!("struct ", stringify!($name), " with 10 elements"), },) ?; Ok(Self {
-            caption : common.caption, caption_entities : common.caption_entities, media :
-            common.media, parse_mode : common.parse_mode, $field_0 : value_0, $field_1 :
-            value_1, $field_2 : value_2, $field_3 : value_3, $field_4 : value_4, $field_5
-            : value_5, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1<P0, P1, P2, P3> {
         meta: Meta,
         marker: PhantomData<(P0, P1, P2, P3)>,
@@ -8350,35 +7001,6 @@ pub(crate) mod input_media {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3,)) =
-            $crate::deserialization::input_media::read_1:: < D, $P0, $P1, $P2, $P3 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["media",
-            $crate::deserialization::field_name(stringify!($field_0)), "caption",
-            "parse_mode", "caption_entities",
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3))] }, sequence :
-            concat!("struct ", stringify!($name), " with 8 elements"), },) ?; Ok(Self {
-            caption : common.caption, caption_entities : common.caption_entities, media :
-            common.media, parse_mode : common.parse_mode, $field_0 : value_0, $field_1 :
-            value_1, $field_2 : value_2, $field_3 : value_3, }) } }
-        };
-    }
-    pub(crate) use deserialize_1;
     struct Visitor2<P0, P1> {
         meta: Meta,
         marker: PhantomData<(P0, P1)>,
@@ -8472,27 +7094,6 @@ pub(crate) mod input_media {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_2 {
-        ($name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1,)) = $crate::deserialization::input_media::read_2:: < D,
-            $P0, $P1 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["media",
-            $crate::deserialization::field_name(stringify!($field_0)), "caption",
-            "parse_mode", "caption_entities",
-            $crate::deserialization::field_name(stringify!($field_1))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1))] }, sequence :
-            concat!("struct ", stringify!($name), " with 6 elements"), },) ?; Ok(Self {
-            caption : common.caption, caption_entities : common.caption_entities, media :
-            common.media, parse_mode : common.parse_mode, $field_0 : value_0, $field_1 :
-            value_1, }) } }
-        };
-    }
-    pub(crate) use deserialize_2;
     struct Visitor3<P0, P1, P2> {
         meta: Meta,
         marker: PhantomData<(P0, P1, P2)>,
@@ -8598,33 +7199,6 @@ pub(crate) mod input_media {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_3 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2,)) =
-            $crate::deserialization::input_media::read_3:: < D, $P0, $P1, $P2 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["media",
-            $crate::deserialization::field_name(stringify!($field_0)), "caption",
-            "parse_mode", "caption_entities",
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2))] }, sequence :
-            concat!("struct ", stringify!($name), " with 7 elements"), },) ?; Ok(Self {
-            caption : common.caption, caption_entities : common.caption_entities, media :
-            common.media, parse_mode : common.parse_mode, $field_0 : value_0, $field_1 :
-            value_1, $field_2 : value_2, }) } }
-        };
-    }
-    pub(crate) use deserialize_3;
     struct Visitor4<P0, P1> {
         meta: Meta,
         marker: PhantomData<(P0, P1)>,
@@ -8718,27 +7292,6 @@ pub(crate) mod input_media {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_4 {
-        ($name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1,)) = $crate::deserialization::input_media::read_4:: < D,
-            $P0, $P1 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["media", "caption", "parse_mode",
-            "caption_entities",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1))] }, sequence :
-            concat!("struct ", stringify!($name), " with 6 elements"), },) ?; Ok(Self {
-            caption : common.caption, caption_entities : common.caption_entities, media :
-            common.media, parse_mode : common.parse_mode, $field_0 : value_0, $field_1 :
-            value_1, }) } }
-        };
-    }
-    pub(crate) use deserialize_4;
     struct Visitor5<P0, P1, P2, P3, P4, P5, P6, P7, P8> {
         meta: Meta,
         marker: PhantomData<(P0, P1, P2, P3, P4, P5, P6, P7, P8)>,
@@ -8895,48 +7448,6 @@ pub(crate) mod input_media {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_5 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty, $field_4:ident : $P4:ty, $field_5:ident :
-            $P5:ty, $field_6:ident : $P6:ty, $field_7:ident : $P7:ty, $field_8:ident :
-            $P8:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3, value_4, value_5, value_6, value_7,
-            value_8,)) = $crate::deserialization::input_media::read_5:: < D, $P0, $P1,
-            $P2, $P3, $P4, $P5, $P6, $P7, $P8 > (deserializer,
-            $crate::deserialization::Meta { name : stringify!($name), fields : const { &
-            ["media", $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)), "caption",
-            "parse_mode", "caption_entities",
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6)),
-            $crate::deserialization::field_name(stringify!($field_7)),
-            $crate::deserialization::field_name(stringify!($field_8))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6)),
-            $crate::deserialization::field_name(stringify!($field_7)),
-            $crate::deserialization::field_name(stringify!($field_8))] }, sequence :
-            concat!("struct ", stringify!($name), " with 13 elements"), },) ?; Ok(Self {
-            caption : common.caption, caption_entities : common.caption_entities, media :
-            common.media, parse_mode : common.parse_mode, $field_0 : value_0, $field_1 :
-            value_1, $field_2 : value_2, $field_3 : value_3, $field_4 : value_4, $field_5
-            : value_5, $field_6 : value_6, $field_7 : value_7, $field_8 : value_8, }) } }
-        };
-    }
-    pub(crate) use deserialize_5;
     struct Visitor6<P0> {
         meta: Meta,
         marker: PhantomData<(P0,)>,
@@ -9017,24 +7528,6 @@ pub(crate) mod input_media {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_6 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) = $crate::deserialization::input_media::read_6:: < D, $P0 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["media", "caption", "parse_mode", "caption_entities",
-            $crate::deserialization::field_name(stringify!($field_0))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0))] },
-            sequence : concat!("struct ", stringify!($name), " with 5 elements"), },) ?;
-            Ok(Self { caption : common.caption, caption_entities : common
-            .caption_entities, media : common.media, parse_mode : common.parse_mode,
-            $field_0 : value_0, }) } }
-        };
-    }
-    pub(crate) use deserialize_6;
 }
 pub(crate) mod input_paid_media {
     use super::{
@@ -9143,22 +7636,6 @@ pub(crate) mod input_paid_media {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) = $crate::deserialization::input_paid_media::read_0:: < D, $P0 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["media",
-            $crate::deserialization::field_name(stringify!($field_0))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0))] },
-            sequence : concat!("struct ", stringify!($name), " with 2 elements"), },) ?;
-            Ok(Self { media : common.media, $field_0 : value_0, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1 {
         meta: Meta,
         marker: PhantomData<()>,
@@ -9216,20 +7693,6 @@ pub(crate) mod input_paid_media {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        ($name:ident,) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common, ()) =
-            $crate::deserialization::input_paid_media::read_1:: < D, > (deserializer,
-            $crate::deserialization::Meta { name : stringify!($name), fields : const { &
-            ["media"] }, specific : const { & [] }, sequence : concat!("struct ",
-            stringify!($name), " with 1 element"), },) ?; Ok(Self { media : common.media,
-            }) } }
-        };
-    }
-    pub(crate) use deserialize_1;
     struct Visitor2<P0, P1, P2, P3, P4, P5, P6> {
         meta: Meta,
         marker: PhantomData<(P0, P1, P2, P3, P4, P5, P6)>,
@@ -9353,41 +7816,6 @@ pub(crate) mod input_paid_media {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_2 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty, $field_4:ident : $P4:ty, $field_5:ident :
-            $P5:ty, $field_6:ident : $P6:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3, value_4, value_5, value_6,)) =
-            $crate::deserialization::input_paid_media::read_2:: < D, $P0, $P1, $P2, $P3,
-            $P4, $P5, $P6 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["media",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6))] }, sequence :
-            concat!("struct ", stringify!($name), " with 8 elements"), },) ?; Ok(Self {
-            media : common.media, $field_0 : value_0, $field_1 : value_1, $field_2 :
-            value_2, $field_3 : value_3, $field_4 : value_4, $field_5 : value_5, $field_6
-            : value_6, }) } }
-        };
-    }
-    pub(crate) use deserialize_2;
 }
 pub(crate) mod message {
     use super::{
@@ -9988,57 +8416,6 @@ pub(crate) mod message {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) = $crate::deserialization::message::read_0:: < D, $P0 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["message_id", "message_thread_id",
-            "direct_messages_topic", "from", "sender_chat", "sender_boost_count",
-            "sender_business_bot", "sender_tag", "receiver_user", "ephemeral_message_id",
-            "date", "guest_query_id", "business_connection_id", "chat", "forward_origin",
-            "is_topic_message", "is_automatic_forward", "reply_to_message",
-            "external_reply", "quote", "reply_to_story", "reply_to_checklist_task_id",
-            "reply_to_poll_option_id", "via_bot", "guest_bot_caller_user",
-            "guest_bot_caller_chat", "edit_date", "has_protected_content",
-            "is_from_offline", "is_paid_post", "media_group_id", "author_signature",
-            "paid_star_count", "entities", "link_preview_options", "suggested_post_info",
-            "effect_id", "caption", "caption_entities", "show_caption_above_media",
-            "has_media_spoiler", "reply_markup",
-            $crate::deserialization::field_name(stringify!($field_0))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0))] },
-            sequence : concat!("struct ", stringify!($name), " with 43 elements"), },) ?;
-            Ok(Self { author_signature : common.author_signature, business_connection_id
-            : common.business_connection_id, caption : common.caption, caption_entities :
-            common.caption_entities, chat : common.chat, date : common.date,
-            direct_messages_topic : common.direct_messages_topic, edit_date : common
-            .edit_date, effect_id : common.effect_id, entities : common.entities,
-            ephemeral_message_id : common.ephemeral_message_id, external_reply : common
-            .external_reply, forward_origin : common.forward_origin, from : common.from,
-            guest_bot_caller_chat : common.guest_bot_caller_chat, guest_bot_caller_user :
-            common.guest_bot_caller_user, guest_query_id : common.guest_query_id,
-            has_media_spoiler : common.has_media_spoiler, has_protected_content : common
-            .has_protected_content, is_automatic_forward : common.is_automatic_forward,
-            is_from_offline : common.is_from_offline, is_paid_post : common.is_paid_post,
-            is_topic_message : common.is_topic_message, link_preview_options : common
-            .link_preview_options, media_group_id : common.media_group_id, message_id :
-            common.message_id, message_thread_id : common.message_thread_id,
-            paid_star_count : common.paid_star_count, quote : common.quote, receiver_user
-            : common.receiver_user, reply_markup : common.reply_markup,
-            reply_to_checklist_task_id : common.reply_to_checklist_task_id,
-            reply_to_message : common.reply_to_message, reply_to_poll_option_id : common
-            .reply_to_poll_option_id, reply_to_story : common.reply_to_story,
-            sender_boost_count : common.sender_boost_count, sender_business_bot : common
-            .sender_business_bot, sender_chat : common.sender_chat, sender_tag : common
-            .sender_tag, show_caption_above_media : common.show_caption_above_media,
-            suggested_post_info : common.suggested_post_info, via_bot : common.via_bot,
-            $field_0 : value_0, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
 }
 pub(crate) mod message_entity {
     use super::{
@@ -10150,20 +8527,6 @@ pub(crate) mod message_entity {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        ($name:ident,) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common, ()) =
-            $crate::deserialization::message_entity::read_0:: < D, > (deserializer,
-            $crate::deserialization::Meta { name : stringify!($name), fields : const { &
-            ["offset", "length"] }, specific : const { & [] }, sequence :
-            concat!("struct ", stringify!($name), " with 2 elements"), },) ?; Ok(Self {
-            length : common.length, offset : common.offset, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1<P0> {
         meta: Meta,
         marker: PhantomData<(P0,)>,
@@ -10233,23 +8596,6 @@ pub(crate) mod message_entity {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) = $crate::deserialization::message_entity::read_1:: < D, $P0 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["offset", "length",
-            $crate::deserialization::field_name(stringify!($field_0))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0))] },
-            sequence : concat!("struct ", stringify!($name), " with 3 elements"), },) ?;
-            Ok(Self { length : common.length, offset : common.offset, $field_0 : value_0,
-            }) } }
-        };
-    }
-    pub(crate) use deserialize_1;
     struct Visitor2<P0, P1> {
         meta: Meta,
         marker: PhantomData<(P0, P1)>,
@@ -10330,25 +8676,6 @@ pub(crate) mod message_entity {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_2 {
-        ($name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1,)) = $crate::deserialization::message_entity::read_2:: < D,
-            $P0, $P1 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["offset", "length",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1))] }, sequence :
-            concat!("struct ", stringify!($name), " with 4 elements"), },) ?; Ok(Self {
-            length : common.length, offset : common.offset, $field_0 : value_0, $field_1
-            : value_1, }) } }
-        };
-    }
-    pub(crate) use deserialize_2;
     struct Visitor3<P0> {
         meta: Meta,
         marker: PhantomData<(P0,)>,
@@ -10417,23 +8744,6 @@ pub(crate) mod message_entity {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_3 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) = $crate::deserialization::message_entity::read_3:: < D, $P0 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["offset", "length",
-            $crate::deserialization::field_name(stringify!($field_0))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0))] },
-            sequence : concat!("struct ", stringify!($name), " with 3 elements"), },) ?;
-            Ok(Self { length : common.length, offset : common.offset, $field_0 : value_0,
-            }) } }
-        };
-    }
-    pub(crate) use deserialize_3;
 }
 pub(crate) mod message_origin {
     use super::{
@@ -10560,31 +8870,6 @@ pub(crate) mod message_origin {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2,)) =
-            $crate::deserialization::message_origin::read_0:: < D, $P0, $P1, $P2 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["date",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2))] }, sequence :
-            concat!("struct ", stringify!($name), " with 4 elements"), },) ?; Ok(Self {
-            date : common.date, $field_0 : value_0, $field_1 : value_1, $field_2 :
-            value_2, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1<P0, P1> {
         meta: Meta,
         marker: PhantomData<(P0, P1)>,
@@ -10657,24 +8942,6 @@ pub(crate) mod message_origin {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        ($name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1,)) = $crate::deserialization::message_origin::read_1:: < D,
-            $P0, $P1 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["date",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1))] }, sequence :
-            concat!("struct ", stringify!($name), " with 3 elements"), },) ?; Ok(Self {
-            date : common.date, $field_0 : value_0, $field_1 : value_1, }) } }
-        };
-    }
-    pub(crate) use deserialize_1;
     struct Visitor2<P0> {
         meta: Meta,
         marker: PhantomData<(P0,)>,
@@ -10736,22 +9003,6 @@ pub(crate) mod message_origin {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_2 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) = $crate::deserialization::message_origin::read_2:: < D, $P0 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["date",
-            $crate::deserialization::field_name(stringify!($field_0))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0))] },
-            sequence : concat!("struct ", stringify!($name), " with 2 elements"), },) ?;
-            Ok(Self { date : common.date, $field_0 : value_0, }) } }
-        };
-    }
-    pub(crate) use deserialize_2;
 }
 pub(crate) mod owned_gift {
     use super::{
@@ -10977,51 +9228,6 @@ pub(crate) mod owned_gift {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty, $field_4:ident : $P4:ty, $field_5:ident :
-            $P5:ty, $field_6:ident : $P6:ty, $field_7:ident : $P7:ty, $field_8:ident :
-            $P8:ty, $field_9:ident : $P9:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3, value_4, value_5, value_6, value_7,
-            value_8, value_9,)) = $crate::deserialization::owned_gift::read_0:: < D, $P0,
-            $P1, $P2, $P3, $P4, $P5, $P6, $P7, $P8, $P9 > (deserializer,
-            $crate::deserialization::Meta { name : stringify!($name), fields : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)), "owned_gift_id",
-            "sender_user", "send_date",
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)), "is_saved",
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6)),
-            $crate::deserialization::field_name(stringify!($field_7)),
-            $crate::deserialization::field_name(stringify!($field_8)),
-            $crate::deserialization::field_name(stringify!($field_9))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3)),
-            $crate::deserialization::field_name(stringify!($field_4)),
-            $crate::deserialization::field_name(stringify!($field_5)),
-            $crate::deserialization::field_name(stringify!($field_6)),
-            $crate::deserialization::field_name(stringify!($field_7)),
-            $crate::deserialization::field_name(stringify!($field_8)),
-            $crate::deserialization::field_name(stringify!($field_9))] }, sequence :
-            concat!("struct ", stringify!($name), " with 14 elements"), },) ?; Ok(Self {
-            is_saved : common.is_saved, owned_gift_id : common.owned_gift_id, send_date :
-            common.send_date, sender_user : common.sender_user, $field_0 : value_0,
-            $field_1 : value_1, $field_2 : value_2, $field_3 : value_3, $field_4 :
-            value_4, $field_5 : value_5, $field_6 : value_6, $field_7 : value_7, $field_8
-            : value_8, $field_9 : value_9, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1<P0, P1, P2, P3> {
         meta: Meta,
         marker: PhantomData<(P0, P1, P2, P3)>,
@@ -11134,35 +9340,6 @@ pub(crate) mod owned_gift {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty, $field_3:ident : $P3:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2, value_3,)) =
-            $crate::deserialization::owned_gift::read_1:: < D, $P0, $P1, $P2, $P3 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)), "owned_gift_id",
-            "sender_user", "send_date", "is_saved",
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2)),
-            $crate::deserialization::field_name(stringify!($field_3))] }, sequence :
-            concat!("struct ", stringify!($name), " with 8 elements"), },) ?; Ok(Self {
-            is_saved : common.is_saved, owned_gift_id : common.owned_gift_id, send_date :
-            common.send_date, sender_user : common.sender_user, $field_0 : value_0,
-            $field_1 : value_1, $field_2 : value_2, $field_3 : value_3, }) } }
-        };
-    }
-    pub(crate) use deserialize_1;
 }
 pub(crate) mod passport_element_error {
     use super::{
@@ -11288,27 +9465,6 @@ pub(crate) mod passport_element_error {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        ($name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1,)) =
-            $crate::deserialization::passport_element_error::read_0:: < D, $P0, $P1 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["type",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)), "message"] },
-            specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1))] }, sequence :
-            concat!("struct ", stringify!($name), " with 4 elements"), },) ?; Ok(Self {
-            message : common.message, r#type : common.r#type, $field_0 : value_0,
-            $field_1 : value_1, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1<P0> {
         meta: Meta,
         marker: PhantomData<(P0,)>,
@@ -11378,23 +9534,6 @@ pub(crate) mod passport_element_error {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) = $crate::deserialization::passport_element_error::read_1:: < D,
-            $P0 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["type",
-            $crate::deserialization::field_name(stringify!($field_0)), "message"] },
-            specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0))] }, sequence :
-            concat!("struct ", stringify!($name), " with 3 elements"), },) ?; Ok(Self {
-            message : common.message, r#type : common.r#type, $field_0 : value_0, }) } }
-        };
-    }
-    pub(crate) use deserialize_1;
 }
 pub(crate) mod poll {
     use super::{
@@ -11708,42 +9847,6 @@ pub(crate) mod poll {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        (
-            $name:ident, $field_0:ident : $P0:ty, $field_1:ident : $P1:ty, $field_2:ident
-            : $P2:ty
-        ) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0, value_1, value_2,)) = $crate::deserialization::poll::read_0:: < D,
-            $P0, $P1, $P2 > (deserializer, $crate::deserialization::Meta { name :
-            stringify!($name), fields : const { & ["id", "question", "question_entities",
-            "options", "total_voter_count", "is_closed", "is_anonymous",
-            "allows_multiple_answers", "allows_revoting", "members_only",
-            "country_codes", $crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            "explanation_entities",
-            $crate::deserialization::field_name(stringify!($field_2)), "open_period",
-            "close_date", "description", "description_entities", "media"] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0)),
-            $crate::deserialization::field_name(stringify!($field_1)),
-            $crate::deserialization::field_name(stringify!($field_2))] }, sequence :
-            concat!("struct ", stringify!($name), " with 20 elements"), },) ?; Ok(Self {
-            allows_multiple_answers : common.allows_multiple_answers, allows_revoting :
-            common.allows_revoting, close_date : common.close_date, country_codes :
-            common.country_codes, description : common.description, description_entities
-            : common.description_entities, explanation_entities : common
-            .explanation_entities, id : common.id, is_anonymous : common.is_anonymous,
-            is_closed : common.is_closed, media : common.media, members_only : common
-            .members_only, open_period : common.open_period, options : common.options,
-            question : common.question, question_entities : common.question_entities,
-            total_voter_count : common.total_voter_count, $field_0 : value_0, $field_1 :
-            value_1, $field_2 : value_2, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
     struct Visitor1 {
         meta: Meta,
         marker: PhantomData<()>,
@@ -11899,32 +10002,6 @@ pub(crate) mod poll {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_1 {
-        ($name:ident,) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common, ()) =
-            $crate::deserialization::poll::read_1:: < D, > (deserializer,
-            $crate::deserialization::Meta { name : stringify!($name), fields : const { &
-            ["id", "question", "question_entities", "options", "total_voter_count",
-            "is_closed", "is_anonymous", "allows_multiple_answers", "allows_revoting",
-            "members_only", "country_codes", "explanation_entities", "open_period",
-            "close_date", "description", "description_entities", "media"] }, specific :
-            const { & [] }, sequence : concat!("struct ", stringify!($name),
-            " with 17 elements"), },) ?; Ok(Self { allows_multiple_answers : common
-            .allows_multiple_answers, allows_revoting : common.allows_revoting,
-            close_date : common.close_date, country_codes : common.country_codes,
-            description : common.description, description_entities : common
-            .description_entities, explanation_entities : common.explanation_entities, id
-            : common.id, is_anonymous : common.is_anonymous, is_closed : common
-            .is_closed, media : common.media, members_only : common.members_only,
-            open_period : common.open_period, options : common.options, question : common
-            .question, question_entities : common.question_entities, total_voter_count :
-            common.total_voter_count, }) } }
-        };
-    }
-    pub(crate) use deserialize_1;
 }
 pub(crate) mod star_transaction {
     use super::{
@@ -12060,23 +10137,6 @@ pub(crate) mod star_transaction {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) = $crate::deserialization::star_transaction::read_0:: < D, $P0 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["id", "amount", "nanostar_amount", "date",
-            $crate::deserialization::field_name(stringify!($field_0))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0))] },
-            sequence : concat!("struct ", stringify!($name), " with 5 elements"), },) ?;
-            Ok(Self { amount : common.amount, date : common.date, id : common.id,
-            nanostar_amount : common.nanostar_amount, $field_0 : value_0, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
 }
 pub(crate) mod sticker {
     use super::{
@@ -12288,28 +10348,6 @@ pub(crate) mod sticker {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) = $crate::deserialization::sticker::read_0:: < D, $P0 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["file_id", "file_unique_id", "width", "height",
-            "is_animated", "is_video", "thumbnail", "emoji", "set_name",
-            $crate::deserialization::field_name(stringify!($field_0)),
-            "needs_repainting", "file_size"] }, specific : const { &
-            [$crate::deserialization::field_name(stringify!($field_0))] }, sequence :
-            concat!("struct ", stringify!($name), " with 12 elements"), },) ?; Ok(Self {
-            emoji : common.emoji, file_id : common.file_id, file_size : common.file_size,
-            file_unique_id : common.file_unique_id, height : common.height, is_animated :
-            common.is_animated, is_video : common.is_video, needs_repainting : common
-            .needs_repainting, set_name : common.set_name, thumbnail : common.thumbnail,
-            width : common.width, $field_0 : value_0, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
 }
 pub(crate) mod update {
     use super::{
@@ -12417,20 +10455,4 @@ pub(crate) mod update {
             },
         )
     }
-    #[rustfmt::skip]
-    macro_rules! deserialize_0 {
-        ($name:ident, $field_0:ident : $P0:ty) => {
-            impl < 'de > serde::Deserialize < 'de > for $name {
-            #[allow(clippy::too_many_lines)] fn deserialize < D : serde::Deserializer <
-            'de >> (deserializer : D) -> Result < Self, D::Error > { let (common,
-            (value_0,)) = $crate::deserialization::update::read_0:: < D, $P0 >
-            (deserializer, $crate::deserialization::Meta { name : stringify!($name),
-            fields : const { & ["update_id",
-            $crate::deserialization::field_name(stringify!($field_0))] }, specific :
-            const { & [$crate::deserialization::field_name(stringify!($field_0))] },
-            sequence : concat!("struct ", stringify!($name), " with 2 elements"), },) ?;
-            Ok(Self { update_id : common.update_id, $field_0 : value_0, }) } }
-        };
-    }
-    pub(crate) use deserialize_0;
 }

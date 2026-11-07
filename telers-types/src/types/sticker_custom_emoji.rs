@@ -221,6 +221,43 @@ impl crate::types::FileIdGetter for StickerCustomEmoji {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::sticker::deserialize_0!(
-    StickerCustomEmoji, custom_emoji_id : Option < Box < str > >
-);
+impl<'de> serde::Deserialize<'de> for StickerCustomEmoji {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "StickerCustomEmoji",
+            fields: &[
+                "file_id",
+                "file_unique_id",
+                "width",
+                "height",
+                "is_animated",
+                "is_video",
+                "thumbnail",
+                "emoji",
+                "set_name",
+                "custom_emoji_id",
+                "needs_repainting",
+                "file_size",
+            ],
+            specific: &["custom_emoji_id"],
+            sequence: "struct StickerCustomEmoji with 12 elements",
+        };
+        let (common, (value_custom_emoji_id,)) =
+            crate::deserialization::sticker::read_0::<D, Option<Box<str>>>(deserializer, meta)?;
+        Ok(Self {
+            file_id: common.file_id,
+            file_unique_id: common.file_unique_id,
+            width: common.width,
+            height: common.height,
+            is_animated: common.is_animated,
+            is_video: common.is_video,
+            thumbnail: common.thumbnail,
+            emoji: common.emoji,
+            set_name: common.set_name,
+            custom_emoji_id: value_custom_emoji_id,
+            needs_repainting: common.needs_repainting,
+            file_size: common.file_size,
+        })
+    }
+}

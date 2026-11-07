@@ -39,6 +39,20 @@ impl MessageOriginHiddenUser {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::message_origin::deserialize_2!(
-    MessageOriginHiddenUser, sender_user_name : Box < str >
-);
+impl<'de> serde::Deserialize<'de> for MessageOriginHiddenUser {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "MessageOriginHiddenUser",
+            fields: &["date", "sender_user_name"],
+            specific: &["sender_user_name"],
+            sequence: "struct MessageOriginHiddenUser with 2 elements",
+        };
+        let (common, (value_sender_user_name,)) =
+            crate::deserialization::message_origin::read_2::<D, Box<str>>(deserializer, meta)?;
+        Ok(Self {
+            date: common.date,
+            sender_user_name: value_sender_user_name,
+        })
+    }
+}

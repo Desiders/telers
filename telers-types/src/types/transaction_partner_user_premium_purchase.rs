@@ -44,6 +44,20 @@ impl TransactionPartnerUserPremiumPurchase {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::chat_member::deserialize_1!(
-    TransactionPartnerUserPremiumPurchase, premium_subscription_duration : i64
-);
+impl<'de> serde::Deserialize<'de> for TransactionPartnerUserPremiumPurchase {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "TransactionPartnerUserPremiumPurchase",
+            fields: &["user", "premium_subscription_duration"],
+            specific: &["premium_subscription_duration"],
+            sequence: "struct TransactionPartnerUserPremiumPurchase with 2 elements",
+        };
+        let (common, (value_premium_subscription_duration,)) =
+            crate::deserialization::chat_member::read_1::<D, i64>(deserializer, meta)?;
+        Ok(Self {
+            user: common.user,
+            premium_subscription_duration: value_premium_subscription_duration,
+        })
+    }
+}

@@ -199,10 +199,69 @@ impl InlineQueryResultContact {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::inline_query_result::deserialize_2!(
-    InlineQueryResultContact, phone_number : Box < str >, first_name : Box < str >,
-    last_name : Option < Box < str > >, vcard : Option < Box < str > >,
-    input_message_content : Option < crate ::types::InputMessageContent >, thumbnail_url
-    : Option < Box < str > >, thumbnail_width : Option < i64 >, thumbnail_height : Option
-    < i64 >
-);
+impl<'de> serde::Deserialize<'de> for InlineQueryResultContact {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InlineQueryResultContact",
+            fields: &[
+                "id",
+                "phone_number",
+                "first_name",
+                "last_name",
+                "vcard",
+                "reply_markup",
+                "input_message_content",
+                "thumbnail_url",
+                "thumbnail_width",
+                "thumbnail_height",
+            ],
+            specific: &[
+                "phone_number",
+                "first_name",
+                "last_name",
+                "vcard",
+                "input_message_content",
+                "thumbnail_url",
+                "thumbnail_width",
+                "thumbnail_height",
+            ],
+            sequence: "struct InlineQueryResultContact with 10 elements",
+        };
+        let (
+            common,
+            (
+                value_phone_number,
+                value_first_name,
+                value_last_name,
+                value_vcard,
+                value_input_message_content,
+                value_thumbnail_url,
+                value_thumbnail_width,
+                value_thumbnail_height,
+            ),
+        ) = crate::deserialization::inline_query_result::read_2::<
+            D,
+            Box<str>,
+            Box<str>,
+            Option<Box<str>>,
+            Option<Box<str>>,
+            Option<crate::types::InputMessageContent>,
+            Option<Box<str>>,
+            Option<i64>,
+            Option<i64>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            id: common.id,
+            phone_number: value_phone_number,
+            first_name: value_first_name,
+            last_name: value_last_name,
+            vcard: value_vcard,
+            reply_markup: common.reply_markup,
+            input_message_content: value_input_message_content,
+            thumbnail_url: value_thumbnail_url,
+            thumbnail_width: value_thumbnail_width,
+            thumbnail_height: value_thumbnail_height,
+        })
+    }
+}

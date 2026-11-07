@@ -147,9 +147,46 @@ impl EncryptedPassportElementDriverLicense {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::encrypted_passport_element::deserialize_2!(
-    EncryptedPassportElementDriverLicense, data : Box < str >, front_side : crate
-    ::types::PassportFile, reverse_side : crate ::types::PassportFile, selfie : Option <
-    crate ::types::PassportFile >, translation : Option < Box < [crate
-    ::types::PassportFile] > >
-);
+impl<'de> serde::Deserialize<'de> for EncryptedPassportElementDriverLicense {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "EncryptedPassportElementDriverLicense",
+            fields: &[
+                "data",
+                "front_side",
+                "reverse_side",
+                "selfie",
+                "translation",
+                "hash",
+            ],
+            specific: &[
+                "data",
+                "front_side",
+                "reverse_side",
+                "selfie",
+                "translation",
+            ],
+            sequence: "struct EncryptedPassportElementDriverLicense with 6 elements",
+        };
+        let (
+            common,
+            (value_data, value_front_side, value_reverse_side, value_selfie, value_translation),
+        ) = crate::deserialization::encrypted_passport_element::read_2::<
+            D,
+            Box<str>,
+            crate::types::PassportFile,
+            crate::types::PassportFile,
+            Option<crate::types::PassportFile>,
+            Option<Box<[crate::types::PassportFile]>>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            data: value_data,
+            front_side: value_front_side,
+            reverse_side: value_reverse_side,
+            selfie: value_selfie,
+            translation: value_translation,
+            hash: common.hash,
+        })
+    }
+}

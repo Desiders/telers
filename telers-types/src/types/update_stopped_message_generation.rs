@@ -52,7 +52,22 @@ impl From<UpdateStoppedMessageGeneration> for crate::types::MessageGenerationSto
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::update::deserialize_0!(
-    UpdateStoppedMessageGeneration, stopped_message_generation : crate
-    ::types::MessageGenerationStopped
-);
+impl<'de> serde::Deserialize<'de> for UpdateStoppedMessageGeneration {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "UpdateStoppedMessageGeneration",
+            fields: &["update_id", "stopped_message_generation"],
+            specific: &["stopped_message_generation"],
+            sequence: "struct UpdateStoppedMessageGeneration with 2 elements",
+        };
+        let (common, (value_stopped_message_generation,)) = crate::deserialization::update::read_0::<
+            D,
+            crate::types::MessageGenerationStopped,
+        >(deserializer, meta)?;
+        Ok(Self {
+            update_id: common.update_id,
+            stopped_message_generation: value_stopped_message_generation,
+        })
+    }
+}

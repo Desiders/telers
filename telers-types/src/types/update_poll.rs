@@ -46,6 +46,22 @@ impl From<UpdatePoll> for crate::types::Poll {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::update::deserialize_0!(
-    UpdatePoll, poll : Box < crate ::types::Poll >
-);
+impl<'de> serde::Deserialize<'de> for UpdatePoll {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "UpdatePoll",
+            fields: &["update_id", "poll"],
+            specific: &["poll"],
+            sequence: "struct UpdatePoll with 2 elements",
+        };
+        let (common, (value_poll,)) = crate::deserialization::update::read_0::<
+            D,
+            Box<crate::types::Poll>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            update_id: common.update_id,
+            poll: value_poll,
+        })
+    }
+}

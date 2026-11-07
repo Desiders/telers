@@ -49,6 +49,22 @@ impl From<UpdateInlineQuery> for crate::types::InlineQuery {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::update::deserialize_0!(
-    UpdateInlineQuery, inline_query : crate ::types::InlineQuery
-);
+impl<'de> serde::Deserialize<'de> for UpdateInlineQuery {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "UpdateInlineQuery",
+            fields: &["update_id", "inline_query"],
+            specific: &["inline_query"],
+            sequence: "struct UpdateInlineQuery with 2 elements",
+        };
+        let (common, (value_inline_query,)) = crate::deserialization::update::read_0::<
+            D,
+            crate::types::InlineQuery,
+        >(deserializer, meta)?;
+        Ok(Self {
+            update_id: common.update_id,
+            inline_query: value_inline_query,
+        })
+    }
+}

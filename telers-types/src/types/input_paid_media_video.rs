@@ -164,9 +164,62 @@ impl InputPaidMediaVideo {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::input_paid_media::deserialize_2!(
-    InputPaidMediaVideo, thumbnail : Option < crate ::types::InputFile >, cover : Option
-    < crate ::types::InputFile >, start_timestamp : Option < i64 >, width : Option < i64
-    >, height : Option < i64 >, duration : Option < i64 >, supports_streaming : Option <
-    bool >
-);
+impl<'de> serde::Deserialize<'de> for InputPaidMediaVideo {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InputPaidMediaVideo",
+            fields: &[
+                "media",
+                "thumbnail",
+                "cover",
+                "start_timestamp",
+                "width",
+                "height",
+                "duration",
+                "supports_streaming",
+            ],
+            specific: &[
+                "thumbnail",
+                "cover",
+                "start_timestamp",
+                "width",
+                "height",
+                "duration",
+                "supports_streaming",
+            ],
+            sequence: "struct InputPaidMediaVideo with 8 elements",
+        };
+        let (
+            common,
+            (
+                value_thumbnail,
+                value_cover,
+                value_start_timestamp,
+                value_width,
+                value_height,
+                value_duration,
+                value_supports_streaming,
+            ),
+        ) = crate::deserialization::input_paid_media::read_2::<
+            D,
+            Option<crate::types::InputFile>,
+            Option<crate::types::InputFile>,
+            Option<i64>,
+            Option<i64>,
+            Option<i64>,
+            Option<i64>,
+            Option<bool>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            media: common.media,
+            thumbnail: value_thumbnail,
+            cover: value_cover,
+            start_timestamp: value_start_timestamp,
+            width: value_width,
+            height: value_height,
+            duration: value_duration,
+            supports_streaming: value_supports_streaming,
+        })
+    }
+}

@@ -56,6 +56,21 @@ impl MessageEntityCustomEmoji {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::message_entity::deserialize_1!(
-    MessageEntityCustomEmoji, custom_emoji_id : Box < str >
-);
+impl<'de> serde::Deserialize<'de> for MessageEntityCustomEmoji {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "MessageEntityCustomEmoji",
+            fields: &["offset", "length", "custom_emoji_id"],
+            specific: &["custom_emoji_id"],
+            sequence: "struct MessageEntityCustomEmoji with 3 elements",
+        };
+        let (common, (value_custom_emoji_id,)) =
+            crate::deserialization::message_entity::read_1::<D, Box<str>>(deserializer, meta)?;
+        Ok(Self {
+            offset: common.offset,
+            length: common.length,
+            custom_emoji_id: value_custom_emoji_id,
+        })
+    }
+}

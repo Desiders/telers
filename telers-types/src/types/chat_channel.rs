@@ -90,6 +90,25 @@ impl ChatChannel {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::chat::deserialize_0!(
-    ChatChannel, title : Option < Box < str > >, username : Option < Box < str > >
-);
+impl<'de> serde::Deserialize<'de> for ChatChannel {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "ChatChannel",
+            fields: &["id", "title", "username", "is_direct_messages"],
+            specific: &["title", "username"],
+            sequence: "struct ChatChannel with 4 elements",
+        };
+        let (common, (value_title, value_username)) = crate::deserialization::chat::read_0::<
+            D,
+            Option<Box<str>>,
+            Option<Box<str>>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            id: common.id,
+            title: value_title,
+            username: value_username,
+            is_direct_messages: common.is_direct_messages,
+        })
+    }
+}

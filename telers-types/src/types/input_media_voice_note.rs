@@ -140,6 +140,29 @@ impl InputMediaVoiceNote {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::input_media::deserialize_6!(
-    InputMediaVoiceNote, duration : Option < i64 >
-);
+impl<'de> serde::Deserialize<'de> for InputMediaVoiceNote {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InputMediaVoiceNote",
+            fields: &[
+                "media",
+                "caption",
+                "parse_mode",
+                "caption_entities",
+                "duration",
+            ],
+            specific: &["duration"],
+            sequence: "struct InputMediaVoiceNote with 5 elements",
+        };
+        let (common, (value_duration,)) =
+            crate::deserialization::input_media::read_6::<D, Option<i64>>(deserializer, meta)?;
+        Ok(Self {
+            media: common.media,
+            caption: common.caption,
+            parse_mode: common.parse_mode,
+            caption_entities: common.caption_entities,
+            duration: value_duration,
+        })
+    }
+}

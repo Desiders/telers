@@ -52,6 +52,22 @@ impl From<UpdatePurchasedPaidMedia> for crate::types::PaidMediaPurchased {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::update::deserialize_0!(
-    UpdatePurchasedPaidMedia, purchased_paid_media : crate ::types::PaidMediaPurchased
-);
+impl<'de> serde::Deserialize<'de> for UpdatePurchasedPaidMedia {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "UpdatePurchasedPaidMedia",
+            fields: &["update_id", "purchased_paid_media"],
+            specific: &["purchased_paid_media"],
+            sequence: "struct UpdatePurchasedPaidMedia with 2 elements",
+        };
+        let (common, (value_purchased_paid_media,)) = crate::deserialization::update::read_0::<
+            D,
+            crate::types::PaidMediaPurchased,
+        >(deserializer, meta)?;
+        Ok(Self {
+            update_id: common.update_id,
+            purchased_paid_media: value_purchased_paid_media,
+        })
+    }
+}

@@ -109,7 +109,34 @@ impl ChatPrivate {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::chat::deserialize_2!(
-    ChatPrivate, username : Option < Box < str > >, first_name : Option < Box < str > >,
-    last_name : Option < Box < str > >
-);
+impl<'de> serde::Deserialize<'de> for ChatPrivate {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "ChatPrivate",
+            fields: &[
+                "id",
+                "username",
+                "first_name",
+                "last_name",
+                "is_direct_messages",
+            ],
+            specific: &["username", "first_name", "last_name"],
+            sequence: "struct ChatPrivate with 5 elements",
+        };
+        let (common, (value_username, value_first_name, value_last_name)) =
+            crate::deserialization::chat::read_2::<
+                D,
+                Option<Box<str>>,
+                Option<Box<str>>,
+                Option<Box<str>>,
+            >(deserializer, meta)?;
+        Ok(Self {
+            id: common.id,
+            username: value_username,
+            first_name: value_first_name,
+            last_name: value_last_name,
+            is_direct_messages: common.is_direct_messages,
+        })
+    }
+}

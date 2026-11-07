@@ -54,6 +54,24 @@ impl PassportElementErrorUnspecified {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::passport_element_error::deserialize_1!(
-    PassportElementErrorUnspecified, element_hash : Box < str >
-);
+impl<'de> serde::Deserialize<'de> for PassportElementErrorUnspecified {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "PassportElementErrorUnspecified",
+            fields: &["type", "element_hash", "message"],
+            specific: &["element_hash"],
+            sequence: "struct PassportElementErrorUnspecified with 3 elements",
+        };
+        let (common, (value_element_hash,)) =
+            crate::deserialization::passport_element_error::read_1::<D, Box<str>>(
+                deserializer,
+                meta,
+            )?;
+        Ok(Self {
+            r#type: common.r#type,
+            element_hash: value_element_hash,
+            message: common.message,
+        })
+    }
+}

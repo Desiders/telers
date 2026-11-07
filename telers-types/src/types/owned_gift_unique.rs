@@ -156,8 +156,53 @@ impl OwnedGiftUnique {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::owned_gift::deserialize_1!(
-    OwnedGiftUnique, gift : Box < crate ::types::UniqueGift >, can_be_transferred :
-    Option < bool >, transfer_star_count : Option < i64 >, next_transfer_date : Option <
-    i64 >
-);
+impl<'de> serde::Deserialize<'de> for OwnedGiftUnique {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "OwnedGiftUnique",
+            fields: &[
+                "gift",
+                "owned_gift_id",
+                "sender_user",
+                "send_date",
+                "is_saved",
+                "can_be_transferred",
+                "transfer_star_count",
+                "next_transfer_date",
+            ],
+            specific: &[
+                "gift",
+                "can_be_transferred",
+                "transfer_star_count",
+                "next_transfer_date",
+            ],
+            sequence: "struct OwnedGiftUnique with 8 elements",
+        };
+        let (
+            common,
+            (
+                value_gift,
+                value_can_be_transferred,
+                value_transfer_star_count,
+                value_next_transfer_date,
+            ),
+        ) = crate::deserialization::owned_gift::read_1::<
+            D,
+            Box<crate::types::UniqueGift>,
+            Option<bool>,
+            Option<i64>,
+            Option<i64>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            gift: value_gift,
+            owned_gift_id: common.owned_gift_id,
+            sender_user: common.sender_user,
+            send_date: common.send_date,
+            is_saved: common.is_saved,
+            can_be_transferred: value_can_be_transferred,
+            transfer_star_count: value_transfer_star_count,
+            next_transfer_date: value_next_transfer_date,
+        })
+    }
+}

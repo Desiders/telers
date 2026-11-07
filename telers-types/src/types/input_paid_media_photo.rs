@@ -28,4 +28,19 @@ impl InputPaidMediaPhoto {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::input_paid_media::deserialize_1!(InputPaidMediaPhoto,);
+impl<'de> serde::Deserialize<'de> for InputPaidMediaPhoto {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InputPaidMediaPhoto",
+            fields: &["media"],
+            specific: &[],
+            sequence: "struct InputPaidMediaPhoto with 1 element",
+        };
+        let (common, ()) =
+            crate::deserialization::input_paid_media::read_1::<D>(deserializer, meta)?;
+        Ok(Self {
+            media: common.media,
+        })
+    }
+}

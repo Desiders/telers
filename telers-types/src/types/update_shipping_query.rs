@@ -49,6 +49,22 @@ impl From<UpdateShippingQuery> for crate::types::ShippingQuery {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::update::deserialize_0!(
-    UpdateShippingQuery, shipping_query : crate ::types::ShippingQuery
-);
+impl<'de> serde::Deserialize<'de> for UpdateShippingQuery {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "UpdateShippingQuery",
+            fields: &["update_id", "shipping_query"],
+            specific: &["shipping_query"],
+            sequence: "struct UpdateShippingQuery with 2 elements",
+        };
+        let (common, (value_shipping_query,)) = crate::deserialization::update::read_0::<
+            D,
+            crate::types::ShippingQuery,
+        >(deserializer, meta)?;
+        Ok(Self {
+            update_id: common.update_id,
+            shipping_query: value_shipping_query,
+        })
+    }
+}

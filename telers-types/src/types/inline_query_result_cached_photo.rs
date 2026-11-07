@@ -236,6 +236,42 @@ impl InlineQueryResultCachedPhoto {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::inline_query_result_photo_kind::deserialize_0!(
-    InlineQueryResultCachedPhoto, photo_file_id : Box < str >
-);
+impl<'de> serde::Deserialize<'de> for InlineQueryResultCachedPhoto {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InlineQueryResultCachedPhoto",
+            fields: &[
+                "id",
+                "photo_file_id",
+                "title",
+                "description",
+                "caption",
+                "parse_mode",
+                "caption_entities",
+                "show_caption_above_media",
+                "reply_markup",
+                "input_message_content",
+            ],
+            specific: &["photo_file_id"],
+            sequence: "struct InlineQueryResultCachedPhoto with 10 elements",
+        };
+        let (common, (value_photo_file_id,)) =
+            crate::deserialization::inline_query_result_photo_kind::read_0::<D, Box<str>>(
+                deserializer,
+                meta,
+            )?;
+        Ok(Self {
+            id: common.id,
+            photo_file_id: value_photo_file_id,
+            title: common.title,
+            description: common.description,
+            caption: common.caption,
+            parse_mode: common.parse_mode,
+            caption_entities: common.caption_entities,
+            show_caption_above_media: common.show_caption_above_media,
+            reply_markup: common.reply_markup,
+            input_message_content: common.input_message_content,
+        })
+    }
+}

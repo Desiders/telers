@@ -49,6 +49,22 @@ impl From<UpdateChatJoinRequest> for crate::types::ChatJoinRequest {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::update::deserialize_0!(
-    UpdateChatJoinRequest, chat_join_request : crate ::types::ChatJoinRequest
-);
+impl<'de> serde::Deserialize<'de> for UpdateChatJoinRequest {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "UpdateChatJoinRequest",
+            fields: &["update_id", "chat_join_request"],
+            specific: &["chat_join_request"],
+            sequence: "struct UpdateChatJoinRequest with 2 elements",
+        };
+        let (common, (value_chat_join_request,)) = crate::deserialization::update::read_0::<
+            D,
+            crate::types::ChatJoinRequest,
+        >(deserializer, meta)?;
+        Ok(Self {
+            update_id: common.update_id,
+            chat_join_request: value_chat_join_request,
+        })
+    }
+}

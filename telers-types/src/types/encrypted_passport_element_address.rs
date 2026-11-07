@@ -41,6 +41,22 @@ impl EncryptedPassportElementAddress {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::encrypted_passport_element::deserialize_0!(
-    EncryptedPassportElementAddress, data : Box < str >
-);
+impl<'de> serde::Deserialize<'de> for EncryptedPassportElementAddress {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "EncryptedPassportElementAddress",
+            fields: &["data", "hash"],
+            specific: &["data"],
+            sequence: "struct EncryptedPassportElementAddress with 2 elements",
+        };
+        let (common, (value_data,)) = crate::deserialization::encrypted_passport_element::read_0::<
+            D,
+            Box<str>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            data: value_data,
+            hash: common.hash,
+        })
+    }
+}

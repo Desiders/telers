@@ -41,4 +41,19 @@ impl MessageEntityExpandableBlockquote {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::message_entity::deserialize_0!(MessageEntityExpandableBlockquote,);
+impl<'de> serde::Deserialize<'de> for MessageEntityExpandableBlockquote {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "MessageEntityExpandableBlockquote",
+            fields: &["offset", "length"],
+            specific: &[],
+            sequence: "struct MessageEntityExpandableBlockquote with 2 elements",
+        };
+        let (common, ()) = crate::deserialization::message_entity::read_0::<D>(deserializer, meta)?;
+        Ok(Self {
+            offset: common.offset,
+            length: common.length,
+        })
+    }
+}

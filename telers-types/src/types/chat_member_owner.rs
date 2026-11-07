@@ -61,6 +61,24 @@ impl ChatMemberOwner {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::chat_member::deserialize_4!(
-    ChatMemberOwner, is_anonymous : bool, custom_title : Option < Box < str > >
-);
+impl<'de> serde::Deserialize<'de> for ChatMemberOwner {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "ChatMemberOwner",
+            fields: &["user", "is_anonymous", "custom_title"],
+            specific: &["is_anonymous", "custom_title"],
+            sequence: "struct ChatMemberOwner with 3 elements",
+        };
+        let (common, (value_is_anonymous, value_custom_title)) =
+            crate::deserialization::chat_member::read_4::<D, bool, Option<Box<str>>>(
+                deserializer,
+                meta,
+            )?;
+        Ok(Self {
+            user: common.user,
+            is_anonymous: value_is_anonymous,
+            custom_title: value_custom_title,
+        })
+    }
+}

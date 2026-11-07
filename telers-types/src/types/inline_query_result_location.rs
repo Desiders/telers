@@ -249,10 +249,84 @@ impl InlineQueryResultLocation {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::inline_query_result::deserialize_4!(
-    InlineQueryResultLocation, latitude : f64, longitude : f64, title : Box < str >,
-    horizontal_accuracy : Option < f64 >, live_period : Option < u32 >, heading : Option
-    < u16 >, proximity_alert_radius : Option < u32 >, input_message_content : Option <
-    crate ::types::InputMessageContent >, thumbnail_url : Option < Box < str > >,
-    thumbnail_width : Option < i64 >, thumbnail_height : Option < i64 >
-);
+impl<'de> serde::Deserialize<'de> for InlineQueryResultLocation {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InlineQueryResultLocation",
+            fields: &[
+                "id",
+                "latitude",
+                "longitude",
+                "title",
+                "horizontal_accuracy",
+                "live_period",
+                "heading",
+                "proximity_alert_radius",
+                "reply_markup",
+                "input_message_content",
+                "thumbnail_url",
+                "thumbnail_width",
+                "thumbnail_height",
+            ],
+            specific: &[
+                "latitude",
+                "longitude",
+                "title",
+                "horizontal_accuracy",
+                "live_period",
+                "heading",
+                "proximity_alert_radius",
+                "input_message_content",
+                "thumbnail_url",
+                "thumbnail_width",
+                "thumbnail_height",
+            ],
+            sequence: "struct InlineQueryResultLocation with 13 elements",
+        };
+        let (
+            common,
+            (
+                value_latitude,
+                value_longitude,
+                value_title,
+                value_horizontal_accuracy,
+                value_live_period,
+                value_heading,
+                value_proximity_alert_radius,
+                value_input_message_content,
+                value_thumbnail_url,
+                value_thumbnail_width,
+                value_thumbnail_height,
+            ),
+        ) = crate::deserialization::inline_query_result::read_4::<
+            D,
+            f64,
+            f64,
+            Box<str>,
+            Option<f64>,
+            Option<u32>,
+            Option<u16>,
+            Option<u32>,
+            Option<crate::types::InputMessageContent>,
+            Option<Box<str>>,
+            Option<i64>,
+            Option<i64>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            id: common.id,
+            latitude: value_latitude,
+            longitude: value_longitude,
+            title: value_title,
+            horizontal_accuracy: value_horizontal_accuracy,
+            live_period: value_live_period,
+            heading: value_heading,
+            proximity_alert_radius: value_proximity_alert_radius,
+            reply_markup: common.reply_markup,
+            input_message_content: value_input_message_content,
+            thumbnail_url: value_thumbnail_url,
+            thumbnail_width: value_thumbnail_width,
+            thumbnail_height: value_thumbnail_height,
+        })
+    }
+}

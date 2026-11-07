@@ -232,7 +232,45 @@ impl InlineQueryResultAudio {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::inline_query_result_audio_kind::deserialize_0!(
-    InlineQueryResultAudio, audio_url : Box < str >, title : Box < str >, performer :
-    Option < Box < str > >, audio_duration : Option < i64 >
-);
+impl<'de> serde::Deserialize<'de> for InlineQueryResultAudio {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InlineQueryResultAudio",
+            fields: &[
+                "id",
+                "audio_url",
+                "title",
+                "caption",
+                "parse_mode",
+                "caption_entities",
+                "performer",
+                "audio_duration",
+                "reply_markup",
+                "input_message_content",
+            ],
+            specific: &["audio_url", "title", "performer", "audio_duration"],
+            sequence: "struct InlineQueryResultAudio with 10 elements",
+        };
+        let (common, (value_audio_url, value_title, value_performer, value_audio_duration)) =
+            crate::deserialization::inline_query_result_audio_kind::read_0::<
+                D,
+                Box<str>,
+                Box<str>,
+                Option<Box<str>>,
+                Option<i64>,
+            >(deserializer, meta)?;
+        Ok(Self {
+            id: common.id,
+            audio_url: value_audio_url,
+            title: value_title,
+            caption: common.caption,
+            parse_mode: common.parse_mode,
+            caption_entities: common.caption_entities,
+            performer: value_performer,
+            audio_duration: value_audio_duration,
+            reply_markup: common.reply_markup,
+            input_message_content: common.input_message_content,
+        })
+    }
+}

@@ -64,6 +64,21 @@ impl InlineQueryResultGame {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::inline_query_result::deserialize_3!(
-    InlineQueryResultGame, game_short_name : Box < str >
-);
+impl<'de> serde::Deserialize<'de> for InlineQueryResultGame {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InlineQueryResultGame",
+            fields: &["id", "game_short_name", "reply_markup"],
+            specific: &["game_short_name"],
+            sequence: "struct InlineQueryResultGame with 3 elements",
+        };
+        let (common, (value_game_short_name,)) =
+            crate::deserialization::inline_query_result::read_3::<D, Box<str>>(deserializer, meta)?;
+        Ok(Self {
+            id: common.id,
+            game_short_name: value_game_short_name,
+            reply_markup: common.reply_markup,
+        })
+    }
+}

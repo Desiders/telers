@@ -224,6 +224,45 @@ impl crate::types::FileIdGetter for StickerMask {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::sticker::deserialize_0!(
-    StickerMask, mask_position : Option < crate ::types::MaskPosition >
-);
+impl<'de> serde::Deserialize<'de> for StickerMask {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "StickerMask",
+            fields: &[
+                "file_id",
+                "file_unique_id",
+                "width",
+                "height",
+                "is_animated",
+                "is_video",
+                "thumbnail",
+                "emoji",
+                "set_name",
+                "mask_position",
+                "needs_repainting",
+                "file_size",
+            ],
+            specific: &["mask_position"],
+            sequence: "struct StickerMask with 12 elements",
+        };
+        let (common, (value_mask_position,)) = crate::deserialization::sticker::read_0::<
+            D,
+            Option<crate::types::MaskPosition>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            file_id: common.file_id,
+            file_unique_id: common.file_unique_id,
+            width: common.width,
+            height: common.height,
+            is_animated: common.is_animated,
+            is_video: common.is_video,
+            thumbnail: common.thumbnail,
+            emoji: common.emoji,
+            set_name: common.set_name,
+            mask_position: value_mask_position,
+            needs_repainting: common.needs_repainting,
+            file_size: common.file_size,
+        })
+    }
+}

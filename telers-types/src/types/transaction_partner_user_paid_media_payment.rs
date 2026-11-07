@@ -115,8 +115,27 @@ impl TransactionPartnerUserPaidMediaPayment {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::chat_member::deserialize_7!(
-    TransactionPartnerUserPaidMediaPayment, affiliate : Option < crate
-    ::types::AffiliateInfo >, paid_media : Box < [crate ::types::PaidMedia] >,
-    paid_media_payload : Option < Box < str > >
-);
+impl<'de> serde::Deserialize<'de> for TransactionPartnerUserPaidMediaPayment {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "TransactionPartnerUserPaidMediaPayment",
+            fields: &["user", "affiliate", "paid_media", "paid_media_payload"],
+            specific: &["affiliate", "paid_media", "paid_media_payload"],
+            sequence: "struct TransactionPartnerUserPaidMediaPayment with 4 elements",
+        };
+        let (common, (value_affiliate, value_paid_media, value_paid_media_payload)) =
+            crate::deserialization::chat_member::read_7::<
+                D,
+                Option<crate::types::AffiliateInfo>,
+                Box<[crate::types::PaidMedia]>,
+                Option<Box<str>>,
+            >(deserializer, meta)?;
+        Ok(Self {
+            user: common.user,
+            affiliate: value_affiliate,
+            paid_media: value_paid_media,
+            paid_media_payload: value_paid_media_payload,
+        })
+    }
+}

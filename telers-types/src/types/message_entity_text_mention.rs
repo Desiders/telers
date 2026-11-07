@@ -56,6 +56,23 @@ impl MessageEntityTextMention {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::message_entity::deserialize_1!(
-    MessageEntityTextMention, user : Box < crate ::types::User >
-);
+impl<'de> serde::Deserialize<'de> for MessageEntityTextMention {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "MessageEntityTextMention",
+            fields: &["offset", "length", "user"],
+            specific: &["user"],
+            sequence: "struct MessageEntityTextMention with 3 elements",
+        };
+        let (common, (value_user,)) = crate::deserialization::message_entity::read_1::<
+            D,
+            Box<crate::types::User>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            offset: common.offset,
+            length: common.length,
+            user: value_user,
+        })
+    }
+}

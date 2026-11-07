@@ -69,6 +69,24 @@ impl ChatMemberMember {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::chat_member::deserialize_3!(
-    ChatMemberMember, tag : Option < Box < str > >, until_date : Option < i64 >
-);
+impl<'de> serde::Deserialize<'de> for ChatMemberMember {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "ChatMemberMember",
+            fields: &["tag", "user", "until_date"],
+            specific: &["tag", "until_date"],
+            sequence: "struct ChatMemberMember with 3 elements",
+        };
+        let (common, (value_tag, value_until_date)) = crate::deserialization::chat_member::read_3::<
+            D,
+            Option<Box<str>>,
+            Option<i64>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            tag: value_tag,
+            user: common.user,
+            until_date: value_until_date,
+        })
+    }
+}

@@ -303,10 +303,83 @@ impl OwnedGiftRegular {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::owned_gift::deserialize_0!(
-    OwnedGiftRegular, gift : Box < crate ::types::Gift >, text : Option < Box < str > >,
-    entities : Option < Box < [crate ::types::MessageEntity] > >, is_private : Option <
-    bool >, can_be_upgraded : Option < bool >, was_refunded : Option < bool >,
-    convert_star_count : Option < i64 >, prepaid_upgrade_star_count : Option < i64 >,
-    is_upgrade_separate : Option < bool >, unique_gift_number : Option < i64 >
-);
+impl<'de> serde::Deserialize<'de> for OwnedGiftRegular {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "OwnedGiftRegular",
+            fields: &[
+                "gift",
+                "owned_gift_id",
+                "sender_user",
+                "send_date",
+                "text",
+                "entities",
+                "is_private",
+                "is_saved",
+                "can_be_upgraded",
+                "was_refunded",
+                "convert_star_count",
+                "prepaid_upgrade_star_count",
+                "is_upgrade_separate",
+                "unique_gift_number",
+            ],
+            specific: &[
+                "gift",
+                "text",
+                "entities",
+                "is_private",
+                "can_be_upgraded",
+                "was_refunded",
+                "convert_star_count",
+                "prepaid_upgrade_star_count",
+                "is_upgrade_separate",
+                "unique_gift_number",
+            ],
+            sequence: "struct OwnedGiftRegular with 14 elements",
+        };
+        let (
+            common,
+            (
+                value_gift,
+                value_text,
+                value_entities,
+                value_is_private,
+                value_can_be_upgraded,
+                value_was_refunded,
+                value_convert_star_count,
+                value_prepaid_upgrade_star_count,
+                value_is_upgrade_separate,
+                value_unique_gift_number,
+            ),
+        ) = crate::deserialization::owned_gift::read_0::<
+            D,
+            Box<crate::types::Gift>,
+            Option<Box<str>>,
+            Option<Box<[crate::types::MessageEntity]>>,
+            Option<bool>,
+            Option<bool>,
+            Option<bool>,
+            Option<i64>,
+            Option<i64>,
+            Option<bool>,
+            Option<i64>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            gift: value_gift,
+            owned_gift_id: common.owned_gift_id,
+            sender_user: common.sender_user,
+            send_date: common.send_date,
+            text: value_text,
+            entities: value_entities,
+            is_private: value_is_private,
+            is_saved: common.is_saved,
+            can_be_upgraded: value_can_be_upgraded,
+            was_refunded: value_was_refunded,
+            convert_star_count: value_convert_star_count,
+            prepaid_upgrade_star_count: value_prepaid_upgrade_star_count,
+            is_upgrade_separate: value_is_upgrade_separate,
+            unique_gift_number: value_unique_gift_number,
+        })
+    }
+}

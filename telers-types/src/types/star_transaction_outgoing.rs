@@ -95,6 +95,25 @@ impl StarTransactionOutgoing {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::star_transaction::deserialize_0!(
-    StarTransactionOutgoing, receiver : crate ::types::TransactionPartner
-);
+impl<'de> serde::Deserialize<'de> for StarTransactionOutgoing {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "StarTransactionOutgoing",
+            fields: &["id", "amount", "nanostar_amount", "date", "receiver"],
+            specific: &["receiver"],
+            sequence: "struct StarTransactionOutgoing with 5 elements",
+        };
+        let (common, (value_receiver,)) = crate::deserialization::star_transaction::read_0::<
+            D,
+            crate::types::TransactionPartner,
+        >(deserializer, meta)?;
+        Ok(Self {
+            id: common.id,
+            amount: common.amount,
+            nanostar_amount: common.nanostar_amount,
+            date: common.date,
+            receiver: value_receiver,
+        })
+    }
+}

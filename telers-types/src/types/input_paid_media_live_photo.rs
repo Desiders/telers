@@ -42,6 +42,22 @@ impl InputPaidMediaLivePhoto {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::input_paid_media::deserialize_0!(
-    InputPaidMediaLivePhoto, photo : crate ::types::InputFile
-);
+impl<'de> serde::Deserialize<'de> for InputPaidMediaLivePhoto {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InputPaidMediaLivePhoto",
+            fields: &["media", "photo"],
+            specific: &["photo"],
+            sequence: "struct InputPaidMediaLivePhoto with 2 elements",
+        };
+        let (common, (value_photo,)) = crate::deserialization::input_paid_media::read_0::<
+            D,
+            crate::types::InputFile,
+        >(deserializer, meta)?;
+        Ok(Self {
+            media: common.media,
+            photo: value_photo,
+        })
+    }
+}

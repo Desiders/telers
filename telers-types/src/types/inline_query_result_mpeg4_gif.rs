@@ -308,8 +308,71 @@ impl InlineQueryResultMpeg4Gif {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::inline_query_result_gif_kind::deserialize_1!(
-    InlineQueryResultMpeg4Gif, mpeg4_url : Box < str >, mpeg4_width : Option < i64 >,
-    mpeg4_height : Option < i64 >, mpeg4_duration : Option < i64 >, thumbnail_url : Box <
-    str >, thumbnail_mime_type : Option < Box < str > >
-);
+impl<'de> serde::Deserialize<'de> for InlineQueryResultMpeg4Gif {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InlineQueryResultMpeg4Gif",
+            fields: &[
+                "id",
+                "mpeg4_url",
+                "mpeg4_width",
+                "mpeg4_height",
+                "mpeg4_duration",
+                "thumbnail_url",
+                "thumbnail_mime_type",
+                "title",
+                "caption",
+                "parse_mode",
+                "caption_entities",
+                "show_caption_above_media",
+                "reply_markup",
+                "input_message_content",
+            ],
+            specific: &[
+                "mpeg4_url",
+                "mpeg4_width",
+                "mpeg4_height",
+                "mpeg4_duration",
+                "thumbnail_url",
+                "thumbnail_mime_type",
+            ],
+            sequence: "struct InlineQueryResultMpeg4Gif with 14 elements",
+        };
+        let (
+            common,
+            (
+                value_mpeg4_url,
+                value_mpeg4_width,
+                value_mpeg4_height,
+                value_mpeg4_duration,
+                value_thumbnail_url,
+                value_thumbnail_mime_type,
+            ),
+        ) = crate::deserialization::inline_query_result_gif_kind::read_1::<
+            D,
+            Box<str>,
+            Option<i64>,
+            Option<i64>,
+            Option<i64>,
+            Box<str>,
+            Option<Box<str>>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            id: common.id,
+            mpeg4_url: value_mpeg4_url,
+            mpeg4_width: value_mpeg4_width,
+            mpeg4_height: value_mpeg4_height,
+            mpeg4_duration: value_mpeg4_duration,
+            thumbnail_url: value_thumbnail_url,
+            thumbnail_mime_type: value_thumbnail_mime_type,
+            title: common.title,
+            caption: common.caption,
+            parse_mode: common.parse_mode,
+            caption_entities: common.caption_entities,
+            show_caption_above_media: common.show_caption_above_media,
+            reply_markup: common.reply_markup,
+            input_message_content: common.input_message_content,
+        })
+    }
+}

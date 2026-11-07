@@ -44,6 +44,22 @@ impl TransactionPartnerUserGiftPurchase {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::chat_member::deserialize_1!(
-    TransactionPartnerUserGiftPurchase, gift : Box < crate ::types::Gift >
-);
+impl<'de> serde::Deserialize<'de> for TransactionPartnerUserGiftPurchase {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "TransactionPartnerUserGiftPurchase",
+            fields: &["user", "gift"],
+            specific: &["gift"],
+            sequence: "struct TransactionPartnerUserGiftPurchase with 2 elements",
+        };
+        let (common, (value_gift,)) = crate::deserialization::chat_member::read_1::<
+            D,
+            Box<crate::types::Gift>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            user: common.user,
+            gift: value_gift,
+        })
+    }
+}

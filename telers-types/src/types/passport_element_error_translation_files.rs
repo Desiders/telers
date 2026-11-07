@@ -82,6 +82,24 @@ impl PassportElementErrorTranslationFiles {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::passport_element_error::deserialize_1!(
-    PassportElementErrorTranslationFiles, file_hashes : Box < [Box < str >] >
-);
+impl<'de> serde::Deserialize<'de> for PassportElementErrorTranslationFiles {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "PassportElementErrorTranslationFiles",
+            fields: &["type", "file_hashes", "message"],
+            specific: &["file_hashes"],
+            sequence: "struct PassportElementErrorTranslationFiles with 3 elements",
+        };
+        let (common, (value_file_hashes,)) =
+            crate::deserialization::passport_element_error::read_1::<D, Box<[Box<str>]>>(
+                deserializer,
+                meta,
+            )?;
+        Ok(Self {
+            r#type: common.r#type,
+            file_hashes: value_file_hashes,
+            message: common.message,
+        })
+    }
+}

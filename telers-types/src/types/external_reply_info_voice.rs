@@ -129,6 +129,33 @@ impl ExternalReplyInfoVoice {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::external_reply_info::deserialize_0!(
-    ExternalReplyInfoVoice, voice : crate ::types::Voice
-);
+impl<'de> serde::Deserialize<'de> for ExternalReplyInfoVoice {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "ExternalReplyInfoVoice",
+            fields: &[
+                "origin",
+                "chat",
+                "message_id",
+                "link_preview_options",
+                "has_media_spoiler",
+                "voice",
+            ],
+            specific: &["voice"],
+            sequence: "struct ExternalReplyInfoVoice with 6 elements",
+        };
+        let (common, (value_voice,)) = crate::deserialization::external_reply_info::read_0::<
+            D,
+            crate::types::Voice,
+        >(deserializer, meta)?;
+        Ok(Self {
+            origin: common.origin,
+            chat: common.chat,
+            message_id: common.message_id,
+            link_preview_options: common.link_preview_options,
+            has_media_spoiler: common.has_media_spoiler,
+            voice: value_voice,
+        })
+    }
+}

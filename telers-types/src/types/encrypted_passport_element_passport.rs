@@ -130,8 +130,29 @@ impl EncryptedPassportElementPassport {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::encrypted_passport_element::deserialize_3!(
-    EncryptedPassportElementPassport, data : Box < str >, front_side : crate
-    ::types::PassportFile, selfie : Option < crate ::types::PassportFile >, translation :
-    Option < Box < [crate ::types::PassportFile] > >
-);
+impl<'de> serde::Deserialize<'de> for EncryptedPassportElementPassport {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "EncryptedPassportElementPassport",
+            fields: &["data", "front_side", "selfie", "translation", "hash"],
+            specific: &["data", "front_side", "selfie", "translation"],
+            sequence: "struct EncryptedPassportElementPassport with 5 elements",
+        };
+        let (common, (value_data, value_front_side, value_selfie, value_translation)) =
+            crate::deserialization::encrypted_passport_element::read_3::<
+                D,
+                Box<str>,
+                crate::types::PassportFile,
+                Option<crate::types::PassportFile>,
+                Option<Box<[crate::types::PassportFile]>>,
+            >(deserializer, meta)?;
+        Ok(Self {
+            data: value_data,
+            front_side: value_front_side,
+            selfie: value_selfie,
+            translation: value_translation,
+            hash: common.hash,
+        })
+    }
+}

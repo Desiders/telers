@@ -156,6 +156,33 @@ impl ExternalReplyInfoPhoto {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::external_reply_info::deserialize_0!(
-    ExternalReplyInfoPhoto, photo : Box < [crate ::types::PhotoSize] >
-);
+impl<'de> serde::Deserialize<'de> for ExternalReplyInfoPhoto {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "ExternalReplyInfoPhoto",
+            fields: &[
+                "origin",
+                "chat",
+                "message_id",
+                "link_preview_options",
+                "has_media_spoiler",
+                "photo",
+            ],
+            specific: &["photo"],
+            sequence: "struct ExternalReplyInfoPhoto with 6 elements",
+        };
+        let (common, (value_photo,)) = crate::deserialization::external_reply_info::read_0::<
+            D,
+            Box<[crate::types::PhotoSize]>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            origin: common.origin,
+            chat: common.chat,
+            message_id: common.message_id,
+            link_preview_options: common.link_preview_options,
+            has_media_spoiler: common.has_media_spoiler,
+            photo: value_photo,
+        })
+    }
+}

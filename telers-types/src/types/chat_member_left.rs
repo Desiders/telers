@@ -28,4 +28,18 @@ impl ChatMemberLeft {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::chat_member::deserialize_2!(ChatMemberLeft,);
+impl<'de> serde::Deserialize<'de> for ChatMemberLeft {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "ChatMemberLeft",
+            fields: &["user"],
+            specific: &[],
+            sequence: "struct ChatMemberLeft with 1 element",
+        };
+        let (common, ()) = crate::deserialization::chat_member::read_2::<D>(deserializer, meta)?;
+        Ok(Self {
+            user: common.user,
+        })
+    }
+}

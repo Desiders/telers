@@ -39,4 +39,20 @@ impl ChatMemberBanned {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::chat_member::deserialize_1!(ChatMemberBanned, until_date : i64);
+impl<'de> serde::Deserialize<'de> for ChatMemberBanned {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "ChatMemberBanned",
+            fields: &["user", "until_date"],
+            specific: &["until_date"],
+            sequence: "struct ChatMemberBanned with 2 elements",
+        };
+        let (common, (value_until_date,)) =
+            crate::deserialization::chat_member::read_1::<D, i64>(deserializer, meta)?;
+        Ok(Self {
+            user: common.user,
+            until_date: value_until_date,
+        })
+    }
+}

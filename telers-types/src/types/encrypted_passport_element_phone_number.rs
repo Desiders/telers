@@ -41,6 +41,23 @@ impl EncryptedPassportElementPhoneNumber {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::encrypted_passport_element::deserialize_0!(
-    EncryptedPassportElementPhoneNumber, phone_number : Box < str >
-);
+impl<'de> serde::Deserialize<'de> for EncryptedPassportElementPhoneNumber {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "EncryptedPassportElementPhoneNumber",
+            fields: &["phone_number", "hash"],
+            specific: &["phone_number"],
+            sequence: "struct EncryptedPassportElementPhoneNumber with 2 elements",
+        };
+        let (common, (value_phone_number,)) =
+            crate::deserialization::encrypted_passport_element::read_0::<D, Box<str>>(
+                deserializer,
+                meta,
+            )?;
+        Ok(Self {
+            phone_number: value_phone_number,
+            hash: common.hash,
+        })
+    }
+}

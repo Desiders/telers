@@ -319,8 +319,73 @@ impl InlineQueryResultVideo {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::inline_query_result_video_kind::deserialize_1!(
-    InlineQueryResultVideo, video_url : Box < str >, mime_type : Box < str >,
-    thumbnail_url : Box < str >, video_width : Option < i64 >, video_height : Option <
-    i64 >, video_duration : Option < i64 >
-);
+impl<'de> serde::Deserialize<'de> for InlineQueryResultVideo {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InlineQueryResultVideo",
+            fields: &[
+                "id",
+                "video_url",
+                "mime_type",
+                "thumbnail_url",
+                "title",
+                "caption",
+                "parse_mode",
+                "caption_entities",
+                "show_caption_above_media",
+                "video_width",
+                "video_height",
+                "video_duration",
+                "description",
+                "reply_markup",
+                "input_message_content",
+            ],
+            specific: &[
+                "video_url",
+                "mime_type",
+                "thumbnail_url",
+                "video_width",
+                "video_height",
+                "video_duration",
+            ],
+            sequence: "struct InlineQueryResultVideo with 15 elements",
+        };
+        let (
+            common,
+            (
+                value_video_url,
+                value_mime_type,
+                value_thumbnail_url,
+                value_video_width,
+                value_video_height,
+                value_video_duration,
+            ),
+        ) = crate::deserialization::inline_query_result_video_kind::read_1::<
+            D,
+            Box<str>,
+            Box<str>,
+            Box<str>,
+            Option<i64>,
+            Option<i64>,
+            Option<i64>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            id: common.id,
+            video_url: value_video_url,
+            mime_type: value_mime_type,
+            thumbnail_url: value_thumbnail_url,
+            title: common.title,
+            caption: common.caption,
+            parse_mode: common.parse_mode,
+            caption_entities: common.caption_entities,
+            show_caption_above_media: common.show_caption_above_media,
+            video_width: value_video_width,
+            video_height: value_video_height,
+            video_duration: value_video_duration,
+            description: common.description,
+            reply_markup: common.reply_markup,
+            input_message_content: common.input_message_content,
+        })
+    }
+}

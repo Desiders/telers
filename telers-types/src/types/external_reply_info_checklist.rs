@@ -129,6 +129,33 @@ impl ExternalReplyInfoChecklist {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::external_reply_info::deserialize_0!(
-    ExternalReplyInfoChecklist, checklist : crate ::types::Checklist
-);
+impl<'de> serde::Deserialize<'de> for ExternalReplyInfoChecklist {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "ExternalReplyInfoChecklist",
+            fields: &[
+                "origin",
+                "chat",
+                "message_id",
+                "link_preview_options",
+                "has_media_spoiler",
+                "checklist",
+            ],
+            specific: &["checklist"],
+            sequence: "struct ExternalReplyInfoChecklist with 6 elements",
+        };
+        let (common, (value_checklist,)) = crate::deserialization::external_reply_info::read_0::<
+            D,
+            crate::types::Checklist,
+        >(deserializer, meta)?;
+        Ok(Self {
+            origin: common.origin,
+            chat: common.chat,
+            message_id: common.message_id,
+            link_preview_options: common.link_preview_options,
+            has_media_spoiler: common.has_media_spoiler,
+            checklist: value_checklist,
+        })
+    }
+}

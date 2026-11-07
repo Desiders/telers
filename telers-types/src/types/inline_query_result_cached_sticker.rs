@@ -89,7 +89,31 @@ impl InlineQueryResultCachedSticker {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::inline_query_result::deserialize_1!(
-    InlineQueryResultCachedSticker, sticker_file_id : Box < str >, input_message_content
-    : Option < crate ::types::InputMessageContent >
-);
+impl<'de> serde::Deserialize<'de> for InlineQueryResultCachedSticker {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InlineQueryResultCachedSticker",
+            fields: &[
+                "id",
+                "sticker_file_id",
+                "reply_markup",
+                "input_message_content",
+            ],
+            specific: &["sticker_file_id", "input_message_content"],
+            sequence: "struct InlineQueryResultCachedSticker with 4 elements",
+        };
+        let (common, (value_sticker_file_id, value_input_message_content)) =
+            crate::deserialization::inline_query_result::read_1::<
+                D,
+                Box<str>,
+                Option<crate::types::InputMessageContent>,
+            >(deserializer, meta)?;
+        Ok(Self {
+            id: common.id,
+            sticker_file_id: value_sticker_file_id,
+            reply_markup: common.reply_markup,
+            input_message_content: value_input_message_content,
+        })
+    }
+}

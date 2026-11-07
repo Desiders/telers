@@ -52,6 +52,22 @@ impl From<UpdateMessageReaction> for crate::types::MessageReactionUpdated {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::update::deserialize_0!(
-    UpdateMessageReaction, message_reaction : crate ::types::MessageReactionUpdated
-);
+impl<'de> serde::Deserialize<'de> for UpdateMessageReaction {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "UpdateMessageReaction",
+            fields: &["update_id", "message_reaction"],
+            specific: &["message_reaction"],
+            sequence: "struct UpdateMessageReaction with 2 elements",
+        };
+        let (common, (value_message_reaction,)) = crate::deserialization::update::read_0::<
+            D,
+            crate::types::MessageReactionUpdated,
+        >(deserializer, meta)?;
+        Ok(Self {
+            update_id: common.update_id,
+            message_reaction: value_message_reaction,
+        })
+    }
+}

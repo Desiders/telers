@@ -194,6 +194,38 @@ impl InlineQueryResultCachedVoice {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::inline_query_result_voice_kind::deserialize_0!(
-    InlineQueryResultCachedVoice, voice_file_id : Box < str >
-);
+impl<'de> serde::Deserialize<'de> for InlineQueryResultCachedVoice {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InlineQueryResultCachedVoice",
+            fields: &[
+                "id",
+                "voice_file_id",
+                "title",
+                "caption",
+                "parse_mode",
+                "caption_entities",
+                "reply_markup",
+                "input_message_content",
+            ],
+            specific: &["voice_file_id"],
+            sequence: "struct InlineQueryResultCachedVoice with 8 elements",
+        };
+        let (common, (value_voice_file_id,)) =
+            crate::deserialization::inline_query_result_voice_kind::read_0::<D, Box<str>>(
+                deserializer,
+                meta,
+            )?;
+        Ok(Self {
+            id: common.id,
+            voice_file_id: value_voice_file_id,
+            title: common.title,
+            caption: common.caption,
+            parse_mode: common.parse_mode,
+            caption_entities: common.caption_entities,
+            reply_markup: common.reply_markup,
+            input_message_content: common.input_message_content,
+        })
+    }
+}

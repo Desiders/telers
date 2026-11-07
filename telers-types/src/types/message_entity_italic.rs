@@ -41,4 +41,19 @@ impl MessageEntityItalic {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::message_entity::deserialize_0!(MessageEntityItalic,);
+impl<'de> serde::Deserialize<'de> for MessageEntityItalic {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "MessageEntityItalic",
+            fields: &["offset", "length"],
+            specific: &[],
+            sequence: "struct MessageEntityItalic with 2 elements",
+        };
+        let (common, ()) = crate::deserialization::message_entity::read_0::<D>(deserializer, meta)?;
+        Ok(Self {
+            offset: common.offset,
+            length: common.length,
+        })
+    }
+}

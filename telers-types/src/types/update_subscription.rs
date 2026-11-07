@@ -49,6 +49,22 @@ impl From<UpdateSubscription> for crate::types::BotSubscriptionUpdated {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::update::deserialize_0!(
-    UpdateSubscription, subscription : crate ::types::BotSubscriptionUpdated
-);
+impl<'de> serde::Deserialize<'de> for UpdateSubscription {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "UpdateSubscription",
+            fields: &["update_id", "subscription"],
+            specific: &["subscription"],
+            sequence: "struct UpdateSubscription with 2 elements",
+        };
+        let (common, (value_subscription,)) = crate::deserialization::update::read_0::<
+            D,
+            crate::types::BotSubscriptionUpdated,
+        >(deserializer, meta)?;
+        Ok(Self {
+            update_id: common.update_id,
+            subscription: value_subscription,
+        })
+    }
+}

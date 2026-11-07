@@ -49,6 +49,22 @@ impl From<UpdateGuestMessage> for crate::types::Message {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::update::deserialize_0!(
-    UpdateGuestMessage, guest_message : Box < crate ::types::Message >
-);
+impl<'de> serde::Deserialize<'de> for UpdateGuestMessage {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "UpdateGuestMessage",
+            fields: &["update_id", "guest_message"],
+            specific: &["guest_message"],
+            sequence: "struct UpdateGuestMessage with 2 elements",
+        };
+        let (common, (value_guest_message,)) = crate::deserialization::update::read_0::<
+            D,
+            Box<crate::types::Message>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            update_id: common.update_id,
+            guest_message: value_guest_message,
+        })
+    }
+}

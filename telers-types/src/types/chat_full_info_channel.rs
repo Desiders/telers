@@ -566,9 +566,98 @@ impl ChatFullInfoChannel {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::chat_full_info::deserialize_0!(
-    ChatFullInfoChannel, title : Option < Box < str > >, username : Option < Box < str >
-    >, active_usernames : Option < Box < [Box < str >] > >, description : Option < Box <
-    str > >, invite_link : Option < Box < str > >, can_send_paid_media : Option < bool >,
-    linked_chat_id : Option < i64 >
-);
+impl<'de> serde::Deserialize<'de> for ChatFullInfoChannel {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "ChatFullInfoChannel",
+            fields: &[
+                "id",
+                "title",
+                "username",
+                "is_direct_messages",
+                "accent_color_id",
+                "max_reaction_count",
+                "photo",
+                "active_usernames",
+                "available_reactions",
+                "background_custom_emoji_id",
+                "profile_accent_color_id",
+                "profile_background_custom_emoji_id",
+                "description",
+                "invite_link",
+                "pinned_message",
+                "accepted_gift_types",
+                "can_send_paid_media",
+                "message_auto_delete_time",
+                "has_hidden_members",
+                "has_protected_content",
+                "has_visible_history",
+                "linked_chat_id",
+                "unique_gift_colors",
+                "paid_message_star_count",
+                "guard_bot",
+                "community",
+            ],
+            specific: &[
+                "title",
+                "username",
+                "active_usernames",
+                "description",
+                "invite_link",
+                "can_send_paid_media",
+                "linked_chat_id",
+            ],
+            sequence: "struct ChatFullInfoChannel with 26 elements",
+        };
+        let (
+            common,
+            (
+                value_title,
+                value_username,
+                value_active_usernames,
+                value_description,
+                value_invite_link,
+                value_can_send_paid_media,
+                value_linked_chat_id,
+            ),
+        ) = crate::deserialization::chat_full_info::read_0::<
+            D,
+            Option<Box<str>>,
+            Option<Box<str>>,
+            Option<Box<[Box<str>]>>,
+            Option<Box<str>>,
+            Option<Box<str>>,
+            Option<bool>,
+            Option<i64>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            id: common.id,
+            title: value_title,
+            username: value_username,
+            is_direct_messages: common.is_direct_messages,
+            accent_color_id: common.accent_color_id,
+            max_reaction_count: common.max_reaction_count,
+            photo: common.photo,
+            active_usernames: value_active_usernames,
+            available_reactions: common.available_reactions,
+            background_custom_emoji_id: common.background_custom_emoji_id,
+            profile_accent_color_id: common.profile_accent_color_id,
+            profile_background_custom_emoji_id: common.profile_background_custom_emoji_id,
+            description: value_description,
+            invite_link: value_invite_link,
+            pinned_message: common.pinned_message,
+            accepted_gift_types: common.accepted_gift_types,
+            can_send_paid_media: value_can_send_paid_media,
+            message_auto_delete_time: common.message_auto_delete_time,
+            has_hidden_members: common.has_hidden_members,
+            has_protected_content: common.has_protected_content,
+            has_visible_history: common.has_visible_history,
+            linked_chat_id: value_linked_chat_id,
+            unique_gift_colors: common.unique_gift_colors,
+            paid_message_star_count: common.paid_message_star_count,
+            guard_bot: common.guard_bot,
+            community: common.community,
+        })
+    }
+}

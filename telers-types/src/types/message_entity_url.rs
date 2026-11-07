@@ -41,4 +41,19 @@ impl MessageEntityUrl {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::message_entity::deserialize_0!(MessageEntityUrl,);
+impl<'de> serde::Deserialize<'de> for MessageEntityUrl {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "MessageEntityUrl",
+            fields: &["offset", "length"],
+            specific: &[],
+            sequence: "struct MessageEntityUrl with 2 elements",
+        };
+        let (common, ()) = crate::deserialization::message_entity::read_0::<D>(deserializer, meta)?;
+        Ok(Self {
+            offset: common.offset,
+            length: common.length,
+        })
+    }
+}

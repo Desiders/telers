@@ -217,6 +217,40 @@ impl InlineQueryResultCachedMpeg4Gif {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::inline_query_result_gif_kind::deserialize_0!(
-    InlineQueryResultCachedMpeg4Gif, mpeg4_file_id : Box < str >
-);
+impl<'de> serde::Deserialize<'de> for InlineQueryResultCachedMpeg4Gif {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InlineQueryResultCachedMpeg4Gif",
+            fields: &[
+                "id",
+                "mpeg4_file_id",
+                "title",
+                "caption",
+                "parse_mode",
+                "caption_entities",
+                "show_caption_above_media",
+                "reply_markup",
+                "input_message_content",
+            ],
+            specific: &["mpeg4_file_id"],
+            sequence: "struct InlineQueryResultCachedMpeg4Gif with 9 elements",
+        };
+        let (common, (value_mpeg4_file_id,)) =
+            crate::deserialization::inline_query_result_gif_kind::read_0::<D, Box<str>>(
+                deserializer,
+                meta,
+            )?;
+        Ok(Self {
+            id: common.id,
+            mpeg4_file_id: value_mpeg4_file_id,
+            title: common.title,
+            caption: common.caption,
+            parse_mode: common.parse_mode,
+            caption_entities: common.caption_entities,
+            show_caption_above_media: common.show_caption_above_media,
+            reply_markup: common.reply_markup,
+            input_message_content: common.input_message_content,
+        })
+    }
+}

@@ -49,6 +49,22 @@ impl From<UpdateCallbackQuery> for crate::types::CallbackQuery {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::update::deserialize_0!(
-    UpdateCallbackQuery, callback_query : crate ::types::CallbackQuery
-);
+impl<'de> serde::Deserialize<'de> for UpdateCallbackQuery {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "UpdateCallbackQuery",
+            fields: &["update_id", "callback_query"],
+            specific: &["callback_query"],
+            sequence: "struct UpdateCallbackQuery with 2 elements",
+        };
+        let (common, (value_callback_query,)) = crate::deserialization::update::read_0::<
+            D,
+            crate::types::CallbackQuery,
+        >(deserializer, meta)?;
+        Ok(Self {
+            update_id: common.update_id,
+            callback_query: value_callback_query,
+        })
+    }
+}

@@ -76,7 +76,27 @@ impl MessageOriginChannel {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::message_origin::deserialize_0!(
-    MessageOriginChannel, chat : Box < crate ::types::Chat >, message_id : i64,
-    author_signature : Option < Box < str > >
-);
+impl<'de> serde::Deserialize<'de> for MessageOriginChannel {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "MessageOriginChannel",
+            fields: &["date", "chat", "message_id", "author_signature"],
+            specific: &["chat", "message_id", "author_signature"],
+            sequence: "struct MessageOriginChannel with 4 elements",
+        };
+        let (common, (value_chat, value_message_id, value_author_signature)) =
+            crate::deserialization::message_origin::read_0::<
+                D,
+                Box<crate::types::Chat>,
+                i64,
+                Option<Box<str>>,
+            >(deserializer, meta)?;
+        Ok(Self {
+            date: common.date,
+            chat: value_chat,
+            message_id: value_message_id,
+            author_signature: value_author_signature,
+        })
+    }
+}

@@ -41,4 +41,19 @@ impl MessageEntityStrikethrough {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::message_entity::deserialize_0!(MessageEntityStrikethrough,);
+impl<'de> serde::Deserialize<'de> for MessageEntityStrikethrough {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "MessageEntityStrikethrough",
+            fields: &["offset", "length"],
+            specific: &[],
+            sequence: "struct MessageEntityStrikethrough with 2 elements",
+        };
+        let (common, ()) = crate::deserialization::message_entity::read_0::<D>(deserializer, meta)?;
+        Ok(Self {
+            offset: common.offset,
+            length: common.length,
+        })
+    }
+}

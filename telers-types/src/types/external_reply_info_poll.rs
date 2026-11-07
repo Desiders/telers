@@ -129,6 +129,33 @@ impl ExternalReplyInfoPoll {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::external_reply_info::deserialize_0!(
-    ExternalReplyInfoPoll, poll : Box < crate ::types::Poll >
-);
+impl<'de> serde::Deserialize<'de> for ExternalReplyInfoPoll {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "ExternalReplyInfoPoll",
+            fields: &[
+                "origin",
+                "chat",
+                "message_id",
+                "link_preview_options",
+                "has_media_spoiler",
+                "poll",
+            ],
+            specific: &["poll"],
+            sequence: "struct ExternalReplyInfoPoll with 6 elements",
+        };
+        let (common, (value_poll,)) = crate::deserialization::external_reply_info::read_0::<
+            D,
+            Box<crate::types::Poll>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            origin: common.origin,
+            chat: common.chat,
+            message_id: common.message_id,
+            link_preview_options: common.link_preview_options,
+            has_media_spoiler: common.has_media_spoiler,
+            poll: value_poll,
+        })
+    }
+}

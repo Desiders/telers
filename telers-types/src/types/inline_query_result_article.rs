@@ -181,9 +181,64 @@ impl InlineQueryResultArticle {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::inline_query_result::deserialize_0!(
-    InlineQueryResultArticle, title : Box < str >, input_message_content : crate
-    ::types::InputMessageContent, url : Option < Box < str > >, description : Option <
-    Box < str > >, thumbnail_url : Option < Box < str > >, thumbnail_width : Option < i64
-    >, thumbnail_height : Option < i64 >
-);
+impl<'de> serde::Deserialize<'de> for InlineQueryResultArticle {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InlineQueryResultArticle",
+            fields: &[
+                "id",
+                "title",
+                "input_message_content",
+                "reply_markup",
+                "url",
+                "description",
+                "thumbnail_url",
+                "thumbnail_width",
+                "thumbnail_height",
+            ],
+            specific: &[
+                "title",
+                "input_message_content",
+                "url",
+                "description",
+                "thumbnail_url",
+                "thumbnail_width",
+                "thumbnail_height",
+            ],
+            sequence: "struct InlineQueryResultArticle with 9 elements",
+        };
+        let (
+            common,
+            (
+                value_title,
+                value_input_message_content,
+                value_url,
+                value_description,
+                value_thumbnail_url,
+                value_thumbnail_width,
+                value_thumbnail_height,
+            ),
+        ) = crate::deserialization::inline_query_result::read_0::<
+            D,
+            Box<str>,
+            crate::types::InputMessageContent,
+            Option<Box<str>>,
+            Option<Box<str>>,
+            Option<Box<str>>,
+            Option<i64>,
+            Option<i64>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            id: common.id,
+            title: value_title,
+            input_message_content: value_input_message_content,
+            reply_markup: common.reply_markup,
+            url: value_url,
+            description: value_description,
+            thumbnail_url: value_thumbnail_url,
+            thumbnail_width: value_thumbnail_width,
+            thumbnail_height: value_thumbnail_height,
+        })
+    }
+}

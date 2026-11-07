@@ -66,6 +66,25 @@ impl PassportElementErrorDataField {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::passport_element_error::deserialize_0!(
-    PassportElementErrorDataField, field_name : Box < str >, data_hash : Box < str >
-);
+impl<'de> serde::Deserialize<'de> for PassportElementErrorDataField {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "PassportElementErrorDataField",
+            fields: &["type", "field_name", "data_hash", "message"],
+            specific: &["field_name", "data_hash"],
+            sequence: "struct PassportElementErrorDataField with 4 elements",
+        };
+        let (common, (value_field_name, value_data_hash)) =
+            crate::deserialization::passport_element_error::read_0::<D, Box<str>, Box<str>>(
+                deserializer,
+                meta,
+            )?;
+        Ok(Self {
+            r#type: common.r#type,
+            field_name: value_field_name,
+            data_hash: value_data_hash,
+            message: common.message,
+        })
+    }
+}

@@ -308,8 +308,71 @@ impl InlineQueryResultGif {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::inline_query_result_gif_kind::deserialize_1!(
-    InlineQueryResultGif, gif_url : Box < str >, gif_width : Option < i64 >, gif_height :
-    Option < i64 >, gif_duration : Option < i64 >, thumbnail_url : Box < str >,
-    thumbnail_mime_type : Option < Box < str > >
-);
+impl<'de> serde::Deserialize<'de> for InlineQueryResultGif {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InlineQueryResultGif",
+            fields: &[
+                "id",
+                "gif_url",
+                "gif_width",
+                "gif_height",
+                "gif_duration",
+                "thumbnail_url",
+                "thumbnail_mime_type",
+                "title",
+                "caption",
+                "parse_mode",
+                "caption_entities",
+                "show_caption_above_media",
+                "reply_markup",
+                "input_message_content",
+            ],
+            specific: &[
+                "gif_url",
+                "gif_width",
+                "gif_height",
+                "gif_duration",
+                "thumbnail_url",
+                "thumbnail_mime_type",
+            ],
+            sequence: "struct InlineQueryResultGif with 14 elements",
+        };
+        let (
+            common,
+            (
+                value_gif_url,
+                value_gif_width,
+                value_gif_height,
+                value_gif_duration,
+                value_thumbnail_url,
+                value_thumbnail_mime_type,
+            ),
+        ) = crate::deserialization::inline_query_result_gif_kind::read_1::<
+            D,
+            Box<str>,
+            Option<i64>,
+            Option<i64>,
+            Option<i64>,
+            Box<str>,
+            Option<Box<str>>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            id: common.id,
+            gif_url: value_gif_url,
+            gif_width: value_gif_width,
+            gif_height: value_gif_height,
+            gif_duration: value_gif_duration,
+            thumbnail_url: value_thumbnail_url,
+            thumbnail_mime_type: value_thumbnail_mime_type,
+            title: common.title,
+            caption: common.caption,
+            parse_mode: common.parse_mode,
+            caption_entities: common.caption_entities,
+            show_caption_above_media: common.show_caption_above_media,
+            reply_markup: common.reply_markup,
+            input_message_content: common.input_message_content,
+        })
+    }
+}

@@ -173,7 +173,38 @@ impl InputMediaLivePhoto {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::input_media::deserialize_3!(
-    InputMediaLivePhoto, photo : crate ::types::InputFile, show_caption_above_media :
-    Option < bool >, has_spoiler : Option < bool >
-);
+impl<'de> serde::Deserialize<'de> for InputMediaLivePhoto {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InputMediaLivePhoto",
+            fields: &[
+                "media",
+                "photo",
+                "caption",
+                "parse_mode",
+                "caption_entities",
+                "show_caption_above_media",
+                "has_spoiler",
+            ],
+            specific: &["photo", "show_caption_above_media", "has_spoiler"],
+            sequence: "struct InputMediaLivePhoto with 7 elements",
+        };
+        let (common, (value_photo, value_show_caption_above_media, value_has_spoiler)) =
+            crate::deserialization::input_media::read_3::<
+                D,
+                crate::types::InputFile,
+                Option<bool>,
+                Option<bool>,
+            >(deserializer, meta)?;
+        Ok(Self {
+            media: common.media,
+            photo: value_photo,
+            caption: common.caption,
+            parse_mode: common.parse_mode,
+            caption_entities: common.caption_entities,
+            show_caption_above_media: value_show_caption_above_media,
+            has_spoiler: value_has_spoiler,
+        })
+    }
+}

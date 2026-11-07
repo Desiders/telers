@@ -63,6 +63,23 @@ impl MessageEntityPre {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::message_entity::deserialize_3!(
-    MessageEntityPre, language : Option < Box < str > >
-);
+impl<'de> serde::Deserialize<'de> for MessageEntityPre {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "MessageEntityPre",
+            fields: &["offset", "length", "language"],
+            specific: &["language"],
+            sequence: "struct MessageEntityPre with 3 elements",
+        };
+        let (common, (value_language,)) = crate::deserialization::message_entity::read_3::<
+            D,
+            Option<Box<str>>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            offset: common.offset,
+            length: common.length,
+            language: value_language,
+        })
+    }
+}

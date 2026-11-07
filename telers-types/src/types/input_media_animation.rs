@@ -235,8 +235,63 @@ impl InputMediaAnimation {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::input_media::deserialize_0!(
-    InputMediaAnimation, thumbnail : Option < crate ::types::InputFile >,
-    show_caption_above_media : Option < bool >, width : Option < i64 >, height : Option <
-    i64 >, duration : Option < i64 >, has_spoiler : Option < bool >
-);
+impl<'de> serde::Deserialize<'de> for InputMediaAnimation {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "InputMediaAnimation",
+            fields: &[
+                "media",
+                "thumbnail",
+                "caption",
+                "parse_mode",
+                "caption_entities",
+                "show_caption_above_media",
+                "width",
+                "height",
+                "duration",
+                "has_spoiler",
+            ],
+            specific: &[
+                "thumbnail",
+                "show_caption_above_media",
+                "width",
+                "height",
+                "duration",
+                "has_spoiler",
+            ],
+            sequence: "struct InputMediaAnimation with 10 elements",
+        };
+        let (
+            common,
+            (
+                value_thumbnail,
+                value_show_caption_above_media,
+                value_width,
+                value_height,
+                value_duration,
+                value_has_spoiler,
+            ),
+        ) = crate::deserialization::input_media::read_0::<
+            D,
+            Option<crate::types::InputFile>,
+            Option<bool>,
+            Option<i64>,
+            Option<i64>,
+            Option<i64>,
+            Option<bool>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            media: common.media,
+            thumbnail: value_thumbnail,
+            caption: common.caption,
+            parse_mode: common.parse_mode,
+            caption_entities: common.caption_entities,
+            show_caption_above_media: value_show_caption_above_media,
+            width: value_width,
+            height: value_height,
+            duration: value_duration,
+            has_spoiler: value_has_spoiler,
+        })
+    }
+}

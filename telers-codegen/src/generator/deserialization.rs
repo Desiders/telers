@@ -132,24 +132,16 @@ fn finish_field(field: &NormalizedField, slot: &TokenStream) -> TokenStream {
 }
 
 #[allow(clippy::too_many_lines)]
-fn tokenize_layout(
-    module: &Ident,
-    common: &[&NormalizedField],
-    layout: &[Field],
-    index: usize,
-) -> TokenStream {
+fn tokenize_layout(common: &[&NormalizedField], layout: &[Field], index: usize) -> TokenStream {
     let visitor = format_ident!("Visitor{index}");
     let deserialize = format_ident!("read_{index}");
-    let implementation = format_ident!("deserialize_{index}");
     let mut parameters = Vec::new();
     let mut bounds = Vec::new();
     let mut specific = Vec::new();
-    let mut specific_names = Vec::new();
     let mut declarations = Vec::new();
     let mut map_arms = Vec::new();
     let mut sequence = Vec::new();
     let mut finish = Vec::new();
-    let mut field_names = Vec::new();
     let common_count = common.len();
     for (field_index, field) in layout.iter().enumerate() {
         match *field {
@@ -167,8 +159,6 @@ fn tokenize_layout(
                 });
                 let value = finish_field(field, &quote! { common.#name });
                 finish.push(quote! { let #name = #value; });
-                let field_name = &field.name;
-                field_names.push(quote! { #field_name });
             }
             Field::Specific {
                 default,
@@ -178,7 +168,6 @@ fn tokenize_layout(
                 let key_index = common_count + index;
                 let parameter = format_ident!("P{index}");
                 let value = format_ident!("value_{index}");
-                let name = format_ident!("field_{index}");
                 parameters.push(quote! { #parameter });
                 bounds.push(if default {
                     quote! { #parameter: Deserialize<'de> + Default }
@@ -186,7 +175,6 @@ fn tokenize_layout(
                     quote! { #parameter: Deserialize<'de> }
                 });
                 specific.push(quote! { #value });
-                specific_names.push(name.clone());
                 declarations.push(quote! { let mut #value = None; });
                 map_arms.push(quote! {
                     #key_index => { map_field(&mut #value, &mut map, self.meta.specific[#index])?; }
@@ -206,8 +194,6 @@ fn tokenize_layout(
                         let #value = #value.ok_or_else(|| A::Error::missing_field(self.meta.specific[#index]))?;
                     }
                 });
-                field_names
-                    .push(quote! { $crate::deserialization::field_name(stringify!($#name)) });
             }
         }
     }
@@ -216,27 +202,6 @@ fn tokenize_layout(
         .map(|field| sanitize_field_name(&field.name))
         .collect::<Vec<_>>();
     let generic_args = (!parameters.is_empty()).then(|| quote! { <#(#parameters),*> });
-    let count = layout.len();
-    let suffix = if count == 1 { "element" } else { "elements" };
-    let expected = format!(" with {count} {suffix}");
-    let patterns = specific_names
-        .iter()
-        .zip(&parameters)
-        .map(|(name, parameter)| quote! { $#name:ident: $#parameter:ty })
-        .collect::<Vec<_>>();
-    let macro_types = parameters
-        .iter()
-        .map(|parameter| quote! { $#parameter })
-        .collect::<Vec<_>>();
-    let macro_fields = specific_names
-        .iter()
-        .map(|name| quote! { $#name })
-        .collect::<Vec<_>>();
-    let construction = macro_fields
-        .iter()
-        .zip(&specific)
-        .map(|(name, value)| quote! { #name: #value, })
-        .collect::<Vec<_>>();
     quote! {
         struct #visitor #generic_args {
             meta: Meta,
@@ -278,26 +243,62 @@ fn tokenize_layout(
             })
         }
 
-        #[rustfmt::skip]
-        macro_rules! #implementation {
-            ($name:ident, #(#patterns),*) => {
-                impl<'de> serde::Deserialize<'de> for $name {
-                    #[allow(clippy::too_many_lines)]
-                    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-                        let (common, (#(#specific,)*)) = $crate::deserialization::#module::#deserialize::<D, #(#macro_types),*>(
-                            deserializer, $crate::deserialization::Meta {
-                                name: stringify!($name),
-                                fields: const { &[#(#field_names),*] },
-                                specific: const { &[#($crate::deserialization::field_name(stringify!(#macro_fields))),*] },
-                                sequence: concat!("struct ", stringify!($name), #expected),
-                            },
-                        )?;
-                        Ok(Self { #(#common_names: common.#common_names,)* #(#construction)* })
-                    }
+    }
+}
+
+fn tokenize_implementation(
+    ty: &NormalizedType,
+    module: &Ident,
+    layout: &[Field],
+    index: usize,
+) -> TokenStream {
+    let name = format_ident!("{}", ty.name);
+    let deserialize = format_ident!("read_{index}");
+    let fields = fields(ty);
+    let field_names = fields.iter().map(|field| &field.name).collect::<Vec<_>>();
+    let mut specific_types = Vec::new();
+    let mut specific_names = Vec::new();
+    let mut specific_values = Vec::new();
+    let construction = fields
+        .iter()
+        .zip(layout)
+        .map(|(field, kind)| {
+            let name = sanitize_field_name(&field.name);
+            match kind {
+                Field::Common(_) => quote! { #name: common.#name },
+                Field::Specific {
+                    ..
+                } => {
+                    let value = format_ident!("value_{}", field.name);
+                    specific_types.push(tokenize_field_type(field));
+                    specific_names.push(&field.name);
+                    specific_values.push(value.clone());
+                    quote! { #name: #value }
                 }
-            };
+            }
+        })
+        .collect::<Vec<_>>();
+    let count = fields.len();
+    let suffix = if count == 1 { "element" } else { "elements" };
+    let expected = format!("struct {} with {count} {suffix}", ty.name);
+    let type_name = &ty.name;
+    quote! {
+        #[cfg(not(feature = "deser"))]
+        impl<'de> serde::Deserialize<'de> for #name {
+            #[allow(clippy::too_many_lines)]
+            fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+                let meta = crate::deserialization::Meta {
+                    name: #type_name,
+                    fields: &[#(#field_names),*],
+                    specific: &[#(#specific_names),*],
+                    sequence: #expected,
+                };
+                let (common, (#(#specific_values,)*)) = crate::deserialization::#module::#deserialize::<D, #(#specific_types),*>(
+                    deserializer, meta,
+                )?;
+                Ok(Self { #(#construction,)* })
+            }
         }
-        pub(crate) use #implementation;
     }
 }
 
@@ -318,22 +319,7 @@ pub fn tokenize_deserializers(
                     layouts.push(layout.clone());
                     layouts.len() - 1
                 });
-                let implementation = format_ident!("deserialize_{index}");
-                let name = format_ident!("{}", ty.name);
-                let specific_fields = fields(ty)
-                    .into_iter()
-                    .zip(&layout)
-                    .filter(|(_, kind)| matches!(kind, Field::Specific { .. }))
-                    .map(|(field, _)| {
-                        let name = sanitize_field_name(&field.name);
-                        let ty = tokenize_field_type(field);
-                        quote! { #name: #ty }
-                    })
-                    .collect::<Vec<_>>();
-                implementations.insert(ty.name.clone(), quote! {
-                    #[cfg(not(feature = "deser"))]
-                    crate::deserialization::#module::#implementation!(#name, #(#specific_fields),*);
-                });
+                implementations.insert(ty.name.clone(), tokenize_implementation(ty, &module, &layout, index));
             }
             let names = group.common.iter().map(|field| sanitize_field_name(&field.name)).collect::<Vec<_>>();
             let types = group.common.iter().map(|field| tokenize_field_type(field)).collect::<Vec<_>>();
@@ -342,7 +328,7 @@ pub fn tokenize_deserializers(
             let indices = (0..names.len()).collect::<Vec<_>>();
             let count = names.len();
             let layouts = layouts.iter().enumerate().map(|(index, layout)| {
-                tokenize_layout(&module, &group.common, layout, index)
+                tokenize_layout(&group.common, layout, index)
             }).collect::<Vec<_>>();
             quote! {
                 pub(crate) mod #module {
@@ -412,13 +398,6 @@ pub fn tokenize_deserializers(
             seq: &mut A, index: usize, expected: &dyn Expected,
         ) -> Result<T, A::Error> {
             seq.next_element()?.ok_or_else(|| A::Error::invalid_length(index, expected))
-        }
-
-        pub(crate) const fn field_name(name: &'static str) -> &'static str {
-            match name.as_bytes() {
-                [b'r', b'#', ..] => name.split_at(2).1,
-                _ => name,
-            }
         }
 
         #[derive(Clone, Copy)]

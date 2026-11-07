@@ -52,7 +52,22 @@ impl From<UpdateDeletedBusinessMessages> for crate::types::BusinessMessagesDelet
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::update::deserialize_0!(
-    UpdateDeletedBusinessMessages, deleted_business_messages : crate
-    ::types::BusinessMessagesDeleted
-);
+impl<'de> serde::Deserialize<'de> for UpdateDeletedBusinessMessages {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "UpdateDeletedBusinessMessages",
+            fields: &["update_id", "deleted_business_messages"],
+            specific: &["deleted_business_messages"],
+            sequence: "struct UpdateDeletedBusinessMessages with 2 elements",
+        };
+        let (common, (value_deleted_business_messages,)) = crate::deserialization::update::read_0::<
+            D,
+            crate::types::BusinessMessagesDeleted,
+        >(deserializer, meta)?;
+        Ok(Self {
+            update_id: common.update_id,
+            deleted_business_messages: value_deleted_business_messages,
+        })
+    }
+}

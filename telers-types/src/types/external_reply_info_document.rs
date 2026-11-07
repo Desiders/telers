@@ -129,6 +129,33 @@ impl ExternalReplyInfoDocument {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::external_reply_info::deserialize_0!(
-    ExternalReplyInfoDocument, document : Box < crate ::types::Document >
-);
+impl<'de> serde::Deserialize<'de> for ExternalReplyInfoDocument {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "ExternalReplyInfoDocument",
+            fields: &[
+                "origin",
+                "chat",
+                "message_id",
+                "link_preview_options",
+                "has_media_spoiler",
+                "document",
+            ],
+            specific: &["document"],
+            sequence: "struct ExternalReplyInfoDocument with 6 elements",
+        };
+        let (common, (value_document,)) = crate::deserialization::external_reply_info::read_0::<
+            D,
+            Box<crate::types::Document>,
+        >(deserializer, meta)?;
+        Ok(Self {
+            origin: common.origin,
+            chat: common.chat,
+            message_id: common.message_id,
+            link_preview_options: common.link_preview_options,
+            has_media_spoiler: common.has_media_spoiler,
+            document: value_document,
+        })
+    }
+}

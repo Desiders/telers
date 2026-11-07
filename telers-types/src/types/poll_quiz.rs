@@ -547,7 +547,64 @@ impl PollQuiz {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::poll::deserialize_0!(
-    PollQuiz, correct_option_ids : Option < Box < [i64] > >, explanation : Option < Box <
-    str > >, explanation_media : Option < crate ::types::PollMedia >
-);
+impl<'de> serde::Deserialize<'de> for PollQuiz {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "PollQuiz",
+            fields: &[
+                "id",
+                "question",
+                "question_entities",
+                "options",
+                "total_voter_count",
+                "is_closed",
+                "is_anonymous",
+                "allows_multiple_answers",
+                "allows_revoting",
+                "members_only",
+                "country_codes",
+                "correct_option_ids",
+                "explanation",
+                "explanation_entities",
+                "explanation_media",
+                "open_period",
+                "close_date",
+                "description",
+                "description_entities",
+                "media",
+            ],
+            specific: &["correct_option_ids", "explanation", "explanation_media"],
+            sequence: "struct PollQuiz with 20 elements",
+        };
+        let (common, (value_correct_option_ids, value_explanation, value_explanation_media)) =
+            crate::deserialization::poll::read_0::<
+                D,
+                Option<Box<[i64]>>,
+                Option<Box<str>>,
+                Option<crate::types::PollMedia>,
+            >(deserializer, meta)?;
+        Ok(Self {
+            id: common.id,
+            question: common.question,
+            question_entities: common.question_entities,
+            options: common.options,
+            total_voter_count: common.total_voter_count,
+            is_closed: common.is_closed,
+            is_anonymous: common.is_anonymous,
+            allows_multiple_answers: common.allows_multiple_answers,
+            allows_revoting: common.allows_revoting,
+            members_only: common.members_only,
+            country_codes: common.country_codes,
+            correct_option_ids: value_correct_option_ids,
+            explanation: value_explanation,
+            explanation_entities: common.explanation_entities,
+            explanation_media: value_explanation_media,
+            open_period: common.open_period,
+            close_date: common.close_date,
+            description: common.description,
+            description_entities: common.description_entities,
+            media: common.media,
+        })
+    }
+}

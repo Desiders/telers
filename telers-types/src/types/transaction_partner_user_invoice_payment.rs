@@ -93,8 +93,32 @@ impl TransactionPartnerUserInvoicePayment {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::chat_member::deserialize_6!(
-    TransactionPartnerUserInvoicePayment, affiliate : Option < crate
-    ::types::AffiliateInfo >, invoice_payload : Option < Box < str > >,
-    subscription_period : Option < i64 >
-);
+impl<'de> serde::Deserialize<'de> for TransactionPartnerUserInvoicePayment {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "TransactionPartnerUserInvoicePayment",
+            fields: &[
+                "user",
+                "affiliate",
+                "invoice_payload",
+                "subscription_period",
+            ],
+            specific: &["affiliate", "invoice_payload", "subscription_period"],
+            sequence: "struct TransactionPartnerUserInvoicePayment with 4 elements",
+        };
+        let (common, (value_affiliate, value_invoice_payload, value_subscription_period)) =
+            crate::deserialization::chat_member::read_6::<
+                D,
+                Option<crate::types::AffiliateInfo>,
+                Option<Box<str>>,
+                Option<i64>,
+            >(deserializer, meta)?;
+        Ok(Self {
+            user: common.user,
+            affiliate: value_affiliate,
+            invoice_payload: value_invoice_payload,
+            subscription_period: value_subscription_period,
+        })
+    }
+}

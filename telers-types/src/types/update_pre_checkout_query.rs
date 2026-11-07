@@ -49,6 +49,22 @@ impl From<UpdatePreCheckoutQuery> for crate::types::PreCheckoutQuery {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::update::deserialize_0!(
-    UpdatePreCheckoutQuery, pre_checkout_query : crate ::types::PreCheckoutQuery
-);
+impl<'de> serde::Deserialize<'de> for UpdatePreCheckoutQuery {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "UpdatePreCheckoutQuery",
+            fields: &["update_id", "pre_checkout_query"],
+            specific: &["pre_checkout_query"],
+            sequence: "struct UpdatePreCheckoutQuery with 2 elements",
+        };
+        let (common, (value_pre_checkout_query,)) = crate::deserialization::update::read_0::<
+            D,
+            crate::types::PreCheckoutQuery,
+        >(deserializer, meta)?;
+        Ok(Self {
+            update_id: common.update_id,
+            pre_checkout_query: value_pre_checkout_query,
+        })
+    }
+}

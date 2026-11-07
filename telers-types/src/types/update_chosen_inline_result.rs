@@ -52,6 +52,22 @@ impl From<UpdateChosenInlineResult> for crate::types::ChosenInlineResult {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::update::deserialize_0!(
-    UpdateChosenInlineResult, chosen_inline_result : crate ::types::ChosenInlineResult
-);
+impl<'de> serde::Deserialize<'de> for UpdateChosenInlineResult {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "UpdateChosenInlineResult",
+            fields: &["update_id", "chosen_inline_result"],
+            specific: &["chosen_inline_result"],
+            sequence: "struct UpdateChosenInlineResult with 2 elements",
+        };
+        let (common, (value_chosen_inline_result,)) = crate::deserialization::update::read_0::<
+            D,
+            crate::types::ChosenInlineResult,
+        >(deserializer, meta)?;
+        Ok(Self {
+            update_id: common.update_id,
+            chosen_inline_result: value_chosen_inline_result,
+        })
+    }
+}

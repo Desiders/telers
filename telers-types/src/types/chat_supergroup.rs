@@ -109,7 +109,28 @@ impl ChatSupergroup {
     }
 }
 #[cfg(not(feature = "deser"))]
-crate::deserialization::chat::deserialize_2!(
-    ChatSupergroup, title : Option < Box < str > >, username : Option < Box < str > >,
-    is_forum : Option < bool >
-);
+impl<'de> serde::Deserialize<'de> for ChatSupergroup {
+    #[allow(clippy::too_many_lines)]
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let meta = crate::deserialization::Meta {
+            name: "ChatSupergroup",
+            fields: &["id", "title", "username", "is_forum", "is_direct_messages"],
+            specific: &["title", "username", "is_forum"],
+            sequence: "struct ChatSupergroup with 5 elements",
+        };
+        let (common, (value_title, value_username, value_is_forum)) =
+            crate::deserialization::chat::read_2::<
+                D,
+                Option<Box<str>>,
+                Option<Box<str>>,
+                Option<bool>,
+            >(deserializer, meta)?;
+        Ok(Self {
+            id: common.id,
+            title: value_title,
+            username: value_username,
+            is_forum: value_is_forum,
+            is_direct_messages: common.is_direct_messages,
+        })
+    }
+}
