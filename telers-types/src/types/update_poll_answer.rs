@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// A user changed their answer in a non-anonymous poll. Bots receive new votes only in polls that were sent by the bot itself.
 /// # Notes
 /// This object represents an update from original update field `poll_answer`.
@@ -12,6 +15,7 @@ pub struct UpdatePollAnswer {
     /// A user changed their answer in a non-anonymous poll. Bots receive new votes only in polls that were sent by the bot itself.
     pub poll_answer: crate::types::PollAnswer,
 }
+
 impl UpdatePollAnswer {
     /// Creates a new `UpdatePollAnswer`.
     ///
@@ -43,28 +47,20 @@ impl UpdatePollAnswer {
         self
     }
 }
+
 impl From<UpdatePollAnswer> for crate::types::PollAnswer {
     fn from(val: UpdatePollAnswer) -> Self {
         val.poll_answer
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdatePollAnswer {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdatePollAnswer",
-            fields: &["update_id", "poll_answer"],
-            specific: &["poll_answer"],
-            sequence: "struct UpdatePollAnswer with 2 elements",
-        };
-        let (common, (value_poll_answer,)) = crate::deserialization::update::read_0::<
-            D,
-            crate::types::PollAnswer,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::POLL_ANSWER)?;
         Ok(Self {
-            update_id: common.update_id,
-            poll_answer: value_poll_answer,
+            update_id: decoded.common.update_id,
+            poll_answer: decoded.content,
         })
     }
 }

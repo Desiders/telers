@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::inline_query_result_document_kind as decoder;
+
 /// Represents a link to a file. By default, this file will be sent by the user with an optional caption. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the file. Currently, only .PDF and .ZIP files can be sent using this method.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultdocument>
@@ -50,6 +53,7 @@ pub struct InlineQueryResultDocument {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub thumbnail_height: Option<i64>,
 }
+
 impl InlineQueryResultDocument {
     /// Creates a new `InlineQueryResultDocument`.
     ///
@@ -281,67 +285,25 @@ impl InlineQueryResultDocument {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InlineQueryResultDocument {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InlineQueryResultDocument",
-            fields: &[
-                "id",
-                "title",
-                "caption",
-                "parse_mode",
-                "caption_entities",
-                "document_url",
-                "mime_type",
-                "description",
-                "reply_markup",
-                "input_message_content",
-                "thumbnail_url",
-                "thumbnail_width",
-                "thumbnail_height",
-            ],
-            specific: &[
-                "document_url",
-                "mime_type",
-                "thumbnail_url",
-                "thumbnail_width",
-                "thumbnail_height",
-            ],
-            sequence: "struct InlineQueryResultDocument with 13 elements",
-        };
-        let (
-            common,
-            (
-                value_document_url,
-                value_mime_type,
-                value_thumbnail_url,
-                value_thumbnail_width,
-                value_thumbnail_height,
-            ),
-        ) = crate::deserialization::inline_query_result_document_kind::read_1::<
-            D,
-            Box<str>,
-            Box<str>,
-            Option<Box<str>>,
-            Option<i64>,
-            Option<i64>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_document(deserializer, &decoder::DOCUMENT)?;
         Ok(Self {
-            id: common.id,
-            title: common.title,
-            caption: common.caption,
-            parse_mode: common.parse_mode,
-            caption_entities: common.caption_entities,
-            document_url: value_document_url,
-            mime_type: value_mime_type,
-            description: common.description,
-            reply_markup: common.reply_markup,
-            input_message_content: common.input_message_content,
-            thumbnail_url: value_thumbnail_url,
-            thumbnail_width: value_thumbnail_width,
-            thumbnail_height: value_thumbnail_height,
+            id: decoded.common.id,
+            title: decoded.common.title,
+            caption: decoded.common.caption,
+            parse_mode: decoded.common.parse_mode,
+            caption_entities: decoded.common.caption_entities,
+            document_url: decoded.document_url,
+            mime_type: decoded.mime_type,
+            description: decoded.common.description,
+            reply_markup: decoded.common.reply_markup,
+            input_message_content: decoded.common.input_message_content,
+            thumbnail_url: decoded.thumbnail_url,
+            thumbnail_width: decoded.thumbnail_width,
+            thumbnail_height: decoded.thumbnail_height,
         })
     }
 }

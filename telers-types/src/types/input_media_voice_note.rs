@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::input_media as decoder;
+
 /// Represents a voice message file to be sent.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmediavoicenote>
@@ -24,6 +27,7 @@ pub struct InputMediaVoiceNote {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub duration: Option<i64>,
 }
+
 impl InputMediaVoiceNote {
     /// Creates a new `InputMediaVoiceNote`.
     ///
@@ -139,30 +143,17 @@ impl InputMediaVoiceNote {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InputMediaVoiceNote {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InputMediaVoiceNote",
-            fields: &[
-                "media",
-                "caption",
-                "parse_mode",
-                "caption_entities",
-                "duration",
-            ],
-            specific: &["duration"],
-            sequence: "struct InputMediaVoiceNote with 5 elements",
-        };
-        let (common, (value_duration,)) =
-            crate::deserialization::input_media::read_6::<D, Option<i64>>(deserializer, meta)?;
+        let decoded = decoder::deserialize_voice_note(deserializer, &decoder::VOICE_NOTE)?;
         Ok(Self {
-            media: common.media,
-            caption: common.caption,
-            parse_mode: common.parse_mode,
-            caption_entities: common.caption_entities,
-            duration: value_duration,
+            media: decoded.common.media,
+            caption: decoded.common.caption,
+            parse_mode: decoded.common.parse_mode,
+            caption_entities: decoded.common.caption_entities,
+            duration: decoded.duration,
         })
     }
 }

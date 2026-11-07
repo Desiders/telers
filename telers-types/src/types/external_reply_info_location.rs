@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::external_reply_info as decoder;
+
 /// Message is a shared location, information about the location
 /// # Notes
 /// This object represents an external reply info from original field `location`.
@@ -28,6 +31,7 @@ pub struct ExternalReplyInfoLocation {
     /// Message is a shared location, information about the location
     pub location: crate::types::Location,
 }
+
 impl ExternalReplyInfoLocation {
     /// Creates a new `ExternalReplyInfoLocation`.
     ///
@@ -128,34 +132,18 @@ impl ExternalReplyInfoLocation {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ExternalReplyInfoLocation {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ExternalReplyInfoLocation",
-            fields: &[
-                "origin",
-                "chat",
-                "message_id",
-                "link_preview_options",
-                "has_media_spoiler",
-                "location",
-            ],
-            specific: &["location"],
-            sequence: "struct ExternalReplyInfoLocation with 6 elements",
-        };
-        let (common, (value_location,)) = crate::deserialization::external_reply_info::read_0::<
-            D,
-            crate::types::Location,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::LOCATION)?;
         Ok(Self {
-            origin: common.origin,
-            chat: common.chat,
-            message_id: common.message_id,
-            link_preview_options: common.link_preview_options,
-            has_media_spoiler: common.has_media_spoiler,
-            location: value_location,
+            origin: decoded.common.origin,
+            chat: decoded.common.chat,
+            message_id: decoded.common.message_id,
+            link_preview_options: decoded.common.link_preview_options,
+            has_media_spoiler: decoded.common.has_media_spoiler,
+            location: decoded.content,
         })
     }
 }

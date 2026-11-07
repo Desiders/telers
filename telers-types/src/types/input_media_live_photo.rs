@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::input_media as decoder;
+
 /// Represents a live photo to be sent.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmedialivephoto>
@@ -30,6 +33,7 @@ pub struct InputMediaLivePhoto {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub has_spoiler: Option<bool>,
 }
+
 impl InputMediaLivePhoto {
     /// Creates a new `InputMediaLivePhoto`.
     ///
@@ -172,39 +176,19 @@ impl InputMediaLivePhoto {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InputMediaLivePhoto {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InputMediaLivePhoto",
-            fields: &[
-                "media",
-                "photo",
-                "caption",
-                "parse_mode",
-                "caption_entities",
-                "show_caption_above_media",
-                "has_spoiler",
-            ],
-            specific: &["photo", "show_caption_above_media", "has_spoiler"],
-            sequence: "struct InputMediaLivePhoto with 7 elements",
-        };
-        let (common, (value_photo, value_show_caption_above_media, value_has_spoiler)) =
-            crate::deserialization::input_media::read_3::<
-                D,
-                crate::types::InputFile,
-                Option<bool>,
-                Option<bool>,
-            >(deserializer, meta)?;
+        let decoded = decoder::deserialize_live_photo(deserializer, &decoder::LIVE_PHOTO)?;
         Ok(Self {
-            media: common.media,
-            photo: value_photo,
-            caption: common.caption,
-            parse_mode: common.parse_mode,
-            caption_entities: common.caption_entities,
-            show_caption_above_media: value_show_caption_above_media,
-            has_spoiler: value_has_spoiler,
+            media: decoded.common.media,
+            photo: decoded.photo,
+            caption: decoded.common.caption,
+            parse_mode: decoded.common.parse_mode,
+            caption_entities: decoded.common.caption_entities,
+            show_caption_above_media: decoded.show_caption_above_media,
+            has_spoiler: decoded.has_spoiler,
         })
     }
 }

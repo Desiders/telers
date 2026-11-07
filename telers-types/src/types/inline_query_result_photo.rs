@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::inline_query_result_photo_kind as decoder;
+
 /// Represents a link to a photo. By default, this photo will be sent by the user with optional caption. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the photo.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultphoto>
@@ -52,6 +55,7 @@ pub struct InlineQueryResultPhoto {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub input_message_content: Option<crate::types::InputMessageContent>,
 }
+
 impl InlineQueryResultPhoto {
     /// Creates a new `InlineQueryResultPhoto`.
     ///
@@ -288,52 +292,25 @@ impl InlineQueryResultPhoto {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InlineQueryResultPhoto {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InlineQueryResultPhoto",
-            fields: &[
-                "id",
-                "photo_url",
-                "thumbnail_url",
-                "photo_width",
-                "photo_height",
-                "title",
-                "description",
-                "caption",
-                "parse_mode",
-                "caption_entities",
-                "show_caption_above_media",
-                "reply_markup",
-                "input_message_content",
-            ],
-            specific: &["photo_url", "thumbnail_url", "photo_width", "photo_height"],
-            sequence: "struct InlineQueryResultPhoto with 13 elements",
-        };
-        let (common, (value_photo_url, value_thumbnail_url, value_photo_width, value_photo_height)) =
-            crate::deserialization::inline_query_result_photo_kind::read_1::<
-                D,
-                Box<str>,
-                Box<str>,
-                Option<i64>,
-                Option<i64>,
-            >(deserializer, meta)?;
+        let decoded = decoder::deserialize_photo(deserializer, &decoder::PHOTO)?;
         Ok(Self {
-            id: common.id,
-            photo_url: value_photo_url,
-            thumbnail_url: value_thumbnail_url,
-            photo_width: value_photo_width,
-            photo_height: value_photo_height,
-            title: common.title,
-            description: common.description,
-            caption: common.caption,
-            parse_mode: common.parse_mode,
-            caption_entities: common.caption_entities,
-            show_caption_above_media: common.show_caption_above_media,
-            reply_markup: common.reply_markup,
-            input_message_content: common.input_message_content,
+            id: decoded.common.id,
+            photo_url: decoded.photo_url,
+            thumbnail_url: decoded.thumbnail_url,
+            photo_width: decoded.photo_width,
+            photo_height: decoded.photo_height,
+            title: decoded.common.title,
+            description: decoded.common.description,
+            caption: decoded.common.caption,
+            parse_mode: decoded.common.parse_mode,
+            caption_entities: decoded.common.caption_entities,
+            show_caption_above_media: decoded.common.show_caption_above_media,
+            reply_markup: decoded.common.reply_markup,
+            input_message_content: decoded.common.input_message_content,
         })
     }
 }

@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::external_reply_info as decoder;
+
 /// Message is a general file, information about the file
 /// # Notes
 /// This object represents an external reply info from original field `document`.
@@ -28,6 +31,7 @@ pub struct ExternalReplyInfoDocument {
     /// Message is a general file, information about the file
     pub document: Box<crate::types::Document>,
 }
+
 impl ExternalReplyInfoDocument {
     /// Creates a new `ExternalReplyInfoDocument`.
     ///
@@ -128,34 +132,18 @@ impl ExternalReplyInfoDocument {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ExternalReplyInfoDocument {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ExternalReplyInfoDocument",
-            fields: &[
-                "origin",
-                "chat",
-                "message_id",
-                "link_preview_options",
-                "has_media_spoiler",
-                "document",
-            ],
-            specific: &["document"],
-            sequence: "struct ExternalReplyInfoDocument with 6 elements",
-        };
-        let (common, (value_document,)) = crate::deserialization::external_reply_info::read_0::<
-            D,
-            Box<crate::types::Document>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::DOCUMENT)?;
         Ok(Self {
-            origin: common.origin,
-            chat: common.chat,
-            message_id: common.message_id,
-            link_preview_options: common.link_preview_options,
-            has_media_spoiler: common.has_media_spoiler,
-            document: value_document,
+            origin: decoded.common.origin,
+            chat: decoded.common.chat,
+            message_id: decoded.common.message_id,
+            link_preview_options: decoded.common.link_preview_options,
+            has_media_spoiler: decoded.common.has_media_spoiler,
+            document: decoded.content,
         })
     }
 }

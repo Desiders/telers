@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::transaction_partner_user as decoder;
+
 /// This object represents a/an paid media payment transaction partner user.
 /// # Notes
 /// This object represents a transaction partner user from original field `paid_media_payment`.
@@ -20,6 +23,7 @@ pub struct TransactionPartnerUserPaidMediaPayment {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub paid_media_payload: Option<Box<str>>,
 }
+
 impl TransactionPartnerUserPaidMediaPayment {
     /// Creates a new `TransactionPartnerUserPaidMediaPayment`.
     ///
@@ -114,28 +118,17 @@ impl TransactionPartnerUserPaidMediaPayment {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for TransactionPartnerUserPaidMediaPayment {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "TransactionPartnerUserPaidMediaPayment",
-            fields: &["user", "affiliate", "paid_media", "paid_media_payload"],
-            specific: &["affiliate", "paid_media", "paid_media_payload"],
-            sequence: "struct TransactionPartnerUserPaidMediaPayment with 4 elements",
-        };
-        let (common, (value_affiliate, value_paid_media, value_paid_media_payload)) =
-            crate::deserialization::chat_member::read_7::<
-                D,
-                Option<crate::types::AffiliateInfo>,
-                Box<[crate::types::PaidMedia]>,
-                Option<Box<str>>,
-            >(deserializer, meta)?;
+        let decoded =
+            decoder::deserialize_paid_media_payment(deserializer, &decoder::PAID_MEDIA_PAYMENT)?;
         Ok(Self {
-            user: common.user,
-            affiliate: value_affiliate,
-            paid_media: value_paid_media,
-            paid_media_payload: value_paid_media_payload,
+            user: decoded.common.user,
+            affiliate: decoded.affiliate,
+            paid_media: decoded.paid_media,
+            paid_media_payload: decoded.paid_media_payload,
         })
     }
 }

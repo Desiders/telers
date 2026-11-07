@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::message_origin as decoder;
+
 /// The message was originally sent by an unknown user.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#messageoriginhiddenuser>
@@ -10,6 +13,7 @@ pub struct MessageOriginHiddenUser {
     /// Name of the user that sent the message originally
     pub sender_user_name: Box<str>,
 }
+
 impl MessageOriginHiddenUser {
     /// Creates a new `MessageOriginHiddenUser`.
     ///
@@ -38,21 +42,14 @@ impl MessageOriginHiddenUser {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for MessageOriginHiddenUser {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "MessageOriginHiddenUser",
-            fields: &["date", "sender_user_name"],
-            specific: &["sender_user_name"],
-            sequence: "struct MessageOriginHiddenUser with 2 elements",
-        };
-        let (common, (value_sender_user_name,)) =
-            crate::deserialization::message_origin::read_2::<D, Box<str>>(deserializer, meta)?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::HIDDEN_USER)?;
         Ok(Self {
-            date: common.date,
-            sender_user_name: value_sender_user_name,
+            date: decoded.common.date,
+            sender_user_name: decoded.content,
         })
     }
 }

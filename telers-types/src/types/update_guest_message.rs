@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// New guest message. The bot can use the field `Message.guest_query_id` and the method [`telers_methods::methods::AnswerGuestQuery`](https://docs.rs/telers-methods/latest/telers_methods/methods/answer_guest_query/struct.AnswerGuestQuery.html) to send a message in response.
 /// # Notes
 /// This object represents an update from original update field `guest_message`.
@@ -12,6 +15,7 @@ pub struct UpdateGuestMessage {
     /// New guest message. The bot can use the field `Message.guest_query_id` and the method [`telers_methods::methods::AnswerGuestQuery`](https://docs.rs/telers-methods/latest/telers_methods/methods/answer_guest_query/struct.AnswerGuestQuery.html) to send a message in response.
     pub guest_message: Box<crate::types::Message>,
 }
+
 impl UpdateGuestMessage {
     /// Creates a new `UpdateGuestMessage`.
     ///
@@ -43,28 +47,20 @@ impl UpdateGuestMessage {
         self
     }
 }
+
 impl From<UpdateGuestMessage> for crate::types::Message {
     fn from(val: UpdateGuestMessage) -> Self {
         *val.guest_message
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdateGuestMessage {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdateGuestMessage",
-            fields: &["update_id", "guest_message"],
-            specific: &["guest_message"],
-            sequence: "struct UpdateGuestMessage with 2 elements",
-        };
-        let (common, (value_guest_message,)) = crate::deserialization::update::read_0::<
-            D,
-            Box<crate::types::Message>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::GUEST_MESSAGE)?;
         Ok(Self {
-            update_id: common.update_id,
-            guest_message: value_guest_message,
+            update_id: decoded.common.update_id,
+            guest_message: decoded.content,
         })
     }
 }

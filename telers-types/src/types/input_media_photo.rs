@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::input_media as decoder;
+
 /// Represents a photo to be sent.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmediaphoto>
@@ -28,6 +31,7 @@ pub struct InputMediaPhoto {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub has_spoiler: Option<bool>,
 }
+
 impl InputMediaPhoto {
     /// Creates a new `InputMediaPhoto`.
     ///
@@ -158,35 +162,18 @@ impl InputMediaPhoto {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InputMediaPhoto {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InputMediaPhoto",
-            fields: &[
-                "media",
-                "caption",
-                "parse_mode",
-                "caption_entities",
-                "show_caption_above_media",
-                "has_spoiler",
-            ],
-            specific: &["show_caption_above_media", "has_spoiler"],
-            sequence: "struct InputMediaPhoto with 6 elements",
-        };
-        let (common, (value_show_caption_above_media, value_has_spoiler)) =
-            crate::deserialization::input_media::read_4::<D, Option<bool>, Option<bool>>(
-                deserializer,
-                meta,
-            )?;
+        let decoded = decoder::deserialize_photo(deserializer, &decoder::PHOTO)?;
         Ok(Self {
-            media: common.media,
-            caption: common.caption,
-            parse_mode: common.parse_mode,
-            caption_entities: common.caption_entities,
-            show_caption_above_media: value_show_caption_above_media,
-            has_spoiler: value_has_spoiler,
+            media: decoded.common.media,
+            caption: decoded.common.caption,
+            parse_mode: decoded.common.parse_mode,
+            caption_entities: decoded.common.caption_entities,
+            show_caption_above_media: decoded.show_caption_above_media,
+            has_spoiler: decoded.has_spoiler,
         })
     }
 }

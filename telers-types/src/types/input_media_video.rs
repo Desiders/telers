@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::input_media as decoder;
+
 /// Represents a video to be sent.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmediavideo>
@@ -56,6 +59,7 @@ pub struct InputMediaVideo {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub has_spoiler: Option<bool>,
 }
+
 impl InputMediaVideo {
     /// Creates a new `InputMediaVideo`.
     ///
@@ -291,79 +295,25 @@ impl InputMediaVideo {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InputMediaVideo {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InputMediaVideo",
-            fields: &[
-                "media",
-                "thumbnail",
-                "cover",
-                "start_timestamp",
-                "caption",
-                "parse_mode",
-                "caption_entities",
-                "show_caption_above_media",
-                "width",
-                "height",
-                "duration",
-                "supports_streaming",
-                "has_spoiler",
-            ],
-            specific: &[
-                "thumbnail",
-                "cover",
-                "start_timestamp",
-                "show_caption_above_media",
-                "width",
-                "height",
-                "duration",
-                "supports_streaming",
-                "has_spoiler",
-            ],
-            sequence: "struct InputMediaVideo with 13 elements",
-        };
-        let (
-            common,
-            (
-                value_thumbnail,
-                value_cover,
-                value_start_timestamp,
-                value_show_caption_above_media,
-                value_width,
-                value_height,
-                value_duration,
-                value_supports_streaming,
-                value_has_spoiler,
-            ),
-        ) = crate::deserialization::input_media::read_5::<
-            D,
-            Option<crate::types::InputFile>,
-            Option<crate::types::InputFile>,
-            Option<i64>,
-            Option<bool>,
-            Option<i64>,
-            Option<i64>,
-            Option<i64>,
-            Option<bool>,
-            Option<bool>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_video(deserializer, &decoder::VIDEO)?;
         Ok(Self {
-            media: common.media,
-            thumbnail: value_thumbnail,
-            cover: value_cover,
-            start_timestamp: value_start_timestamp,
-            caption: common.caption,
-            parse_mode: common.parse_mode,
-            caption_entities: common.caption_entities,
-            show_caption_above_media: value_show_caption_above_media,
-            width: value_width,
-            height: value_height,
-            duration: value_duration,
-            supports_streaming: value_supports_streaming,
-            has_spoiler: value_has_spoiler,
+            media: decoded.common.media,
+            thumbnail: decoded.thumbnail,
+            cover: decoded.cover,
+            start_timestamp: decoded.start_timestamp,
+            caption: decoded.common.caption,
+            parse_mode: decoded.common.parse_mode,
+            caption_entities: decoded.common.caption_entities,
+            show_caption_above_media: decoded.show_caption_above_media,
+            width: decoded.width,
+            height: decoded.height,
+            duration: decoded.duration,
+            supports_streaming: decoded.supports_streaming,
+            has_spoiler: decoded.has_spoiler,
         })
     }
 }

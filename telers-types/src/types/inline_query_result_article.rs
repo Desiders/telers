@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::inline_query_result as decoder;
+
 /// Represents a link to an article or web page.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultarticle>
@@ -36,6 +39,7 @@ pub struct InlineQueryResultArticle {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub thumbnail_height: Option<i64>,
 }
+
 impl InlineQueryResultArticle {
     /// Creates a new `InlineQueryResultArticle`.
     ///
@@ -180,65 +184,21 @@ impl InlineQueryResultArticle {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InlineQueryResultArticle {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InlineQueryResultArticle",
-            fields: &[
-                "id",
-                "title",
-                "input_message_content",
-                "reply_markup",
-                "url",
-                "description",
-                "thumbnail_url",
-                "thumbnail_width",
-                "thumbnail_height",
-            ],
-            specific: &[
-                "title",
-                "input_message_content",
-                "url",
-                "description",
-                "thumbnail_url",
-                "thumbnail_width",
-                "thumbnail_height",
-            ],
-            sequence: "struct InlineQueryResultArticle with 9 elements",
-        };
-        let (
-            common,
-            (
-                value_title,
-                value_input_message_content,
-                value_url,
-                value_description,
-                value_thumbnail_url,
-                value_thumbnail_width,
-                value_thumbnail_height,
-            ),
-        ) = crate::deserialization::inline_query_result::read_0::<
-            D,
-            Box<str>,
-            crate::types::InputMessageContent,
-            Option<Box<str>>,
-            Option<Box<str>>,
-            Option<Box<str>>,
-            Option<i64>,
-            Option<i64>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_article(deserializer, &decoder::ARTICLE)?;
         Ok(Self {
-            id: common.id,
-            title: value_title,
-            input_message_content: value_input_message_content,
-            reply_markup: common.reply_markup,
-            url: value_url,
-            description: value_description,
-            thumbnail_url: value_thumbnail_url,
-            thumbnail_width: value_thumbnail_width,
-            thumbnail_height: value_thumbnail_height,
+            id: decoded.common.id,
+            title: decoded.title,
+            input_message_content: decoded.input_message_content,
+            reply_markup: decoded.common.reply_markup,
+            url: decoded.url,
+            description: decoded.description,
+            thumbnail_url: decoded.thumbnail_url,
+            thumbnail_width: decoded.thumbnail_width,
+            thumbnail_height: decoded.thumbnail_height,
         })
     }
 }

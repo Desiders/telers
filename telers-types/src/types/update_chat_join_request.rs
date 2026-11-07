@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// A request to join the chat has been sent. The bot must have the `can_invite_users` administrator right in the chat to receive these updates.
 /// # Notes
 /// This object represents an update from original update field `chat_join_request`.
@@ -12,6 +15,7 @@ pub struct UpdateChatJoinRequest {
     /// A request to join the chat has been sent. The bot must have the `can_invite_users` administrator right in the chat to receive these updates.
     pub chat_join_request: crate::types::ChatJoinRequest,
 }
+
 impl UpdateChatJoinRequest {
     /// Creates a new `UpdateChatJoinRequest`.
     ///
@@ -43,28 +47,20 @@ impl UpdateChatJoinRequest {
         self
     }
 }
+
 impl From<UpdateChatJoinRequest> for crate::types::ChatJoinRequest {
     fn from(val: UpdateChatJoinRequest) -> Self {
         val.chat_join_request
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdateChatJoinRequest {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdateChatJoinRequest",
-            fields: &["update_id", "chat_join_request"],
-            specific: &["chat_join_request"],
-            sequence: "struct UpdateChatJoinRequest with 2 elements",
-        };
-        let (common, (value_chat_join_request,)) = crate::deserialization::update::read_0::<
-            D,
-            crate::types::ChatJoinRequest,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::CHAT_JOIN_REQUEST)?;
         Ok(Self {
-            update_id: common.update_id,
-            chat_join_request: value_chat_join_request,
+            update_id: decoded.common.update_id,
+            chat_join_request: decoded.content,
         })
     }
 }

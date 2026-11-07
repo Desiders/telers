@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::chat as decoder;
+
 /// This object represents a channel chat.
 /// # Notes
 /// This object represents a chat from original chat type `channel`.
@@ -22,6 +25,7 @@ pub struct ChatChannel {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_direct_messages: Option<bool>,
 }
+
 impl ChatChannel {
     /// Creates a new `ChatChannel`.
     ///
@@ -89,26 +93,16 @@ impl ChatChannel {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ChatChannel {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ChatChannel",
-            fields: &["id", "title", "username", "is_direct_messages"],
-            specific: &["title", "username"],
-            sequence: "struct ChatChannel with 4 elements",
-        };
-        let (common, (value_title, value_username)) = crate::deserialization::chat::read_0::<
-            D,
-            Option<Box<str>>,
-            Option<Box<str>>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_channel(deserializer, &decoder::CHANNEL)?;
         Ok(Self {
-            id: common.id,
-            title: value_title,
-            username: value_username,
-            is_direct_messages: common.is_direct_messages,
+            id: decoded.common.id,
+            title: decoded.title,
+            username: decoded.username,
+            is_direct_messages: decoded.common.is_direct_messages,
         })
     }
 }

@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::inline_query_result_video_kind as decoder;
+
 /// Represents a link to a page containing an embedded video player or a video file. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the video.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultvideo>
@@ -56,6 +59,7 @@ pub struct InlineQueryResultVideo {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub input_message_content: Option<crate::types::InputMessageContent>,
 }
+
 impl InlineQueryResultVideo {
     /// Creates a new `InlineQueryResultVideo`.
     ///
@@ -318,74 +322,27 @@ impl InlineQueryResultVideo {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InlineQueryResultVideo {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InlineQueryResultVideo",
-            fields: &[
-                "id",
-                "video_url",
-                "mime_type",
-                "thumbnail_url",
-                "title",
-                "caption",
-                "parse_mode",
-                "caption_entities",
-                "show_caption_above_media",
-                "video_width",
-                "video_height",
-                "video_duration",
-                "description",
-                "reply_markup",
-                "input_message_content",
-            ],
-            specific: &[
-                "video_url",
-                "mime_type",
-                "thumbnail_url",
-                "video_width",
-                "video_height",
-                "video_duration",
-            ],
-            sequence: "struct InlineQueryResultVideo with 15 elements",
-        };
-        let (
-            common,
-            (
-                value_video_url,
-                value_mime_type,
-                value_thumbnail_url,
-                value_video_width,
-                value_video_height,
-                value_video_duration,
-            ),
-        ) = crate::deserialization::inline_query_result_video_kind::read_1::<
-            D,
-            Box<str>,
-            Box<str>,
-            Box<str>,
-            Option<i64>,
-            Option<i64>,
-            Option<i64>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_video(deserializer, &decoder::VIDEO)?;
         Ok(Self {
-            id: common.id,
-            video_url: value_video_url,
-            mime_type: value_mime_type,
-            thumbnail_url: value_thumbnail_url,
-            title: common.title,
-            caption: common.caption,
-            parse_mode: common.parse_mode,
-            caption_entities: common.caption_entities,
-            show_caption_above_media: common.show_caption_above_media,
-            video_width: value_video_width,
-            video_height: value_video_height,
-            video_duration: value_video_duration,
-            description: common.description,
-            reply_markup: common.reply_markup,
-            input_message_content: common.input_message_content,
+            id: decoded.common.id,
+            video_url: decoded.video_url,
+            mime_type: decoded.mime_type,
+            thumbnail_url: decoded.thumbnail_url,
+            title: decoded.common.title,
+            caption: decoded.common.caption,
+            parse_mode: decoded.common.parse_mode,
+            caption_entities: decoded.common.caption_entities,
+            show_caption_above_media: decoded.common.show_caption_above_media,
+            video_width: decoded.video_width,
+            video_height: decoded.video_height,
+            video_duration: decoded.video_duration,
+            description: decoded.common.description,
+            reply_markup: decoded.common.reply_markup,
+            input_message_content: decoded.common.input_message_content,
         })
     }
 }

@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::chat_member as decoder;
+
 /// Represents a chat member that has no additional privileges or restrictions.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmembermember>
@@ -16,6 +19,7 @@ pub struct ChatMemberMember {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub until_date: Option<i64>,
 }
+
 impl ChatMemberMember {
     /// Creates a new `ChatMemberMember`.
     ///
@@ -68,25 +72,15 @@ impl ChatMemberMember {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ChatMemberMember {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ChatMemberMember",
-            fields: &["tag", "user", "until_date"],
-            specific: &["tag", "until_date"],
-            sequence: "struct ChatMemberMember with 3 elements",
-        };
-        let (common, (value_tag, value_until_date)) = crate::deserialization::chat_member::read_3::<
-            D,
-            Option<Box<str>>,
-            Option<i64>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_member(deserializer, &decoder::MEMBER)?;
         Ok(Self {
-            tag: value_tag,
-            user: common.user,
-            until_date: value_until_date,
+            tag: decoded.tag,
+            user: decoded.common.user,
+            until_date: decoded.until_date,
         })
     }
 }

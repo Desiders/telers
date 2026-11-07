@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::chat_member as decoder;
+
 /// Represents a chat member that owns the chat and has all administrator privileges.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberowner>
@@ -14,6 +17,7 @@ pub struct ChatMemberOwner {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub custom_title: Option<Box<str>>,
 }
+
 impl ChatMemberOwner {
     /// Creates a new `ChatMemberOwner`.
     ///
@@ -60,25 +64,15 @@ impl ChatMemberOwner {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ChatMemberOwner {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ChatMemberOwner",
-            fields: &["user", "is_anonymous", "custom_title"],
-            specific: &["is_anonymous", "custom_title"],
-            sequence: "struct ChatMemberOwner with 3 elements",
-        };
-        let (common, (value_is_anonymous, value_custom_title)) =
-            crate::deserialization::chat_member::read_4::<D, bool, Option<Box<str>>>(
-                deserializer,
-                meta,
-            )?;
+        let decoded = decoder::deserialize_owner(deserializer, &decoder::OWNER)?;
         Ok(Self {
-            user: common.user,
-            is_anonymous: value_is_anonymous,
-            custom_title: value_custom_title,
+            user: decoded.common.user,
+            is_anonymous: decoded.is_anonymous,
+            custom_title: decoded.custom_title,
         })
     }
 }

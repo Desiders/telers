@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::inline_query_result as decoder;
+
 /// Represents a venue. By default, the venue will be sent by the user. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the venue.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultvenue>
@@ -52,6 +55,7 @@ pub struct InlineQueryResultVenue {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub thumbnail_height: Option<i64>,
 }
+
 impl InlineQueryResultVenue {
     /// Creates a new `InlineQueryResultVenue`.
     ///
@@ -266,90 +270,26 @@ impl InlineQueryResultVenue {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InlineQueryResultVenue {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InlineQueryResultVenue",
-            fields: &[
-                "id",
-                "latitude",
-                "longitude",
-                "title",
-                "address",
-                "foursquare_id",
-                "foursquare_type",
-                "google_place_id",
-                "google_place_type",
-                "reply_markup",
-                "input_message_content",
-                "thumbnail_url",
-                "thumbnail_width",
-                "thumbnail_height",
-            ],
-            specific: &[
-                "latitude",
-                "longitude",
-                "title",
-                "address",
-                "foursquare_id",
-                "foursquare_type",
-                "google_place_id",
-                "google_place_type",
-                "input_message_content",
-                "thumbnail_url",
-                "thumbnail_width",
-                "thumbnail_height",
-            ],
-            sequence: "struct InlineQueryResultVenue with 14 elements",
-        };
-        let (
-            common,
-            (
-                value_latitude,
-                value_longitude,
-                value_title,
-                value_address,
-                value_foursquare_id,
-                value_foursquare_type,
-                value_google_place_id,
-                value_google_place_type,
-                value_input_message_content,
-                value_thumbnail_url,
-                value_thumbnail_width,
-                value_thumbnail_height,
-            ),
-        ) = crate::deserialization::inline_query_result::read_5::<
-            D,
-            f64,
-            f64,
-            Box<str>,
-            Box<str>,
-            Option<Box<str>>,
-            Option<Box<str>>,
-            Option<Box<str>>,
-            Option<Box<str>>,
-            Option<crate::types::InputMessageContent>,
-            Option<Box<str>>,
-            Option<i64>,
-            Option<i64>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_venue(deserializer, &decoder::VENUE)?;
         Ok(Self {
-            id: common.id,
-            latitude: value_latitude,
-            longitude: value_longitude,
-            title: value_title,
-            address: value_address,
-            foursquare_id: value_foursquare_id,
-            foursquare_type: value_foursquare_type,
-            google_place_id: value_google_place_id,
-            google_place_type: value_google_place_type,
-            reply_markup: common.reply_markup,
-            input_message_content: value_input_message_content,
-            thumbnail_url: value_thumbnail_url,
-            thumbnail_width: value_thumbnail_width,
-            thumbnail_height: value_thumbnail_height,
+            id: decoded.common.id,
+            latitude: decoded.latitude,
+            longitude: decoded.longitude,
+            title: decoded.title,
+            address: decoded.address,
+            foursquare_id: decoded.foursquare_id,
+            foursquare_type: decoded.foursquare_type,
+            google_place_id: decoded.google_place_id,
+            google_place_type: decoded.google_place_type,
+            reply_markup: decoded.common.reply_markup,
+            input_message_content: decoded.input_message_content,
+            thumbnail_url: decoded.thumbnail_url,
+            thumbnail_width: decoded.thumbnail_width,
+            thumbnail_height: decoded.thumbnail_height,
         })
     }
 }

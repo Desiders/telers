@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::passport_element_error as decoder;
+
 /// Represents an issue in one of the data fields that was provided by the user. The error is considered resolved when the field's value changes.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerrordatafield>
@@ -14,6 +17,7 @@ pub struct PassportElementErrorDataField {
     /// Error message
     pub message: Box<str>,
 }
+
 impl PassportElementErrorDataField {
     /// Creates a new `PassportElementErrorDataField`.
     ///
@@ -65,26 +69,16 @@ impl PassportElementErrorDataField {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for PassportElementErrorDataField {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "PassportElementErrorDataField",
-            fields: &["type", "field_name", "data_hash", "message"],
-            specific: &["field_name", "data_hash"],
-            sequence: "struct PassportElementErrorDataField with 4 elements",
-        };
-        let (common, (value_field_name, value_data_hash)) =
-            crate::deserialization::passport_element_error::read_0::<D, Box<str>, Box<str>>(
-                deserializer,
-                meta,
-            )?;
+        let decoded = decoder::deserialize_data_field(deserializer, &decoder::DATA_FIELD)?;
         Ok(Self {
-            r#type: common.r#type,
-            field_name: value_field_name,
-            data_hash: value_data_hash,
-            message: common.message,
+            r#type: decoded.common.r#type,
+            field_name: decoded.field_name,
+            data_hash: decoded.data_hash,
+            message: decoded.common.message,
         })
     }
 }

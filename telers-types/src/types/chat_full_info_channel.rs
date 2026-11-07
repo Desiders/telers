@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::chat_full_info as decoder;
+
 /// This object represents a channel chat.
 /// # Notes
 /// This object represents a chat from original chat type `channel`.
@@ -104,6 +107,7 @@ pub struct ChatFullInfoChannel {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub community: Option<crate::types::Community>,
 }
+
 impl ChatFullInfoChannel {
     /// Creates a new `ChatFullInfoChannel`.
     ///
@@ -565,99 +569,38 @@ impl ChatFullInfoChannel {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ChatFullInfoChannel {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ChatFullInfoChannel",
-            fields: &[
-                "id",
-                "title",
-                "username",
-                "is_direct_messages",
-                "accent_color_id",
-                "max_reaction_count",
-                "photo",
-                "active_usernames",
-                "available_reactions",
-                "background_custom_emoji_id",
-                "profile_accent_color_id",
-                "profile_background_custom_emoji_id",
-                "description",
-                "invite_link",
-                "pinned_message",
-                "accepted_gift_types",
-                "can_send_paid_media",
-                "message_auto_delete_time",
-                "has_hidden_members",
-                "has_protected_content",
-                "has_visible_history",
-                "linked_chat_id",
-                "unique_gift_colors",
-                "paid_message_star_count",
-                "guard_bot",
-                "community",
-            ],
-            specific: &[
-                "title",
-                "username",
-                "active_usernames",
-                "description",
-                "invite_link",
-                "can_send_paid_media",
-                "linked_chat_id",
-            ],
-            sequence: "struct ChatFullInfoChannel with 26 elements",
-        };
-        let (
-            common,
-            (
-                value_title,
-                value_username,
-                value_active_usernames,
-                value_description,
-                value_invite_link,
-                value_can_send_paid_media,
-                value_linked_chat_id,
-            ),
-        ) = crate::deserialization::chat_full_info::read_0::<
-            D,
-            Option<Box<str>>,
-            Option<Box<str>>,
-            Option<Box<[Box<str>]>>,
-            Option<Box<str>>,
-            Option<Box<str>>,
-            Option<bool>,
-            Option<i64>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_channel(deserializer, &decoder::CHANNEL)?;
         Ok(Self {
-            id: common.id,
-            title: value_title,
-            username: value_username,
-            is_direct_messages: common.is_direct_messages,
-            accent_color_id: common.accent_color_id,
-            max_reaction_count: common.max_reaction_count,
-            photo: common.photo,
-            active_usernames: value_active_usernames,
-            available_reactions: common.available_reactions,
-            background_custom_emoji_id: common.background_custom_emoji_id,
-            profile_accent_color_id: common.profile_accent_color_id,
-            profile_background_custom_emoji_id: common.profile_background_custom_emoji_id,
-            description: value_description,
-            invite_link: value_invite_link,
-            pinned_message: common.pinned_message,
-            accepted_gift_types: common.accepted_gift_types,
-            can_send_paid_media: value_can_send_paid_media,
-            message_auto_delete_time: common.message_auto_delete_time,
-            has_hidden_members: common.has_hidden_members,
-            has_protected_content: common.has_protected_content,
-            has_visible_history: common.has_visible_history,
-            linked_chat_id: value_linked_chat_id,
-            unique_gift_colors: common.unique_gift_colors,
-            paid_message_star_count: common.paid_message_star_count,
-            guard_bot: common.guard_bot,
-            community: common.community,
+            id: decoded.common.id,
+            title: decoded.title,
+            username: decoded.username,
+            is_direct_messages: decoded.common.is_direct_messages,
+            accent_color_id: decoded.common.accent_color_id,
+            max_reaction_count: decoded.common.max_reaction_count,
+            photo: decoded.common.photo,
+            active_usernames: decoded.active_usernames,
+            available_reactions: decoded.common.available_reactions,
+            background_custom_emoji_id: decoded.common.background_custom_emoji_id,
+            profile_accent_color_id: decoded.common.profile_accent_color_id,
+            profile_background_custom_emoji_id: decoded.common.profile_background_custom_emoji_id,
+            description: decoded.description,
+            invite_link: decoded.invite_link,
+            pinned_message: decoded.common.pinned_message,
+            accepted_gift_types: decoded.common.accepted_gift_types,
+            can_send_paid_media: decoded.can_send_paid_media,
+            message_auto_delete_time: decoded.common.message_auto_delete_time,
+            has_hidden_members: decoded.common.has_hidden_members,
+            has_protected_content: decoded.common.has_protected_content,
+            has_visible_history: decoded.common.has_visible_history,
+            linked_chat_id: decoded.linked_chat_id,
+            unique_gift_colors: decoded.common.unique_gift_colors,
+            paid_message_star_count: decoded.common.paid_message_star_count,
+            guard_bot: decoded.common.guard_bot,
+            community: decoded.common.community,
         })
     }
 }

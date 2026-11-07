@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify `message_reaction` in the list of `allowed_updates` to receive these updates. The update isn't received for reactions set by bots.
 /// # Notes
 /// This object represents an update from original update field `message_reaction`.
@@ -12,6 +15,7 @@ pub struct UpdateMessageReaction {
     /// A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify `message_reaction` in the list of `allowed_updates` to receive these updates. The update isn't received for reactions set by bots.
     pub message_reaction: crate::types::MessageReactionUpdated,
 }
+
 impl UpdateMessageReaction {
     /// Creates a new `UpdateMessageReaction`.
     ///
@@ -46,28 +50,20 @@ impl UpdateMessageReaction {
         self
     }
 }
+
 impl From<UpdateMessageReaction> for crate::types::MessageReactionUpdated {
     fn from(val: UpdateMessageReaction) -> Self {
         val.message_reaction
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdateMessageReaction {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdateMessageReaction",
-            fields: &["update_id", "message_reaction"],
-            specific: &["message_reaction"],
-            sequence: "struct UpdateMessageReaction with 2 elements",
-        };
-        let (common, (value_message_reaction,)) = crate::deserialization::update::read_0::<
-            D,
-            crate::types::MessageReactionUpdated,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::MESSAGE_REACTION)?;
         Ok(Self {
-            update_id: common.update_id,
-            message_reaction: value_message_reaction,
+            update_id: decoded.common.update_id,
+            message_reaction: decoded.content,
         })
     }
 }

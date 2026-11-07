@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// New incoming callback query
 /// # Notes
 /// This object represents an update from original update field `callback_query`.
@@ -12,6 +15,7 @@ pub struct UpdateCallbackQuery {
     /// New incoming callback query
     pub callback_query: crate::types::CallbackQuery,
 }
+
 impl UpdateCallbackQuery {
     /// Creates a new `UpdateCallbackQuery`.
     ///
@@ -43,28 +47,20 @@ impl UpdateCallbackQuery {
         self
     }
 }
+
 impl From<UpdateCallbackQuery> for crate::types::CallbackQuery {
     fn from(val: UpdateCallbackQuery) -> Self {
         val.callback_query
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdateCallbackQuery {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdateCallbackQuery",
-            fields: &["update_id", "callback_query"],
-            specific: &["callback_query"],
-            sequence: "struct UpdateCallbackQuery with 2 elements",
-        };
-        let (common, (value_callback_query,)) = crate::deserialization::update::read_0::<
-            D,
-            crate::types::CallbackQuery,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::CALLBACK_QUERY)?;
         Ok(Self {
-            update_id: common.update_id,
-            callback_query: value_callback_query,
+            update_id: decoded.common.update_id,
+            callback_query: decoded.content,
         })
     }
 }

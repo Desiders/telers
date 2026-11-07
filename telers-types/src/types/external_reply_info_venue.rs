@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::external_reply_info as decoder;
+
 /// Message is a venue, information about the venue
 /// # Notes
 /// This object represents an external reply info from original field `venue`.
@@ -28,6 +31,7 @@ pub struct ExternalReplyInfoVenue {
     /// Message is a venue, information about the venue
     pub venue: Box<crate::types::Venue>,
 }
+
 impl ExternalReplyInfoVenue {
     /// Creates a new `ExternalReplyInfoVenue`.
     ///
@@ -128,34 +132,18 @@ impl ExternalReplyInfoVenue {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ExternalReplyInfoVenue {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ExternalReplyInfoVenue",
-            fields: &[
-                "origin",
-                "chat",
-                "message_id",
-                "link_preview_options",
-                "has_media_spoiler",
-                "venue",
-            ],
-            specific: &["venue"],
-            sequence: "struct ExternalReplyInfoVenue with 6 elements",
-        };
-        let (common, (value_venue,)) = crate::deserialization::external_reply_info::read_0::<
-            D,
-            Box<crate::types::Venue>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::VENUE)?;
         Ok(Self {
-            origin: common.origin,
-            chat: common.chat,
-            message_id: common.message_id,
-            link_preview_options: common.link_preview_options,
-            has_media_spoiler: common.has_media_spoiler,
-            venue: value_venue,
+            origin: decoded.common.origin,
+            chat: decoded.common.chat,
+            message_id: decoded.common.message_id,
+            link_preview_options: decoded.common.link_preview_options,
+            has_media_spoiler: decoded.common.has_media_spoiler,
+            venue: decoded.content,
         })
     }
 }

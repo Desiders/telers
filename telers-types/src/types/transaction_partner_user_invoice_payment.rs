@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::transaction_partner_user as decoder;
+
 /// This object represents a/an invoice payment transaction partner user.
 /// # Notes
 /// This object represents a transaction partner user from original field `invoice_payment`.
@@ -22,6 +25,7 @@ pub struct TransactionPartnerUserInvoicePayment {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub subscription_period: Option<i64>,
 }
+
 impl TransactionPartnerUserInvoicePayment {
     /// Creates a new `TransactionPartnerUserInvoicePayment`.
     ///
@@ -92,33 +96,17 @@ impl TransactionPartnerUserInvoicePayment {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for TransactionPartnerUserInvoicePayment {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "TransactionPartnerUserInvoicePayment",
-            fields: &[
-                "user",
-                "affiliate",
-                "invoice_payload",
-                "subscription_period",
-            ],
-            specific: &["affiliate", "invoice_payload", "subscription_period"],
-            sequence: "struct TransactionPartnerUserInvoicePayment with 4 elements",
-        };
-        let (common, (value_affiliate, value_invoice_payload, value_subscription_period)) =
-            crate::deserialization::chat_member::read_6::<
-                D,
-                Option<crate::types::AffiliateInfo>,
-                Option<Box<str>>,
-                Option<i64>,
-            >(deserializer, meta)?;
+        let decoded =
+            decoder::deserialize_invoice_payment(deserializer, &decoder::INVOICE_PAYMENT)?;
         Ok(Self {
-            user: common.user,
-            affiliate: value_affiliate,
-            invoice_payload: value_invoice_payload,
-            subscription_period: value_subscription_period,
+            user: decoded.common.user,
+            affiliate: decoded.affiliate,
+            invoice_payload: decoded.invoice_payload,
+            subscription_period: decoded.subscription_period,
         })
     }
 }

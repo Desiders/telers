@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::input_paid_media as decoder;
+
 /// The paid media to send is a video.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputpaidmediavideo>
@@ -36,6 +39,7 @@ pub struct InputPaidMediaVideo {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub supports_streaming: Option<bool>,
 }
+
 impl InputPaidMediaVideo {
     /// Creates a new `InputPaidMediaVideo`.
     ///
@@ -163,63 +167,20 @@ impl InputPaidMediaVideo {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InputPaidMediaVideo {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InputPaidMediaVideo",
-            fields: &[
-                "media",
-                "thumbnail",
-                "cover",
-                "start_timestamp",
-                "width",
-                "height",
-                "duration",
-                "supports_streaming",
-            ],
-            specific: &[
-                "thumbnail",
-                "cover",
-                "start_timestamp",
-                "width",
-                "height",
-                "duration",
-                "supports_streaming",
-            ],
-            sequence: "struct InputPaidMediaVideo with 8 elements",
-        };
-        let (
-            common,
-            (
-                value_thumbnail,
-                value_cover,
-                value_start_timestamp,
-                value_width,
-                value_height,
-                value_duration,
-                value_supports_streaming,
-            ),
-        ) = crate::deserialization::input_paid_media::read_2::<
-            D,
-            Option<crate::types::InputFile>,
-            Option<crate::types::InputFile>,
-            Option<i64>,
-            Option<i64>,
-            Option<i64>,
-            Option<i64>,
-            Option<bool>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_video(deserializer, &decoder::VIDEO)?;
         Ok(Self {
-            media: common.media,
-            thumbnail: value_thumbnail,
-            cover: value_cover,
-            start_timestamp: value_start_timestamp,
-            width: value_width,
-            height: value_height,
-            duration: value_duration,
-            supports_streaming: value_supports_streaming,
+            media: decoded.common.media,
+            thumbnail: decoded.thumbnail,
+            cover: decoded.cover,
+            start_timestamp: decoded.start_timestamp,
+            width: decoded.width,
+            height: decoded.height,
+            duration: decoded.duration,
+            supports_streaming: decoded.supports_streaming,
         })
     }
 }

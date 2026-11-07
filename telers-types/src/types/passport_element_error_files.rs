@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::passport_element_error as decoder;
+
 /// Represents an issue with a list of scans. The error is considered resolved when the list of files containing the scans changes.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerrorfiles>
@@ -12,6 +15,7 @@ pub struct PassportElementErrorFiles {
     /// Error message
     pub message: Box<str>,
 }
+
 impl PassportElementErrorFiles {
     /// Creates a new `PassportElementErrorFiles`.
     ///
@@ -81,25 +85,15 @@ impl PassportElementErrorFiles {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for PassportElementErrorFiles {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "PassportElementErrorFiles",
-            fields: &["type", "file_hashes", "message"],
-            specific: &["file_hashes"],
-            sequence: "struct PassportElementErrorFiles with 3 elements",
-        };
-        let (common, (value_file_hashes,)) =
-            crate::deserialization::passport_element_error::read_1::<D, Box<[Box<str>]>>(
-                deserializer,
-                meta,
-            )?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::FILES)?;
         Ok(Self {
-            r#type: common.r#type,
-            file_hashes: value_file_hashes,
-            message: common.message,
+            r#type: decoded.common.r#type,
+            file_hashes: decoded.content,
+            message: decoded.common.message,
         })
     }
 }

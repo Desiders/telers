@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::external_reply_info as decoder;
+
 /// A giveaway with public winners was completed
 /// # Notes
 /// This object represents an external reply info from original field `giveaway_winners`.
@@ -28,6 +31,7 @@ pub struct ExternalReplyInfoGiveawayWinners {
     /// A giveaway with public winners was completed
     pub giveaway_winners: crate::types::GiveawayWinners,
 }
+
 impl ExternalReplyInfoGiveawayWinners {
     /// Creates a new `ExternalReplyInfoGiveawayWinners`.
     ///
@@ -128,35 +132,18 @@ impl ExternalReplyInfoGiveawayWinners {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ExternalReplyInfoGiveawayWinners {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ExternalReplyInfoGiveawayWinners",
-            fields: &[
-                "origin",
-                "chat",
-                "message_id",
-                "link_preview_options",
-                "has_media_spoiler",
-                "giveaway_winners",
-            ],
-            specific: &["giveaway_winners"],
-            sequence: "struct ExternalReplyInfoGiveawayWinners with 6 elements",
-        };
-        let (common, (value_giveaway_winners,)) =
-            crate::deserialization::external_reply_info::read_0::<D, crate::types::GiveawayWinners>(
-                deserializer,
-                meta,
-            )?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::GIVEAWAY_WINNERS)?;
         Ok(Self {
-            origin: common.origin,
-            chat: common.chat,
-            message_id: common.message_id,
-            link_preview_options: common.link_preview_options,
-            has_media_spoiler: common.has_media_spoiler,
-            giveaway_winners: value_giveaway_winners,
+            origin: decoded.common.origin,
+            chat: decoded.common.chat,
+            message_id: decoded.common.message_id,
+            link_preview_options: decoded.common.link_preview_options,
+            has_media_spoiler: decoded.common.has_media_spoiler,
+            giveaway_winners: decoded.content,
         })
     }
 }

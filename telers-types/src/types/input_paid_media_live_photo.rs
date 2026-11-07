@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::input_paid_media as decoder;
+
 /// The paid media to send is a live photo.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputpaidmedialivephoto>
@@ -10,6 +13,7 @@ pub struct InputPaidMediaLivePhoto {
     /// The static photo to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended) or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending live photos by a URL is currently unsupported.
     pub photo: crate::types::InputFile,
 }
+
 impl InputPaidMediaLivePhoto {
     /// Creates a new `InputPaidMediaLivePhoto`.
     ///
@@ -41,23 +45,14 @@ impl InputPaidMediaLivePhoto {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InputPaidMediaLivePhoto {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InputPaidMediaLivePhoto",
-            fields: &["media", "photo"],
-            specific: &["photo"],
-            sequence: "struct InputPaidMediaLivePhoto with 2 elements",
-        };
-        let (common, (value_photo,)) = crate::deserialization::input_paid_media::read_0::<
-            D,
-            crate::types::InputFile,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_live_photo(deserializer, &decoder::LIVE_PHOTO)?;
         Ok(Self {
-            media: common.media,
-            photo: value_photo,
+            media: decoded.common.media,
+            photo: decoded.photo,
         })
     }
 }

@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::external_reply_info as decoder;
+
 /// Message is a video note, information about the video message
 /// # Notes
 /// This object represents an external reply info from original field `video_note`.
@@ -28,6 +31,7 @@ pub struct ExternalReplyInfoVideoNote {
     /// Message is a video note, information about the video message
     pub video_note: Box<crate::types::VideoNote>,
 }
+
 impl ExternalReplyInfoVideoNote {
     /// Creates a new `ExternalReplyInfoVideoNote`.
     ///
@@ -128,34 +132,18 @@ impl ExternalReplyInfoVideoNote {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ExternalReplyInfoVideoNote {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ExternalReplyInfoVideoNote",
-            fields: &[
-                "origin",
-                "chat",
-                "message_id",
-                "link_preview_options",
-                "has_media_spoiler",
-                "video_note",
-            ],
-            specific: &["video_note"],
-            sequence: "struct ExternalReplyInfoVideoNote with 6 elements",
-        };
-        let (common, (value_video_note,)) = crate::deserialization::external_reply_info::read_0::<
-            D,
-            Box<crate::types::VideoNote>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::VIDEO_NOTE)?;
         Ok(Self {
-            origin: common.origin,
-            chat: common.chat,
-            message_id: common.message_id,
-            link_preview_options: common.link_preview_options,
-            has_media_spoiler: common.has_media_spoiler,
-            video_note: value_video_note,
+            origin: decoded.common.origin,
+            chat: decoded.common.chat,
+            message_id: decoded.common.message_id,
+            link_preview_options: decoded.common.link_preview_options,
+            has_media_spoiler: decoded.common.has_media_spoiler,
+            video_note: decoded.content,
         })
     }
 }

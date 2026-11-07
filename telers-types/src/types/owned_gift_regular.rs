@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::owned_gift as decoder;
+
 /// Describes a regular gift owned by a user or a chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#ownedgiftregular>
@@ -58,6 +61,7 @@ pub struct OwnedGiftRegular {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub unique_gift_number: Option<i64>,
 }
+
 impl OwnedGiftRegular {
     /// Creates a new `OwnedGiftRegular`.
     ///
@@ -302,84 +306,26 @@ impl OwnedGiftRegular {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for OwnedGiftRegular {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "OwnedGiftRegular",
-            fields: &[
-                "gift",
-                "owned_gift_id",
-                "sender_user",
-                "send_date",
-                "text",
-                "entities",
-                "is_private",
-                "is_saved",
-                "can_be_upgraded",
-                "was_refunded",
-                "convert_star_count",
-                "prepaid_upgrade_star_count",
-                "is_upgrade_separate",
-                "unique_gift_number",
-            ],
-            specific: &[
-                "gift",
-                "text",
-                "entities",
-                "is_private",
-                "can_be_upgraded",
-                "was_refunded",
-                "convert_star_count",
-                "prepaid_upgrade_star_count",
-                "is_upgrade_separate",
-                "unique_gift_number",
-            ],
-            sequence: "struct OwnedGiftRegular with 14 elements",
-        };
-        let (
-            common,
-            (
-                value_gift,
-                value_text,
-                value_entities,
-                value_is_private,
-                value_can_be_upgraded,
-                value_was_refunded,
-                value_convert_star_count,
-                value_prepaid_upgrade_star_count,
-                value_is_upgrade_separate,
-                value_unique_gift_number,
-            ),
-        ) = crate::deserialization::owned_gift::read_0::<
-            D,
-            Box<crate::types::Gift>,
-            Option<Box<str>>,
-            Option<Box<[crate::types::MessageEntity]>>,
-            Option<bool>,
-            Option<bool>,
-            Option<bool>,
-            Option<i64>,
-            Option<i64>,
-            Option<bool>,
-            Option<i64>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_regular(deserializer, &decoder::REGULAR)?;
         Ok(Self {
-            gift: value_gift,
-            owned_gift_id: common.owned_gift_id,
-            sender_user: common.sender_user,
-            send_date: common.send_date,
-            text: value_text,
-            entities: value_entities,
-            is_private: value_is_private,
-            is_saved: common.is_saved,
-            can_be_upgraded: value_can_be_upgraded,
-            was_refunded: value_was_refunded,
-            convert_star_count: value_convert_star_count,
-            prepaid_upgrade_star_count: value_prepaid_upgrade_star_count,
-            is_upgrade_separate: value_is_upgrade_separate,
-            unique_gift_number: value_unique_gift_number,
+            gift: decoded.gift,
+            owned_gift_id: decoded.common.owned_gift_id,
+            sender_user: decoded.common.sender_user,
+            send_date: decoded.common.send_date,
+            text: decoded.text,
+            entities: decoded.entities,
+            is_private: decoded.is_private,
+            is_saved: decoded.common.is_saved,
+            can_be_upgraded: decoded.can_be_upgraded,
+            was_refunded: decoded.was_refunded,
+            convert_star_count: decoded.convert_star_count,
+            prepaid_upgrade_star_count: decoded.prepaid_upgrade_star_count,
+            is_upgrade_separate: decoded.is_upgrade_separate,
+            unique_gift_number: decoded.unique_gift_number,
         })
     }
 }

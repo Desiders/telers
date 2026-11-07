@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::inline_query_result_photo_kind as decoder;
+
 /// Represents a link to a photo stored on the Telegram servers. By default, this photo will be sent by the user with an optional caption. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the photo.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultcachedphoto>
@@ -42,6 +45,7 @@ pub struct InlineQueryResultCachedPhoto {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub input_message_content: Option<crate::types::InputMessageContent>,
 }
+
 impl InlineQueryResultCachedPhoto {
     /// Creates a new `InlineQueryResultCachedPhoto`.
     ///
@@ -235,43 +239,22 @@ impl InlineQueryResultCachedPhoto {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InlineQueryResultCachedPhoto {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InlineQueryResultCachedPhoto",
-            fields: &[
-                "id",
-                "photo_file_id",
-                "title",
-                "description",
-                "caption",
-                "parse_mode",
-                "caption_entities",
-                "show_caption_above_media",
-                "reply_markup",
-                "input_message_content",
-            ],
-            specific: &["photo_file_id"],
-            sequence: "struct InlineQueryResultCachedPhoto with 10 elements",
-        };
-        let (common, (value_photo_file_id,)) =
-            crate::deserialization::inline_query_result_photo_kind::read_0::<D, Box<str>>(
-                deserializer,
-                meta,
-            )?;
+        let decoded = decoder::deserialize_cached_photo(deserializer, &decoder::CACHED_PHOTO)?;
         Ok(Self {
-            id: common.id,
-            photo_file_id: value_photo_file_id,
-            title: common.title,
-            description: common.description,
-            caption: common.caption,
-            parse_mode: common.parse_mode,
-            caption_entities: common.caption_entities,
-            show_caption_above_media: common.show_caption_above_media,
-            reply_markup: common.reply_markup,
-            input_message_content: common.input_message_content,
+            id: decoded.common.id,
+            photo_file_id: decoded.photo_file_id,
+            title: decoded.common.title,
+            description: decoded.common.description,
+            caption: decoded.common.caption,
+            parse_mode: decoded.common.parse_mode,
+            caption_entities: decoded.common.caption_entities,
+            show_caption_above_media: decoded.common.show_caption_above_media,
+            reply_markup: decoded.common.reply_markup,
+            input_message_content: decoded.common.input_message_content,
         })
     }
 }

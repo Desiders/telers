@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::external_reply_info as decoder;
+
 /// Message is a checklist
 /// # Notes
 /// This object represents an external reply info from original field `checklist`.
@@ -28,6 +31,7 @@ pub struct ExternalReplyInfoChecklist {
     /// Message is a checklist
     pub checklist: crate::types::Checklist,
 }
+
 impl ExternalReplyInfoChecklist {
     /// Creates a new `ExternalReplyInfoChecklist`.
     ///
@@ -128,34 +132,18 @@ impl ExternalReplyInfoChecklist {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ExternalReplyInfoChecklist {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ExternalReplyInfoChecklist",
-            fields: &[
-                "origin",
-                "chat",
-                "message_id",
-                "link_preview_options",
-                "has_media_spoiler",
-                "checklist",
-            ],
-            specific: &["checklist"],
-            sequence: "struct ExternalReplyInfoChecklist with 6 elements",
-        };
-        let (common, (value_checklist,)) = crate::deserialization::external_reply_info::read_0::<
-            D,
-            crate::types::Checklist,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::CHECKLIST)?;
         Ok(Self {
-            origin: common.origin,
-            chat: common.chat,
-            message_id: common.message_id,
-            link_preview_options: common.link_preview_options,
-            has_media_spoiler: common.has_media_spoiler,
-            checklist: value_checklist,
+            origin: decoded.common.origin,
+            chat: decoded.common.chat,
+            message_id: decoded.common.message_id,
+            link_preview_options: decoded.common.link_preview_options,
+            has_media_spoiler: decoded.common.has_media_spoiler,
+            checklist: decoded.content,
         })
     }
 }

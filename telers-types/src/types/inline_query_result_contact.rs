@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::inline_query_result as decoder;
+
 /// Represents a contact with a phone number. By default, this contact will be sent by the user. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the contact.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultcontact>
@@ -40,6 +43,7 @@ pub struct InlineQueryResultContact {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub thumbnail_height: Option<i64>,
 }
+
 impl InlineQueryResultContact {
     /// Creates a new `InlineQueryResultContact`.
     ///
@@ -198,70 +202,22 @@ impl InlineQueryResultContact {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InlineQueryResultContact {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InlineQueryResultContact",
-            fields: &[
-                "id",
-                "phone_number",
-                "first_name",
-                "last_name",
-                "vcard",
-                "reply_markup",
-                "input_message_content",
-                "thumbnail_url",
-                "thumbnail_width",
-                "thumbnail_height",
-            ],
-            specific: &[
-                "phone_number",
-                "first_name",
-                "last_name",
-                "vcard",
-                "input_message_content",
-                "thumbnail_url",
-                "thumbnail_width",
-                "thumbnail_height",
-            ],
-            sequence: "struct InlineQueryResultContact with 10 elements",
-        };
-        let (
-            common,
-            (
-                value_phone_number,
-                value_first_name,
-                value_last_name,
-                value_vcard,
-                value_input_message_content,
-                value_thumbnail_url,
-                value_thumbnail_width,
-                value_thumbnail_height,
-            ),
-        ) = crate::deserialization::inline_query_result::read_2::<
-            D,
-            Box<str>,
-            Box<str>,
-            Option<Box<str>>,
-            Option<Box<str>>,
-            Option<crate::types::InputMessageContent>,
-            Option<Box<str>>,
-            Option<i64>,
-            Option<i64>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_contact(deserializer, &decoder::CONTACT)?;
         Ok(Self {
-            id: common.id,
-            phone_number: value_phone_number,
-            first_name: value_first_name,
-            last_name: value_last_name,
-            vcard: value_vcard,
-            reply_markup: common.reply_markup,
-            input_message_content: value_input_message_content,
-            thumbnail_url: value_thumbnail_url,
-            thumbnail_width: value_thumbnail_width,
-            thumbnail_height: value_thumbnail_height,
+            id: decoded.common.id,
+            phone_number: decoded.phone_number,
+            first_name: decoded.first_name,
+            last_name: decoded.last_name,
+            vcard: decoded.vcard,
+            reply_markup: decoded.common.reply_markup,
+            input_message_content: decoded.input_message_content,
+            thumbnail_url: decoded.thumbnail_url,
+            thumbnail_width: decoded.thumbnail_width,
+            thumbnail_height: decoded.thumbnail_height,
         })
     }
 }

@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::chat as decoder;
+
 /// This object represents a supergroup chat.
 /// # Notes
 /// This object represents a chat from original chat type `supergroup`.
@@ -26,6 +29,7 @@ pub struct ChatSupergroup {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_direct_messages: Option<bool>,
 }
+
 impl ChatSupergroup {
     /// Creates a new `ChatSupergroup`.
     ///
@@ -108,29 +112,18 @@ impl ChatSupergroup {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ChatSupergroup {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ChatSupergroup",
-            fields: &["id", "title", "username", "is_forum", "is_direct_messages"],
-            specific: &["title", "username", "is_forum"],
-            sequence: "struct ChatSupergroup with 5 elements",
-        };
-        let (common, (value_title, value_username, value_is_forum)) =
-            crate::deserialization::chat::read_2::<
-                D,
-                Option<Box<str>>,
-                Option<Box<str>>,
-                Option<bool>,
-            >(deserializer, meta)?;
+        let decoded =
+            decoder::deserialize_private_or_supergroup(deserializer, &decoder::SUPERGROUP)?;
         Ok(Self {
-            id: common.id,
-            title: value_title,
-            username: value_username,
-            is_forum: value_is_forum,
-            is_direct_messages: common.is_direct_messages,
+            id: decoded.common.id,
+            title: decoded.field_1,
+            username: decoded.field_2,
+            is_forum: decoded.field_3,
+            is_direct_messages: decoded.common.is_direct_messages,
         })
     }
 }

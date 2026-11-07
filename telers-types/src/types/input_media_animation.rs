@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::input_media as decoder;
+
 /// Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmediaanimation>
@@ -44,6 +47,7 @@ pub struct InputMediaAnimation {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub has_spoiler: Option<bool>,
 }
+
 impl InputMediaAnimation {
     /// Creates a new `InputMediaAnimation`.
     ///
@@ -234,64 +238,22 @@ impl InputMediaAnimation {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InputMediaAnimation {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InputMediaAnimation",
-            fields: &[
-                "media",
-                "thumbnail",
-                "caption",
-                "parse_mode",
-                "caption_entities",
-                "show_caption_above_media",
-                "width",
-                "height",
-                "duration",
-                "has_spoiler",
-            ],
-            specific: &[
-                "thumbnail",
-                "show_caption_above_media",
-                "width",
-                "height",
-                "duration",
-                "has_spoiler",
-            ],
-            sequence: "struct InputMediaAnimation with 10 elements",
-        };
-        let (
-            common,
-            (
-                value_thumbnail,
-                value_show_caption_above_media,
-                value_width,
-                value_height,
-                value_duration,
-                value_has_spoiler,
-            ),
-        ) = crate::deserialization::input_media::read_0::<
-            D,
-            Option<crate::types::InputFile>,
-            Option<bool>,
-            Option<i64>,
-            Option<i64>,
-            Option<i64>,
-            Option<bool>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_animation(deserializer, &decoder::ANIMATION)?;
         Ok(Self {
-            media: common.media,
-            thumbnail: value_thumbnail,
-            caption: common.caption,
-            parse_mode: common.parse_mode,
-            caption_entities: common.caption_entities,
-            show_caption_above_media: value_show_caption_above_media,
-            width: value_width,
-            height: value_height,
-            duration: value_duration,
-            has_spoiler: value_has_spoiler,
+            media: decoded.common.media,
+            thumbnail: decoded.thumbnail,
+            caption: decoded.common.caption,
+            parse_mode: decoded.common.parse_mode,
+            caption_entities: decoded.common.caption_entities,
+            show_caption_above_media: decoded.show_caption_above_media,
+            width: decoded.width,
+            height: decoded.height,
+            duration: decoded.duration,
+            has_spoiler: decoded.has_spoiler,
         })
     }
 }

@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::message_entity as decoder;
+
 /// This object represents a/an date time message entity.
 /// # Notes
 /// This object represents a message entity from original field `date_time`.
@@ -18,6 +21,7 @@ pub struct MessageEntityDateTime {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub date_time_format: Option<Box<str>>,
 }
+
 impl MessageEntityDateTime {
     /// Creates a new `MessageEntityDateTime`.
     ///
@@ -77,26 +81,16 @@ impl MessageEntityDateTime {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for MessageEntityDateTime {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "MessageEntityDateTime",
-            fields: &["offset", "length", "unix_time", "date_time_format"],
-            specific: &["unix_time", "date_time_format"],
-            sequence: "struct MessageEntityDateTime with 4 elements",
-        };
-        let (common, (value_unix_time, value_date_time_format)) =
-            crate::deserialization::message_entity::read_2::<D, i64, Option<Box<str>>>(
-                deserializer,
-                meta,
-            )?;
+        let decoded = decoder::deserialize_date_time(deserializer, &decoder::DATE_TIME)?;
         Ok(Self {
-            offset: common.offset,
-            length: common.length,
-            unix_time: value_unix_time,
-            date_time_format: value_date_time_format,
+            offset: decoded.common.offset,
+            length: decoded.common.length,
+            unix_time: decoded.unix_time,
+            date_time_format: decoded.date_time_format,
         })
     }
 }

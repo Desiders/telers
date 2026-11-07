@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// A user purchased paid media with a non-empty payload sent by the bot in a non-channel chat
 /// # Notes
 /// This object represents an update from original update field `purchased_paid_media`.
@@ -12,6 +15,7 @@ pub struct UpdatePurchasedPaidMedia {
     /// A user purchased paid media with a non-empty payload sent by the bot in a non-channel chat
     pub purchased_paid_media: crate::types::PaidMediaPurchased,
 }
+
 impl UpdatePurchasedPaidMedia {
     /// Creates a new `UpdatePurchasedPaidMedia`.
     ///
@@ -46,28 +50,20 @@ impl UpdatePurchasedPaidMedia {
         self
     }
 }
+
 impl From<UpdatePurchasedPaidMedia> for crate::types::PaidMediaPurchased {
     fn from(val: UpdatePurchasedPaidMedia) -> Self {
         val.purchased_paid_media
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdatePurchasedPaidMedia {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdatePurchasedPaidMedia",
-            fields: &["update_id", "purchased_paid_media"],
-            specific: &["purchased_paid_media"],
-            sequence: "struct UpdatePurchasedPaidMedia with 2 elements",
-        };
-        let (common, (value_purchased_paid_media,)) = crate::deserialization::update::read_0::<
-            D,
-            crate::types::PaidMediaPurchased,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::PURCHASED_PAID_MEDIA)?;
         Ok(Self {
-            update_id: common.update_id,
-            purchased_paid_media: value_purchased_paid_media,
+            update_id: decoded.common.update_id,
+            purchased_paid_media: decoded.content,
         })
     }
 }

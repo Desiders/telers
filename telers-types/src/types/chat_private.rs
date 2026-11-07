@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::chat as decoder;
+
 /// This object represents a private chat.
 /// # Notes
 /// This object represents a chat from original chat type `private`.
@@ -26,6 +29,7 @@ pub struct ChatPrivate {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_direct_messages: Option<bool>,
 }
+
 impl ChatPrivate {
     /// Creates a new `ChatPrivate`.
     ///
@@ -108,35 +112,17 @@ impl ChatPrivate {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ChatPrivate {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ChatPrivate",
-            fields: &[
-                "id",
-                "username",
-                "first_name",
-                "last_name",
-                "is_direct_messages",
-            ],
-            specific: &["username", "first_name", "last_name"],
-            sequence: "struct ChatPrivate with 5 elements",
-        };
-        let (common, (value_username, value_first_name, value_last_name)) =
-            crate::deserialization::chat::read_2::<
-                D,
-                Option<Box<str>>,
-                Option<Box<str>>,
-                Option<Box<str>>,
-            >(deserializer, meta)?;
+        let decoded = decoder::deserialize_private_or_supergroup(deserializer, &decoder::PRIVATE)?;
         Ok(Self {
-            id: common.id,
-            username: value_username,
-            first_name: value_first_name,
-            last_name: value_last_name,
-            is_direct_messages: common.is_direct_messages,
+            id: decoded.common.id,
+            username: decoded.field_1,
+            first_name: decoded.field_2,
+            last_name: decoded.field_3,
+            is_direct_messages: decoded.common.is_direct_messages,
         })
     }
 }

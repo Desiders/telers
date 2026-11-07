@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::inline_query_result as decoder;
+
 /// Represents a link to a sticker stored on the Telegram servers. By default, this sticker will be sent by the user. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the sticker.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultcachedsticker>
@@ -18,6 +21,7 @@ pub struct InlineQueryResultCachedSticker {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub input_message_content: Option<crate::types::InputMessageContent>,
 }
+
 impl InlineQueryResultCachedSticker {
     /// Creates a new `InlineQueryResultCachedSticker`.
     ///
@@ -88,32 +92,16 @@ impl InlineQueryResultCachedSticker {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InlineQueryResultCachedSticker {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InlineQueryResultCachedSticker",
-            fields: &[
-                "id",
-                "sticker_file_id",
-                "reply_markup",
-                "input_message_content",
-            ],
-            specific: &["sticker_file_id", "input_message_content"],
-            sequence: "struct InlineQueryResultCachedSticker with 4 elements",
-        };
-        let (common, (value_sticker_file_id, value_input_message_content)) =
-            crate::deserialization::inline_query_result::read_1::<
-                D,
-                Box<str>,
-                Option<crate::types::InputMessageContent>,
-            >(deserializer, meta)?;
+        let decoded = decoder::deserialize_cached_sticker(deserializer, &decoder::CACHED_STICKER)?;
         Ok(Self {
-            id: common.id,
-            sticker_file_id: value_sticker_file_id,
-            reply_markup: common.reply_markup,
-            input_message_content: value_input_message_content,
+            id: decoded.common.id,
+            sticker_file_id: decoded.sticker_file_id,
+            reply_markup: decoded.common.reply_markup,
+            input_message_content: decoded.input_message_content,
         })
     }
 }

@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// The bot's chat member status was updated in a chat. For private chats, this update is received only when the bot is blocked or unblocked by the user.
 /// # Notes
 /// This object represents an update from original update field `my_chat_member`.
@@ -12,6 +15,7 @@ pub struct UpdateMyChatMember {
     /// The bot's chat member status was updated in a chat. For private chats, this update is received only when the bot is blocked or unblocked by the user.
     pub my_chat_member: crate::types::ChatMemberUpdated,
 }
+
 impl UpdateMyChatMember {
     /// Creates a new `UpdateMyChatMember`.
     ///
@@ -43,28 +47,20 @@ impl UpdateMyChatMember {
         self
     }
 }
+
 impl From<UpdateMyChatMember> for crate::types::ChatMemberUpdated {
     fn from(val: UpdateMyChatMember) -> Self {
         val.my_chat_member
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdateMyChatMember {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdateMyChatMember",
-            fields: &["update_id", "my_chat_member"],
-            specific: &["my_chat_member"],
-            sequence: "struct UpdateMyChatMember with 2 elements",
-        };
-        let (common, (value_my_chat_member,)) = crate::deserialization::update::read_0::<
-            D,
-            crate::types::ChatMemberUpdated,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::MY_CHAT_MEMBER)?;
         Ok(Self {
-            update_id: common.update_id,
-            my_chat_member: value_my_chat_member,
+            update_id: decoded.common.update_id,
+            my_chat_member: decoded.content,
         })
     }
 }

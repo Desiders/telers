@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::chat_member as decoder;
+
 /// Represents a chat member that isn't currently a member of the chat, but may join it themselves.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberleft>
@@ -8,6 +11,7 @@ pub struct ChatMemberLeft {
     /// Information about the user
     pub user: Box<crate::types::User>,
 }
+
 impl ChatMemberLeft {
     /// Creates a new `ChatMemberLeft`.
     ///
@@ -27,19 +31,13 @@ impl ChatMemberLeft {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ChatMemberLeft {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ChatMemberLeft",
-            fields: &["user"],
-            specific: &[],
-            sequence: "struct ChatMemberLeft with 1 element",
-        };
-        let (common, ()) = crate::deserialization::chat_member::read_2::<D>(deserializer, meta)?;
+        let decoded = decoder::deserialize_common(deserializer, &decoder::LEFT)?;
         Ok(Self {
-            user: common.user,
+            user: decoded.user,
         })
     }
 }

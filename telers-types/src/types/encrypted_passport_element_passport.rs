@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::encrypted_passport_element as decoder;
+
 /// This object represents a/an passport encrypted passport element.
 /// # Notes
 /// This object represents an encrypted passport element from original field `passport`.
@@ -22,6 +25,7 @@ pub struct EncryptedPassportElementPassport {
     /// Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
     pub hash: Box<str>,
 }
+
 impl EncryptedPassportElementPassport {
     /// Creates a new `EncryptedPassportElementPassport`.
     ///
@@ -129,30 +133,18 @@ impl EncryptedPassportElementPassport {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for EncryptedPassportElementPassport {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "EncryptedPassportElementPassport",
-            fields: &["data", "front_side", "selfie", "translation", "hash"],
-            specific: &["data", "front_side", "selfie", "translation"],
-            sequence: "struct EncryptedPassportElementPassport with 5 elements",
-        };
-        let (common, (value_data, value_front_side, value_selfie, value_translation)) =
-            crate::deserialization::encrypted_passport_element::read_3::<
-                D,
-                Box<str>,
-                crate::types::PassportFile,
-                Option<crate::types::PassportFile>,
-                Option<Box<[crate::types::PassportFile]>>,
-            >(deserializer, meta)?;
+        let decoded =
+            decoder::deserialize_internal_passport_or_passport(deserializer, &decoder::PASSPORT)?;
         Ok(Self {
-            data: value_data,
-            front_side: value_front_side,
-            selfie: value_selfie,
-            translation: value_translation,
-            hash: common.hash,
+            data: decoded.data,
+            front_side: decoded.front_side,
+            selfie: decoded.selfie,
+            translation: decoded.translation,
+            hash: decoded.common.hash,
         })
     }
 }

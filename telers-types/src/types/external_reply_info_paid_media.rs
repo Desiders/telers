@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::external_reply_info as decoder;
+
 /// Message contains paid media; information about the paid media
 /// # Notes
 /// This object represents an external reply info from original field `paid_media`.
@@ -28,6 +31,7 @@ pub struct ExternalReplyInfoPaidMedia {
     /// Message contains paid media; information about the paid media
     pub paid_media: crate::types::PaidMediaInfo,
 }
+
 impl ExternalReplyInfoPaidMedia {
     /// Creates a new `ExternalReplyInfoPaidMedia`.
     ///
@@ -128,34 +132,18 @@ impl ExternalReplyInfoPaidMedia {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ExternalReplyInfoPaidMedia {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ExternalReplyInfoPaidMedia",
-            fields: &[
-                "origin",
-                "chat",
-                "message_id",
-                "link_preview_options",
-                "has_media_spoiler",
-                "paid_media",
-            ],
-            specific: &["paid_media"],
-            sequence: "struct ExternalReplyInfoPaidMedia with 6 elements",
-        };
-        let (common, (value_paid_media,)) = crate::deserialization::external_reply_info::read_0::<
-            D,
-            crate::types::PaidMediaInfo,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::PAID_MEDIA)?;
         Ok(Self {
-            origin: common.origin,
-            chat: common.chat,
-            message_id: common.message_id,
-            link_preview_options: common.link_preview_options,
-            has_media_spoiler: common.has_media_spoiler,
-            paid_media: value_paid_media,
+            origin: decoded.common.origin,
+            chat: decoded.common.chat,
+            message_id: decoded.common.message_id,
+            link_preview_options: decoded.common.link_preview_options,
+            has_media_spoiler: decoded.common.has_media_spoiler,
+            paid_media: decoded.content,
         })
     }
 }

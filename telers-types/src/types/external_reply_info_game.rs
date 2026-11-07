@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::external_reply_info as decoder;
+
 /// Message is a game, information about the game. More about games: <https://core.telegram.org/bots/api#games>
 /// # Notes
 /// This object represents an external reply info from original field `game`.
@@ -28,6 +31,7 @@ pub struct ExternalReplyInfoGame {
     /// Message is a game, information about the game. More about games: <https://core.telegram.org/bots/api#games>
     pub game: crate::types::Game,
 }
+
 impl ExternalReplyInfoGame {
     /// Creates a new `ExternalReplyInfoGame`.
     ///
@@ -128,34 +132,18 @@ impl ExternalReplyInfoGame {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ExternalReplyInfoGame {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ExternalReplyInfoGame",
-            fields: &[
-                "origin",
-                "chat",
-                "message_id",
-                "link_preview_options",
-                "has_media_spoiler",
-                "game",
-            ],
-            specific: &["game"],
-            sequence: "struct ExternalReplyInfoGame with 6 elements",
-        };
-        let (common, (value_game,)) = crate::deserialization::external_reply_info::read_0::<
-            D,
-            crate::types::Game,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::GAME)?;
         Ok(Self {
-            origin: common.origin,
-            chat: common.chat,
-            message_id: common.message_id,
-            link_preview_options: common.link_preview_options,
-            has_media_spoiler: common.has_media_spoiler,
-            game: value_game,
+            origin: decoded.common.origin,
+            chat: decoded.common.chat,
+            message_id: decoded.common.message_id,
+            link_preview_options: decoded.common.link_preview_options,
+            has_media_spoiler: decoded.common.has_media_spoiler,
+            game: decoded.content,
         })
     }
 }

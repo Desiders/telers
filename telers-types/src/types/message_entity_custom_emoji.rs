@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::message_entity as decoder;
+
 /// This object represents a/an custom emoji message entity.
 /// # Notes
 /// This object represents a message entity from original field `custom_emoji`.
@@ -14,6 +17,7 @@ pub struct MessageEntityCustomEmoji {
     /// For `custom_emoji` only, unique identifier of the custom emoji. Use [`telers_methods::methods::GetCustomEmojiStickers`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_custom_emoji_stickers/struct.GetCustomEmojiStickers.html) to get full information about the sticker.
     pub custom_emoji_id: Box<str>,
 }
+
 impl MessageEntityCustomEmoji {
     /// Creates a new `MessageEntityCustomEmoji`.
     ///
@@ -55,22 +59,15 @@ impl MessageEntityCustomEmoji {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for MessageEntityCustomEmoji {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "MessageEntityCustomEmoji",
-            fields: &["offset", "length", "custom_emoji_id"],
-            specific: &["custom_emoji_id"],
-            sequence: "struct MessageEntityCustomEmoji with 3 elements",
-        };
-        let (common, (value_custom_emoji_id,)) =
-            crate::deserialization::message_entity::read_1::<D, Box<str>>(deserializer, meta)?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::CUSTOM_EMOJI)?;
         Ok(Self {
-            offset: common.offset,
-            length: common.length,
-            custom_emoji_id: value_custom_emoji_id,
+            offset: decoded.common.offset,
+            length: decoded.common.length,
+            custom_emoji_id: decoded.content,
         })
     }
 }

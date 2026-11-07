@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::message_entity as decoder;
+
 /// This object represents a/an text mention message entity.
 /// # Notes
 /// This object represents a message entity from original field `text_mention`.
@@ -14,6 +17,7 @@ pub struct MessageEntityTextMention {
     /// For `text_mention` only, the mentioned user
     pub user: Box<crate::types::User>,
 }
+
 impl MessageEntityTextMention {
     /// Creates a new `MessageEntityTextMention`.
     ///
@@ -55,24 +59,15 @@ impl MessageEntityTextMention {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for MessageEntityTextMention {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "MessageEntityTextMention",
-            fields: &["offset", "length", "user"],
-            specific: &["user"],
-            sequence: "struct MessageEntityTextMention with 3 elements",
-        };
-        let (common, (value_user,)) = crate::deserialization::message_entity::read_1::<
-            D,
-            Box<crate::types::User>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::TEXT_MENTION)?;
         Ok(Self {
-            offset: common.offset,
-            length: common.length,
-            user: value_user,
+            offset: decoded.common.offset,
+            length: decoded.common.length,
+            user: decoded.content,
         })
     }
 }

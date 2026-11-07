@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot.
 /// # Notes
 /// This object represents an update from original update field `poll`.
@@ -12,6 +15,7 @@ pub struct UpdatePoll {
     /// New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot.
     pub poll: Box<crate::types::Poll>,
 }
+
 impl UpdatePoll {
     /// Creates a new `UpdatePoll`.
     ///
@@ -40,28 +44,20 @@ impl UpdatePoll {
         self
     }
 }
+
 impl From<UpdatePoll> for crate::types::Poll {
     fn from(val: UpdatePoll) -> Self {
         *val.poll
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdatePoll {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdatePoll",
-            fields: &["update_id", "poll"],
-            specific: &["poll"],
-            sequence: "struct UpdatePoll with 2 elements",
-        };
-        let (common, (value_poll,)) = crate::deserialization::update::read_0::<
-            D,
-            Box<crate::types::Poll>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::POLL)?;
         Ok(Self {
-            update_id: common.update_id,
-            poll: value_poll,
+            update_id: decoded.common.update_id,
+            poll: decoded.content,
         })
     }
 }

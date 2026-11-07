@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// The result of an inline query that was chosen by a user and sent to their chat partner. Please see our documentation on the feedback collecting for details on how to enable these updates for your bot.
 /// # Notes
 /// This object represents an update from original update field `chosen_inline_result`.
@@ -12,6 +15,7 @@ pub struct UpdateChosenInlineResult {
     /// The result of an inline query that was chosen by a user and sent to their chat partner. Please see our documentation on the feedback collecting for details on how to enable these updates for your bot.
     pub chosen_inline_result: crate::types::ChosenInlineResult,
 }
+
 impl UpdateChosenInlineResult {
     /// Creates a new `UpdateChosenInlineResult`.
     ///
@@ -46,28 +50,20 @@ impl UpdateChosenInlineResult {
         self
     }
 }
+
 impl From<UpdateChosenInlineResult> for crate::types::ChosenInlineResult {
     fn from(val: UpdateChosenInlineResult) -> Self {
         val.chosen_inline_result
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdateChosenInlineResult {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdateChosenInlineResult",
-            fields: &["update_id", "chosen_inline_result"],
-            specific: &["chosen_inline_result"],
-            sequence: "struct UpdateChosenInlineResult with 2 elements",
-        };
-        let (common, (value_chosen_inline_result,)) = crate::deserialization::update::read_0::<
-            D,
-            crate::types::ChosenInlineResult,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::CHOSEN_INLINE_RESULT)?;
         Ok(Self {
-            update_id: common.update_id,
-            chosen_inline_result: value_chosen_inline_result,
+            update_id: decoded.common.update_id,
+            chosen_inline_result: decoded.content,
         })
     }
 }

@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::inline_query_result as decoder;
+
 /// Represents a location on a map. By default, the location will be sent by the user. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the location.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultlocation>
@@ -50,6 +53,7 @@ pub struct InlineQueryResultLocation {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub thumbnail_height: Option<i64>,
 }
+
 impl InlineQueryResultLocation {
     /// Creates a new `InlineQueryResultLocation`.
     ///
@@ -248,85 +252,25 @@ impl InlineQueryResultLocation {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InlineQueryResultLocation {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InlineQueryResultLocation",
-            fields: &[
-                "id",
-                "latitude",
-                "longitude",
-                "title",
-                "horizontal_accuracy",
-                "live_period",
-                "heading",
-                "proximity_alert_radius",
-                "reply_markup",
-                "input_message_content",
-                "thumbnail_url",
-                "thumbnail_width",
-                "thumbnail_height",
-            ],
-            specific: &[
-                "latitude",
-                "longitude",
-                "title",
-                "horizontal_accuracy",
-                "live_period",
-                "heading",
-                "proximity_alert_radius",
-                "input_message_content",
-                "thumbnail_url",
-                "thumbnail_width",
-                "thumbnail_height",
-            ],
-            sequence: "struct InlineQueryResultLocation with 13 elements",
-        };
-        let (
-            common,
-            (
-                value_latitude,
-                value_longitude,
-                value_title,
-                value_horizontal_accuracy,
-                value_live_period,
-                value_heading,
-                value_proximity_alert_radius,
-                value_input_message_content,
-                value_thumbnail_url,
-                value_thumbnail_width,
-                value_thumbnail_height,
-            ),
-        ) = crate::deserialization::inline_query_result::read_4::<
-            D,
-            f64,
-            f64,
-            Box<str>,
-            Option<f64>,
-            Option<u32>,
-            Option<u16>,
-            Option<u32>,
-            Option<crate::types::InputMessageContent>,
-            Option<Box<str>>,
-            Option<i64>,
-            Option<i64>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_location(deserializer, &decoder::LOCATION)?;
         Ok(Self {
-            id: common.id,
-            latitude: value_latitude,
-            longitude: value_longitude,
-            title: value_title,
-            horizontal_accuracy: value_horizontal_accuracy,
-            live_period: value_live_period,
-            heading: value_heading,
-            proximity_alert_radius: value_proximity_alert_radius,
-            reply_markup: common.reply_markup,
-            input_message_content: value_input_message_content,
-            thumbnail_url: value_thumbnail_url,
-            thumbnail_width: value_thumbnail_width,
-            thumbnail_height: value_thumbnail_height,
+            id: decoded.common.id,
+            latitude: decoded.latitude,
+            longitude: decoded.longitude,
+            title: decoded.title,
+            horizontal_accuracy: decoded.horizontal_accuracy,
+            live_period: decoded.live_period,
+            heading: decoded.heading,
+            proximity_alert_radius: decoded.proximity_alert_radius,
+            reply_markup: decoded.common.reply_markup,
+            input_message_content: decoded.input_message_content,
+            thumbnail_url: decoded.thumbnail_url,
+            thumbnail_width: decoded.thumbnail_width,
+            thumbnail_height: decoded.thumbnail_height,
         })
     }
 }

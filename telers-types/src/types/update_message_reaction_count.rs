@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// Reactions to a message with anonymous reactions were changed. The bot must be an administrator in the chat and must explicitly specify `message_reaction_count` in the list of `allowed_updates` to receive these updates. The updates are grouped and can be sent with delay up to a few minutes.
 /// # Notes
 /// This object represents an update from original update field `message_reaction_count`.
@@ -12,6 +15,7 @@ pub struct UpdateMessageReactionCount {
     /// Reactions to a message with anonymous reactions were changed. The bot must be an administrator in the chat and must explicitly specify `message_reaction_count` in the list of `allowed_updates` to receive these updates. The updates are grouped and can be sent with delay up to a few minutes.
     pub message_reaction_count: crate::types::MessageReactionCountUpdated,
 }
+
 impl UpdateMessageReactionCount {
     /// Creates a new `UpdateMessageReactionCount`.
     ///
@@ -46,28 +50,20 @@ impl UpdateMessageReactionCount {
         self
     }
 }
+
 impl From<UpdateMessageReactionCount> for crate::types::MessageReactionCountUpdated {
     fn from(val: UpdateMessageReactionCount) -> Self {
         val.message_reaction_count
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdateMessageReactionCount {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdateMessageReactionCount",
-            fields: &["update_id", "message_reaction_count"],
-            specific: &["message_reaction_count"],
-            sequence: "struct UpdateMessageReactionCount with 2 elements",
-        };
-        let (common, (value_message_reaction_count,)) = crate::deserialization::update::read_0::<
-            D,
-            crate::types::MessageReactionCountUpdated,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::MESSAGE_REACTION_COUNT)?;
         Ok(Self {
-            update_id: common.update_id,
-            message_reaction_count: value_message_reaction_count,
+            update_id: decoded.common.update_id,
+            message_reaction_count: decoded.content,
         })
     }
 }

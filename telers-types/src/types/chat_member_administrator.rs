@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::chat_member as decoder;
+
 /// Represents a chat member that has some additional privileges.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberadministrator>
@@ -62,6 +65,7 @@ pub struct ChatMemberAdministrator {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub custom_title: Option<Box<str>>,
 }
+
 impl ChatMemberAdministrator {
     /// Creates a new `ChatMemberAdministrator`.
     ///
@@ -336,128 +340,33 @@ impl ChatMemberAdministrator {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ChatMemberAdministrator {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ChatMemberAdministrator",
-            fields: &[
-                "user",
-                "can_be_edited",
-                "is_anonymous",
-                "can_manage_chat",
-                "can_delete_messages",
-                "can_manage_video_chats",
-                "can_restrict_members",
-                "can_promote_members",
-                "can_change_info",
-                "can_invite_users",
-                "can_post_stories",
-                "can_edit_stories",
-                "can_delete_stories",
-                "can_post_messages",
-                "can_edit_messages",
-                "can_pin_messages",
-                "can_manage_topics",
-                "can_manage_direct_messages",
-                "can_manage_tags",
-                "can_send_welcome_messages",
-                "custom_title",
-            ],
-            specific: &[
-                "can_be_edited",
-                "is_anonymous",
-                "can_manage_chat",
-                "can_delete_messages",
-                "can_manage_video_chats",
-                "can_restrict_members",
-                "can_promote_members",
-                "can_change_info",
-                "can_invite_users",
-                "can_post_stories",
-                "can_edit_stories",
-                "can_delete_stories",
-                "can_post_messages",
-                "can_edit_messages",
-                "can_pin_messages",
-                "can_manage_topics",
-                "can_manage_direct_messages",
-                "can_manage_tags",
-                "can_send_welcome_messages",
-                "custom_title",
-            ],
-            sequence: "struct ChatMemberAdministrator with 21 elements",
-        };
-        let (
-            common,
-            (
-                value_can_be_edited,
-                value_is_anonymous,
-                value_can_manage_chat,
-                value_can_delete_messages,
-                value_can_manage_video_chats,
-                value_can_restrict_members,
-                value_can_promote_members,
-                value_can_change_info,
-                value_can_invite_users,
-                value_can_post_stories,
-                value_can_edit_stories,
-                value_can_delete_stories,
-                value_can_post_messages,
-                value_can_edit_messages,
-                value_can_pin_messages,
-                value_can_manage_topics,
-                value_can_manage_direct_messages,
-                value_can_manage_tags,
-                value_can_send_welcome_messages,
-                value_custom_title,
-            ),
-        ) = crate::deserialization::chat_member::read_0::<
-            D,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            Option<bool>,
-            Option<bool>,
-            Option<bool>,
-            Option<bool>,
-            Option<bool>,
-            Option<bool>,
-            bool,
-            Option<Box<str>>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_administrator(deserializer, &decoder::ADMINISTRATOR)?;
         Ok(Self {
-            user: common.user,
-            can_be_edited: value_can_be_edited,
-            is_anonymous: value_is_anonymous,
-            can_manage_chat: value_can_manage_chat,
-            can_delete_messages: value_can_delete_messages,
-            can_manage_video_chats: value_can_manage_video_chats,
-            can_restrict_members: value_can_restrict_members,
-            can_promote_members: value_can_promote_members,
-            can_change_info: value_can_change_info,
-            can_invite_users: value_can_invite_users,
-            can_post_stories: value_can_post_stories,
-            can_edit_stories: value_can_edit_stories,
-            can_delete_stories: value_can_delete_stories,
-            can_post_messages: value_can_post_messages,
-            can_edit_messages: value_can_edit_messages,
-            can_pin_messages: value_can_pin_messages,
-            can_manage_topics: value_can_manage_topics,
-            can_manage_direct_messages: value_can_manage_direct_messages,
-            can_manage_tags: value_can_manage_tags,
-            can_send_welcome_messages: value_can_send_welcome_messages,
-            custom_title: value_custom_title,
+            user: decoded.common.user,
+            can_be_edited: decoded.can_be_edited,
+            is_anonymous: decoded.is_anonymous,
+            can_manage_chat: decoded.can_manage_chat,
+            can_delete_messages: decoded.can_delete_messages,
+            can_manage_video_chats: decoded.can_manage_video_chats,
+            can_restrict_members: decoded.can_restrict_members,
+            can_promote_members: decoded.can_promote_members,
+            can_change_info: decoded.can_change_info,
+            can_invite_users: decoded.can_invite_users,
+            can_post_stories: decoded.can_post_stories,
+            can_edit_stories: decoded.can_edit_stories,
+            can_delete_stories: decoded.can_delete_stories,
+            can_post_messages: decoded.can_post_messages,
+            can_edit_messages: decoded.can_edit_messages,
+            can_pin_messages: decoded.can_pin_messages,
+            can_manage_topics: decoded.can_manage_topics,
+            can_manage_direct_messages: decoded.can_manage_direct_messages,
+            can_manage_tags: decoded.can_manage_tags,
+            can_send_welcome_messages: decoded.can_send_welcome_messages,
+            custom_title: decoded.custom_title,
         })
     }
 }

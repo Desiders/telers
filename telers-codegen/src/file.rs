@@ -3,7 +3,7 @@
 use crate::generator::{helpers::camel_to_snake, serialization::configure_serialization};
 use anyhow::Context;
 use semver::Version;
-use std::{fmt::Display, fs, path::Path};
+use std::{fmt::Display, fs, mem, path::Path};
 use toml_edit::{DocumentMut, Item, Value};
 
 pub fn update_manifest_versions(
@@ -69,8 +69,16 @@ pub fn write_tokens_to_file(
     filename: &str,
 ) -> anyhow::Result<()> {
     let formatted = format_tokens(&tokens)?;
+    let path = dir.join(filename);
+    if fs::read_to_string(&path)
+        .ok()
+        .and_then(|existing| format_tokens(&existing).ok())
+        .is_some_and(|existing| existing == formatted)
+    {
+        return Ok(());
+    }
     fs::create_dir_all(dir)?;
-    fs::write(dir.join(filename), formatted)?;
+    fs::write(path, formatted)?;
     Ok(())
 }
 
@@ -94,10 +102,37 @@ pub fn check_tokens_to_file(
 }
 
 fn format_tokens(tokens: &impl Display) -> anyhow::Result<String> {
+    #[derive(Clone, Copy, PartialEq, Eq)]
+    enum ItemGroup {
+        Imports,
+        Modules,
+    }
+
     let mut syntax_tree = syn::parse_file(&tokens.to_string())?;
     configure_serialization(&mut syntax_tree)?;
-
-    Ok(prettyplease::unparse(&syntax_tree))
+    let items = mem::take(&mut syntax_tree.items);
+    let mut formatted = prettyplease::unparse(&syntax_tree);
+    if !formatted.is_empty() && !formatted.ends_with('\n') {
+        formatted.push('\n');
+    }
+    syntax_tree.attrs.clear();
+    syntax_tree.shebang = None;
+    let mut previous_group = None;
+    for item in items {
+        let group = match &item {
+            syn::Item::Use(_) => Some(ItemGroup::Imports),
+            syn::Item::Mod(module) if module.content.is_none() => Some(ItemGroup::Modules),
+            _ => None,
+        };
+        if !formatted.is_empty() && (group.is_none() || group != previous_group) {
+            formatted.push('\n');
+        }
+        syntax_tree.items.push(item);
+        formatted.push_str(&prettyplease::unparse(&syntax_tree));
+        syntax_tree.items.clear();
+        previous_group = group;
+    }
+    Ok(formatted)
 }
 
 #[must_use]

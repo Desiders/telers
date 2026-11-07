@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// New incoming pre-checkout query. Contains full information about checkout.
 /// # Notes
 /// This object represents an update from original update field `pre_checkout_query`.
@@ -12,6 +15,7 @@ pub struct UpdatePreCheckoutQuery {
     /// New incoming pre-checkout query. Contains full information about checkout.
     pub pre_checkout_query: crate::types::PreCheckoutQuery,
 }
+
 impl UpdatePreCheckoutQuery {
     /// Creates a new `UpdatePreCheckoutQuery`.
     ///
@@ -43,28 +47,20 @@ impl UpdatePreCheckoutQuery {
         self
     }
 }
+
 impl From<UpdatePreCheckoutQuery> for crate::types::PreCheckoutQuery {
     fn from(val: UpdatePreCheckoutQuery) -> Self {
         val.pre_checkout_query
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdatePreCheckoutQuery {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdatePreCheckoutQuery",
-            fields: &["update_id", "pre_checkout_query"],
-            specific: &["pre_checkout_query"],
-            sequence: "struct UpdatePreCheckoutQuery with 2 elements",
-        };
-        let (common, (value_pre_checkout_query,)) = crate::deserialization::update::read_0::<
-            D,
-            crate::types::PreCheckoutQuery,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::PRE_CHECKOUT_QUERY)?;
         Ok(Self {
-            update_id: common.update_id,
-            pre_checkout_query: value_pre_checkout_query,
+            update_id: decoded.common.update_id,
+            pre_checkout_query: decoded.content,
         })
     }
 }

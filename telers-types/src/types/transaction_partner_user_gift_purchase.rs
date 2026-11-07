@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::transaction_partner_user as decoder;
+
 /// This object represents a/an gift purchase transaction partner user.
 /// # Notes
 /// This object represents a transaction partner user from original field `gift_purchase`.
@@ -12,6 +15,7 @@ pub struct TransactionPartnerUserGiftPurchase {
     /// The gift sent to the user by the bot; for `gift_purchase` transactions only
     pub gift: Box<crate::types::Gift>,
 }
+
 impl TransactionPartnerUserGiftPurchase {
     /// Creates a new `TransactionPartnerUserGiftPurchase`.
     ///
@@ -43,23 +47,14 @@ impl TransactionPartnerUserGiftPurchase {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for TransactionPartnerUserGiftPurchase {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "TransactionPartnerUserGiftPurchase",
-            fields: &["user", "gift"],
-            specific: &["gift"],
-            sequence: "struct TransactionPartnerUserGiftPurchase with 2 elements",
-        };
-        let (common, (value_gift,)) = crate::deserialization::chat_member::read_1::<
-            D,
-            Box<crate::types::Gift>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::GIFT_PURCHASE)?;
         Ok(Self {
-            user: common.user,
-            gift: value_gift,
+            user: decoded.common.user,
+            gift: decoded.content,
         })
     }
 }

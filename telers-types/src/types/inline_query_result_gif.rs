@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::inline_query_result_gif_kind as decoder;
+
 /// Represents a link to an animated GIF file. By default, this animated GIF file will be sent by the user with optional caption. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the animation.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultgif>
@@ -56,6 +59,7 @@ pub struct InlineQueryResultGif {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub input_message_content: Option<crate::types::InputMessageContent>,
 }
+
 impl InlineQueryResultGif {
     /// Creates a new `InlineQueryResultGif`.
     ///
@@ -307,72 +311,26 @@ impl InlineQueryResultGif {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InlineQueryResultGif {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InlineQueryResultGif",
-            fields: &[
-                "id",
-                "gif_url",
-                "gif_width",
-                "gif_height",
-                "gif_duration",
-                "thumbnail_url",
-                "thumbnail_mime_type",
-                "title",
-                "caption",
-                "parse_mode",
-                "caption_entities",
-                "show_caption_above_media",
-                "reply_markup",
-                "input_message_content",
-            ],
-            specific: &[
-                "gif_url",
-                "gif_width",
-                "gif_height",
-                "gif_duration",
-                "thumbnail_url",
-                "thumbnail_mime_type",
-            ],
-            sequence: "struct InlineQueryResultGif with 14 elements",
-        };
-        let (
-            common,
-            (
-                value_gif_url,
-                value_gif_width,
-                value_gif_height,
-                value_gif_duration,
-                value_thumbnail_url,
-                value_thumbnail_mime_type,
-            ),
-        ) = crate::deserialization::inline_query_result_gif_kind::read_1::<
-            D,
-            Box<str>,
-            Option<i64>,
-            Option<i64>,
-            Option<i64>,
-            Box<str>,
-            Option<Box<str>>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_gif(deserializer, &decoder::GIF)?;
         Ok(Self {
-            id: common.id,
-            gif_url: value_gif_url,
-            gif_width: value_gif_width,
-            gif_height: value_gif_height,
-            gif_duration: value_gif_duration,
-            thumbnail_url: value_thumbnail_url,
-            thumbnail_mime_type: value_thumbnail_mime_type,
-            title: common.title,
-            caption: common.caption,
-            parse_mode: common.parse_mode,
-            caption_entities: common.caption_entities,
-            show_caption_above_media: common.show_caption_above_media,
-            reply_markup: common.reply_markup,
-            input_message_content: common.input_message_content,
+            id: decoded.common.id,
+            gif_url: decoded.gif_url,
+            gif_width: decoded.gif_width,
+            gif_height: decoded.gif_height,
+            gif_duration: decoded.gif_duration,
+            thumbnail_url: decoded.thumbnail_url,
+            thumbnail_mime_type: decoded.thumbnail_mime_type,
+            title: decoded.common.title,
+            caption: decoded.common.caption,
+            parse_mode: decoded.common.parse_mode,
+            caption_entities: decoded.common.caption_entities,
+            show_caption_above_media: decoded.common.show_caption_above_media,
+            reply_markup: decoded.common.reply_markup,
+            input_message_content: decoded.common.input_message_content,
         })
     }
 }

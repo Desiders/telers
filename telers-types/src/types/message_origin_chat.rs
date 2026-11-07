@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::message_origin as decoder;
+
 /// The message was originally sent on behalf of a chat to a group chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#messageoriginchat>
@@ -14,6 +17,7 @@ pub struct MessageOriginChat {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub author_signature: Option<Box<str>>,
 }
+
 impl MessageOriginChat {
     /// Creates a new `MessageOriginChat`.
     ///
@@ -60,26 +64,15 @@ impl MessageOriginChat {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for MessageOriginChat {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "MessageOriginChat",
-            fields: &["date", "sender_chat", "author_signature"],
-            specific: &["sender_chat", "author_signature"],
-            sequence: "struct MessageOriginChat with 3 elements",
-        };
-        let (common, (value_sender_chat, value_author_signature)) =
-            crate::deserialization::message_origin::read_1::<
-                D,
-                Box<crate::types::Chat>,
-                Option<Box<str>>,
-            >(deserializer, meta)?;
+        let decoded = decoder::deserialize_chat(deserializer, &decoder::CHAT)?;
         Ok(Self {
-            date: common.date,
-            sender_chat: value_sender_chat,
-            author_signature: value_author_signature,
+            date: decoded.common.date,
+            sender_chat: decoded.sender_chat,
+            author_signature: decoded.author_signature,
         })
     }
 }

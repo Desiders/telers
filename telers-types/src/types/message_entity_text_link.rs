@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::message_entity as decoder;
+
 /// This object represents a/an text link message entity.
 /// # Notes
 /// This object represents a message entity from original field `text_link`.
@@ -14,6 +17,7 @@ pub struct MessageEntityTextLink {
     /// For `text_link` only, URL that will be opened after user taps on the text
     pub url: Box<str>,
 }
+
 impl MessageEntityTextLink {
     /// Creates a new `MessageEntityTextLink`.
     ///
@@ -55,22 +59,15 @@ impl MessageEntityTextLink {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for MessageEntityTextLink {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "MessageEntityTextLink",
-            fields: &["offset", "length", "url"],
-            specific: &["url"],
-            sequence: "struct MessageEntityTextLink with 3 elements",
-        };
-        let (common, (value_url,)) =
-            crate::deserialization::message_entity::read_1::<D, Box<str>>(deserializer, meta)?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::TEXT_LINK)?;
         Ok(Self {
-            offset: common.offset,
-            length: common.length,
-            url: value_url,
+            offset: decoded.common.offset,
+            length: decoded.common.length,
+            url: decoded.content,
         })
     }
 }

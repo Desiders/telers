@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// Messages were deleted from a connected business account
 /// # Notes
 /// This object represents an update from original update field `deleted_business_messages`.
@@ -12,6 +15,7 @@ pub struct UpdateDeletedBusinessMessages {
     /// Messages were deleted from a connected business account
     pub deleted_business_messages: crate::types::BusinessMessagesDeleted,
 }
+
 impl UpdateDeletedBusinessMessages {
     /// Creates a new `UpdateDeletedBusinessMessages`.
     ///
@@ -46,28 +50,20 @@ impl UpdateDeletedBusinessMessages {
         self
     }
 }
+
 impl From<UpdateDeletedBusinessMessages> for crate::types::BusinessMessagesDeleted {
     fn from(val: UpdateDeletedBusinessMessages) -> Self {
         val.deleted_business_messages
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdateDeletedBusinessMessages {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdateDeletedBusinessMessages",
-            fields: &["update_id", "deleted_business_messages"],
-            specific: &["deleted_business_messages"],
-            sequence: "struct UpdateDeletedBusinessMessages with 2 elements",
-        };
-        let (common, (value_deleted_business_messages,)) = crate::deserialization::update::read_0::<
-            D,
-            crate::types::BusinessMessagesDeleted,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::DELETED_BUSINESS_MESSAGES)?;
         Ok(Self {
-            update_id: common.update_id,
-            deleted_business_messages: value_deleted_business_messages,
+            update_id: decoded.common.update_id,
+            deleted_business_messages: decoded.content,
         })
     }
 }

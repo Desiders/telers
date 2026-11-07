@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::sticker as decoder;
+
 /// This object represents a regular sticker.
 /// # Notes
 /// This object represents a sticker from original sticker type `regular`.
@@ -44,6 +47,7 @@ pub struct StickerRegular {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub file_size: Option<i64>,
 }
+
 impl StickerRegular {
     /// Creates a new `StickerRegular`.
     ///
@@ -215,51 +219,30 @@ impl StickerRegular {
         self
     }
 }
+
 impl crate::types::FileIdGetter for StickerRegular {
     fn file_id(&self) -> &str {
         &self.file_id
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for StickerRegular {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "StickerRegular",
-            fields: &[
-                "file_id",
-                "file_unique_id",
-                "width",
-                "height",
-                "is_animated",
-                "is_video",
-                "thumbnail",
-                "emoji",
-                "set_name",
-                "premium_animation",
-                "needs_repainting",
-                "file_size",
-            ],
-            specific: &["premium_animation"],
-            sequence: "struct StickerRegular with 12 elements",
-        };
-        let (common, (value_premium_animation,)) = crate::deserialization::sticker::read_0::<
-            D,
-            Option<crate::types::File>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::REGULAR)?;
         Ok(Self {
-            file_id: common.file_id,
-            file_unique_id: common.file_unique_id,
-            width: common.width,
-            height: common.height,
-            is_animated: common.is_animated,
-            is_video: common.is_video,
-            thumbnail: common.thumbnail,
-            emoji: common.emoji,
-            set_name: common.set_name,
-            premium_animation: value_premium_animation,
-            needs_repainting: common.needs_repainting,
-            file_size: common.file_size,
+            file_id: decoded.common.file_id,
+            file_unique_id: decoded.common.file_unique_id,
+            width: decoded.common.width,
+            height: decoded.common.height,
+            is_animated: decoded.common.is_animated,
+            is_video: decoded.common.is_video,
+            thumbnail: decoded.common.thumbnail,
+            emoji: decoded.common.emoji,
+            set_name: decoded.common.set_name,
+            premium_animation: decoded.content,
+            needs_repainting: decoded.common.needs_repainting,
+            file_size: decoded.common.file_size,
         })
     }
 }

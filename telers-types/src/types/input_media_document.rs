@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::input_media as decoder;
+
 /// Represents a general file to be sent.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmediadocument>
@@ -28,6 +31,7 @@ pub struct InputMediaDocument {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub disable_content_type_detection: Option<bool>,
 }
+
 impl InputMediaDocument {
     /// Creates a new `InputMediaDocument`.
     ///
@@ -158,36 +162,18 @@ impl InputMediaDocument {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InputMediaDocument {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InputMediaDocument",
-            fields: &[
-                "media",
-                "thumbnail",
-                "caption",
-                "parse_mode",
-                "caption_entities",
-                "disable_content_type_detection",
-            ],
-            specific: &["thumbnail", "disable_content_type_detection"],
-            sequence: "struct InputMediaDocument with 6 elements",
-        };
-        let (common, (value_thumbnail, value_disable_content_type_detection)) =
-            crate::deserialization::input_media::read_2::<
-                D,
-                Option<crate::types::InputFile>,
-                Option<bool>,
-            >(deserializer, meta)?;
+        let decoded = decoder::deserialize_document(deserializer, &decoder::DOCUMENT)?;
         Ok(Self {
-            media: common.media,
-            thumbnail: value_thumbnail,
-            caption: common.caption,
-            parse_mode: common.parse_mode,
-            caption_entities: common.caption_entities,
-            disable_content_type_detection: value_disable_content_type_detection,
+            media: decoded.common.media,
+            thumbnail: decoded.thumbnail,
+            caption: decoded.common.caption,
+            parse_mode: decoded.common.parse_mode,
+            caption_entities: decoded.common.caption_entities,
+            disable_content_type_detection: decoded.disable_content_type_detection,
         })
     }
 }

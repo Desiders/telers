@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::message as decoder;
+
 /// Service message: chat owner has left
 /// # Notes
 /// This object represents a service message from original message field `chat_owner_left`.
@@ -172,6 +175,7 @@ pub struct MessageChatOwnerLeft {
     /// Service message: chat owner has left
     pub chat_owner_left: crate::types::ChatOwnerLeft,
 }
+
 impl MessageChatOwnerLeft {
     /// Creates a new `MessageChatOwnerLeft`.
     ///
@@ -918,108 +922,55 @@ impl MessageChatOwnerLeft {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for MessageChatOwnerLeft {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "MessageChatOwnerLeft",
-            fields: &[
-                "message_id",
-                "message_thread_id",
-                "direct_messages_topic",
-                "from",
-                "sender_chat",
-                "sender_boost_count",
-                "sender_business_bot",
-                "sender_tag",
-                "receiver_user",
-                "ephemeral_message_id",
-                "date",
-                "guest_query_id",
-                "business_connection_id",
-                "chat",
-                "forward_origin",
-                "is_topic_message",
-                "is_automatic_forward",
-                "reply_to_message",
-                "external_reply",
-                "quote",
-                "reply_to_story",
-                "reply_to_checklist_task_id",
-                "reply_to_poll_option_id",
-                "via_bot",
-                "guest_bot_caller_user",
-                "guest_bot_caller_chat",
-                "edit_date",
-                "has_protected_content",
-                "is_from_offline",
-                "is_paid_post",
-                "media_group_id",
-                "author_signature",
-                "paid_star_count",
-                "entities",
-                "link_preview_options",
-                "suggested_post_info",
-                "effect_id",
-                "caption",
-                "caption_entities",
-                "show_caption_above_media",
-                "has_media_spoiler",
-                "reply_markup",
-                "chat_owner_left",
-            ],
-            specific: &["chat_owner_left"],
-            sequence: "struct MessageChatOwnerLeft with 43 elements",
-        };
-        let (common, (value_chat_owner_left,)) = crate::deserialization::message::read_0::<
-            D,
-            crate::types::ChatOwnerLeft,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::CHAT_OWNER_LEFT)?;
         Ok(Self {
-            message_id: common.message_id,
-            message_thread_id: common.message_thread_id,
-            direct_messages_topic: common.direct_messages_topic,
-            from: common.from,
-            sender_chat: common.sender_chat,
-            sender_boost_count: common.sender_boost_count,
-            sender_business_bot: common.sender_business_bot,
-            sender_tag: common.sender_tag,
-            receiver_user: common.receiver_user,
-            ephemeral_message_id: common.ephemeral_message_id,
-            date: common.date,
-            guest_query_id: common.guest_query_id,
-            business_connection_id: common.business_connection_id,
-            chat: common.chat,
-            forward_origin: common.forward_origin,
-            is_topic_message: common.is_topic_message,
-            is_automatic_forward: common.is_automatic_forward,
-            reply_to_message: common.reply_to_message,
-            external_reply: common.external_reply,
-            quote: common.quote,
-            reply_to_story: common.reply_to_story,
-            reply_to_checklist_task_id: common.reply_to_checklist_task_id,
-            reply_to_poll_option_id: common.reply_to_poll_option_id,
-            via_bot: common.via_bot,
-            guest_bot_caller_user: common.guest_bot_caller_user,
-            guest_bot_caller_chat: common.guest_bot_caller_chat,
-            edit_date: common.edit_date,
-            has_protected_content: common.has_protected_content,
-            is_from_offline: common.is_from_offline,
-            is_paid_post: common.is_paid_post,
-            media_group_id: common.media_group_id,
-            author_signature: common.author_signature,
-            paid_star_count: common.paid_star_count,
-            entities: common.entities,
-            link_preview_options: common.link_preview_options,
-            suggested_post_info: common.suggested_post_info,
-            effect_id: common.effect_id,
-            caption: common.caption,
-            caption_entities: common.caption_entities,
-            show_caption_above_media: common.show_caption_above_media,
-            has_media_spoiler: common.has_media_spoiler,
-            reply_markup: common.reply_markup,
-            chat_owner_left: value_chat_owner_left,
+            message_id: decoded.common.message_id,
+            message_thread_id: decoded.common.message_thread_id,
+            direct_messages_topic: decoded.common.direct_messages_topic,
+            from: decoded.common.from,
+            sender_chat: decoded.common.sender_chat,
+            sender_boost_count: decoded.common.sender_boost_count,
+            sender_business_bot: decoded.common.sender_business_bot,
+            sender_tag: decoded.common.sender_tag,
+            receiver_user: decoded.common.receiver_user,
+            ephemeral_message_id: decoded.common.ephemeral_message_id,
+            date: decoded.common.date,
+            guest_query_id: decoded.common.guest_query_id,
+            business_connection_id: decoded.common.business_connection_id,
+            chat: decoded.common.chat,
+            forward_origin: decoded.common.forward_origin,
+            is_topic_message: decoded.common.is_topic_message,
+            is_automatic_forward: decoded.common.is_automatic_forward,
+            reply_to_message: decoded.common.reply_to_message,
+            external_reply: decoded.common.external_reply,
+            quote: decoded.common.quote,
+            reply_to_story: decoded.common.reply_to_story,
+            reply_to_checklist_task_id: decoded.common.reply_to_checklist_task_id,
+            reply_to_poll_option_id: decoded.common.reply_to_poll_option_id,
+            via_bot: decoded.common.via_bot,
+            guest_bot_caller_user: decoded.common.guest_bot_caller_user,
+            guest_bot_caller_chat: decoded.common.guest_bot_caller_chat,
+            edit_date: decoded.common.edit_date,
+            has_protected_content: decoded.common.has_protected_content,
+            is_from_offline: decoded.common.is_from_offline,
+            is_paid_post: decoded.common.is_paid_post,
+            media_group_id: decoded.common.media_group_id,
+            author_signature: decoded.common.author_signature,
+            paid_star_count: decoded.common.paid_star_count,
+            entities: decoded.common.entities,
+            link_preview_options: decoded.common.link_preview_options,
+            suggested_post_info: decoded.common.suggested_post_info,
+            effect_id: decoded.common.effect_id,
+            caption: decoded.common.caption,
+            caption_entities: decoded.common.caption_entities,
+            show_caption_above_media: decoded.common.show_caption_above_media,
+            has_media_spoiler: decoded.common.has_media_spoiler,
+            reply_markup: decoded.common.reply_markup,
+            chat_owner_left: decoded.content,
         })
     }
 }

@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::transaction_partner_user as decoder;
+
 /// This object represents a/an premium purchase transaction partner user.
 /// # Notes
 /// This object represents a transaction partner user from original field `premium_purchase`.
@@ -12,6 +15,7 @@ pub struct TransactionPartnerUserPremiumPurchase {
     /// Number of months the gifted Telegram Premium subscription will be active for; for `premium_purchase` transactions only
     pub premium_subscription_duration: i64,
 }
+
 impl TransactionPartnerUserPremiumPurchase {
     /// Creates a new `TransactionPartnerUserPremiumPurchase`.
     ///
@@ -43,21 +47,14 @@ impl TransactionPartnerUserPremiumPurchase {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for TransactionPartnerUserPremiumPurchase {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "TransactionPartnerUserPremiumPurchase",
-            fields: &["user", "premium_subscription_duration"],
-            specific: &["premium_subscription_duration"],
-            sequence: "struct TransactionPartnerUserPremiumPurchase with 2 elements",
-        };
-        let (common, (value_premium_subscription_duration,)) =
-            crate::deserialization::chat_member::read_1::<D, i64>(deserializer, meta)?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::PREMIUM_PURCHASE)?;
         Ok(Self {
-            user: common.user,
-            premium_subscription_duration: value_premium_subscription_duration,
+            user: decoded.common.user,
+            premium_subscription_duration: decoded.content,
         })
     }
 }

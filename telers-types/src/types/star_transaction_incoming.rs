@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::star_transaction as decoder;
+
 /// This object represents an incoming star transaction.
 /// # Notes
 /// This object represents a star transaction from original field `incoming`.
@@ -20,6 +23,7 @@ pub struct StarTransactionIncoming {
     /// Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions.
     pub source: crate::types::TransactionPartner,
 }
+
 impl StarTransactionIncoming {
     /// Creates a new `StarTransactionIncoming`.
     ///
@@ -94,26 +98,17 @@ impl StarTransactionIncoming {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for StarTransactionIncoming {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "StarTransactionIncoming",
-            fields: &["id", "amount", "nanostar_amount", "date", "source"],
-            specific: &["source"],
-            sequence: "struct StarTransactionIncoming with 5 elements",
-        };
-        let (common, (value_source,)) = crate::deserialization::star_transaction::read_0::<
-            D,
-            crate::types::TransactionPartner,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::INCOMING)?;
         Ok(Self {
-            id: common.id,
-            amount: common.amount,
-            nanostar_amount: common.nanostar_amount,
-            date: common.date,
-            source: value_source,
+            id: decoded.common.id,
+            amount: decoded.common.amount,
+            nanostar_amount: decoded.common.nanostar_amount,
+            date: decoded.common.date,
+            source: decoded.content,
         })
     }
 }

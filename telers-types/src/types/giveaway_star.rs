@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::giveaway as decoder;
+
 /// This object represents a star giveaway.
 /// # Notes
 /// This object represents a giveaway from original giveaway type `star`.
@@ -32,6 +35,7 @@ pub struct GiveawayStar {
     /// The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
     pub prize_star_count: i64,
 }
+
 impl GiveawayStar {
     /// Creates a new `GiveawayStar`.
     ///
@@ -205,36 +209,20 @@ impl GiveawayStar {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for GiveawayStar {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "GiveawayStar",
-            fields: &[
-                "chats",
-                "winners_selection_date",
-                "winner_count",
-                "only_new_members",
-                "has_public_winners",
-                "prize_description",
-                "country_codes",
-                "prize_star_count",
-            ],
-            specific: &["prize_star_count"],
-            sequence: "struct GiveawayStar with 8 elements",
-        };
-        let (common, (value_prize_star_count,)) =
-            crate::deserialization::giveaway::read_0::<D, i64>(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::STAR)?;
         Ok(Self {
-            chats: common.chats,
-            winners_selection_date: common.winners_selection_date,
-            winner_count: common.winner_count,
-            only_new_members: common.only_new_members,
-            has_public_winners: common.has_public_winners,
-            prize_description: common.prize_description,
-            country_codes: common.country_codes,
-            prize_star_count: value_prize_star_count,
+            chats: decoded.common.chats,
+            winners_selection_date: decoded.common.winners_selection_date,
+            winner_count: decoded.common.winner_count,
+            only_new_members: decoded.common.only_new_members,
+            has_public_winners: decoded.common.has_public_winners,
+            prize_description: decoded.common.prize_description,
+            country_codes: decoded.common.country_codes,
+            prize_star_count: decoded.content,
         })
     }
 }

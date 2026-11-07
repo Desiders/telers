@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// New version of a message that is known to the bot and was edited. This update may at times be triggered by changes to message fields that are either unavailable or not actively used by your bot.
 /// # Notes
 /// This object represents an update from original update field `edited_message`.
@@ -12,6 +15,7 @@ pub struct UpdateEditedMessage {
     /// New version of a message that is known to the bot and was edited. This update may at times be triggered by changes to message fields that are either unavailable or not actively used by your bot.
     pub edited_message: Box<crate::types::Message>,
 }
+
 impl UpdateEditedMessage {
     /// Creates a new `UpdateEditedMessage`.
     ///
@@ -43,28 +47,20 @@ impl UpdateEditedMessage {
         self
     }
 }
+
 impl From<UpdateEditedMessage> for crate::types::Message {
     fn from(val: UpdateEditedMessage) -> Self {
         *val.edited_message
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdateEditedMessage {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdateEditedMessage",
-            fields: &["update_id", "edited_message"],
-            specific: &["edited_message"],
-            sequence: "struct UpdateEditedMessage with 2 elements",
-        };
-        let (common, (value_edited_message,)) = crate::deserialization::update::read_0::<
-            D,
-            Box<crate::types::Message>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::EDITED_MESSAGE)?;
         Ok(Self {
-            update_id: common.update_id,
-            edited_message: value_edited_message,
+            update_id: decoded.common.update_id,
+            edited_message: decoded.content,
         })
     }
 }

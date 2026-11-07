@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::inline_query_result_gif_kind as decoder;
+
 /// Represents a link to an animated GIF file stored on the Telegram servers. By default, this animated GIF file will be sent by the user with an optional caption. Alternatively, you can use `input_message_content` to send a message with specified content instead of the animation.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultcachedgif>
@@ -38,6 +41,7 @@ pub struct InlineQueryResultCachedGif {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub input_message_content: Option<crate::types::InputMessageContent>,
 }
+
 impl InlineQueryResultCachedGif {
     /// Creates a new `InlineQueryResultCachedGif`.
     ///
@@ -216,41 +220,21 @@ impl InlineQueryResultCachedGif {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InlineQueryResultCachedGif {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InlineQueryResultCachedGif",
-            fields: &[
-                "id",
-                "gif_file_id",
-                "title",
-                "caption",
-                "parse_mode",
-                "caption_entities",
-                "show_caption_above_media",
-                "reply_markup",
-                "input_message_content",
-            ],
-            specific: &["gif_file_id"],
-            sequence: "struct InlineQueryResultCachedGif with 9 elements",
-        };
-        let (common, (value_gif_file_id,)) =
-            crate::deserialization::inline_query_result_gif_kind::read_0::<D, Box<str>>(
-                deserializer,
-                meta,
-            )?;
+        let decoded = decoder::deserialize_cached_gif(deserializer, &decoder::CACHED_GIF)?;
         Ok(Self {
-            id: common.id,
-            gif_file_id: value_gif_file_id,
-            title: common.title,
-            caption: common.caption,
-            parse_mode: common.parse_mode,
-            caption_entities: common.caption_entities,
-            show_caption_above_media: common.show_caption_above_media,
-            reply_markup: common.reply_markup,
-            input_message_content: common.input_message_content,
+            id: decoded.common.id,
+            gif_file_id: decoded.gif_file_id,
+            title: decoded.common.title,
+            caption: decoded.common.caption,
+            parse_mode: decoded.common.parse_mode,
+            caption_entities: decoded.common.caption_entities,
+            show_caption_above_media: decoded.common.show_caption_above_media,
+            reply_markup: decoded.common.reply_markup,
+            input_message_content: decoded.common.input_message_content,
         })
     }
 }

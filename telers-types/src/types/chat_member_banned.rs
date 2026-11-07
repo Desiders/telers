@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::chat_member as decoder;
+
 /// Represents a chat member that was banned in the chat and can't return to the chat or view chat messages.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberbanned>
@@ -10,6 +13,7 @@ pub struct ChatMemberBanned {
     /// Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever.
     pub until_date: i64,
 }
+
 impl ChatMemberBanned {
     /// Creates a new `ChatMemberBanned`.
     ///
@@ -38,21 +42,14 @@ impl ChatMemberBanned {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ChatMemberBanned {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ChatMemberBanned",
-            fields: &["user", "until_date"],
-            specific: &["until_date"],
-            sequence: "struct ChatMemberBanned with 2 elements",
-        };
-        let (common, (value_until_date,)) =
-            crate::deserialization::chat_member::read_1::<D, i64>(deserializer, meta)?;
+        let decoded = decoder::deserialize_banned(deserializer, &decoder::BANNED)?;
         Ok(Self {
-            user: common.user,
-            until_date: value_until_date,
+            user: decoded.common.user,
+            until_date: decoded.until_date,
         })
     }
 }

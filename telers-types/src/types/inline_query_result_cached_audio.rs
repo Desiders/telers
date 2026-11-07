@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::inline_query_result_audio_kind as decoder;
+
 /// Represents a link to an MP3 audio file stored on the Telegram servers. By default, this audio file will be sent by the user. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the audio.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultcachedaudio>
@@ -30,6 +33,7 @@ pub struct InlineQueryResultCachedAudio {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub input_message_content: Option<crate::types::InputMessageContent>,
 }
+
 impl InlineQueryResultCachedAudio {
     /// Creates a new `InlineQueryResultCachedAudio`.
     ///
@@ -178,37 +182,19 @@ impl InlineQueryResultCachedAudio {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InlineQueryResultCachedAudio {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InlineQueryResultCachedAudio",
-            fields: &[
-                "id",
-                "audio_file_id",
-                "caption",
-                "parse_mode",
-                "caption_entities",
-                "reply_markup",
-                "input_message_content",
-            ],
-            specific: &["audio_file_id"],
-            sequence: "struct InlineQueryResultCachedAudio with 7 elements",
-        };
-        let (common, (value_audio_file_id,)) =
-            crate::deserialization::inline_query_result_audio_kind::read_1::<D, Box<str>>(
-                deserializer,
-                meta,
-            )?;
+        let decoded = decoder::deserialize_cached_audio(deserializer, &decoder::CACHED_AUDIO)?;
         Ok(Self {
-            id: common.id,
-            audio_file_id: value_audio_file_id,
-            caption: common.caption,
-            parse_mode: common.parse_mode,
-            caption_entities: common.caption_entities,
-            reply_markup: common.reply_markup,
-            input_message_content: common.input_message_content,
+            id: decoded.common.id,
+            audio_file_id: decoded.audio_file_id,
+            caption: decoded.common.caption,
+            parse_mode: decoded.common.parse_mode,
+            caption_entities: decoded.common.caption_entities,
+            reply_markup: decoded.common.reply_markup,
+            input_message_content: decoded.common.input_message_content,
         })
     }
 }

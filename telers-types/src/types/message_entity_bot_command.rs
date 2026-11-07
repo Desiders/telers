@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::message_entity as decoder;
+
 /// This object represents a/an bot command message entity.
 /// # Notes
 /// This object represents a message entity from original field `bot_command`.
@@ -12,6 +15,7 @@ pub struct MessageEntityBotCommand {
     /// Length of the entity in UTF-16 code units
     pub length: i64,
 }
+
 impl MessageEntityBotCommand {
     /// Creates a new `MessageEntityBotCommand`.
     ///
@@ -40,20 +44,14 @@ impl MessageEntityBotCommand {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for MessageEntityBotCommand {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "MessageEntityBotCommand",
-            fields: &["offset", "length"],
-            specific: &[],
-            sequence: "struct MessageEntityBotCommand with 2 elements",
-        };
-        let (common, ()) = crate::deserialization::message_entity::read_0::<D>(deserializer, meta)?;
+        let decoded = decoder::deserialize_common(deserializer, &decoder::BOT_COMMAND)?;
         Ok(Self {
-            offset: common.offset,
-            length: common.length,
+            offset: decoded.offset,
+            length: decoded.length,
         })
     }
 }

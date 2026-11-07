@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::poll as decoder;
+
 /// This object represents a regular poll.
 /// # Notes
 /// This object represents a poll from original poll type `regular`.
@@ -60,6 +63,7 @@ pub struct PollRegular {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub media: Option<crate::types::PollMedia>,
 }
+
 impl PollRegular {
     /// Creates a new `PollRegular`.
     ///
@@ -456,53 +460,29 @@ impl PollRegular {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for PollRegular {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "PollRegular",
-            fields: &[
-                "id",
-                "question",
-                "question_entities",
-                "options",
-                "total_voter_count",
-                "is_closed",
-                "is_anonymous",
-                "allows_multiple_answers",
-                "allows_revoting",
-                "members_only",
-                "country_codes",
-                "explanation_entities",
-                "open_period",
-                "close_date",
-                "description",
-                "description_entities",
-                "media",
-            ],
-            specific: &[],
-            sequence: "struct PollRegular with 17 elements",
-        };
-        let (common, ()) = crate::deserialization::poll::read_1::<D>(deserializer, meta)?;
+        let decoded = decoder::deserialize_common(deserializer, &decoder::REGULAR)?;
         Ok(Self {
-            id: common.id,
-            question: common.question,
-            question_entities: common.question_entities,
-            options: common.options,
-            total_voter_count: common.total_voter_count,
-            is_closed: common.is_closed,
-            is_anonymous: common.is_anonymous,
-            allows_multiple_answers: common.allows_multiple_answers,
-            allows_revoting: common.allows_revoting,
-            members_only: common.members_only,
-            country_codes: common.country_codes,
-            explanation_entities: common.explanation_entities,
-            open_period: common.open_period,
-            close_date: common.close_date,
-            description: common.description,
-            description_entities: common.description_entities,
-            media: common.media,
+            id: decoded.id,
+            question: decoded.question,
+            question_entities: decoded.question_entities,
+            options: decoded.options,
+            total_voter_count: decoded.total_voter_count,
+            is_closed: decoded.is_closed,
+            is_anonymous: decoded.is_anonymous,
+            allows_multiple_answers: decoded.allows_multiple_answers,
+            allows_revoting: decoded.allows_revoting,
+            members_only: decoded.members_only,
+            country_codes: decoded.country_codes,
+            explanation_entities: decoded.explanation_entities,
+            open_period: decoded.open_period,
+            close_date: decoded.close_date,
+            description: decoded.description,
+            description_entities: decoded.description_entities,
+            media: decoded.media,
         })
     }
 }

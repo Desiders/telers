@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// New incoming message of any kind - text, photo, sticker, etc.
 /// # Notes
 /// This object represents an update from original update field `message`.
@@ -12,6 +15,7 @@ pub struct UpdateMessage {
     /// New incoming message of any kind - text, photo, sticker, etc.
     pub message: Box<crate::types::Message>,
 }
+
 impl UpdateMessage {
     /// Creates a new `UpdateMessage`.
     ///
@@ -40,28 +44,20 @@ impl UpdateMessage {
         self
     }
 }
+
 impl From<UpdateMessage> for crate::types::Message {
     fn from(val: UpdateMessage) -> Self {
         *val.message
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdateMessage {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdateMessage",
-            fields: &["update_id", "message"],
-            specific: &["message"],
-            sequence: "struct UpdateMessage with 2 elements",
-        };
-        let (common, (value_message,)) = crate::deserialization::update::read_0::<
-            D,
-            Box<crate::types::Message>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::MESSAGE)?;
         Ok(Self {
-            update_id: common.update_id,
-            message: value_message,
+            update_id: decoded.common.update_id,
+            message: decoded.content,
         })
     }
 }

@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::poll as decoder;
+
 /// This object represents a quiz poll.
 /// # Notes
 /// This object represents a poll from original poll type `quiz`.
@@ -72,6 +75,7 @@ pub struct PollQuiz {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub media: Option<crate::types::PollMedia>,
 }
+
 impl PollQuiz {
     /// Creates a new `PollQuiz`.
     ///
@@ -546,65 +550,32 @@ impl PollQuiz {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for PollQuiz {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "PollQuiz",
-            fields: &[
-                "id",
-                "question",
-                "question_entities",
-                "options",
-                "total_voter_count",
-                "is_closed",
-                "is_anonymous",
-                "allows_multiple_answers",
-                "allows_revoting",
-                "members_only",
-                "country_codes",
-                "correct_option_ids",
-                "explanation",
-                "explanation_entities",
-                "explanation_media",
-                "open_period",
-                "close_date",
-                "description",
-                "description_entities",
-                "media",
-            ],
-            specific: &["correct_option_ids", "explanation", "explanation_media"],
-            sequence: "struct PollQuiz with 20 elements",
-        };
-        let (common, (value_correct_option_ids, value_explanation, value_explanation_media)) =
-            crate::deserialization::poll::read_0::<
-                D,
-                Option<Box<[i64]>>,
-                Option<Box<str>>,
-                Option<crate::types::PollMedia>,
-            >(deserializer, meta)?;
+        let decoded = decoder::deserialize_quiz(deserializer, &decoder::QUIZ)?;
         Ok(Self {
-            id: common.id,
-            question: common.question,
-            question_entities: common.question_entities,
-            options: common.options,
-            total_voter_count: common.total_voter_count,
-            is_closed: common.is_closed,
-            is_anonymous: common.is_anonymous,
-            allows_multiple_answers: common.allows_multiple_answers,
-            allows_revoting: common.allows_revoting,
-            members_only: common.members_only,
-            country_codes: common.country_codes,
-            correct_option_ids: value_correct_option_ids,
-            explanation: value_explanation,
-            explanation_entities: common.explanation_entities,
-            explanation_media: value_explanation_media,
-            open_period: common.open_period,
-            close_date: common.close_date,
-            description: common.description,
-            description_entities: common.description_entities,
-            media: common.media,
+            id: decoded.common.id,
+            question: decoded.common.question,
+            question_entities: decoded.common.question_entities,
+            options: decoded.common.options,
+            total_voter_count: decoded.common.total_voter_count,
+            is_closed: decoded.common.is_closed,
+            is_anonymous: decoded.common.is_anonymous,
+            allows_multiple_answers: decoded.common.allows_multiple_answers,
+            allows_revoting: decoded.common.allows_revoting,
+            members_only: decoded.common.members_only,
+            country_codes: decoded.common.country_codes,
+            correct_option_ids: decoded.correct_option_ids,
+            explanation: decoded.explanation,
+            explanation_entities: decoded.common.explanation_entities,
+            explanation_media: decoded.explanation_media,
+            open_period: decoded.common.open_period,
+            close_date: decoded.common.close_date,
+            description: decoded.common.description,
+            description_entities: decoded.common.description_entities,
+            media: decoded.common.media,
         })
     }
 }

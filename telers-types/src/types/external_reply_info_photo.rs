@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::external_reply_info as decoder;
+
 /// Message is a photo, available sizes of the photo
 /// # Notes
 /// This object represents an external reply info from original field `photo`.
@@ -28,6 +31,7 @@ pub struct ExternalReplyInfoPhoto {
     /// Message is a photo, available sizes of the photo
     pub photo: Box<[crate::types::PhotoSize]>,
 }
+
 impl ExternalReplyInfoPhoto {
     /// Creates a new `ExternalReplyInfoPhoto`.
     ///
@@ -155,34 +159,18 @@ impl ExternalReplyInfoPhoto {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ExternalReplyInfoPhoto {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ExternalReplyInfoPhoto",
-            fields: &[
-                "origin",
-                "chat",
-                "message_id",
-                "link_preview_options",
-                "has_media_spoiler",
-                "photo",
-            ],
-            specific: &["photo"],
-            sequence: "struct ExternalReplyInfoPhoto with 6 elements",
-        };
-        let (common, (value_photo,)) = crate::deserialization::external_reply_info::read_0::<
-            D,
-            Box<[crate::types::PhotoSize]>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::PHOTO)?;
         Ok(Self {
-            origin: common.origin,
-            chat: common.chat,
-            message_id: common.message_id,
-            link_preview_options: common.link_preview_options,
-            has_media_spoiler: common.has_media_spoiler,
-            photo: value_photo,
+            origin: decoded.common.origin,
+            chat: decoded.common.chat,
+            message_id: decoded.common.message_id,
+            link_preview_options: decoded.common.link_preview_options,
+            has_media_spoiler: decoded.common.has_media_spoiler,
+            photo: decoded.content,
         })
     }
 }

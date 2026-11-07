@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::transaction_partner_user as decoder;
+
 /// This object represents a/an business account transfer transaction partner user.
 /// # Notes
 /// This object represents a transaction partner user from original field `business_account_transfer`.
@@ -10,6 +13,7 @@ pub struct TransactionPartnerUserBusinessAccountTransfer {
     /// Information about the user
     pub user: Box<crate::types::User>,
 }
+
 impl TransactionPartnerUserBusinessAccountTransfer {
     /// Creates a new `TransactionPartnerUserBusinessAccountTransfer`.
     ///
@@ -29,19 +33,14 @@ impl TransactionPartnerUserBusinessAccountTransfer {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for TransactionPartnerUserBusinessAccountTransfer {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "TransactionPartnerUserBusinessAccountTransfer",
-            fields: &["user"],
-            specific: &[],
-            sequence: "struct TransactionPartnerUserBusinessAccountTransfer with 1 element",
-        };
-        let (common, ()) = crate::deserialization::chat_member::read_2::<D>(deserializer, meta)?;
+        let decoded =
+            decoder::deserialize_common(deserializer, &decoder::BUSINESS_ACCOUNT_TRANSFER)?;
         Ok(Self {
-            user: common.user,
+            user: decoded.user,
         })
     }
 }

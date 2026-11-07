@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::inline_query_result as decoder;
+
 /// Represents a Game.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultgame>
@@ -14,6 +17,7 @@ pub struct InlineQueryResultGame {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
 }
+
 impl InlineQueryResultGame {
     /// Creates a new `InlineQueryResultGame`.
     ///
@@ -63,22 +67,15 @@ impl InlineQueryResultGame {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InlineQueryResultGame {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InlineQueryResultGame",
-            fields: &["id", "game_short_name", "reply_markup"],
-            specific: &["game_short_name"],
-            sequence: "struct InlineQueryResultGame with 3 elements",
-        };
-        let (common, (value_game_short_name,)) =
-            crate::deserialization::inline_query_result::read_3::<D, Box<str>>(deserializer, meta)?;
+        let decoded = decoder::deserialize_game(deserializer, &decoder::GAME)?;
         Ok(Self {
-            id: common.id,
-            game_short_name: value_game_short_name,
-            reply_markup: common.reply_markup,
+            id: decoded.common.id,
+            game_short_name: decoded.game_short_name,
+            reply_markup: decoded.common.reply_markup,
         })
     }
 }

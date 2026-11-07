@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::giveaway_winners as decoder;
+
 /// This object represents a premium giveaway winners.
 /// # Notes
 /// This object represents giveaway winners from original field `premium`.
@@ -40,6 +43,7 @@ pub struct GiveawayWinnersPremium {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub prize_description: Option<Box<str>>,
 }
+
 impl GiveawayWinnersPremium {
     /// Creates a new `GiveawayWinnersPremium`.
     ///
@@ -220,42 +224,23 @@ impl GiveawayWinnersPremium {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for GiveawayWinnersPremium {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "GiveawayWinnersPremium",
-            fields: &[
-                "chat",
-                "giveaway_message_id",
-                "winners_selection_date",
-                "winner_count",
-                "winners",
-                "additional_chat_count",
-                "premium_subscription_month_count",
-                "unclaimed_prize_count",
-                "only_new_members",
-                "was_refunded",
-                "prize_description",
-            ],
-            specific: &["premium_subscription_month_count"],
-            sequence: "struct GiveawayWinnersPremium with 11 elements",
-        };
-        let (common, (value_premium_subscription_month_count,)) =
-            crate::deserialization::giveaway_winners::read_0::<D, i64>(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::PREMIUM)?;
         Ok(Self {
-            chat: common.chat,
-            giveaway_message_id: common.giveaway_message_id,
-            winners_selection_date: common.winners_selection_date,
-            winner_count: common.winner_count,
-            winners: common.winners,
-            additional_chat_count: common.additional_chat_count,
-            premium_subscription_month_count: value_premium_subscription_month_count,
-            unclaimed_prize_count: common.unclaimed_prize_count,
-            only_new_members: common.only_new_members,
-            was_refunded: common.was_refunded,
-            prize_description: common.prize_description,
+            chat: decoded.common.chat,
+            giveaway_message_id: decoded.common.giveaway_message_id,
+            winners_selection_date: decoded.common.winners_selection_date,
+            winner_count: decoded.common.winner_count,
+            winners: decoded.common.winners,
+            additional_chat_count: decoded.common.additional_chat_count,
+            premium_subscription_month_count: decoded.content,
+            unclaimed_prize_count: decoded.common.unclaimed_prize_count,
+            only_new_members: decoded.common.only_new_members,
+            was_refunded: decoded.common.was_refunded,
+            prize_description: decoded.common.prize_description,
         })
     }
 }

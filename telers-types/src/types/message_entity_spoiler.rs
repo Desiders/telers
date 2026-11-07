@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::message_entity as decoder;
+
 /// This object represents a/an spoiler message entity.
 /// # Notes
 /// This object represents a message entity from original field `spoiler`.
@@ -12,6 +15,7 @@ pub struct MessageEntitySpoiler {
     /// Length of the entity in UTF-16 code units
     pub length: i64,
 }
+
 impl MessageEntitySpoiler {
     /// Creates a new `MessageEntitySpoiler`.
     ///
@@ -40,20 +44,14 @@ impl MessageEntitySpoiler {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for MessageEntitySpoiler {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "MessageEntitySpoiler",
-            fields: &["offset", "length"],
-            specific: &[],
-            sequence: "struct MessageEntitySpoiler with 2 elements",
-        };
-        let (common, ()) = crate::deserialization::message_entity::read_0::<D>(deserializer, meta)?;
+        let decoded = decoder::deserialize_common(deserializer, &decoder::SPOILER)?;
         Ok(Self {
-            offset: common.offset,
-            length: common.length,
+            offset: decoded.offset,
+            length: decoded.length,
         })
     }
 }

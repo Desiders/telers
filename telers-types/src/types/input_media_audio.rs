@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::input_media as decoder;
+
 /// Represents an audio file to be treated as music to be sent.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmediaaudio>
@@ -36,6 +39,7 @@ pub struct InputMediaAudio {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub title: Option<Box<str>>,
 }
+
 impl InputMediaAudio {
     /// Creates a new `InputMediaAudio`.
     ///
@@ -196,42 +200,20 @@ impl InputMediaAudio {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InputMediaAudio {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InputMediaAudio",
-            fields: &[
-                "media",
-                "thumbnail",
-                "caption",
-                "parse_mode",
-                "caption_entities",
-                "duration",
-                "performer",
-                "title",
-            ],
-            specific: &["thumbnail", "duration", "performer", "title"],
-            sequence: "struct InputMediaAudio with 8 elements",
-        };
-        let (common, (value_thumbnail, value_duration, value_performer, value_title)) =
-            crate::deserialization::input_media::read_1::<
-                D,
-                Option<crate::types::InputFile>,
-                Option<i64>,
-                Option<Box<str>>,
-                Option<Box<str>>,
-            >(deserializer, meta)?;
+        let decoded = decoder::deserialize_audio(deserializer, &decoder::AUDIO)?;
         Ok(Self {
-            media: common.media,
-            thumbnail: value_thumbnail,
-            caption: common.caption,
-            parse_mode: common.parse_mode,
-            caption_entities: common.caption_entities,
-            duration: value_duration,
-            performer: value_performer,
-            title: value_title,
+            media: decoded.common.media,
+            thumbnail: decoded.thumbnail,
+            caption: decoded.common.caption,
+            parse_mode: decoded.common.parse_mode,
+            caption_entities: decoded.common.caption_entities,
+            duration: decoded.duration,
+            performer: decoded.performer,
+            title: decoded.title,
         })
     }
 }

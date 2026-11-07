@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::giveaway as decoder;
+
 /// This object represents a premium giveaway.
 /// # Notes
 /// This object represents a giveaway from original giveaway type `premium`.
@@ -32,6 +35,7 @@ pub struct GiveawayPremium {
     /// The number of months the Telegram Premium subscription won from the giveaway will be active for; for Telegram Premium giveaways only
     pub premium_subscription_month_count: i64,
 }
+
 impl GiveawayPremium {
     /// Creates a new `GiveawayPremium`.
     ///
@@ -205,36 +209,20 @@ impl GiveawayPremium {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for GiveawayPremium {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "GiveawayPremium",
-            fields: &[
-                "chats",
-                "winners_selection_date",
-                "winner_count",
-                "only_new_members",
-                "has_public_winners",
-                "prize_description",
-                "country_codes",
-                "premium_subscription_month_count",
-            ],
-            specific: &["premium_subscription_month_count"],
-            sequence: "struct GiveawayPremium with 8 elements",
-        };
-        let (common, (value_premium_subscription_month_count,)) =
-            crate::deserialization::giveaway::read_0::<D, i64>(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::PREMIUM)?;
         Ok(Self {
-            chats: common.chats,
-            winners_selection_date: common.winners_selection_date,
-            winner_count: common.winner_count,
-            only_new_members: common.only_new_members,
-            has_public_winners: common.has_public_winners,
-            prize_description: common.prize_description,
-            country_codes: common.country_codes,
-            premium_subscription_month_count: value_premium_subscription_month_count,
+            chats: decoded.common.chats,
+            winners_selection_date: decoded.common.winners_selection_date,
+            winner_count: decoded.common.winner_count,
+            only_new_members: decoded.common.only_new_members,
+            has_public_winners: decoded.common.has_public_winners,
+            prize_description: decoded.common.prize_description,
+            country_codes: decoded.common.country_codes,
+            premium_subscription_month_count: decoded.content,
         })
     }
 }

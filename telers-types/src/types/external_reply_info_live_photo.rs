@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::external_reply_info as decoder;
+
 /// Message is a live photo, information about the live photo
 /// # Notes
 /// This object represents an external reply info from original field `live_photo`.
@@ -28,6 +31,7 @@ pub struct ExternalReplyInfoLivePhoto {
     /// Message is a live photo, information about the live photo
     pub live_photo: crate::types::LivePhoto,
 }
+
 impl ExternalReplyInfoLivePhoto {
     /// Creates a new `ExternalReplyInfoLivePhoto`.
     ///
@@ -128,34 +132,18 @@ impl ExternalReplyInfoLivePhoto {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ExternalReplyInfoLivePhoto {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ExternalReplyInfoLivePhoto",
-            fields: &[
-                "origin",
-                "chat",
-                "message_id",
-                "link_preview_options",
-                "has_media_spoiler",
-                "live_photo",
-            ],
-            specific: &["live_photo"],
-            sequence: "struct ExternalReplyInfoLivePhoto with 6 elements",
-        };
-        let (common, (value_live_photo,)) = crate::deserialization::external_reply_info::read_0::<
-            D,
-            crate::types::LivePhoto,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::LIVE_PHOTO)?;
         Ok(Self {
-            origin: common.origin,
-            chat: common.chat,
-            message_id: common.message_id,
-            link_preview_options: common.link_preview_options,
-            has_media_spoiler: common.has_media_spoiler,
-            live_photo: value_live_photo,
+            origin: decoded.common.origin,
+            chat: decoded.common.chat,
+            message_id: decoded.common.message_id,
+            link_preview_options: decoded.common.link_preview_options,
+            has_media_spoiler: decoded.common.has_media_spoiler,
+            live_photo: decoded.content,
         })
     }
 }

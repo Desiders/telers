@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::passport_element_error as decoder;
+
 /// Represents an issue with the translated version of a document. The error is considered resolved when a file with the document translation change.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerrortranslationfiles>
@@ -12,6 +15,7 @@ pub struct PassportElementErrorTranslationFiles {
     /// Error message
     pub message: Box<str>,
 }
+
 impl PassportElementErrorTranslationFiles {
     /// Creates a new `PassportElementErrorTranslationFiles`.
     ///
@@ -81,25 +85,15 @@ impl PassportElementErrorTranslationFiles {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for PassportElementErrorTranslationFiles {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "PassportElementErrorTranslationFiles",
-            fields: &["type", "file_hashes", "message"],
-            specific: &["file_hashes"],
-            sequence: "struct PassportElementErrorTranslationFiles with 3 elements",
-        };
-        let (common, (value_file_hashes,)) =
-            crate::deserialization::passport_element_error::read_1::<D, Box<[Box<str>]>>(
-                deserializer,
-                meta,
-            )?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::TRANSLATION_FILES)?;
         Ok(Self {
-            r#type: common.r#type,
-            file_hashes: value_file_hashes,
-            message: common.message,
+            r#type: decoded.common.r#type,
+            file_hashes: decoded.content,
+            message: decoded.common.message,
         })
     }
 }

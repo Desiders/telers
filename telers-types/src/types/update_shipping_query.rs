@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// New incoming shipping query. Only for invoices with flexible price.
 /// # Notes
 /// This object represents an update from original update field `shipping_query`.
@@ -12,6 +15,7 @@ pub struct UpdateShippingQuery {
     /// New incoming shipping query. Only for invoices with flexible price.
     pub shipping_query: crate::types::ShippingQuery,
 }
+
 impl UpdateShippingQuery {
     /// Creates a new `UpdateShippingQuery`.
     ///
@@ -43,28 +47,20 @@ impl UpdateShippingQuery {
         self
     }
 }
+
 impl From<UpdateShippingQuery> for crate::types::ShippingQuery {
     fn from(val: UpdateShippingQuery) -> Self {
         val.shipping_query
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdateShippingQuery {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdateShippingQuery",
-            fields: &["update_id", "shipping_query"],
-            specific: &["shipping_query"],
-            sequence: "struct UpdateShippingQuery with 2 elements",
-        };
-        let (common, (value_shipping_query,)) = crate::deserialization::update::read_0::<
-            D,
-            crate::types::ShippingQuery,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::SHIPPING_QUERY)?;
         Ok(Self {
-            update_id: common.update_id,
-            shipping_query: value_shipping_query,
+            update_id: decoded.common.update_id,
+            shipping_query: decoded.content,
         })
     }
 }

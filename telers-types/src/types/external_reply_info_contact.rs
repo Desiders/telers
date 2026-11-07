@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::external_reply_info as decoder;
+
 /// Message is a shared contact, information about the contact
 /// # Notes
 /// This object represents an external reply info from original field `contact`.
@@ -28,6 +31,7 @@ pub struct ExternalReplyInfoContact {
     /// Message is a shared contact, information about the contact
     pub contact: crate::types::Contact,
 }
+
 impl ExternalReplyInfoContact {
     /// Creates a new `ExternalReplyInfoContact`.
     ///
@@ -128,34 +132,18 @@ impl ExternalReplyInfoContact {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ExternalReplyInfoContact {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ExternalReplyInfoContact",
-            fields: &[
-                "origin",
-                "chat",
-                "message_id",
-                "link_preview_options",
-                "has_media_spoiler",
-                "contact",
-            ],
-            specific: &["contact"],
-            sequence: "struct ExternalReplyInfoContact with 6 elements",
-        };
-        let (common, (value_contact,)) = crate::deserialization::external_reply_info::read_0::<
-            D,
-            crate::types::Contact,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::CONTACT)?;
         Ok(Self {
-            origin: common.origin,
-            chat: common.chat,
-            message_id: common.message_id,
-            link_preview_options: common.link_preview_options,
-            has_media_spoiler: common.has_media_spoiler,
-            contact: value_contact,
+            origin: decoded.common.origin,
+            chat: decoded.common.chat,
+            message_id: decoded.common.message_id,
+            link_preview_options: decoded.common.link_preview_options,
+            has_media_spoiler: decoded.common.has_media_spoiler,
+            contact: decoded.content,
         })
     }
 }

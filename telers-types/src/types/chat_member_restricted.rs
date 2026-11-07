@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::chat_member as decoder;
+
 /// Represents a chat member that is under certain restrictions in the chat. Supergroups only.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberrestricted>
@@ -48,6 +51,7 @@ pub struct ChatMemberRestricted {
     /// Date when restrictions will be lifted for this user; Unix time. If 0, then the user is restricted forever.
     pub until_date: i64,
 }
+
 impl ChatMemberRestricted {
     /// Creates a new `ChatMemberRestricted`.
     ///
@@ -287,123 +291,32 @@ impl ChatMemberRestricted {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ChatMemberRestricted {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ChatMemberRestricted",
-            fields: &[
-                "tag",
-                "user",
-                "is_member",
-                "can_send_messages",
-                "can_send_audios",
-                "can_send_documents",
-                "can_send_photos",
-                "can_send_videos",
-                "can_send_video_notes",
-                "can_send_voice_notes",
-                "can_send_polls",
-                "can_send_other_messages",
-                "can_add_web_page_previews",
-                "can_react_to_messages",
-                "can_edit_tag",
-                "can_change_info",
-                "can_invite_users",
-                "can_pin_messages",
-                "can_manage_topics",
-                "until_date",
-            ],
-            specific: &[
-                "tag",
-                "is_member",
-                "can_send_messages",
-                "can_send_audios",
-                "can_send_documents",
-                "can_send_photos",
-                "can_send_videos",
-                "can_send_video_notes",
-                "can_send_voice_notes",
-                "can_send_polls",
-                "can_send_other_messages",
-                "can_add_web_page_previews",
-                "can_react_to_messages",
-                "can_edit_tag",
-                "can_change_info",
-                "can_invite_users",
-                "can_pin_messages",
-                "can_manage_topics",
-                "until_date",
-            ],
-            sequence: "struct ChatMemberRestricted with 20 elements",
-        };
-        let (
-            common,
-            (
-                value_tag,
-                value_is_member,
-                value_can_send_messages,
-                value_can_send_audios,
-                value_can_send_documents,
-                value_can_send_photos,
-                value_can_send_videos,
-                value_can_send_video_notes,
-                value_can_send_voice_notes,
-                value_can_send_polls,
-                value_can_send_other_messages,
-                value_can_add_web_page_previews,
-                value_can_react_to_messages,
-                value_can_edit_tag,
-                value_can_change_info,
-                value_can_invite_users,
-                value_can_pin_messages,
-                value_can_manage_topics,
-                value_until_date,
-            ),
-        ) = crate::deserialization::chat_member::read_5::<
-            D,
-            Option<Box<str>>,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            bool,
-            i64,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_restricted(deserializer, &decoder::RESTRICTED)?;
         Ok(Self {
-            tag: value_tag,
-            user: common.user,
-            is_member: value_is_member,
-            can_send_messages: value_can_send_messages,
-            can_send_audios: value_can_send_audios,
-            can_send_documents: value_can_send_documents,
-            can_send_photos: value_can_send_photos,
-            can_send_videos: value_can_send_videos,
-            can_send_video_notes: value_can_send_video_notes,
-            can_send_voice_notes: value_can_send_voice_notes,
-            can_send_polls: value_can_send_polls,
-            can_send_other_messages: value_can_send_other_messages,
-            can_add_web_page_previews: value_can_add_web_page_previews,
-            can_react_to_messages: value_can_react_to_messages,
-            can_edit_tag: value_can_edit_tag,
-            can_change_info: value_can_change_info,
-            can_invite_users: value_can_invite_users,
-            can_pin_messages: value_can_pin_messages,
-            can_manage_topics: value_can_manage_topics,
-            until_date: value_until_date,
+            tag: decoded.tag,
+            user: decoded.common.user,
+            is_member: decoded.is_member,
+            can_send_messages: decoded.can_send_messages,
+            can_send_audios: decoded.can_send_audios,
+            can_send_documents: decoded.can_send_documents,
+            can_send_photos: decoded.can_send_photos,
+            can_send_videos: decoded.can_send_videos,
+            can_send_video_notes: decoded.can_send_video_notes,
+            can_send_voice_notes: decoded.can_send_voice_notes,
+            can_send_polls: decoded.can_send_polls,
+            can_send_other_messages: decoded.can_send_other_messages,
+            can_add_web_page_previews: decoded.can_add_web_page_previews,
+            can_react_to_messages: decoded.can_react_to_messages,
+            can_edit_tag: decoded.can_edit_tag,
+            can_change_info: decoded.can_change_info,
+            can_invite_users: decoded.can_invite_users,
+            can_pin_messages: decoded.can_pin_messages,
+            can_manage_topics: decoded.can_manage_topics,
+            until_date: decoded.until_date,
         })
     }
 }

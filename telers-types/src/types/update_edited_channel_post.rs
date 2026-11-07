@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// New version of a channel post that is known to the bot and was edited. This update may at times be triggered by changes to message fields that are either unavailable or not actively used by your bot.
 /// # Notes
 /// This object represents an update from original update field `edited_channel_post`.
@@ -12,6 +15,7 @@ pub struct UpdateEditedChannelPost {
     /// New version of a channel post that is known to the bot and was edited. This update may at times be triggered by changes to message fields that are either unavailable or not actively used by your bot.
     pub edited_channel_post: Box<crate::types::Message>,
 }
+
 impl UpdateEditedChannelPost {
     /// Creates a new `UpdateEditedChannelPost`.
     ///
@@ -43,28 +47,20 @@ impl UpdateEditedChannelPost {
         self
     }
 }
+
 impl From<UpdateEditedChannelPost> for crate::types::Message {
     fn from(val: UpdateEditedChannelPost) -> Self {
         *val.edited_channel_post
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdateEditedChannelPost {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdateEditedChannelPost",
-            fields: &["update_id", "edited_channel_post"],
-            specific: &["edited_channel_post"],
-            sequence: "struct UpdateEditedChannelPost with 2 elements",
-        };
-        let (common, (value_edited_channel_post,)) = crate::deserialization::update::read_0::<
-            D,
-            Box<crate::types::Message>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::EDITED_CHANNEL_POST)?;
         Ok(Self {
-            update_id: common.update_id,
-            edited_channel_post: value_edited_channel_post,
+            update_id: decoded.common.update_id,
+            edited_channel_post: decoded.content,
         })
     }
 }

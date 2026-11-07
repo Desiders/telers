@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::encrypted_passport_element as decoder;
+
 /// This object represents a/an passport registration encrypted passport element.
 /// # Notes
 /// This object represents an encrypted passport element from original field `passport_registration`.
@@ -16,6 +19,7 @@ pub struct EncryptedPassportElementPassportRegistration {
     /// Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
     pub hash: Box<str>,
 }
+
 impl EncryptedPassportElementPassportRegistration {
     /// Creates a new `EncryptedPassportElementPassportRegistration`.
     ///
@@ -125,26 +129,15 @@ impl EncryptedPassportElementPassportRegistration {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for EncryptedPassportElementPassportRegistration {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "EncryptedPassportElementPassportRegistration",
-            fields: &["files", "translation", "hash"],
-            specific: &["files", "translation"],
-            sequence: "struct EncryptedPassportElementPassportRegistration with 3 elements",
-        };
-        let (common, (value_files, value_translation)) =
-            crate::deserialization::encrypted_passport_element::read_1::<
-                D,
-                Box<[crate::types::PassportFile]>,
-                Option<Box<[crate::types::PassportFile]>>,
-            >(deserializer, meta)?;
+        let decoded = decoder::deserialize_files(deserializer, &decoder::PASSPORT_REGISTRATION)?;
         Ok(Self {
-            files: value_files,
-            translation: value_translation,
-            hash: common.hash,
+            files: decoded.files,
+            translation: decoded.translation,
+            hash: decoded.common.hash,
         })
     }
 }

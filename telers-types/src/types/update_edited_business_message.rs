@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// New version of a message from a connected business account
 /// # Notes
 /// This object represents an update from original update field `edited_business_message`.
@@ -12,6 +15,7 @@ pub struct UpdateEditedBusinessMessage {
     /// New version of a message from a connected business account
     pub edited_business_message: Box<crate::types::Message>,
 }
+
 impl UpdateEditedBusinessMessage {
     /// Creates a new `UpdateEditedBusinessMessage`.
     ///
@@ -43,28 +47,20 @@ impl UpdateEditedBusinessMessage {
         self
     }
 }
+
 impl From<UpdateEditedBusinessMessage> for crate::types::Message {
     fn from(val: UpdateEditedBusinessMessage) -> Self {
         *val.edited_business_message
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdateEditedBusinessMessage {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdateEditedBusinessMessage",
-            fields: &["update_id", "edited_business_message"],
-            specific: &["edited_business_message"],
-            sequence: "struct UpdateEditedBusinessMessage with 2 elements",
-        };
-        let (common, (value_edited_business_message,)) = crate::deserialization::update::read_0::<
-            D,
-            Box<crate::types::Message>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::EDITED_BUSINESS_MESSAGE)?;
         Ok(Self {
-            update_id: common.update_id,
-            edited_business_message: value_edited_business_message,
+            update_id: decoded.common.update_id,
+            edited_business_message: decoded.content,
         })
     }
 }

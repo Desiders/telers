@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::external_reply_info as decoder;
+
 /// Message is an invoice for a payment, information about the invoice. More about payments: <https://core.telegram.org/bots/api#payments>
 /// # Notes
 /// This object represents an external reply info from original field `invoice`.
@@ -28,6 +31,7 @@ pub struct ExternalReplyInfoInvoice {
     /// Message is an invoice for a payment, information about the invoice. More about payments: <https://core.telegram.org/bots/api#payments>
     pub invoice: crate::types::Invoice,
 }
+
 impl ExternalReplyInfoInvoice {
     /// Creates a new `ExternalReplyInfoInvoice`.
     ///
@@ -128,34 +132,18 @@ impl ExternalReplyInfoInvoice {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ExternalReplyInfoInvoice {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ExternalReplyInfoInvoice",
-            fields: &[
-                "origin",
-                "chat",
-                "message_id",
-                "link_preview_options",
-                "has_media_spoiler",
-                "invoice",
-            ],
-            specific: &["invoice"],
-            sequence: "struct ExternalReplyInfoInvoice with 6 elements",
-        };
-        let (common, (value_invoice,)) = crate::deserialization::external_reply_info::read_0::<
-            D,
-            crate::types::Invoice,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::INVOICE)?;
         Ok(Self {
-            origin: common.origin,
-            chat: common.chat,
-            message_id: common.message_id,
-            link_preview_options: common.link_preview_options,
-            has_media_spoiler: common.has_media_spoiler,
-            invoice: value_invoice,
+            origin: decoded.common.origin,
+            chat: decoded.common.chat,
+            message_id: decoded.common.message_id,
+            link_preview_options: decoded.common.link_preview_options,
+            has_media_spoiler: decoded.common.has_media_spoiler,
+            invoice: decoded.content,
         })
     }
 }

@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::external_reply_info as decoder;
+
 /// Message is a sticker, information about the sticker
 /// # Notes
 /// This object represents an external reply info from original field `sticker`.
@@ -28,6 +31,7 @@ pub struct ExternalReplyInfoSticker {
     /// Message is a sticker, information about the sticker
     pub sticker: Box<crate::types::Sticker>,
 }
+
 impl ExternalReplyInfoSticker {
     /// Creates a new `ExternalReplyInfoSticker`.
     ///
@@ -128,34 +132,18 @@ impl ExternalReplyInfoSticker {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ExternalReplyInfoSticker {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ExternalReplyInfoSticker",
-            fields: &[
-                "origin",
-                "chat",
-                "message_id",
-                "link_preview_options",
-                "has_media_spoiler",
-                "sticker",
-            ],
-            specific: &["sticker"],
-            sequence: "struct ExternalReplyInfoSticker with 6 elements",
-        };
-        let (common, (value_sticker,)) = crate::deserialization::external_reply_info::read_0::<
-            D,
-            Box<crate::types::Sticker>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::STICKER)?;
         Ok(Self {
-            origin: common.origin,
-            chat: common.chat,
-            message_id: common.message_id,
-            link_preview_options: common.link_preview_options,
-            has_media_spoiler: common.has_media_spoiler,
-            sticker: value_sticker,
+            origin: decoded.common.origin,
+            chat: decoded.common.chat,
+            message_id: decoded.common.message_id,
+            link_preview_options: decoded.common.link_preview_options,
+            has_media_spoiler: decoded.common.has_media_spoiler,
+            sticker: decoded.content,
         })
     }
 }

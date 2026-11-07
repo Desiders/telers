@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::chat as decoder;
+
 /// This object represents a group chat.
 /// # Notes
 /// This object represents a chat from original chat type `group`.
@@ -18,6 +21,7 @@ pub struct ChatGroup {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_direct_messages: Option<bool>,
 }
+
 impl ChatGroup {
     /// Creates a new `ChatGroup`.
     ///
@@ -70,22 +74,15 @@ impl ChatGroup {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ChatGroup {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ChatGroup",
-            fields: &["id", "title", "is_direct_messages"],
-            specific: &["title"],
-            sequence: "struct ChatGroup with 3 elements",
-        };
-        let (common, (value_title,)) =
-            crate::deserialization::chat::read_1::<D, Option<Box<str>>>(deserializer, meta)?;
+        let decoded = decoder::deserialize_group(deserializer, &decoder::GROUP)?;
         Ok(Self {
-            id: common.id,
-            title: value_title,
-            is_direct_messages: common.is_direct_messages,
+            id: decoded.common.id,
+            title: decoded.title,
+            is_direct_messages: decoded.common.is_direct_messages,
         })
     }
 }

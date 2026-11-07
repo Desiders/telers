@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::encrypted_passport_element as decoder;
+
 /// This object represents a/an identity card encrypted passport element.
 /// # Notes
 /// This object represents an encrypted passport element from original field `identity_card`.
@@ -24,6 +27,7 @@ pub struct EncryptedPassportElementIdentityCard {
     /// Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
     pub hash: Box<str>,
 }
+
 impl EncryptedPassportElementIdentityCard {
     /// Creates a new `EncryptedPassportElementIdentityCard`.
     ///
@@ -146,47 +150,21 @@ impl EncryptedPassportElementIdentityCard {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for EncryptedPassportElementIdentityCard {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "EncryptedPassportElementIdentityCard",
-            fields: &[
-                "data",
-                "front_side",
-                "reverse_side",
-                "selfie",
-                "translation",
-                "hash",
-            ],
-            specific: &[
-                "data",
-                "front_side",
-                "reverse_side",
-                "selfie",
-                "translation",
-            ],
-            sequence: "struct EncryptedPassportElementIdentityCard with 6 elements",
-        };
-        let (
-            common,
-            (value_data, value_front_side, value_reverse_side, value_selfie, value_translation),
-        ) = crate::deserialization::encrypted_passport_element::read_2::<
-            D,
-            Box<str>,
-            crate::types::PassportFile,
-            crate::types::PassportFile,
-            Option<crate::types::PassportFile>,
-            Option<Box<[crate::types::PassportFile]>>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_driver_license_or_identity_card(
+            deserializer,
+            &decoder::IDENTITY_CARD,
+        )?;
         Ok(Self {
-            data: value_data,
-            front_side: value_front_side,
-            reverse_side: value_reverse_side,
-            selfie: value_selfie,
-            translation: value_translation,
-            hash: common.hash,
+            data: decoded.data,
+            front_side: decoded.front_side,
+            reverse_side: decoded.reverse_side,
+            selfie: decoded.selfie,
+            translation: decoded.translation,
+            hash: decoded.common.hash,
         })
     }
 }

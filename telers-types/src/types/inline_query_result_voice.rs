@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::inline_query_result_voice_kind as decoder;
+
 /// Represents a link to a voice recording in an .OGG container encoded with OPUS. By default, this voice recording will be sent by the user. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the the voice message.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultvoice>
@@ -36,6 +39,7 @@ pub struct InlineQueryResultVoice {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub input_message_content: Option<crate::types::InputMessageContent>,
 }
+
 impl InlineQueryResultVoice {
     /// Creates a new `InlineQueryResultVoice`.
     ///
@@ -212,42 +216,21 @@ impl InlineQueryResultVoice {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InlineQueryResultVoice {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InlineQueryResultVoice",
-            fields: &[
-                "id",
-                "voice_url",
-                "title",
-                "caption",
-                "parse_mode",
-                "caption_entities",
-                "voice_duration",
-                "reply_markup",
-                "input_message_content",
-            ],
-            specific: &["voice_url", "voice_duration"],
-            sequence: "struct InlineQueryResultVoice with 9 elements",
-        };
-        let (common, (value_voice_url, value_voice_duration)) =
-            crate::deserialization::inline_query_result_voice_kind::read_1::<
-                D,
-                Box<str>,
-                Option<i64>,
-            >(deserializer, meta)?;
+        let decoded = decoder::deserialize_voice(deserializer, &decoder::VOICE)?;
         Ok(Self {
-            id: common.id,
-            voice_url: value_voice_url,
-            title: common.title,
-            caption: common.caption,
-            parse_mode: common.parse_mode,
-            caption_entities: common.caption_entities,
-            voice_duration: value_voice_duration,
-            reply_markup: common.reply_markup,
-            input_message_content: common.input_message_content,
+            id: decoded.common.id,
+            voice_url: decoded.voice_url,
+            title: decoded.common.title,
+            caption: decoded.common.caption,
+            parse_mode: decoded.common.parse_mode,
+            caption_entities: decoded.common.caption_entities,
+            voice_duration: decoded.voice_duration,
+            reply_markup: decoded.common.reply_markup,
+            input_message_content: decoded.common.input_message_content,
         })
     }
 }

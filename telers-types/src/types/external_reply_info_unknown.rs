@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::external_reply_info as decoder;
+
 /// Message is a text message or a message with content unknown to the library
 /// # Notes
 /// This object represents an external reply info without a content field; the quoted part of the original message is available in the message's `quote` field.
@@ -26,6 +29,7 @@ pub struct ExternalReplyInfoUnknown {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub has_media_spoiler: Option<bool>,
 }
+
 impl ExternalReplyInfoUnknown {
     /// Creates a new `ExternalReplyInfoUnknown`.
     ///
@@ -114,30 +118,17 @@ impl ExternalReplyInfoUnknown {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for ExternalReplyInfoUnknown {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "ExternalReplyInfoUnknown",
-            fields: &[
-                "origin",
-                "chat",
-                "message_id",
-                "link_preview_options",
-                "has_media_spoiler",
-            ],
-            specific: &[],
-            sequence: "struct ExternalReplyInfoUnknown with 5 elements",
-        };
-        let (common, ()) =
-            crate::deserialization::external_reply_info::read_1::<D>(deserializer, meta)?;
+        let decoded = decoder::deserialize_common(deserializer, &decoder::UNKNOWN)?;
         Ok(Self {
-            origin: common.origin,
-            chat: common.chat,
-            message_id: common.message_id,
-            link_preview_options: common.link_preview_options,
-            has_media_spoiler: common.has_media_spoiler,
+            origin: decoded.origin,
+            chat: decoded.chat,
+            message_id: decoded.message_id,
+            link_preview_options: decoded.link_preview_options,
+            has_media_spoiler: decoded.has_media_spoiler,
         })
     }
 }

@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// New incoming inline query
 /// # Notes
 /// This object represents an update from original update field `inline_query`.
@@ -12,6 +15,7 @@ pub struct UpdateInlineQuery {
     /// New incoming inline query
     pub inline_query: crate::types::InlineQuery,
 }
+
 impl UpdateInlineQuery {
     /// Creates a new `UpdateInlineQuery`.
     ///
@@ -43,28 +47,20 @@ impl UpdateInlineQuery {
         self
     }
 }
+
 impl From<UpdateInlineQuery> for crate::types::InlineQuery {
     fn from(val: UpdateInlineQuery) -> Self {
         val.inline_query
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdateInlineQuery {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdateInlineQuery",
-            fields: &["update_id", "inline_query"],
-            specific: &["inline_query"],
-            sequence: "struct UpdateInlineQuery with 2 elements",
-        };
-        let (common, (value_inline_query,)) = crate::deserialization::update::read_0::<
-            D,
-            crate::types::InlineQuery,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::INLINE_QUERY)?;
         Ok(Self {
-            update_id: common.update_id,
-            inline_query: value_inline_query,
+            update_id: decoded.common.update_id,
+            inline_query: decoded.content,
         })
     }
 }

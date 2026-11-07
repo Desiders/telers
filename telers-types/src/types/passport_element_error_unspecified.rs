@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::passport_element_error as decoder;
+
 /// Represents an issue in an unspecified place. The error is considered resolved when new data is added.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerrorunspecified>
@@ -12,6 +15,7 @@ pub struct PassportElementErrorUnspecified {
     /// Error message
     pub message: Box<str>,
 }
+
 impl PassportElementErrorUnspecified {
     /// Creates a new `PassportElementErrorUnspecified`.
     ///
@@ -53,25 +57,15 @@ impl PassportElementErrorUnspecified {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for PassportElementErrorUnspecified {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "PassportElementErrorUnspecified",
-            fields: &["type", "element_hash", "message"],
-            specific: &["element_hash"],
-            sequence: "struct PassportElementErrorUnspecified with 3 elements",
-        };
-        let (common, (value_element_hash,)) =
-            crate::deserialization::passport_element_error::read_1::<D, Box<str>>(
-                deserializer,
-                meta,
-            )?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::UNSPECIFIED)?;
         Ok(Self {
-            r#type: common.r#type,
-            element_hash: value_element_hash,
-            message: common.message,
+            r#type: decoded.common.r#type,
+            element_hash: decoded.content,
+            message: decoded.common.message,
         })
     }
 }

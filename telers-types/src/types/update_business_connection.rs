@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// The bot was connected to or disconnected from a business account, or a user edited an existing connection with the bot
 /// # Notes
 /// This object represents an update from original update field `business_connection`.
@@ -12,6 +15,7 @@ pub struct UpdateBusinessConnection {
     /// The bot was connected to or disconnected from a business account, or a user edited an existing connection with the bot
     pub business_connection: crate::types::BusinessConnection,
 }
+
 impl UpdateBusinessConnection {
     /// Creates a new `UpdateBusinessConnection`.
     ///
@@ -46,28 +50,20 @@ impl UpdateBusinessConnection {
         self
     }
 }
+
 impl From<UpdateBusinessConnection> for crate::types::BusinessConnection {
     fn from(val: UpdateBusinessConnection) -> Self {
         val.business_connection
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdateBusinessConnection {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdateBusinessConnection",
-            fields: &["update_id", "business_connection"],
-            specific: &["business_connection"],
-            sequence: "struct UpdateBusinessConnection with 2 elements",
-        };
-        let (common, (value_business_connection,)) = crate::deserialization::update::read_0::<
-            D,
-            crate::types::BusinessConnection,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::BUSINESS_CONNECTION)?;
         Ok(Self {
-            update_id: common.update_id,
-            business_connection: value_business_connection,
+            update_id: decoded.common.update_id,
+            business_connection: decoded.content,
         })
     }
 }

@@ -3,6 +3,7 @@
 use crate::{
     file::camel_to_filename,
     generator::{
+        deserialization::DeserializeImplementation,
         doc_utils::{
             collect_telegram_type_names, link_known_method_mentions, link_known_type_mentions,
             link_prefixed_type_mentions, link_subtype_mentions, normalize_doc_line_prefix,
@@ -1414,13 +1415,16 @@ pub fn tokenize_type(
     schema: &NormalizedSchema,
     known_schema_type_names: &HashSet<String>,
     known_api_method_names: &HashMap<String, String>,
-    deserializer: Option<&TokenStream>,
+    deserializer: Option<&DeserializeImplementation>,
 ) -> TokenStream {
     let ctx = TypeDocContext {
         schema_type_names: known_schema_type_names,
         api_method_names: known_api_method_names,
     };
     let mut import_quotes = vec![];
+    if let Some(deserializer) = deserializer {
+        import_quotes.push(deserializer.import.clone());
+    }
     if type_quote.has_extra_fields && type_quote.subtypes.is_empty() {
         import_quotes.push(quote! { use std::collections::BTreeMap; });
     }
@@ -1430,6 +1434,7 @@ pub fn tokenize_type(
     let type_definition = tokenize_type_definition(type_quote, &ctx, deserializer.is_some());
     let builder_impls = builder_impl_for_type(type_quote, &ctx);
     let helper_impls = get_helper_impls_for_type(type_quote, schema, &ctx);
+    let deserializer = deserializer.map(|implementation| &implementation.body);
 
     quote! {
         #( #import_quotes )*

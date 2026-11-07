@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::inline_query_result_document_kind as decoder;
+
 /// Represents a link to a file stored on the Telegram servers. By default, this file will be sent by the user with an optional caption. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the file.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultcacheddocument>
@@ -36,6 +39,7 @@ pub struct InlineQueryResultCachedDocument {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub input_message_content: Option<crate::types::InputMessageContent>,
 }
+
 impl InlineQueryResultCachedDocument {
     /// Creates a new `InlineQueryResultCachedDocument`.
     ///
@@ -212,41 +216,22 @@ impl InlineQueryResultCachedDocument {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InlineQueryResultCachedDocument {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InlineQueryResultCachedDocument",
-            fields: &[
-                "id",
-                "title",
-                "document_file_id",
-                "description",
-                "caption",
-                "parse_mode",
-                "caption_entities",
-                "reply_markup",
-                "input_message_content",
-            ],
-            specific: &["document_file_id"],
-            sequence: "struct InlineQueryResultCachedDocument with 9 elements",
-        };
-        let (common, (value_document_file_id,)) =
-            crate::deserialization::inline_query_result_document_kind::read_0::<D, Box<str>>(
-                deserializer,
-                meta,
-            )?;
+        let decoded =
+            decoder::deserialize_cached_document(deserializer, &decoder::CACHED_DOCUMENT)?;
         Ok(Self {
-            id: common.id,
-            title: common.title,
-            document_file_id: value_document_file_id,
-            description: common.description,
-            caption: common.caption,
-            parse_mode: common.parse_mode,
-            caption_entities: common.caption_entities,
-            reply_markup: common.reply_markup,
-            input_message_content: common.input_message_content,
+            id: decoded.common.id,
+            title: decoded.common.title,
+            document_file_id: decoded.document_file_id,
+            description: decoded.common.description,
+            caption: decoded.common.caption,
+            parse_mode: decoded.common.parse_mode,
+            caption_entities: decoded.common.caption_entities,
+            reply_markup: decoded.common.reply_markup,
+            input_message_content: decoded.common.input_message_content,
         })
     }
 }

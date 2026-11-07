@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// User payment subscription has changed
 /// # Notes
 /// This object represents an update from original update field `subscription`.
@@ -12,6 +15,7 @@ pub struct UpdateSubscription {
     /// User payment subscription has changed
     pub subscription: crate::types::BotSubscriptionUpdated,
 }
+
 impl UpdateSubscription {
     /// Creates a new `UpdateSubscription`.
     ///
@@ -43,28 +47,20 @@ impl UpdateSubscription {
         self
     }
 }
+
 impl From<UpdateSubscription> for crate::types::BotSubscriptionUpdated {
     fn from(val: UpdateSubscription) -> Self {
         val.subscription
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdateSubscription {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdateSubscription",
-            fields: &["update_id", "subscription"],
-            specific: &["subscription"],
-            sequence: "struct UpdateSubscription with 2 elements",
-        };
-        let (common, (value_subscription,)) = crate::deserialization::update::read_0::<
-            D,
-            crate::types::BotSubscriptionUpdated,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::SUBSCRIPTION)?;
         Ok(Self {
-            update_id: common.update_id,
-            subscription: value_subscription,
+            update_id: decoded.common.update_id,
+            subscription: decoded.content,
         })
     }
 }

@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::inline_query_result_audio_kind as decoder;
+
 /// Represents a link to an MP3 audio file. By default, this audio file will be sent by the user. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the audio.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultaudio>
@@ -40,6 +43,7 @@ pub struct InlineQueryResultAudio {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub input_message_content: Option<crate::types::InputMessageContent>,
 }
+
 impl InlineQueryResultAudio {
     /// Creates a new `InlineQueryResultAudio`.
     ///
@@ -231,46 +235,22 @@ impl InlineQueryResultAudio {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for InlineQueryResultAudio {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "InlineQueryResultAudio",
-            fields: &[
-                "id",
-                "audio_url",
-                "title",
-                "caption",
-                "parse_mode",
-                "caption_entities",
-                "performer",
-                "audio_duration",
-                "reply_markup",
-                "input_message_content",
-            ],
-            specific: &["audio_url", "title", "performer", "audio_duration"],
-            sequence: "struct InlineQueryResultAudio with 10 elements",
-        };
-        let (common, (value_audio_url, value_title, value_performer, value_audio_duration)) =
-            crate::deserialization::inline_query_result_audio_kind::read_0::<
-                D,
-                Box<str>,
-                Box<str>,
-                Option<Box<str>>,
-                Option<i64>,
-            >(deserializer, meta)?;
+        let decoded = decoder::deserialize_audio(deserializer, &decoder::AUDIO)?;
         Ok(Self {
-            id: common.id,
-            audio_url: value_audio_url,
-            title: value_title,
-            caption: common.caption,
-            parse_mode: common.parse_mode,
-            caption_entities: common.caption_entities,
-            performer: value_performer,
-            audio_duration: value_audio_duration,
-            reply_markup: common.reply_markup,
-            input_message_content: common.input_message_content,
+            id: decoded.common.id,
+            audio_url: decoded.audio_url,
+            title: decoded.title,
+            caption: decoded.common.caption,
+            parse_mode: decoded.common.parse_mode,
+            caption_entities: decoded.common.caption_entities,
+            performer: decoded.performer,
+            audio_duration: decoded.audio_duration,
+            reply_markup: decoded.common.reply_markup,
+            input_message_content: decoded.common.input_message_content,
         })
     }
 }

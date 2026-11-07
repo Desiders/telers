@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::message_entity as decoder;
+
 /// This object represents a/an pre message entity.
 /// # Notes
 /// This object represents a message entity from original field `pre`.
@@ -16,6 +19,7 @@ pub struct MessageEntityPre {
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub language: Option<Box<str>>,
 }
+
 impl MessageEntityPre {
     /// Creates a new `MessageEntityPre`.
     ///
@@ -62,24 +66,15 @@ impl MessageEntityPre {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for MessageEntityPre {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "MessageEntityPre",
-            fields: &["offset", "length", "language"],
-            specific: &["language"],
-            sequence: "struct MessageEntityPre with 3 elements",
-        };
-        let (common, (value_language,)) = crate::deserialization::message_entity::read_3::<
-            D,
-            Option<Box<str>>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize_pre(deserializer, &decoder::PRE)?;
         Ok(Self {
-            offset: common.offset,
-            length: common.length,
-            language: value_language,
+            offset: decoded.common.offset,
+            length: decoded.common.length,
+            language: decoded.language,
         })
     }
 }

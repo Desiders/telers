@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::encrypted_passport_element as decoder;
+
 /// This object represents a/an phone number encrypted passport element.
 /// # Notes
 /// This object represents an encrypted passport element from original field `phone_number`.
@@ -12,6 +15,7 @@ pub struct EncryptedPassportElementPhoneNumber {
     /// Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
     pub hash: Box<str>,
 }
+
 impl EncryptedPassportElementPhoneNumber {
     /// Creates a new `EncryptedPassportElementPhoneNumber`.
     ///
@@ -40,24 +44,14 @@ impl EncryptedPassportElementPhoneNumber {
         self
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for EncryptedPassportElementPhoneNumber {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "EncryptedPassportElementPhoneNumber",
-            fields: &["phone_number", "hash"],
-            specific: &["phone_number"],
-            sequence: "struct EncryptedPassportElementPhoneNumber with 2 elements",
-        };
-        let (common, (value_phone_number,)) =
-            crate::deserialization::encrypted_passport_element::read_0::<D, Box<str>>(
-                deserializer,
-                meta,
-            )?;
+        let decoded = decoder::deserialize_content(deserializer, &decoder::PHONE_NUMBER)?;
         Ok(Self {
-            phone_number: value_phone_number,
-            hash: common.hash,
+            phone_number: decoded.content,
+            hash: decoded.common.hash,
         })
     }
 }

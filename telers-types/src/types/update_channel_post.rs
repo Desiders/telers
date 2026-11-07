@@ -1,3 +1,6 @@
+#[cfg(not(feature = "deser"))]
+use crate::deserialization::update as decoder;
+
 /// New incoming channel post of any kind - text, photo, sticker, etc.
 /// # Notes
 /// This object represents an update from original update field `channel_post`.
@@ -12,6 +15,7 @@ pub struct UpdateChannelPost {
     /// New incoming channel post of any kind - text, photo, sticker, etc.
     pub channel_post: Box<crate::types::Message>,
 }
+
 impl UpdateChannelPost {
     /// Creates a new `UpdateChannelPost`.
     ///
@@ -43,28 +47,20 @@ impl UpdateChannelPost {
         self
     }
 }
+
 impl From<UpdateChannelPost> for crate::types::Message {
     fn from(val: UpdateChannelPost) -> Self {
         *val.channel_post
     }
 }
+
 #[cfg(not(feature = "deser"))]
 impl<'de> serde::Deserialize<'de> for UpdateChannelPost {
-    #[allow(clippy::too_many_lines)]
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let meta = crate::deserialization::Meta {
-            name: "UpdateChannelPost",
-            fields: &["update_id", "channel_post"],
-            specific: &["channel_post"],
-            sequence: "struct UpdateChannelPost with 2 elements",
-        };
-        let (common, (value_channel_post,)) = crate::deserialization::update::read_0::<
-            D,
-            Box<crate::types::Message>,
-        >(deserializer, meta)?;
+        let decoded = decoder::deserialize(deserializer, &decoder::CHANNEL_POST)?;
         Ok(Self {
-            update_id: common.update_id,
-            channel_post: value_channel_post,
+            update_id: decoded.common.update_id,
+            channel_post: decoded.content,
         })
     }
 }
