@@ -5,7 +5,7 @@
 /// <https://core.telegram.org/bots/api#encryptedpassportelement>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct EncryptedPassportElementEmail {
     /// User's verified email address; available only for `email` type
     pub email: Box<str>,
@@ -40,3 +40,7 @@ impl EncryptedPassportElementEmail {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::encrypted_passport_element::deserialize_0!(
+    EncryptedPassportElementEmail, email : Box < str >
+);

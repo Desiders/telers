@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#inlinequeryresultgif>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct InlineQueryResultGif {
     /// Unique identifier for this result, 1-64 bytes
     pub id: Box<str>,
@@ -307,3 +307,9 @@ impl InlineQueryResultGif {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::inline_query_result_gif_kind::deserialize_1!(
+    InlineQueryResultGif, gif_url : Box < str >, gif_width : Option < i64 >, gif_height :
+    Option < i64 >, gif_duration : Option < i64 >, thumbnail_url : Box < str >,
+    thumbnail_mime_type : Option < Box < str > >
+);

@@ -5,7 +5,7 @@
 /// <https://core.telegram.org/bots/api#chat>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct ChatSupergroup {
     /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     pub id: i64,
@@ -108,3 +108,8 @@ impl ChatSupergroup {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::chat::deserialize_2!(
+    ChatSupergroup, title : Option < Box < str > >, username : Option < Box < str > >,
+    is_forum : Option < bool >
+);

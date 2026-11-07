@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#chatmemberbanned>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct ChatMemberBanned {
     /// Information about the user
     pub user: Box<crate::types::User>,
@@ -38,3 +38,5 @@ impl ChatMemberBanned {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::chat_member::deserialize_1!(ChatMemberBanned, until_date : i64);

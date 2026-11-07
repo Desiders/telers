@@ -5,7 +5,7 @@
 /// <https://core.telegram.org/bots/api#externalreplyinfo>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct ExternalReplyInfoGiveawayWinners {
     /// Origin of the message replied to by the given message
     pub origin: crate::types::MessageOrigin,
@@ -128,3 +128,7 @@ impl ExternalReplyInfoGiveawayWinners {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::external_reply_info::deserialize_0!(
+    ExternalReplyInfoGiveawayWinners, giveaway_winners : crate ::types::GiveawayWinners
+);

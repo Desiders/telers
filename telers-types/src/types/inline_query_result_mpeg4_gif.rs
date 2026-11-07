@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#inlinequeryresultmpeg4gif>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct InlineQueryResultMpeg4Gif {
     /// Unique identifier for this result, 1-64 bytes
     pub id: Box<str>,
@@ -307,3 +307,9 @@ impl InlineQueryResultMpeg4Gif {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::inline_query_result_gif_kind::deserialize_1!(
+    InlineQueryResultMpeg4Gif, mpeg4_url : Box < str >, mpeg4_width : Option < i64 >,
+    mpeg4_height : Option < i64 >, mpeg4_duration : Option < i64 >, thumbnail_url : Box <
+    str >, thumbnail_mime_type : Option < Box < str > >
+);

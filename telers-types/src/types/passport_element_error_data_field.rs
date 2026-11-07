@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#passportelementerrordatafield>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct PassportElementErrorDataField {
     /// The section of the user's Telegram Passport which has the error, one of `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport`, `address`
     pub r#type: Box<str>,
@@ -65,3 +65,7 @@ impl PassportElementErrorDataField {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::passport_element_error::deserialize_0!(
+    PassportElementErrorDataField, field_name : Box < str >, data_hash : Box < str >
+);

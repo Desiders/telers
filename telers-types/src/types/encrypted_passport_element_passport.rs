@@ -5,7 +5,7 @@
 /// <https://core.telegram.org/bots/api#encryptedpassportelement>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct EncryptedPassportElementPassport {
     /// Base64-encoded encrypted Telegram Passport element data provided by the user; available only for `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport` and `address` types. Can be decrypted and verified using the accompanying [`crate::types::EncryptedCredentials`].
     pub data: Box<str>,
@@ -129,3 +129,9 @@ impl EncryptedPassportElementPassport {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::encrypted_passport_element::deserialize_3!(
+    EncryptedPassportElementPassport, data : Box < str >, front_side : crate
+    ::types::PassportFile, selfie : Option < crate ::types::PassportFile >, translation :
+    Option < Box < [crate ::types::PassportFile] > >
+);

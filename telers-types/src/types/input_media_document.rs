@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#inputmediadocument>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct InputMediaDocument {
     /// File to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     pub media: crate::types::InputFile,
@@ -158,3 +158,8 @@ impl InputMediaDocument {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::input_media::deserialize_2!(
+    InputMediaDocument, thumbnail : Option < crate ::types::InputFile >,
+    disable_content_type_detection : Option < bool >
+);

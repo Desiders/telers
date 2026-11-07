@@ -5,7 +5,7 @@
 /// <https://core.telegram.org/bots/api#giveaway>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GiveawayPremium {
     /// The list of chats which the user must join to participate in the giveaway
     pub chats: Box<[crate::types::Chat]>,
@@ -205,3 +205,7 @@ impl GiveawayPremium {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::giveaway::deserialize_0!(
+    GiveawayPremium, premium_subscription_month_count : i64
+);

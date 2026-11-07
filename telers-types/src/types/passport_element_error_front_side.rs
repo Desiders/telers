@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#passportelementerrorfrontside>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct PassportElementErrorFrontSide {
     /// The section of the user's Telegram Passport which has the issue, one of `passport`, `driver_license`, `identity_card`, `internal_passport`
     pub r#type: Box<str>,
@@ -53,3 +53,7 @@ impl PassportElementErrorFrontSide {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::passport_element_error::deserialize_1!(
+    PassportElementErrorFrontSide, file_hash : Box < str >
+);

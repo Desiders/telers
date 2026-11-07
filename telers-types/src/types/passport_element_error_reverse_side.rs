@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#passportelementerrorreverseside>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct PassportElementErrorReverseSide {
     /// The section of the user's Telegram Passport which has the issue, one of `driver_license`, `identity_card`
     pub r#type: Box<str>,
@@ -53,3 +53,7 @@ impl PassportElementErrorReverseSide {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::passport_element_error::deserialize_1!(
+    PassportElementErrorReverseSide, file_hash : Box < str >
+);

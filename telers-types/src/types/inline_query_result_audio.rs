@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#inlinequeryresultaudio>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct InlineQueryResultAudio {
     /// Unique identifier for this result, 1-64 bytes
     pub id: Box<str>,
@@ -231,3 +231,8 @@ impl InlineQueryResultAudio {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::inline_query_result_audio_kind::deserialize_0!(
+    InlineQueryResultAudio, audio_url : Box < str >, title : Box < str >, performer :
+    Option < Box < str > >, audio_duration : Option < i64 >
+);

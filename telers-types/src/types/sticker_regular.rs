@@ -5,7 +5,7 @@
 /// <https://core.telegram.org/bots/api#sticker>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct StickerRegular {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: Box<str>,
@@ -220,3 +220,7 @@ impl crate::types::FileIdGetter for StickerRegular {
         &self.file_id
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::sticker::deserialize_0!(
+    StickerRegular, premium_animation : Option < crate ::types::File >
+);

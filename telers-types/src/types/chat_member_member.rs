@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#chatmembermember>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct ChatMemberMember {
     /// Tag of the member
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
@@ -68,3 +68,7 @@ impl ChatMemberMember {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::chat_member::deserialize_3!(
+    ChatMemberMember, tag : Option < Box < str > >, until_date : Option < i64 >
+);

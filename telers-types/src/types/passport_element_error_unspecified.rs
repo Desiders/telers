@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#passportelementerrorunspecified>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct PassportElementErrorUnspecified {
     /// Type of element of the user's Telegram Passport which has the issue
     pub r#type: Box<str>,
@@ -53,3 +53,7 @@ impl PassportElementErrorUnspecified {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::passport_element_error::deserialize_1!(
+    PassportElementErrorUnspecified, element_hash : Box < str >
+);

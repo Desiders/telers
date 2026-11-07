@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#inlinequeryresultgame>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct InlineQueryResultGame {
     /// Unique identifier for this result, 1-64 bytes
     pub id: Box<str>,
@@ -63,3 +63,7 @@ impl InlineQueryResultGame {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::inline_query_result::deserialize_3!(
+    InlineQueryResultGame, game_short_name : Box < str >
+);

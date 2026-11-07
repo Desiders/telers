@@ -5,7 +5,7 @@
 /// <https://core.telegram.org/bots/api#giveawaywinners>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GiveawayWinnersStar {
     /// The chat that created the giveaway
     pub chat: Box<crate::types::Chat>,
@@ -220,3 +220,7 @@ impl GiveawayWinnersStar {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::giveaway_winners::deserialize_0!(
+    GiveawayWinnersStar, prize_star_count : i64
+);

@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#inlinequeryresultcachedvoice>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct InlineQueryResultCachedVoice {
     /// Unique identifier for this result, 1-64 bytes
     pub id: Box<str>,
@@ -193,3 +193,7 @@ impl InlineQueryResultCachedVoice {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::inline_query_result_voice_kind::deserialize_0!(
+    InlineQueryResultCachedVoice, voice_file_id : Box < str >
+);

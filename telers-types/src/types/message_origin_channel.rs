@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#messageoriginchannel>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct MessageOriginChannel {
     /// Date the message was sent originally in Unix time
     pub date: i64,
@@ -75,3 +75,8 @@ impl MessageOriginChannel {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::message_origin::deserialize_0!(
+    MessageOriginChannel, chat : Box < crate ::types::Chat >, message_id : i64,
+    author_signature : Option < Box < str > >
+);

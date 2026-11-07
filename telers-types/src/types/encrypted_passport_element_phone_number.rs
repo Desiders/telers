@@ -5,7 +5,7 @@
 /// <https://core.telegram.org/bots/api#encryptedpassportelement>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct EncryptedPassportElementPhoneNumber {
     /// User's verified phone number; available only for `phone_number` type
     pub phone_number: Box<str>,
@@ -40,3 +40,7 @@ impl EncryptedPassportElementPhoneNumber {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::encrypted_passport_element::deserialize_0!(
+    EncryptedPassportElementPhoneNumber, phone_number : Box < str >
+);

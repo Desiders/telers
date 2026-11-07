@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#chatmemberowner>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct ChatMemberOwner {
     /// Information about the user
     pub user: Box<crate::types::User>,
@@ -60,3 +60,7 @@ impl ChatMemberOwner {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::chat_member::deserialize_4!(
+    ChatMemberOwner, is_anonymous : bool, custom_title : Option < Box < str > >
+);

@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#inlinequeryresultcachedsticker>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct InlineQueryResultCachedSticker {
     /// Unique identifier for this result, 1-64 bytes
     pub id: Box<str>,
@@ -88,3 +88,8 @@ impl InlineQueryResultCachedSticker {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::inline_query_result::deserialize_1!(
+    InlineQueryResultCachedSticker, sticker_file_id : Box < str >, input_message_content
+    : Option < crate ::types::InputMessageContent >
+);

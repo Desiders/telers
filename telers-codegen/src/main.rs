@@ -228,6 +228,8 @@ fn main() {
     let types_src_dir = args.types_generated_dir_path.join("src");
     let methods_src_dir = args.methods_generated_dir_path.join("src");
     let types_dir = types_src_dir.join("types");
+    let (tokens, deserializers) = generator::deserialization::tokenize_deserializers(&schema);
+    output.write(&tokens, &types_src_dir, "deserialization.rs");
     let known_schema_type_names = schema.types.keys().cloned().collect::<HashSet<_>>();
     let known_api_method_names = schema
         .methods
@@ -245,6 +247,7 @@ fn main() {
             &schema,
             &known_schema_type_names,
             &known_api_method_names,
+            deserializers.get(name),
         );
         output.write(&tokens, &types_dir, &camel_to_filename(name, Some("rs")));
     }

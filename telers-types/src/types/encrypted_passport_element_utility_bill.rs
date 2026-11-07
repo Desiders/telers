@@ -5,7 +5,7 @@
 /// <https://core.telegram.org/bots/api#encryptedpassportelement>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct EncryptedPassportElementUtilityBill {
     /// Array of encrypted files with documents provided by the user; available only for `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`crate::types::EncryptedCredentials`].
     pub files: Box<[crate::types::PassportFile]>,
@@ -125,3 +125,8 @@ impl EncryptedPassportElementUtilityBill {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::encrypted_passport_element::deserialize_1!(
+    EncryptedPassportElementUtilityBill, files : Box < [crate ::types::PassportFile] >,
+    translation : Option < Box < [crate ::types::PassportFile] > >
+);

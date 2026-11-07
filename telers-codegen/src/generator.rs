@@ -1,5 +1,6 @@
 #![allow(clippy::implicit_hasher, clippy::missing_panics_doc)]
 
+pub mod deserialization;
 pub mod doc_utils;
 pub mod enums;
 pub mod helpers;

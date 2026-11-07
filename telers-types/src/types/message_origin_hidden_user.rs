@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#messageoriginhiddenuser>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct MessageOriginHiddenUser {
     /// Date the message was sent originally in Unix time
     pub date: i64,
@@ -38,3 +38,7 @@ impl MessageOriginHiddenUser {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::message_origin::deserialize_2!(
+    MessageOriginHiddenUser, sender_user_name : Box < str >
+);

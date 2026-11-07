@@ -5,7 +5,7 @@
 /// <https://core.telegram.org/bots/api#update>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct UpdatePollAnswer {
     /// The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
     pub update_id: i64,
@@ -48,3 +48,7 @@ impl From<UpdatePollAnswer> for crate::types::PollAnswer {
         val.poll_answer
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::update::deserialize_0!(
+    UpdatePollAnswer, poll_answer : crate ::types::PollAnswer
+);

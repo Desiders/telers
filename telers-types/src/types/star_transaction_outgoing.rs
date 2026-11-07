@@ -5,7 +5,7 @@
 /// <https://core.telegram.org/bots/api#startransaction>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct StarTransactionOutgoing {
     /// Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`crate::types::SuccessfulPayment`].`telegram_payment_charge_id` for successful incoming payments from users.
     pub id: Box<str>,
@@ -94,3 +94,7 @@ impl StarTransactionOutgoing {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::star_transaction::deserialize_0!(
+    StarTransactionOutgoing, receiver : crate ::types::TransactionPartner
+);

@@ -5,7 +5,7 @@
 /// <https://core.telegram.org/bots/api#chatfullinfo>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct ChatFullInfoPrivate {
     /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     pub id: i64,
@@ -757,3 +757,17 @@ impl ChatFullInfoPrivate {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::chat_full_info::deserialize_2!(
+    ChatFullInfoPrivate, username : Option < Box < str > >, first_name : Option < Box <
+    str > >, last_name : Option < Box < str > >, active_usernames : Option < Box < [Box <
+    str >] > >, birthdate : Option < crate ::types::Birthdate >, business_intro : Option
+    < crate ::types::BusinessIntro >, business_location : Option < crate
+    ::types::BusinessLocation >, business_opening_hours : Option < crate
+    ::types::BusinessOpeningHours >, personal_chat : Option < Box < crate ::types::Chat >
+    >, emoji_status_custom_emoji_id : Option < Box < str > >,
+    emoji_status_expiration_date : Option < i64 >, bio : Option < Box < str > >,
+    has_private_forwards : Option < bool >, has_restricted_voice_and_video_messages :
+    Option < bool >, rating : Option < crate ::types::UserRating >, first_profile_audio :
+    Option < Box < crate ::types::Audio > >
+);

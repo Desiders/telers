@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#ownedgiftregular>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct OwnedGiftRegular {
     /// Information about the regular gift
     pub gift: Box<crate::types::Gift>,
@@ -302,3 +302,11 @@ impl OwnedGiftRegular {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::owned_gift::deserialize_0!(
+    OwnedGiftRegular, gift : Box < crate ::types::Gift >, text : Option < Box < str > >,
+    entities : Option < Box < [crate ::types::MessageEntity] > >, is_private : Option <
+    bool >, can_be_upgraded : Option < bool >, was_refunded : Option < bool >,
+    convert_star_count : Option < i64 >, prepaid_upgrade_star_count : Option < i64 >,
+    is_upgrade_separate : Option < bool >, unique_gift_number : Option < i64 >
+);

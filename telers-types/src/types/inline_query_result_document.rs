@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#inlinequeryresultdocument>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct InlineQueryResultDocument {
     /// Unique identifier for this result, 1-64 bytes
     pub id: Box<str>,
@@ -281,3 +281,9 @@ impl InlineQueryResultDocument {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::inline_query_result_document_kind::deserialize_1!(
+    InlineQueryResultDocument, document_url : Box < str >, mime_type : Box < str >,
+    thumbnail_url : Option < Box < str > >, thumbnail_width : Option < i64 >,
+    thumbnail_height : Option < i64 >
+);

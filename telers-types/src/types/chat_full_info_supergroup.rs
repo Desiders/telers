@@ -5,7 +5,7 @@
 /// <https://core.telegram.org/bots/api#chatfullinfo>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct ChatFullInfoSupergroup {
     /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     pub id: i64,
@@ -783,3 +783,16 @@ impl ChatFullInfoSupergroup {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::chat_full_info::deserialize_3!(
+    ChatFullInfoSupergroup, title : Option < Box < str > >, username : Option < Box < str
+    > >, is_forum : Option < bool >, active_usernames : Option < Box < [Box < str >] > >,
+    parent_chat : Option < Box < crate ::types::Chat > >, join_to_send_messages : Option
+    < bool >, join_by_request : Option < bool >, description : Option < Box < str > >,
+    invite_link : Option < Box < str > >, permissions : Option < crate
+    ::types::ChatPermissions >, slow_mode_delay : Option < i64 >, unrestrict_boost_count
+    : Option < i64 >, has_aggressive_anti_spam_enabled : Option < bool >,
+    sticker_set_name : Option < Box < str > >, can_set_sticker_set : Option < bool >,
+    custom_emoji_sticker_set_name : Option < Box < str > >, linked_chat_id : Option < i64
+    >, location : Option < crate ::types::ChatLocation >
+);

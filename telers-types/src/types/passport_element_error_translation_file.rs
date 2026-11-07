@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#passportelementerrortranslationfile>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct PassportElementErrorTranslationFile {
     /// Type of element of the user's Telegram Passport which has the issue, one of `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`, `temporary_registration`
     pub r#type: Box<str>,
@@ -53,3 +53,7 @@ impl PassportElementErrorTranslationFile {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::passport_element_error::deserialize_1!(
+    PassportElementErrorTranslationFile, file_hash : Box < str >
+);

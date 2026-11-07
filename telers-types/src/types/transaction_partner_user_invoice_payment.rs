@@ -5,7 +5,7 @@
 /// <https://core.telegram.org/bots/api#transactionpartneruser>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct TransactionPartnerUserInvoicePayment {
     /// Information about the user
     pub user: Box<crate::types::User>,
@@ -92,3 +92,9 @@ impl TransactionPartnerUserInvoicePayment {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::chat_member::deserialize_6!(
+    TransactionPartnerUserInvoicePayment, affiliate : Option < crate
+    ::types::AffiliateInfo >, invoice_payload : Option < Box < str > >,
+    subscription_period : Option < i64 >
+);

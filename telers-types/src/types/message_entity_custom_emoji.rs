@@ -5,7 +5,7 @@
 /// <https://core.telegram.org/bots/api#messageentity>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct MessageEntityCustomEmoji {
     /// Offset in UTF-16 code units to the start of the entity
     pub offset: i64,
@@ -55,3 +55,7 @@ impl MessageEntityCustomEmoji {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::message_entity::deserialize_1!(
+    MessageEntityCustomEmoji, custom_emoji_id : Box < str >
+);

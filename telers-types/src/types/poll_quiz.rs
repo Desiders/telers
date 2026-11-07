@@ -5,7 +5,7 @@
 /// <https://core.telegram.org/bots/api#poll>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct PollQuiz {
     /// Unique poll identifier
     pub id: Box<str>,
@@ -546,3 +546,8 @@ impl PollQuiz {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::poll::deserialize_0!(
+    PollQuiz, correct_option_ids : Option < Box < [i64] > >, explanation : Option < Box <
+    str > >, explanation_media : Option < crate ::types::PollMedia >
+);

@@ -5,7 +5,7 @@
 /// <https://core.telegram.org/bots/api#messageentity>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct MessageEntityPre {
     /// Offset in UTF-16 code units to the start of the entity
     pub offset: i64,
@@ -62,3 +62,7 @@ impl MessageEntityPre {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::message_entity::deserialize_3!(
+    MessageEntityPre, language : Option < Box < str > >
+);

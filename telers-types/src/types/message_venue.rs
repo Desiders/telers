@@ -5,7 +5,7 @@
 /// <https://core.telegram.org/bots/api#message>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct MessageVenue {
     /// Unique message identifier inside this chat; 0 for ephemeral messages. In specific instances (e.g., a message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     pub message_id: i64,
@@ -918,3 +918,7 @@ impl MessageVenue {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::message::deserialize_0!(
+    MessageVenue, venue : Box < crate ::types::Venue >
+);

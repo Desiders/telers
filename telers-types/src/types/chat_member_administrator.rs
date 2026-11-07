@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#chatmemberadministrator>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct ChatMemberAdministrator {
     /// Information about the user
     pub user: Box<crate::types::User>,
@@ -336,3 +336,14 @@ impl ChatMemberAdministrator {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::chat_member::deserialize_0!(
+    ChatMemberAdministrator, can_be_edited : bool, is_anonymous : bool, can_manage_chat :
+    bool, can_delete_messages : bool, can_manage_video_chats : bool, can_restrict_members
+    : bool, can_promote_members : bool, can_change_info : bool, can_invite_users : bool,
+    can_post_stories : bool, can_edit_stories : bool, can_delete_stories : bool,
+    can_post_messages : Option < bool >, can_edit_messages : Option < bool >,
+    can_pin_messages : Option < bool >, can_manage_topics : Option < bool >,
+    can_manage_direct_messages : Option < bool >, can_manage_tags : Option < bool >,
+    can_send_welcome_messages : bool, custom_title : Option < Box < str > >
+);

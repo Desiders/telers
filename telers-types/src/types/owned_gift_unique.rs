@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#ownedgiftunique>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct OwnedGiftUnique {
     /// Information about the unique gift
     pub gift: Box<crate::types::UniqueGift>,
@@ -155,3 +155,9 @@ impl OwnedGiftUnique {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::owned_gift::deserialize_1!(
+    OwnedGiftUnique, gift : Box < crate ::types::UniqueGift >, can_be_transferred :
+    Option < bool >, transfer_star_count : Option < i64 >, next_transfer_date : Option <
+    i64 >
+);

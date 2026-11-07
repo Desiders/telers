@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#inputpaidmedialivephoto>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct InputPaidMediaLivePhoto {
     /// Video of the live photo to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended) or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending live photos by a URL is currently unsupported.
     pub media: crate::types::InputFile,
@@ -41,3 +41,7 @@ impl InputPaidMediaLivePhoto {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::input_paid_media::deserialize_0!(
+    InputPaidMediaLivePhoto, photo : crate ::types::InputFile
+);

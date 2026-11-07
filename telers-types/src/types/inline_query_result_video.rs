@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#inlinequeryresultvideo>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct InlineQueryResultVideo {
     /// Unique identifier for this result, 1-64 bytes
     pub id: Box<str>,
@@ -318,3 +318,9 @@ impl InlineQueryResultVideo {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::inline_query_result_video_kind::deserialize_1!(
+    InlineQueryResultVideo, video_url : Box < str >, mime_type : Box < str >,
+    thumbnail_url : Box < str >, video_width : Option < i64 >, video_height : Option <
+    i64 >, video_duration : Option < i64 >
+);

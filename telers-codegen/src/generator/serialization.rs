@@ -25,14 +25,20 @@ pub fn configure_serialization(file: &mut syn::File) -> syn::Result<()> {
             let paths =
                 attr.parse_args_with(Punctuated::<syn::Path, Token![,]>::parse_terminated)?;
             for path in paths {
+                // A native derive can accompany a shared Serde implementation.
+                let native_only = path.segments.first().is_some_and(|s| s.ident == "deser");
                 match path.segments.last().map(|s| s.ident.to_string()).as_deref() {
                     Some("Serialize") => {
                         derives.push(quote!(deser::Serialize));
-                        serde_derives.push(quote!(serde::Serialize));
+                        if !native_only {
+                            serde_derives.push(quote!(serde::Serialize));
+                        }
                     }
                     Some("Deserialize") => {
                         derives.push(quote!(deser::Deserialize));
-                        serde_derives.push(quote!(serde::Deserialize));
+                        if !native_only {
+                            serde_derives.push(quote!(serde::Deserialize));
+                        }
                     }
                     _ => {}
                 }
@@ -70,10 +76,12 @@ pub fn configure_serialization(file: &mut syn::File) -> syn::Result<()> {
             wire_index,
             parse_quote!(#[cfg_attr(feature = "deser", derive(#(#derives),*))]),
         );
-        attrs.insert(
-            wire_index + 1,
-            parse_quote!(#[cfg_attr(not(feature = "deser"), derive(#(#serde_derives),*))]),
-        );
+        if !serde_derives.is_empty() {
+            attrs.insert(
+                wire_index + 1,
+                parse_quote!(#[cfg_attr(not(feature = "deser"), derive(#(#serde_derives),*))]),
+            );
+        }
         copy_wire_attributes(attrs)?;
         for fields in fields {
             for field in fields.iter_mut() {

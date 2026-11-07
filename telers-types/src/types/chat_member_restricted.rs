@@ -3,7 +3,7 @@
 /// <https://core.telegram.org/bots/api#chatmemberrestricted>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
-#[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct ChatMemberRestricted {
     /// Tag of the member
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
@@ -287,3 +287,13 @@ impl ChatMemberRestricted {
         self
     }
 }
+#[cfg(not(feature = "deser"))]
+crate::deserialization::chat_member::deserialize_5!(
+    ChatMemberRestricted, tag : Option < Box < str > >, is_member : bool,
+    can_send_messages : bool, can_send_audios : bool, can_send_documents : bool,
+    can_send_photos : bool, can_send_videos : bool, can_send_video_notes : bool,
+    can_send_voice_notes : bool, can_send_polls : bool, can_send_other_messages : bool,
+    can_add_web_page_previews : bool, can_react_to_messages : bool, can_edit_tag : bool,
+    can_change_info : bool, can_invite_users : bool, can_pin_messages : bool,
+    can_manage_topics : bool, until_date : i64
+);

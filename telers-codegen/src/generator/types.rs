@@ -118,15 +118,24 @@ impl ToTokens for NormalizedSubtypeVariant {
     }
 }
 
-fn tokenize_field(field: &NormalizedField, ctx: &TypeDocContext<'_>) -> TokenStream {
-    let name = sanitize_field_name(&field.name);
-    let doc = format_field_doc(&field.description, &field.r#type, ctx);
+pub(super) fn tokenize_field_type(field: &NormalizedField) -> TokenStream {
     let raw_ty = &field.r#type;
     let ty = if field.is_recursive || field.is_boxed {
         quote! { Box<#raw_ty> }
     } else {
         quote! { #raw_ty }
     };
+    if field.required {
+        ty
+    } else {
+        quote! { Option<#ty> }
+    }
+}
+
+fn tokenize_field(field: &NormalizedField, ctx: &TypeDocContext<'_>) -> TokenStream {
+    let name = sanitize_field_name(&field.name);
+    let doc = format_field_doc(&field.description, &field.r#type, ctx);
+    let ty = tokenize_field_type(field);
 
     if field.required {
         if field.force_default {
@@ -138,12 +147,16 @@ fn tokenize_field(field: &NormalizedField, ctx: &TypeDocContext<'_>) -> TokenStr
         quote! {
             #[doc = #doc]
             #[serde(skip_serializing_if = "Option::is_none")]
-            pub #name: Option<#ty>,
+            pub #name: #ty,
         }
     }
 }
 
-fn tokenize_type_definition(type_quote: &NormalizedType, ctx: &TypeDocContext<'_>) -> TokenStream {
+fn tokenize_type_definition(
+    type_quote: &NormalizedType,
+    ctx: &TypeDocContext<'_>,
+    shared_deserializer: bool,
+) -> TokenStream {
     // `InaccessibleMessage` is exactly its documented fields and is tried first in the
     // untagged `MaybeInaccessibleMessage`; without `deny_unknown_fields` it swallows
     // every accessible message (their extra fields are silently ignored).
@@ -170,7 +183,7 @@ fn tokenize_type_definition(type_quote: &NormalizedType, ctx: &TypeDocContext<'_
         .map(|kind| kind.get_tags())
         .unwrap_or_default();
 
-    let derive_quotes = get_derives_for_types(type_quote);
+    let derive_quotes = get_derives_for_types(shared_deserializer);
     if type_quote.subtypes.is_empty() {
         let fields = type_quote
             .fields
@@ -569,11 +582,15 @@ pub fn tokenize_type_extractors(schema: &NormalizedSchema) -> TokenStream {
 }
 
 #[must_use]
-pub fn get_derives_for_types(_type_quote: &NormalizedType) -> Vec<TokenStream> {
-    let derive_quotes = vec![
-        quote! { #[derive(Clone, Debug)] },
-        quote! { #[derive(Serialize, Deserialize)] },
-    ];
+pub fn get_derives_for_types(shared_deserializer: bool) -> Vec<TokenStream> {
+    let serialization = if shared_deserializer {
+        quote! {
+            #[derive(Serialize, deser::Deserialize)]
+        }
+    } else {
+        quote! { #[derive(Serialize, Deserialize)] }
+    };
+    let derive_quotes = vec![quote! { #[derive(Clone, Debug)] }, serialization];
 
     derive_quotes
 }
@@ -1397,6 +1414,7 @@ pub fn tokenize_type(
     schema: &NormalizedSchema,
     known_schema_type_names: &HashSet<String>,
     known_api_method_names: &HashMap<String, String>,
+    deserializer: Option<&TokenStream>,
 ) -> TokenStream {
     let ctx = TypeDocContext {
         schema_type_names: known_schema_type_names,
@@ -1409,7 +1427,7 @@ pub fn tokenize_type(
 
     let type_impls = get_impls_for_types(type_quote, schema);
     let subtype_impls = get_from_impls_for_subtypes(type_quote);
-    let type_definition = tokenize_type_definition(type_quote, &ctx);
+    let type_definition = tokenize_type_definition(type_quote, &ctx, deserializer.is_some());
     let builder_impls = builder_impl_for_type(type_quote, &ctx);
     let helper_impls = get_helper_impls_for_type(type_quote, schema, &ctx);
 
@@ -1420,6 +1438,7 @@ pub fn tokenize_type(
         #helper_impls
         #( #type_impls )*
         #( #subtype_impls )*
+        #deserializer
     }
 }
 
