@@ -123,6 +123,7 @@ Found a project that uses `telers`? Open a pull request and add it here.
 
 - [Juzo | Chat Manager](https://github.com/JuzoCode/juzo-cm)
 - [ztx-calendar](https://codeberg.org/zxcdiana/ztx-calendar.git)
+- [RedTokyo Bot](https://github.com/gausvanya/redtokyo_bot)
 
 ## Community
 ### Telegram
