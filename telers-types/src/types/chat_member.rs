@@ -291,7 +291,7 @@ impl ChatMember {
 
     /// Helper method for field `can_send_other_messages`.
     ///
-    /// `true`, if the user is allowed to send animations, games, stickers and use inline bots
+    /// `true`, if the user is allowed to send animations, games, stickers, widgets and use inline bots
     #[must_use]
     pub fn can_send_other_messages(&self) -> Option<bool> {
         match self {

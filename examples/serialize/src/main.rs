@@ -13,16 +13,16 @@ async fn serialize_handler(bot: Bot, update: Update) -> HandlerResult<()> {
         match telers::serialization::to_string_pretty(&update) {
             Ok(text) => {
                 bot.send(
-                    SendMessage::new(chat.id(), html_pre_language(html_quote(text), "json"))
+                    SendMessage::new(html_pre_language(html_quote(text), "json"))
+                        .chat_id(chat.id())
                         .parse_mode(ParseMode::HTML),
                 )
                 .await?;
             }
             Err(err) => {
-                bot.send(SendMessage::new(
-                    chat.id(),
-                    format!("Serialize error :(\n\n{err:?}"),
-                ))
+                bot.send(
+                    SendMessage::new(format!("Serialize error :(\n\n{err:?}")).chat_id(chat.id()),
+                )
                 .await?;
 
                 return Err(HandlerError::new(err));

@@ -53,11 +53,8 @@ impl CommandArg for Settings {
 }
 
 async fn help_handler(bot: Bot, message: Message) -> HandlerResult<()> {
-    bot.send(SendMessage::new(
-        message.chat().id(),
-        Commands::descriptions(),
-    ))
-    .await?;
+    bot.send(SendMessage::new(Commands::descriptions()).chat_id(message.chat().id()))
+        .await?;
     Ok(())
 }
 
@@ -73,7 +70,7 @@ async fn username_handler(bot: Bot, message: Message, command: Commands) -> Hand
         _ => return Ok(()),
     };
 
-    bot.send(SendMessage::new(message.chat().id(), text))
+    bot.send(SendMessage::new(text).chat_id(message.chat().id()))
         .await?;
     Ok(())
 }
@@ -89,7 +86,7 @@ async fn settings_handler(bot: Bot, message: Message, command: Commands) -> Hand
         .collect::<Vec<_>>()
         .join("\n");
 
-    bot.send(SendMessage::new(message.chat().id(), text))
+    bot.send(SendMessage::new(text).chat_id(message.chat().id()))
         .await?;
     Ok(())
 }
@@ -99,7 +96,7 @@ async fn on_command_args_error(
     message: Message,
     EventError(err): EventError<CommandArgsError>,
 ) -> HandlerResult<()> {
-    bot.send(SendMessage::new(message.chat().id(), err.to_string()))
+    bot.send(SendMessage::new(err.to_string()).chat_id(message.chat().id()))
         .await?;
     Ok(())
 }

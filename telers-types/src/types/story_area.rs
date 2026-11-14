@@ -6,7 +6,7 @@
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct StoryArea {
     /// Position of the area
-    pub position: crate::types::StoryAreaPosition,
+    pub position: crate::types::AreaPosition,
     /// Type of the area
     pub r#type: crate::types::StoryAreaType,
 }
@@ -17,7 +17,7 @@ impl StoryArea {
     /// * `position` - Position of the area
     /// * `type` - Type of the area
     #[must_use]
-    pub fn new<T0: Into<crate::types::StoryAreaPosition>, T1: Into<crate::types::StoryAreaType>>(
+    pub fn new<T0: Into<crate::types::AreaPosition>, T1: Into<crate::types::StoryAreaType>>(
         position: T0,
         r#type: T1,
     ) -> Self {
@@ -29,7 +29,7 @@ impl StoryArea {
 
     /// Position of the area
     #[must_use]
-    pub fn position<T: Into<crate::types::StoryAreaPosition>>(mut self, val: T) -> Self {
+    pub fn position<T: Into<crate::types::AreaPosition>>(mut self, val: T) -> Self {
         self.position = val.into();
         self
     }

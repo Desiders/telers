@@ -22,6 +22,7 @@
 /// - [`crate::types::ExternalReplyInfoVideo`]
 /// - [`crate::types::ExternalReplyInfoVideoNote`]
 /// - [`crate::types::ExternalReplyInfoVoice`]
+/// - [`crate::types::ExternalReplyInfoWidget`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#externalreplyinfo>
 #[derive(Clone, Debug)]
@@ -51,6 +52,7 @@ pub enum ExternalReplyInfo {
     Video(crate::types::ExternalReplyInfoVideo),
     VideoNote(crate::types::ExternalReplyInfoVideoNote),
     Voice(crate::types::ExternalReplyInfoVoice),
+    Widget(crate::types::ExternalReplyInfoWidget),
     Unknown(crate::types::ExternalReplyInfoUnknown),
 }
 impl ExternalReplyInfo {
@@ -103,6 +105,7 @@ impl ExternalReplyInfo {
             Self::Video(val) => val.chat.as_deref(),
             Self::VideoNote(val) => val.chat.as_deref(),
             Self::Voice(val) => val.chat.as_deref(),
+            Self::Widget(val) => val.chat.as_deref(),
             Self::Unknown(val) => val.chat.as_deref(),
         }
     }
@@ -211,6 +214,7 @@ impl ExternalReplyInfo {
             Self::Video(val) => val.has_media_spoiler,
             Self::VideoNote(val) => val.has_media_spoiler,
             Self::Voice(val) => val.has_media_spoiler,
+            Self::Widget(val) => val.has_media_spoiler,
             Self::Unknown(val) => val.has_media_spoiler,
         }
     }
@@ -253,6 +257,7 @@ impl ExternalReplyInfo {
             Self::Video(val) => val.link_preview_options.as_ref(),
             Self::VideoNote(val) => val.link_preview_options.as_ref(),
             Self::Voice(val) => val.link_preview_options.as_ref(),
+            Self::Widget(val) => val.link_preview_options.as_ref(),
             Self::Unknown(val) => val.link_preview_options.as_ref(),
         }
     }
@@ -306,6 +311,7 @@ impl ExternalReplyInfo {
             Self::Video(val) => val.message_id,
             Self::VideoNote(val) => val.message_id,
             Self::Voice(val) => val.message_id,
+            Self::Widget(val) => val.message_id,
             Self::Unknown(val) => val.message_id,
         }
     }
@@ -337,6 +343,7 @@ impl ExternalReplyInfo {
             Self::Video(val) => &val.origin,
             Self::VideoNote(val) => &val.origin,
             Self::Voice(val) => &val.origin,
+            Self::Widget(val) => &val.origin,
             Self::Unknown(val) => &val.origin,
         }
     }
@@ -440,6 +447,17 @@ impl ExternalReplyInfo {
         }
     }
 
+    /// Helper method for field `widget`.
+    ///
+    /// Message is an HTML widget, information about the widget
+    #[must_use]
+    pub fn widget(&self) -> Option<&crate::types::Widget> {
+        match self {
+            Self::Widget(val) => Some(&val.widget),
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `additional_chat_count`.
     #[must_use]
     pub fn additional_chat_count(&self) -> Option<i64> {
@@ -492,6 +510,18 @@ impl ExternalReplyInfo {
     #[must_use]
     pub fn author_signature(&self) -> Option<&str> {
         crate::types::MessageOrigin::author_signature(self.origin())
+    }
+
+    /// Helper method for nested field `chat_data`.
+    #[must_use]
+    pub fn chat_data(&self) -> Option<&str> {
+        match self {
+            Self::Widget(val) => {
+                let inner = &val.widget;
+                inner.chat_data.as_deref()
+            }
+            _ => None,
+        }
     }
 
     /// Helper method for nested field `chats`.
@@ -952,6 +982,10 @@ impl ExternalReplyInfo {
                 let inner = val.video.as_ref();
                 Some(inner.height)
             }
+            Self::Widget(val) => {
+                let inner = &val.widget;
+                inner.height
+            }
             _ => None,
         }
     }
@@ -963,6 +997,18 @@ impl ExternalReplyInfo {
             Self::Location(val) => {
                 let inner = &val.location;
                 inner.horizontal_accuracy
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `html`.
+    #[must_use]
+    pub fn html(&self) -> Option<&str> {
+        match self {
+            Self::Widget(val) => {
+                let inner = &val.widget;
+                Some(inner.html.as_ref())
             }
             _ => None,
         }
@@ -1337,6 +1383,18 @@ impl ExternalReplyInfo {
         }
     }
 
+    /// Helper method for nested field `public_data`.
+    #[must_use]
+    pub fn public_data(&self) -> Option<&str> {
+        match self {
+            Self::Widget(val) => {
+                let inner = &val.widget;
+                inner.public_data.as_deref()
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `qualities`.
     #[must_use]
     pub fn qualities(&self) -> Option<&[crate::types::VideoQuality]> {
@@ -1642,6 +1700,10 @@ impl ExternalReplyInfo {
             Self::Video(val) => {
                 let inner = val.video.as_ref();
                 Some(inner.width)
+            }
+            Self::Widget(val) => {
+                let inner = &val.widget;
+                inner.width
             }
             _ => None,
         }
@@ -2086,6 +2148,25 @@ impl TryFrom<ExternalReplyInfo> for crate::types::ExternalReplyInfoVoice {
             Err(Self::Error::new(
                 stringify!(ExternalReplyInfo),
                 stringify!(ExternalReplyInfoVoice),
+            ))
+        }
+    }
+}
+impl From<crate::types::ExternalReplyInfoWidget> for ExternalReplyInfo {
+    fn from(val: crate::types::ExternalReplyInfoWidget) -> Self {
+        Self::Widget(val)
+    }
+}
+impl TryFrom<ExternalReplyInfo> for crate::types::ExternalReplyInfoWidget {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: ExternalReplyInfo) -> Result<Self, Self::Error> {
+        if let ExternalReplyInfo::Widget(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(ExternalReplyInfo),
+                stringify!(ExternalReplyInfoWidget),
             ))
         }
     }

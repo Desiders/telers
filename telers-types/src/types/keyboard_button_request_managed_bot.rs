@@ -11,7 +11,7 @@ pub struct KeyboardButtonRequestManagedBot {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub suggested_name: Option<Box<str>>,
-    /// Suggested username for the bot
+    /// Suggested username for the bot. The username must end with `bot`. If the user creating the bot has a Telegram Premium subscription, then the username can also end with `agent`, `ai`, `app`, `game`, or `gay`; in this case, the username will be assigned to the bot as a secondary username, and a regular username ending with `bot` will be assigned to the bot automatically.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub suggested_username: Option<Box<str>>,
@@ -54,14 +54,14 @@ impl KeyboardButtonRequestManagedBot {
         self
     }
 
-    /// Suggested username for the bot
+    /// Suggested username for the bot. The username must end with `bot`. If the user creating the bot has a Telegram Premium subscription, then the username can also end with `agent`, `ai`, `app`, `game`, or `gay`; in this case, the username will be assigned to the bot as a secondary username, and a regular username ending with `bot` will be assigned to the bot automatically.
     #[must_use]
     pub fn suggested_username<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.suggested_username = Some(val.into());
         self
     }
 
-    /// Suggested username for the bot
+    /// Suggested username for the bot. The username must end with `bot`. If the user creating the bot has a Telegram Premium subscription, then the username can also end with `agent`, `ai`, `app`, `game`, or `gay`; in this case, the username will be assigned to the bot as a secondary username, and a regular username ending with `bot` will be assigned to the bot automatically.
     #[must_use]
     pub fn suggested_username_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.suggested_username = val.map(Into::into);

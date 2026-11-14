@@ -39,7 +39,9 @@ fn counter_keyboard(value: i64) -> Result<InlineKeyboardMarkup, CallbackDataErro
 
 async fn start_handler(bot: Bot, message: Message) -> HandlerResult<()> {
     bot.send(
-        SendMessage::new(message.chat().id(), "Counter: 0").reply_markup(counter_keyboard(0)?),
+        SendMessage::new("Counter: 0")
+            .chat_id(message.chat().id())
+            .reply_markup(counter_keyboard(0)?),
     )
     .await?;
 

@@ -11,8 +11,10 @@ pub struct SendRichMessage {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub business_connection_id: Option<Box<str>>,
-    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
-    pub chat_id: crate::types::ChatIdKind,
+    /// Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username; required unless the message is sent as an ephemeral reply to a callback query
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
+    pub chat_id: Option<crate::types::ChatIdKind>,
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
@@ -60,19 +62,15 @@ impl SendRichMessage {
     /// Creates a new `SendRichMessage`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     /// * `rich_message` - The message to be sent
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new<T0: Into<crate::types::ChatIdKind>, T1: Into<crate::types::InputRichMessage>>(
-        chat_id: T0,
-        rich_message: T1,
-    ) -> Self {
+    pub fn new<T0: Into<crate::types::InputRichMessage>>(rich_message: T0) -> Self {
         Self {
             business_connection_id: None,
-            chat_id: chat_id.into(),
+            chat_id: None,
             message_thread_id: None,
             direct_messages_topic_id: None,
             ephemeral_message_parameters: None,
@@ -101,10 +99,17 @@ impl SendRichMessage {
         self
     }
 
-    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
+    /// Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username; required unless the message is sent as an ephemeral reply to a callback query
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
+        self.chat_id = Some(val.into());
+        self
+    }
+
+    /// Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username; required unless the message is sent as an ephemeral reply to a callback query
+    #[must_use]
+    pub fn chat_id_option<T: Into<crate::types::ChatIdKind>>(mut self, val: Option<T>) -> Self {
+        self.chat_id = val.map(Into::into);
         self
     }
 

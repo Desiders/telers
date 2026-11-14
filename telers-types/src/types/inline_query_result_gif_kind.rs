@@ -184,6 +184,20 @@ impl InlineQueryResultGifKind {
             .and_then(crate::types::InputMessageContent::address)
     }
 
+    /// Helper method for nested field `allow_queries`.
+    #[must_use]
+    pub fn allow_queries(&self) -> Option<bool> {
+        self.input_message_content()
+            .and_then(crate::types::InputMessageContent::allow_queries)
+    }
+
+    /// Helper method for nested field `chat_data`.
+    #[must_use]
+    pub fn chat_data(&self) -> Option<&str> {
+        self.input_message_content()
+            .and_then(crate::types::InputMessageContent::chat_data)
+    }
+
     /// Helper method for nested field `currency`.
     #[must_use]
     pub fn currency(&self) -> Option<&str> {
@@ -253,11 +267,25 @@ impl InlineQueryResultGifKind {
             .and_then(crate::types::InputMessageContent::heading)
     }
 
+    /// Helper method for nested field `height`.
+    #[must_use]
+    pub fn height(&self) -> Option<u16> {
+        self.input_message_content()
+            .and_then(crate::types::InputMessageContent::height)
+    }
+
     /// Helper method for nested field `horizontal_accuracy`.
     #[must_use]
     pub fn horizontal_accuracy(&self) -> Option<f64> {
         self.input_message_content()
             .and_then(crate::types::InputMessageContent::horizontal_accuracy)
+    }
+
+    /// Helper method for nested field `html`.
+    #[must_use]
+    pub fn html(&self) -> Option<&str> {
+        self.input_message_content()
+            .and_then(crate::types::InputMessageContent::html)
     }
 
     /// Helper method for nested field `inline_keyboard`.
@@ -272,6 +300,13 @@ impl InlineQueryResultGifKind {
     pub fn is_flexible(&self) -> Option<bool> {
         self.input_message_content()
             .and_then(crate::types::InputMessageContent::is_flexible)
+    }
+
+    /// Helper method for nested field `is_shared`.
+    #[must_use]
+    pub fn is_shared(&self) -> Option<bool> {
+        self.input_message_content()
+            .and_then(crate::types::InputMessageContent::is_shared)
     }
 
     /// Helper method for nested field `last_name`.
@@ -421,6 +456,13 @@ impl InlineQueryResultGifKind {
             .and_then(crate::types::InputMessageContent::proximity_alert_radius)
     }
 
+    /// Helper method for nested field `public_data`.
+    #[must_use]
+    pub fn public_data(&self) -> Option<&str> {
+        self.input_message_content()
+            .and_then(crate::types::InputMessageContent::public_data)
+    }
+
     /// Helper method for nested field `rich_message`.
     #[must_use]
     pub fn rich_message(&self) -> Option<&crate::types::InputRichMessage> {
@@ -454,6 +496,20 @@ impl InlineQueryResultGifKind {
     pub fn vcard(&self) -> Option<&str> {
         self.input_message_content()
             .and_then(crate::types::InputMessageContent::vcard)
+    }
+
+    /// Helper method for nested field `widget_id`.
+    #[must_use]
+    pub fn widget_id(&self) -> Option<&str> {
+        self.input_message_content()
+            .and_then(crate::types::InputMessageContent::widget_id)
+    }
+
+    /// Helper method for nested field `width`.
+    #[must_use]
+    pub fn width(&self) -> Option<i64> {
+        self.input_message_content()
+            .and_then(crate::types::InputMessageContent::width)
     }
 }
 impl From<crate::types::InlineQueryResultGif> for InlineQueryResultGifKind {

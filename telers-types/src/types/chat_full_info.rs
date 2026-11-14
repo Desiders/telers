@@ -590,6 +590,19 @@ impl ChatFullInfo {
         }
     }
 
+    /// Helper method for field `share_theme`.
+    ///
+    /// For private chats, supergroups and channels, the theme of the screen for sharing a link to the user or the chat; omitted if the default theme is used
+    #[must_use]
+    pub fn share_theme(&self) -> Option<&crate::types::ChatShareTheme> {
+        match self {
+            Self::Private(val) => val.share_theme.as_ref(),
+            Self::Supergroup(val) => val.share_theme.as_ref(),
+            Self::Channel(val) => val.share_theme.as_ref(),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `slow_mode_delay`.
     ///
     /// For supergroups, the minimum allowed delay between consecutive messages sent by each unprivileged user; in seconds
@@ -621,6 +634,17 @@ impl ChatFullInfo {
             Self::Group(val) => val.title.as_deref(),
             Self::Supergroup(val) => val.title.as_deref(),
             Self::Channel(val) => val.title.as_deref(),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `ton_wallet_card`.
+    ///
+    /// For private chats, the TON wallet card of the user, which is shown on their profile page
+    #[must_use]
+    pub fn ton_wallet_card(&self) -> Option<&crate::types::TonWalletCard> {
+        match self {
+            Self::Private(val) => val.ton_wallet_card.as_ref(),
             _ => None,
         }
     }
@@ -670,24 +694,23 @@ impl ChatFullInfo {
             .and_then(|inner| inner.added_to_attachment_menu)
     }
 
-    /// Helper method for nested field `address`.
-    #[must_use]
-    pub fn address(&self) -> Option<&str> {
-        match self {
-            Self::Private(val) => val
-                .business_location
-                .as_ref()
-                .map(|inner| inner.address.as_ref()),
-            Self::Supergroup(val) => val.location.as_ref().map(|inner| inner.address.as_ref()),
-            _ => None,
-        }
-    }
-
     /// Helper method for nested field `allows_users_to_create_topics`.
     #[must_use]
     pub fn allows_users_to_create_topics(&self) -> Option<bool> {
         self.guard_bot()
             .and_then(|inner| inner.allows_users_to_create_topics)
+    }
+
+    /// Helper method for nested field `amount`.
+    #[must_use]
+    pub fn amount(&self) -> Option<&str> {
+        match self {
+            Self::Private(val) => val
+                .ton_wallet_card
+                .as_ref()
+                .map(|inner| inner.amount.as_ref()),
+            _ => None,
+        }
     }
 
     /// Helper method for nested field `animation`.
@@ -708,6 +731,38 @@ impl ChatFullInfo {
     pub fn author_signature(&self) -> Option<&str> {
         self.pinned_message()
             .and_then(crate::types::Message::author_signature)
+    }
+
+    /// Helper method for nested field `background_backdrop_id`.
+    #[must_use]
+    pub fn background_backdrop_id(&self) -> Option<i64> {
+        match self {
+            Self::Private(val) => val
+                .share_theme
+                .as_ref()
+                .and_then(crate::types::ChatShareTheme::background_backdrop_id),
+            Self::Supergroup(val) => val
+                .share_theme
+                .as_ref()
+                .and_then(crate::types::ChatShareTheme::background_backdrop_id),
+            Self::Channel(val) => val
+                .share_theme
+                .as_ref()
+                .and_then(crate::types::ChatShareTheme::background_backdrop_id),
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `background_nft_address`.
+    #[must_use]
+    pub fn background_nft_address(&self) -> Option<&str> {
+        match self {
+            Self::Private(val) => val
+                .ton_wallet_card
+                .as_ref()
+                .and_then(|inner| inner.background_nft_address.as_deref()),
+            _ => None,
+        }
     }
 
     /// Helper method for nested field `big_file_id`.
@@ -1227,6 +1282,26 @@ impl ChatFullInfo {
             .and_then(crate::types::Message::effect_id)
     }
 
+    /// Helper method for nested field `emojis`.
+    #[must_use]
+    pub fn emojis(&self) -> Option<&[crate::types::EmojiType]> {
+        match self {
+            Self::Private(val) => val
+                .share_theme
+                .as_ref()
+                .and_then(crate::types::ChatShareTheme::emojis),
+            Self::Supergroup(val) => val
+                .share_theme
+                .as_ref()
+                .and_then(crate::types::ChatShareTheme::emojis),
+            Self::Channel(val) => val
+                .share_theme
+                .as_ref()
+                .and_then(crate::types::ChatShareTheme::emojis),
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `entities`.
     #[must_use]
     pub fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
@@ -1355,12 +1430,6 @@ impl ChatFullInfo {
     pub fn general_forum_topic_unhidden(&self) -> Option<&crate::types::GeneralForumTopicUnhidden> {
         self.pinned_message()
             .and_then(crate::types::Message::general_forum_topic_unhidden)
-    }
-
-    /// Helper method for nested field `gift`.
-    #[must_use]
-    pub fn gift(&self) -> Option<&crate::types::GiftInfo> {
-        self.pinned_message().and_then(crate::types::Message::gift)
     }
 
     /// Helper method for nested field `gift_upgrade_sent`.
@@ -1716,6 +1785,13 @@ impl ChatFullInfo {
             .and_then(crate::types::Message::paid_message_price_changed)
     }
 
+    /// Helper method for nested field `paid_messages_waived`.
+    #[must_use]
+    pub fn paid_messages_waived(&self) -> Option<&crate::types::PaidMessagesWaived> {
+        self.pinned_message()
+            .and_then(crate::types::Message::paid_messages_waived)
+    }
+
     /// Helper method for nested field `paid_star_count`.
     #[must_use]
     pub fn paid_star_count(&self) -> Option<i64> {
@@ -1888,6 +1964,18 @@ impl ChatFullInfo {
             .map(|inner| inner.small_file_unique_id.as_ref())
     }
 
+    /// Helper method for nested field `stickers`.
+    #[must_use]
+    pub fn stickers(&self) -> Option<&[crate::types::TonWalletCardSticker]> {
+        match self {
+            Self::Private(val) => val
+                .ton_wallet_card
+                .as_ref()
+                .map(|inner| inner.stickers.as_ref()),
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `story`.
     #[must_use]
     pub fn story(&self) -> Option<&crate::types::Story> {
@@ -2010,6 +2098,13 @@ impl ChatFullInfo {
         }
     }
 
+    /// Helper method for nested field `ton_wallet_transfer`.
+    #[must_use]
+    pub fn ton_wallet_transfer(&self) -> Option<&crate::types::TonWalletTransfer> {
+        self.pinned_message()
+            .and_then(crate::types::Message::ton_wallet_transfer)
+    }
+
     /// Helper method for nested field `unique_gift`.
     #[must_use]
     pub fn unique_gift(&self) -> Option<&crate::types::UniqueGiftInfo> {
@@ -2109,6 +2204,13 @@ impl ChatFullInfo {
     pub fn web_app_data(&self) -> Option<&crate::types::WebAppData> {
         self.pinned_message()
             .and_then(crate::types::Message::web_app_data)
+    }
+
+    /// Helper method for nested field `widget`.
+    #[must_use]
+    pub fn widget(&self) -> Option<&crate::types::Widget> {
+        self.pinned_message()
+            .and_then(crate::types::Message::widget)
     }
 
     /// Helper method for nested field `write_access_allowed`.

@@ -57,7 +57,7 @@ async fn update_id_handler(
 ) -> HandlerResult<()> {
     match update_chat_id {
         Some(UpdateChatId(chat_id)) => {
-            bot.send(SendMessage::new(chat_id, format!("Update id: {update_id}")))
+            bot.send(SendMessage::new(format!("Update id: {update_id}")).chat_id(chat_id))
                 .await?;
         }
         None => {
@@ -120,13 +120,13 @@ async fn send_data_handler(
     assert_eq!(num_data1, num_data2);
     assert_eq!(str_data1, str_data2);
 
-    bot.send(SendMessage::new(
-        message.chat().id(),
-        format!(
+    bot.send(
+        SendMessage::new(format!(
             "NumData: {:?}. StrData: {:?}. BoolData: {bool_data}. BotId: {bot_id}",
             num_data1.0, str_data1.0
-        ),
-    ))
+        ))
+        .chat_id(message.chat().id()),
+    )
     .await?;
     Ok(())
 }

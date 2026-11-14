@@ -47,6 +47,7 @@
 /// - [`crate::types::MessageNewChatTitle`]
 /// - [`crate::types::MessagePaidMedia`]
 /// - [`crate::types::MessagePaidMessagePriceChanged`]
+/// - [`crate::types::MessagePaidMessagesWaived`]
 /// - [`crate::types::MessagePassportData`]
 /// - [`crate::types::MessagePhoto`]
 /// - [`crate::types::MessagePinnedMessage`]
@@ -66,6 +67,7 @@
 /// - [`crate::types::MessageSuggestedPostRefunded`]
 /// - [`crate::types::MessageSupergroupChatCreated`]
 /// - [`crate::types::MessageText`]
+/// - [`crate::types::MessageTonWalletTransfer`]
 /// - [`crate::types::MessageUniqueGift`]
 /// - [`crate::types::MessageUsersShared`]
 /// - [`crate::types::MessageVenue`]
@@ -77,6 +79,7 @@
 /// - [`crate::types::MessageVideoNote`]
 /// - [`crate::types::MessageVoice`]
 /// - [`crate::types::MessageWebAppData`]
+/// - [`crate::types::MessageWidget`]
 /// - [`crate::types::MessageWriteAccessAllowed`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#message>
@@ -134,6 +137,7 @@ pub enum Message {
     NewChatTitle(crate::types::MessageNewChatTitle),
     PaidMedia(crate::types::MessagePaidMedia),
     PaidMessagePriceChanged(crate::types::MessagePaidMessagePriceChanged),
+    PaidMessagesWaived(crate::types::MessagePaidMessagesWaived),
     PassportData(crate::types::MessagePassportData),
     Photo(crate::types::MessagePhoto),
     PinnedMessage(crate::types::MessagePinnedMessage),
@@ -153,6 +157,7 @@ pub enum Message {
     SuggestedPostRefunded(crate::types::MessageSuggestedPostRefunded),
     SupergroupChatCreated(crate::types::MessageSupergroupChatCreated),
     Text(crate::types::MessageText),
+    TonWalletTransfer(crate::types::MessageTonWalletTransfer),
     UniqueGift(crate::types::MessageUniqueGift),
     UsersShared(crate::types::MessageUsersShared),
     Video(crate::types::MessageVideo),
@@ -163,6 +168,7 @@ pub enum Message {
     VideoNote(crate::types::MessageVideoNote),
     Voice(crate::types::MessageVoice),
     WebAppData(crate::types::MessageWebAppData),
+    Widget(crate::types::MessageWidget),
     WriteAccessAllowed(crate::types::MessageWriteAccessAllowed),
     Unknown(crate::types::MessageUnknown),
 }
@@ -243,6 +249,7 @@ impl Message {
             Self::NewChatTitle(val) => val.author_signature.as_deref(),
             Self::PaidMedia(val) => val.author_signature.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.author_signature.as_deref(),
+            Self::PaidMessagesWaived(val) => val.author_signature.as_deref(),
             Self::PassportData(val) => val.author_signature.as_deref(),
             Self::Photo(val) => val.author_signature.as_deref(),
             Self::PinnedMessage(val) => val.author_signature.as_deref(),
@@ -262,6 +269,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.author_signature.as_deref(),
             Self::SupergroupChatCreated(val) => val.author_signature.as_deref(),
             Self::Text(val) => val.author_signature.as_deref(),
+            Self::TonWalletTransfer(val) => val.author_signature.as_deref(),
             Self::UniqueGift(val) => val.author_signature.as_deref(),
             Self::UsersShared(val) => val.author_signature.as_deref(),
             Self::Video(val) => val.author_signature.as_deref(),
@@ -272,6 +280,7 @@ impl Message {
             Self::VideoNote(val) => val.author_signature.as_deref(),
             Self::Voice(val) => val.author_signature.as_deref(),
             Self::WebAppData(val) => val.author_signature.as_deref(),
+            Self::Widget(val) => val.author_signature.as_deref(),
             Self::WriteAccessAllowed(val) => val.author_signature.as_deref(),
             Self::Unknown(val) => val.author_signature.as_deref(),
         }
@@ -342,6 +351,7 @@ impl Message {
             Self::NewChatTitle(val) => val.business_connection_id.as_deref(),
             Self::PaidMedia(val) => val.business_connection_id.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.business_connection_id.as_deref(),
+            Self::PaidMessagesWaived(val) => val.business_connection_id.as_deref(),
             Self::PassportData(val) => val.business_connection_id.as_deref(),
             Self::Photo(val) => val.business_connection_id.as_deref(),
             Self::PinnedMessage(val) => val.business_connection_id.as_deref(),
@@ -361,6 +371,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.business_connection_id.as_deref(),
             Self::SupergroupChatCreated(val) => val.business_connection_id.as_deref(),
             Self::Text(val) => val.business_connection_id.as_deref(),
+            Self::TonWalletTransfer(val) => val.business_connection_id.as_deref(),
             Self::UniqueGift(val) => val.business_connection_id.as_deref(),
             Self::UsersShared(val) => val.business_connection_id.as_deref(),
             Self::Video(val) => val.business_connection_id.as_deref(),
@@ -371,6 +382,7 @@ impl Message {
             Self::VideoNote(val) => val.business_connection_id.as_deref(),
             Self::Voice(val) => val.business_connection_id.as_deref(),
             Self::WebAppData(val) => val.business_connection_id.as_deref(),
+            Self::Widget(val) => val.business_connection_id.as_deref(),
             Self::WriteAccessAllowed(val) => val.business_connection_id.as_deref(),
             Self::Unknown(val) => val.business_connection_id.as_deref(),
         }
@@ -378,7 +390,7 @@ impl Message {
 
     /// Helper method for field `caption`.
     ///
-    /// Caption for the animation, audio, document, paid media, photo, video or voice
+    /// Caption for the animation, audio, document, live photo, paid media, photo, video, voice, or widget
     #[must_use]
     pub fn caption(&self) -> Option<&str> {
         match self {
@@ -430,6 +442,7 @@ impl Message {
             Self::NewChatTitle(val) => val.caption.as_deref(),
             Self::PaidMedia(val) => val.caption.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.caption.as_deref(),
+            Self::PaidMessagesWaived(val) => val.caption.as_deref(),
             Self::PassportData(val) => val.caption.as_deref(),
             Self::Photo(val) => val.caption.as_deref(),
             Self::PinnedMessage(val) => val.caption.as_deref(),
@@ -449,6 +462,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.caption.as_deref(),
             Self::SupergroupChatCreated(val) => val.caption.as_deref(),
             Self::Text(val) => val.caption.as_deref(),
+            Self::TonWalletTransfer(val) => val.caption.as_deref(),
             Self::UniqueGift(val) => val.caption.as_deref(),
             Self::UsersShared(val) => val.caption.as_deref(),
             Self::Video(val) => val.caption.as_deref(),
@@ -459,6 +473,7 @@ impl Message {
             Self::VideoNote(val) => val.caption.as_deref(),
             Self::Voice(val) => val.caption.as_deref(),
             Self::WebAppData(val) => val.caption.as_deref(),
+            Self::Widget(val) => val.caption.as_deref(),
             Self::WriteAccessAllowed(val) => val.caption.as_deref(),
             Self::Unknown(val) => val.caption.as_deref(),
         }
@@ -518,6 +533,7 @@ impl Message {
             Self::NewChatTitle(val) => val.caption_entities.as_deref(),
             Self::PaidMedia(val) => val.caption_entities.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.caption_entities.as_deref(),
+            Self::PaidMessagesWaived(val) => val.caption_entities.as_deref(),
             Self::PassportData(val) => val.caption_entities.as_deref(),
             Self::Photo(val) => val.caption_entities.as_deref(),
             Self::PinnedMessage(val) => val.caption_entities.as_deref(),
@@ -537,6 +553,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.caption_entities.as_deref(),
             Self::SupergroupChatCreated(val) => val.caption_entities.as_deref(),
             Self::Text(val) => val.caption_entities.as_deref(),
+            Self::TonWalletTransfer(val) => val.caption_entities.as_deref(),
             Self::UniqueGift(val) => val.caption_entities.as_deref(),
             Self::UsersShared(val) => val.caption_entities.as_deref(),
             Self::Video(val) => val.caption_entities.as_deref(),
@@ -547,6 +564,7 @@ impl Message {
             Self::VideoNote(val) => val.caption_entities.as_deref(),
             Self::Voice(val) => val.caption_entities.as_deref(),
             Self::WebAppData(val) => val.caption_entities.as_deref(),
+            Self::Widget(val) => val.caption_entities.as_deref(),
             Self::WriteAccessAllowed(val) => val.caption_entities.as_deref(),
             Self::Unknown(val) => val.caption_entities.as_deref(),
         }
@@ -617,6 +635,7 @@ impl Message {
             Self::NewChatTitle(val) => val.chat.as_ref(),
             Self::PaidMedia(val) => val.chat.as_ref(),
             Self::PaidMessagePriceChanged(val) => val.chat.as_ref(),
+            Self::PaidMessagesWaived(val) => val.chat.as_ref(),
             Self::PassportData(val) => val.chat.as_ref(),
             Self::Photo(val) => val.chat.as_ref(),
             Self::PinnedMessage(val) => val.chat.as_ref(),
@@ -636,6 +655,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.chat.as_ref(),
             Self::SupergroupChatCreated(val) => val.chat.as_ref(),
             Self::Text(val) => val.chat.as_ref(),
+            Self::TonWalletTransfer(val) => val.chat.as_ref(),
             Self::UniqueGift(val) => val.chat.as_ref(),
             Self::UsersShared(val) => val.chat.as_ref(),
             Self::Video(val) => val.chat.as_ref(),
@@ -646,6 +666,7 @@ impl Message {
             Self::VideoNote(val) => val.chat.as_ref(),
             Self::Voice(val) => val.chat.as_ref(),
             Self::WebAppData(val) => val.chat.as_ref(),
+            Self::Widget(val) => val.chat.as_ref(),
             Self::WriteAccessAllowed(val) => val.chat.as_ref(),
             Self::Unknown(val) => val.chat.as_ref(),
         }
@@ -837,6 +858,7 @@ impl Message {
             Self::NewChatTitle(val) => val.date,
             Self::PaidMedia(val) => val.date,
             Self::PaidMessagePriceChanged(val) => val.date,
+            Self::PaidMessagesWaived(val) => val.date,
             Self::PassportData(val) => val.date,
             Self::Photo(val) => val.date,
             Self::PinnedMessage(val) => val.date,
@@ -856,6 +878,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.date,
             Self::SupergroupChatCreated(val) => val.date,
             Self::Text(val) => val.date,
+            Self::TonWalletTransfer(val) => val.date,
             Self::UniqueGift(val) => val.date,
             Self::UsersShared(val) => val.date,
             Self::Video(val) => val.date,
@@ -866,6 +889,7 @@ impl Message {
             Self::VideoNote(val) => val.date,
             Self::Voice(val) => val.date,
             Self::WebAppData(val) => val.date,
+            Self::Widget(val) => val.date,
             Self::WriteAccessAllowed(val) => val.date,
             Self::Unknown(val) => val.date,
         }
@@ -958,6 +982,7 @@ impl Message {
             Self::NewChatTitle(val) => val.direct_messages_topic.as_ref(),
             Self::PaidMedia(val) => val.direct_messages_topic.as_ref(),
             Self::PaidMessagePriceChanged(val) => val.direct_messages_topic.as_ref(),
+            Self::PaidMessagesWaived(val) => val.direct_messages_topic.as_ref(),
             Self::PassportData(val) => val.direct_messages_topic.as_ref(),
             Self::Photo(val) => val.direct_messages_topic.as_ref(),
             Self::PinnedMessage(val) => val.direct_messages_topic.as_ref(),
@@ -977,6 +1002,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.direct_messages_topic.as_ref(),
             Self::SupergroupChatCreated(val) => val.direct_messages_topic.as_ref(),
             Self::Text(val) => val.direct_messages_topic.as_ref(),
+            Self::TonWalletTransfer(val) => val.direct_messages_topic.as_ref(),
             Self::UniqueGift(val) => val.direct_messages_topic.as_ref(),
             Self::UsersShared(val) => val.direct_messages_topic.as_ref(),
             Self::Video(val) => val.direct_messages_topic.as_ref(),
@@ -987,6 +1013,7 @@ impl Message {
             Self::VideoNote(val) => val.direct_messages_topic.as_ref(),
             Self::Voice(val) => val.direct_messages_topic.as_ref(),
             Self::WebAppData(val) => val.direct_messages_topic.as_ref(),
+            Self::Widget(val) => val.direct_messages_topic.as_ref(),
             Self::WriteAccessAllowed(val) => val.direct_messages_topic.as_ref(),
             Self::Unknown(val) => val.direct_messages_topic.as_ref(),
         }
@@ -1057,6 +1084,7 @@ impl Message {
             Self::NewChatTitle(val) => val.edit_date,
             Self::PaidMedia(val) => val.edit_date,
             Self::PaidMessagePriceChanged(val) => val.edit_date,
+            Self::PaidMessagesWaived(val) => val.edit_date,
             Self::PassportData(val) => val.edit_date,
             Self::Photo(val) => val.edit_date,
             Self::PinnedMessage(val) => val.edit_date,
@@ -1076,6 +1104,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.edit_date,
             Self::SupergroupChatCreated(val) => val.edit_date,
             Self::Text(val) => val.edit_date,
+            Self::TonWalletTransfer(val) => val.edit_date,
             Self::UniqueGift(val) => val.edit_date,
             Self::UsersShared(val) => val.edit_date,
             Self::Video(val) => val.edit_date,
@@ -1086,6 +1115,7 @@ impl Message {
             Self::VideoNote(val) => val.edit_date,
             Self::Voice(val) => val.edit_date,
             Self::WebAppData(val) => val.edit_date,
+            Self::Widget(val) => val.edit_date,
             Self::WriteAccessAllowed(val) => val.edit_date,
             Self::Unknown(val) => val.edit_date,
         }
@@ -1145,6 +1175,7 @@ impl Message {
             Self::NewChatTitle(val) => val.effect_id.as_deref(),
             Self::PaidMedia(val) => val.effect_id.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.effect_id.as_deref(),
+            Self::PaidMessagesWaived(val) => val.effect_id.as_deref(),
             Self::PassportData(val) => val.effect_id.as_deref(),
             Self::Photo(val) => val.effect_id.as_deref(),
             Self::PinnedMessage(val) => val.effect_id.as_deref(),
@@ -1164,6 +1195,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.effect_id.as_deref(),
             Self::SupergroupChatCreated(val) => val.effect_id.as_deref(),
             Self::Text(val) => val.effect_id.as_deref(),
+            Self::TonWalletTransfer(val) => val.effect_id.as_deref(),
             Self::UniqueGift(val) => val.effect_id.as_deref(),
             Self::UsersShared(val) => val.effect_id.as_deref(),
             Self::Video(val) => val.effect_id.as_deref(),
@@ -1174,6 +1206,7 @@ impl Message {
             Self::VideoNote(val) => val.effect_id.as_deref(),
             Self::Voice(val) => val.effect_id.as_deref(),
             Self::WebAppData(val) => val.effect_id.as_deref(),
+            Self::Widget(val) => val.effect_id.as_deref(),
             Self::WriteAccessAllowed(val) => val.effect_id.as_deref(),
             Self::Unknown(val) => val.effect_id.as_deref(),
         }
@@ -1233,6 +1266,7 @@ impl Message {
             Self::NewChatTitle(val) => val.entities.as_deref(),
             Self::PaidMedia(val) => val.entities.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.entities.as_deref(),
+            Self::PaidMessagesWaived(val) => val.entities.as_deref(),
             Self::PassportData(val) => val.entities.as_deref(),
             Self::Photo(val) => val.entities.as_deref(),
             Self::PinnedMessage(val) => val.entities.as_deref(),
@@ -1252,6 +1286,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.entities.as_deref(),
             Self::SupergroupChatCreated(val) => val.entities.as_deref(),
             Self::Text(val) => val.entities.as_deref(),
+            Self::TonWalletTransfer(val) => val.entities.as_deref(),
             Self::UniqueGift(val) => val.entities.as_deref(),
             Self::UsersShared(val) => val.entities.as_deref(),
             Self::Video(val) => val.entities.as_deref(),
@@ -1262,6 +1297,7 @@ impl Message {
             Self::VideoNote(val) => val.entities.as_deref(),
             Self::Voice(val) => val.entities.as_deref(),
             Self::WebAppData(val) => val.entities.as_deref(),
+            Self::Widget(val) => val.entities.as_deref(),
             Self::WriteAccessAllowed(val) => val.entities.as_deref(),
             Self::Unknown(val) => val.entities.as_deref(),
         }
@@ -1321,6 +1357,7 @@ impl Message {
             Self::NewChatTitle(val) => val.ephemeral_message_id,
             Self::PaidMedia(val) => val.ephemeral_message_id,
             Self::PaidMessagePriceChanged(val) => val.ephemeral_message_id,
+            Self::PaidMessagesWaived(val) => val.ephemeral_message_id,
             Self::PassportData(val) => val.ephemeral_message_id,
             Self::Photo(val) => val.ephemeral_message_id,
             Self::PinnedMessage(val) => val.ephemeral_message_id,
@@ -1340,6 +1377,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.ephemeral_message_id,
             Self::SupergroupChatCreated(val) => val.ephemeral_message_id,
             Self::Text(val) => val.ephemeral_message_id,
+            Self::TonWalletTransfer(val) => val.ephemeral_message_id,
             Self::UniqueGift(val) => val.ephemeral_message_id,
             Self::UsersShared(val) => val.ephemeral_message_id,
             Self::Video(val) => val.ephemeral_message_id,
@@ -1350,6 +1388,7 @@ impl Message {
             Self::VideoNote(val) => val.ephemeral_message_id,
             Self::Voice(val) => val.ephemeral_message_id,
             Self::WebAppData(val) => val.ephemeral_message_id,
+            Self::Widget(val) => val.ephemeral_message_id,
             Self::WriteAccessAllowed(val) => val.ephemeral_message_id,
             Self::Unknown(val) => val.ephemeral_message_id,
         }
@@ -1409,6 +1448,7 @@ impl Message {
             Self::NewChatTitle(val) => val.external_reply.as_deref(),
             Self::PaidMedia(val) => val.external_reply.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.external_reply.as_deref(),
+            Self::PaidMessagesWaived(val) => val.external_reply.as_deref(),
             Self::PassportData(val) => val.external_reply.as_deref(),
             Self::Photo(val) => val.external_reply.as_deref(),
             Self::PinnedMessage(val) => val.external_reply.as_deref(),
@@ -1428,6 +1468,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.external_reply.as_deref(),
             Self::SupergroupChatCreated(val) => val.external_reply.as_deref(),
             Self::Text(val) => val.external_reply.as_deref(),
+            Self::TonWalletTransfer(val) => val.external_reply.as_deref(),
             Self::UniqueGift(val) => val.external_reply.as_deref(),
             Self::UsersShared(val) => val.external_reply.as_deref(),
             Self::Video(val) => val.external_reply.as_deref(),
@@ -1438,6 +1479,7 @@ impl Message {
             Self::VideoNote(val) => val.external_reply.as_deref(),
             Self::Voice(val) => val.external_reply.as_deref(),
             Self::WebAppData(val) => val.external_reply.as_deref(),
+            Self::Widget(val) => val.external_reply.as_deref(),
             Self::WriteAccessAllowed(val) => val.external_reply.as_deref(),
             Self::Unknown(val) => val.external_reply.as_deref(),
         }
@@ -1541,6 +1583,7 @@ impl Message {
             Self::NewChatTitle(val) => val.forward_origin.as_ref(),
             Self::PaidMedia(val) => val.forward_origin.as_ref(),
             Self::PaidMessagePriceChanged(val) => val.forward_origin.as_ref(),
+            Self::PaidMessagesWaived(val) => val.forward_origin.as_ref(),
             Self::PassportData(val) => val.forward_origin.as_ref(),
             Self::Photo(val) => val.forward_origin.as_ref(),
             Self::PinnedMessage(val) => val.forward_origin.as_ref(),
@@ -1560,6 +1603,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.forward_origin.as_ref(),
             Self::SupergroupChatCreated(val) => val.forward_origin.as_ref(),
             Self::Text(val) => val.forward_origin.as_ref(),
+            Self::TonWalletTransfer(val) => val.forward_origin.as_ref(),
             Self::UniqueGift(val) => val.forward_origin.as_ref(),
             Self::UsersShared(val) => val.forward_origin.as_ref(),
             Self::Video(val) => val.forward_origin.as_ref(),
@@ -1570,6 +1614,7 @@ impl Message {
             Self::VideoNote(val) => val.forward_origin.as_ref(),
             Self::Voice(val) => val.forward_origin.as_ref(),
             Self::WebAppData(val) => val.forward_origin.as_ref(),
+            Self::Widget(val) => val.forward_origin.as_ref(),
             Self::WriteAccessAllowed(val) => val.forward_origin.as_ref(),
             Self::Unknown(val) => val.forward_origin.as_ref(),
         }
@@ -1629,6 +1674,7 @@ impl Message {
             Self::NewChatTitle(val) => val.from.as_deref(),
             Self::PaidMedia(val) => val.from.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.from.as_deref(),
+            Self::PaidMessagesWaived(val) => val.from.as_deref(),
             Self::PassportData(val) => val.from.as_deref(),
             Self::Photo(val) => val.from.as_deref(),
             Self::PinnedMessage(val) => val.from.as_deref(),
@@ -1648,6 +1694,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.from.as_deref(),
             Self::SupergroupChatCreated(val) => val.from.as_deref(),
             Self::Text(val) => val.from.as_deref(),
+            Self::TonWalletTransfer(val) => val.from.as_deref(),
             Self::UniqueGift(val) => val.from.as_deref(),
             Self::UsersShared(val) => val.from.as_deref(),
             Self::Video(val) => val.from.as_deref(),
@@ -1658,6 +1705,7 @@ impl Message {
             Self::VideoNote(val) => val.from.as_deref(),
             Self::Voice(val) => val.from.as_deref(),
             Self::WebAppData(val) => val.from.as_deref(),
+            Self::Widget(val) => val.from.as_deref(),
             Self::WriteAccessAllowed(val) => val.from.as_deref(),
             Self::Unknown(val) => val.from.as_deref(),
         }
@@ -1827,6 +1875,7 @@ impl Message {
             Self::NewChatTitle(val) => val.guest_bot_caller_chat.as_deref(),
             Self::PaidMedia(val) => val.guest_bot_caller_chat.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::PaidMessagesWaived(val) => val.guest_bot_caller_chat.as_deref(),
             Self::PassportData(val) => val.guest_bot_caller_chat.as_deref(),
             Self::Photo(val) => val.guest_bot_caller_chat.as_deref(),
             Self::PinnedMessage(val) => val.guest_bot_caller_chat.as_deref(),
@@ -1846,6 +1895,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.guest_bot_caller_chat.as_deref(),
             Self::SupergroupChatCreated(val) => val.guest_bot_caller_chat.as_deref(),
             Self::Text(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::TonWalletTransfer(val) => val.guest_bot_caller_chat.as_deref(),
             Self::UniqueGift(val) => val.guest_bot_caller_chat.as_deref(),
             Self::UsersShared(val) => val.guest_bot_caller_chat.as_deref(),
             Self::Video(val) => val.guest_bot_caller_chat.as_deref(),
@@ -1856,6 +1906,7 @@ impl Message {
             Self::VideoNote(val) => val.guest_bot_caller_chat.as_deref(),
             Self::Voice(val) => val.guest_bot_caller_chat.as_deref(),
             Self::WebAppData(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Widget(val) => val.guest_bot_caller_chat.as_deref(),
             Self::WriteAccessAllowed(val) => val.guest_bot_caller_chat.as_deref(),
             Self::Unknown(val) => val.guest_bot_caller_chat.as_deref(),
         }
@@ -1915,6 +1966,7 @@ impl Message {
             Self::NewChatTitle(val) => val.guest_bot_caller_user.as_deref(),
             Self::PaidMedia(val) => val.guest_bot_caller_user.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.guest_bot_caller_user.as_deref(),
+            Self::PaidMessagesWaived(val) => val.guest_bot_caller_user.as_deref(),
             Self::PassportData(val) => val.guest_bot_caller_user.as_deref(),
             Self::Photo(val) => val.guest_bot_caller_user.as_deref(),
             Self::PinnedMessage(val) => val.guest_bot_caller_user.as_deref(),
@@ -1934,6 +1986,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.guest_bot_caller_user.as_deref(),
             Self::SupergroupChatCreated(val) => val.guest_bot_caller_user.as_deref(),
             Self::Text(val) => val.guest_bot_caller_user.as_deref(),
+            Self::TonWalletTransfer(val) => val.guest_bot_caller_user.as_deref(),
             Self::UniqueGift(val) => val.guest_bot_caller_user.as_deref(),
             Self::UsersShared(val) => val.guest_bot_caller_user.as_deref(),
             Self::Video(val) => val.guest_bot_caller_user.as_deref(),
@@ -1944,6 +1997,7 @@ impl Message {
             Self::VideoNote(val) => val.guest_bot_caller_user.as_deref(),
             Self::Voice(val) => val.guest_bot_caller_user.as_deref(),
             Self::WebAppData(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Widget(val) => val.guest_bot_caller_user.as_deref(),
             Self::WriteAccessAllowed(val) => val.guest_bot_caller_user.as_deref(),
             Self::Unknown(val) => val.guest_bot_caller_user.as_deref(),
         }
@@ -2003,6 +2057,7 @@ impl Message {
             Self::NewChatTitle(val) => val.guest_query_id.as_deref(),
             Self::PaidMedia(val) => val.guest_query_id.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.guest_query_id.as_deref(),
+            Self::PaidMessagesWaived(val) => val.guest_query_id.as_deref(),
             Self::PassportData(val) => val.guest_query_id.as_deref(),
             Self::Photo(val) => val.guest_query_id.as_deref(),
             Self::PinnedMessage(val) => val.guest_query_id.as_deref(),
@@ -2022,6 +2077,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.guest_query_id.as_deref(),
             Self::SupergroupChatCreated(val) => val.guest_query_id.as_deref(),
             Self::Text(val) => val.guest_query_id.as_deref(),
+            Self::TonWalletTransfer(val) => val.guest_query_id.as_deref(),
             Self::UniqueGift(val) => val.guest_query_id.as_deref(),
             Self::UsersShared(val) => val.guest_query_id.as_deref(),
             Self::Video(val) => val.guest_query_id.as_deref(),
@@ -2032,6 +2088,7 @@ impl Message {
             Self::VideoNote(val) => val.guest_query_id.as_deref(),
             Self::Voice(val) => val.guest_query_id.as_deref(),
             Self::WebAppData(val) => val.guest_query_id.as_deref(),
+            Self::Widget(val) => val.guest_query_id.as_deref(),
             Self::WriteAccessAllowed(val) => val.guest_query_id.as_deref(),
             Self::Unknown(val) => val.guest_query_id.as_deref(),
         }
@@ -2091,6 +2148,7 @@ impl Message {
             Self::NewChatTitle(val) => val.has_media_spoiler,
             Self::PaidMedia(val) => val.has_media_spoiler,
             Self::PaidMessagePriceChanged(val) => val.has_media_spoiler,
+            Self::PaidMessagesWaived(val) => val.has_media_spoiler,
             Self::PassportData(val) => val.has_media_spoiler,
             Self::Photo(val) => val.has_media_spoiler,
             Self::PinnedMessage(val) => val.has_media_spoiler,
@@ -2110,6 +2168,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.has_media_spoiler,
             Self::SupergroupChatCreated(val) => val.has_media_spoiler,
             Self::Text(val) => val.has_media_spoiler,
+            Self::TonWalletTransfer(val) => val.has_media_spoiler,
             Self::UniqueGift(val) => val.has_media_spoiler,
             Self::UsersShared(val) => val.has_media_spoiler,
             Self::Video(val) => val.has_media_spoiler,
@@ -2120,6 +2179,7 @@ impl Message {
             Self::VideoNote(val) => val.has_media_spoiler,
             Self::Voice(val) => val.has_media_spoiler,
             Self::WebAppData(val) => val.has_media_spoiler,
+            Self::Widget(val) => val.has_media_spoiler,
             Self::WriteAccessAllowed(val) => val.has_media_spoiler,
             Self::Unknown(val) => val.has_media_spoiler,
         }
@@ -2179,6 +2239,7 @@ impl Message {
             Self::NewChatTitle(val) => val.has_protected_content,
             Self::PaidMedia(val) => val.has_protected_content,
             Self::PaidMessagePriceChanged(val) => val.has_protected_content,
+            Self::PaidMessagesWaived(val) => val.has_protected_content,
             Self::PassportData(val) => val.has_protected_content,
             Self::Photo(val) => val.has_protected_content,
             Self::PinnedMessage(val) => val.has_protected_content,
@@ -2198,6 +2259,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.has_protected_content,
             Self::SupergroupChatCreated(val) => val.has_protected_content,
             Self::Text(val) => val.has_protected_content,
+            Self::TonWalletTransfer(val) => val.has_protected_content,
             Self::UniqueGift(val) => val.has_protected_content,
             Self::UsersShared(val) => val.has_protected_content,
             Self::Video(val) => val.has_protected_content,
@@ -2208,6 +2270,7 @@ impl Message {
             Self::VideoNote(val) => val.has_protected_content,
             Self::Voice(val) => val.has_protected_content,
             Self::WebAppData(val) => val.has_protected_content,
+            Self::Widget(val) => val.has_protected_content,
             Self::WriteAccessAllowed(val) => val.has_protected_content,
             Self::Unknown(val) => val.has_protected_content,
         }
@@ -2278,6 +2341,7 @@ impl Message {
             Self::NewChatTitle(val) => val.is_automatic_forward,
             Self::PaidMedia(val) => val.is_automatic_forward,
             Self::PaidMessagePriceChanged(val) => val.is_automatic_forward,
+            Self::PaidMessagesWaived(val) => val.is_automatic_forward,
             Self::PassportData(val) => val.is_automatic_forward,
             Self::Photo(val) => val.is_automatic_forward,
             Self::PinnedMessage(val) => val.is_automatic_forward,
@@ -2297,6 +2361,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.is_automatic_forward,
             Self::SupergroupChatCreated(val) => val.is_automatic_forward,
             Self::Text(val) => val.is_automatic_forward,
+            Self::TonWalletTransfer(val) => val.is_automatic_forward,
             Self::UniqueGift(val) => val.is_automatic_forward,
             Self::UsersShared(val) => val.is_automatic_forward,
             Self::Video(val) => val.is_automatic_forward,
@@ -2307,6 +2372,7 @@ impl Message {
             Self::VideoNote(val) => val.is_automatic_forward,
             Self::Voice(val) => val.is_automatic_forward,
             Self::WebAppData(val) => val.is_automatic_forward,
+            Self::Widget(val) => val.is_automatic_forward,
             Self::WriteAccessAllowed(val) => val.is_automatic_forward,
             Self::Unknown(val) => val.is_automatic_forward,
         }
@@ -2366,6 +2432,7 @@ impl Message {
             Self::NewChatTitle(val) => val.is_from_offline,
             Self::PaidMedia(val) => val.is_from_offline,
             Self::PaidMessagePriceChanged(val) => val.is_from_offline,
+            Self::PaidMessagesWaived(val) => val.is_from_offline,
             Self::PassportData(val) => val.is_from_offline,
             Self::Photo(val) => val.is_from_offline,
             Self::PinnedMessage(val) => val.is_from_offline,
@@ -2385,6 +2452,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.is_from_offline,
             Self::SupergroupChatCreated(val) => val.is_from_offline,
             Self::Text(val) => val.is_from_offline,
+            Self::TonWalletTransfer(val) => val.is_from_offline,
             Self::UniqueGift(val) => val.is_from_offline,
             Self::UsersShared(val) => val.is_from_offline,
             Self::Video(val) => val.is_from_offline,
@@ -2395,6 +2463,7 @@ impl Message {
             Self::VideoNote(val) => val.is_from_offline,
             Self::Voice(val) => val.is_from_offline,
             Self::WebAppData(val) => val.is_from_offline,
+            Self::Widget(val) => val.is_from_offline,
             Self::WriteAccessAllowed(val) => val.is_from_offline,
             Self::Unknown(val) => val.is_from_offline,
         }
@@ -2454,6 +2523,7 @@ impl Message {
             Self::NewChatTitle(val) => val.is_paid_post,
             Self::PaidMedia(val) => val.is_paid_post,
             Self::PaidMessagePriceChanged(val) => val.is_paid_post,
+            Self::PaidMessagesWaived(val) => val.is_paid_post,
             Self::PassportData(val) => val.is_paid_post,
             Self::Photo(val) => val.is_paid_post,
             Self::PinnedMessage(val) => val.is_paid_post,
@@ -2473,6 +2543,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.is_paid_post,
             Self::SupergroupChatCreated(val) => val.is_paid_post,
             Self::Text(val) => val.is_paid_post,
+            Self::TonWalletTransfer(val) => val.is_paid_post,
             Self::UniqueGift(val) => val.is_paid_post,
             Self::UsersShared(val) => val.is_paid_post,
             Self::Video(val) => val.is_paid_post,
@@ -2483,6 +2554,7 @@ impl Message {
             Self::VideoNote(val) => val.is_paid_post,
             Self::Voice(val) => val.is_paid_post,
             Self::WebAppData(val) => val.is_paid_post,
+            Self::Widget(val) => val.is_paid_post,
             Self::WriteAccessAllowed(val) => val.is_paid_post,
             Self::Unknown(val) => val.is_paid_post,
         }
@@ -2542,6 +2614,7 @@ impl Message {
             Self::NewChatTitle(val) => val.is_topic_message,
             Self::PaidMedia(val) => val.is_topic_message,
             Self::PaidMessagePriceChanged(val) => val.is_topic_message,
+            Self::PaidMessagesWaived(val) => val.is_topic_message,
             Self::PassportData(val) => val.is_topic_message,
             Self::Photo(val) => val.is_topic_message,
             Self::PinnedMessage(val) => val.is_topic_message,
@@ -2561,6 +2634,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.is_topic_message,
             Self::SupergroupChatCreated(val) => val.is_topic_message,
             Self::Text(val) => val.is_topic_message,
+            Self::TonWalletTransfer(val) => val.is_topic_message,
             Self::UniqueGift(val) => val.is_topic_message,
             Self::UsersShared(val) => val.is_topic_message,
             Self::Video(val) => val.is_topic_message,
@@ -2571,6 +2645,7 @@ impl Message {
             Self::VideoNote(val) => val.is_topic_message,
             Self::Voice(val) => val.is_topic_message,
             Self::WebAppData(val) => val.is_topic_message,
+            Self::Widget(val) => val.is_topic_message,
             Self::WriteAccessAllowed(val) => val.is_topic_message,
             Self::Unknown(val) => val.is_topic_message,
         }
@@ -2641,6 +2716,7 @@ impl Message {
             Self::NewChatTitle(val) => val.link_preview_options.as_ref(),
             Self::PaidMedia(val) => val.link_preview_options.as_ref(),
             Self::PaidMessagePriceChanged(val) => val.link_preview_options.as_ref(),
+            Self::PaidMessagesWaived(val) => val.link_preview_options.as_ref(),
             Self::PassportData(val) => val.link_preview_options.as_ref(),
             Self::Photo(val) => val.link_preview_options.as_ref(),
             Self::PinnedMessage(val) => val.link_preview_options.as_ref(),
@@ -2660,6 +2736,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.link_preview_options.as_ref(),
             Self::SupergroupChatCreated(val) => val.link_preview_options.as_ref(),
             Self::Text(val) => val.link_preview_options.as_ref(),
+            Self::TonWalletTransfer(val) => val.link_preview_options.as_ref(),
             Self::UniqueGift(val) => val.link_preview_options.as_ref(),
             Self::UsersShared(val) => val.link_preview_options.as_ref(),
             Self::Video(val) => val.link_preview_options.as_ref(),
@@ -2670,6 +2747,7 @@ impl Message {
             Self::VideoNote(val) => val.link_preview_options.as_ref(),
             Self::Voice(val) => val.link_preview_options.as_ref(),
             Self::WebAppData(val) => val.link_preview_options.as_ref(),
+            Self::Widget(val) => val.link_preview_options.as_ref(),
             Self::WriteAccessAllowed(val) => val.link_preview_options.as_ref(),
             Self::Unknown(val) => val.link_preview_options.as_ref(),
         }
@@ -2762,6 +2840,7 @@ impl Message {
             Self::NewChatTitle(val) => val.media_group_id.as_deref(),
             Self::PaidMedia(val) => val.media_group_id.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.media_group_id.as_deref(),
+            Self::PaidMessagesWaived(val) => val.media_group_id.as_deref(),
             Self::PassportData(val) => val.media_group_id.as_deref(),
             Self::Photo(val) => val.media_group_id.as_deref(),
             Self::PinnedMessage(val) => val.media_group_id.as_deref(),
@@ -2781,6 +2860,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.media_group_id.as_deref(),
             Self::SupergroupChatCreated(val) => val.media_group_id.as_deref(),
             Self::Text(val) => val.media_group_id.as_deref(),
+            Self::TonWalletTransfer(val) => val.media_group_id.as_deref(),
             Self::UniqueGift(val) => val.media_group_id.as_deref(),
             Self::UsersShared(val) => val.media_group_id.as_deref(),
             Self::Video(val) => val.media_group_id.as_deref(),
@@ -2791,6 +2871,7 @@ impl Message {
             Self::VideoNote(val) => val.media_group_id.as_deref(),
             Self::Voice(val) => val.media_group_id.as_deref(),
             Self::WebAppData(val) => val.media_group_id.as_deref(),
+            Self::Widget(val) => val.media_group_id.as_deref(),
             Self::WriteAccessAllowed(val) => val.media_group_id.as_deref(),
             Self::Unknown(val) => val.media_group_id.as_deref(),
         }
@@ -2865,6 +2946,7 @@ impl Message {
             Self::NewChatTitle(val) => val.message_id,
             Self::PaidMedia(val) => val.message_id,
             Self::PaidMessagePriceChanged(val) => val.message_id,
+            Self::PaidMessagesWaived(val) => val.message_id,
             Self::PassportData(val) => val.message_id,
             Self::Photo(val) => val.message_id,
             Self::PinnedMessage(val) => val.message_id,
@@ -2884,6 +2966,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.message_id,
             Self::SupergroupChatCreated(val) => val.message_id,
             Self::Text(val) => val.message_id,
+            Self::TonWalletTransfer(val) => val.message_id,
             Self::UniqueGift(val) => val.message_id,
             Self::UsersShared(val) => val.message_id,
             Self::Video(val) => val.message_id,
@@ -2894,6 +2977,7 @@ impl Message {
             Self::VideoNote(val) => val.message_id,
             Self::Voice(val) => val.message_id,
             Self::WebAppData(val) => val.message_id,
+            Self::Widget(val) => val.message_id,
             Self::WriteAccessAllowed(val) => val.message_id,
             Self::Unknown(val) => val.message_id,
         }
@@ -2953,6 +3037,7 @@ impl Message {
             Self::NewChatTitle(val) => val.message_thread_id,
             Self::PaidMedia(val) => val.message_thread_id,
             Self::PaidMessagePriceChanged(val) => val.message_thread_id,
+            Self::PaidMessagesWaived(val) => val.message_thread_id,
             Self::PassportData(val) => val.message_thread_id,
             Self::Photo(val) => val.message_thread_id,
             Self::PinnedMessage(val) => val.message_thread_id,
@@ -2972,6 +3057,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.message_thread_id,
             Self::SupergroupChatCreated(val) => val.message_thread_id,
             Self::Text(val) => val.message_thread_id,
+            Self::TonWalletTransfer(val) => val.message_thread_id,
             Self::UniqueGift(val) => val.message_thread_id,
             Self::UsersShared(val) => val.message_thread_id,
             Self::Video(val) => val.message_thread_id,
@@ -2982,6 +3068,7 @@ impl Message {
             Self::VideoNote(val) => val.message_thread_id,
             Self::Voice(val) => val.message_thread_id,
             Self::WebAppData(val) => val.message_thread_id,
+            Self::Widget(val) => val.message_thread_id,
             Self::WriteAccessAllowed(val) => val.message_thread_id,
             Self::Unknown(val) => val.message_thread_id,
         }
@@ -3064,6 +3151,17 @@ impl Message {
         }
     }
 
+    /// Helper method for field `paid_messages_waived`.
+    ///
+    /// Service message: the sender of the message used a link of the other user, which allows sending messages to the user without paying Telegram Stars
+    #[must_use]
+    pub fn paid_messages_waived(&self) -> Option<&crate::types::PaidMessagesWaived> {
+        match self {
+            Self::PaidMessagesWaived(val) => Some(&val.paid_messages_waived),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `paid_star_count`.
     ///
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -3118,6 +3216,7 @@ impl Message {
             Self::NewChatTitle(val) => val.paid_star_count,
             Self::PaidMedia(val) => val.paid_star_count,
             Self::PaidMessagePriceChanged(val) => val.paid_star_count,
+            Self::PaidMessagesWaived(val) => val.paid_star_count,
             Self::PassportData(val) => val.paid_star_count,
             Self::Photo(val) => val.paid_star_count,
             Self::PinnedMessage(val) => val.paid_star_count,
@@ -3137,6 +3236,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.paid_star_count,
             Self::SupergroupChatCreated(val) => val.paid_star_count,
             Self::Text(val) => val.paid_star_count,
+            Self::TonWalletTransfer(val) => val.paid_star_count,
             Self::UniqueGift(val) => val.paid_star_count,
             Self::UsersShared(val) => val.paid_star_count,
             Self::Video(val) => val.paid_star_count,
@@ -3147,6 +3247,7 @@ impl Message {
             Self::VideoNote(val) => val.paid_star_count,
             Self::Voice(val) => val.paid_star_count,
             Self::WebAppData(val) => val.paid_star_count,
+            Self::Widget(val) => val.paid_star_count,
             Self::WriteAccessAllowed(val) => val.paid_star_count,
             Self::Unknown(val) => val.paid_star_count,
         }
@@ -3283,6 +3384,7 @@ impl Message {
             Self::NewChatTitle(val) => val.quote.as_ref(),
             Self::PaidMedia(val) => val.quote.as_ref(),
             Self::PaidMessagePriceChanged(val) => val.quote.as_ref(),
+            Self::PaidMessagesWaived(val) => val.quote.as_ref(),
             Self::PassportData(val) => val.quote.as_ref(),
             Self::Photo(val) => val.quote.as_ref(),
             Self::PinnedMessage(val) => val.quote.as_ref(),
@@ -3302,6 +3404,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.quote.as_ref(),
             Self::SupergroupChatCreated(val) => val.quote.as_ref(),
             Self::Text(val) => val.quote.as_ref(),
+            Self::TonWalletTransfer(val) => val.quote.as_ref(),
             Self::UniqueGift(val) => val.quote.as_ref(),
             Self::UsersShared(val) => val.quote.as_ref(),
             Self::Video(val) => val.quote.as_ref(),
@@ -3312,6 +3415,7 @@ impl Message {
             Self::VideoNote(val) => val.quote.as_ref(),
             Self::Voice(val) => val.quote.as_ref(),
             Self::WebAppData(val) => val.quote.as_ref(),
+            Self::Widget(val) => val.quote.as_ref(),
             Self::WriteAccessAllowed(val) => val.quote.as_ref(),
             Self::Unknown(val) => val.quote.as_ref(),
         }
@@ -3371,6 +3475,7 @@ impl Message {
             Self::NewChatTitle(val) => val.receiver_user.as_deref(),
             Self::PaidMedia(val) => val.receiver_user.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.receiver_user.as_deref(),
+            Self::PaidMessagesWaived(val) => val.receiver_user.as_deref(),
             Self::PassportData(val) => val.receiver_user.as_deref(),
             Self::Photo(val) => val.receiver_user.as_deref(),
             Self::PinnedMessage(val) => val.receiver_user.as_deref(),
@@ -3390,6 +3495,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.receiver_user.as_deref(),
             Self::SupergroupChatCreated(val) => val.receiver_user.as_deref(),
             Self::Text(val) => val.receiver_user.as_deref(),
+            Self::TonWalletTransfer(val) => val.receiver_user.as_deref(),
             Self::UniqueGift(val) => val.receiver_user.as_deref(),
             Self::UsersShared(val) => val.receiver_user.as_deref(),
             Self::Video(val) => val.receiver_user.as_deref(),
@@ -3400,6 +3506,7 @@ impl Message {
             Self::VideoNote(val) => val.receiver_user.as_deref(),
             Self::Voice(val) => val.receiver_user.as_deref(),
             Self::WebAppData(val) => val.receiver_user.as_deref(),
+            Self::Widget(val) => val.receiver_user.as_deref(),
             Self::WriteAccessAllowed(val) => val.receiver_user.as_deref(),
             Self::Unknown(val) => val.receiver_user.as_deref(),
         }
@@ -3470,6 +3577,7 @@ impl Message {
             Self::NewChatTitle(val) => val.reply_markup.as_ref(),
             Self::PaidMedia(val) => val.reply_markup.as_ref(),
             Self::PaidMessagePriceChanged(val) => val.reply_markup.as_ref(),
+            Self::PaidMessagesWaived(val) => val.reply_markup.as_ref(),
             Self::PassportData(val) => val.reply_markup.as_ref(),
             Self::Photo(val) => val.reply_markup.as_ref(),
             Self::PinnedMessage(val) => val.reply_markup.as_ref(),
@@ -3489,6 +3597,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.reply_markup.as_ref(),
             Self::SupergroupChatCreated(val) => val.reply_markup.as_ref(),
             Self::Text(val) => val.reply_markup.as_ref(),
+            Self::TonWalletTransfer(val) => val.reply_markup.as_ref(),
             Self::UniqueGift(val) => val.reply_markup.as_ref(),
             Self::UsersShared(val) => val.reply_markup.as_ref(),
             Self::Video(val) => val.reply_markup.as_ref(),
@@ -3499,6 +3608,7 @@ impl Message {
             Self::VideoNote(val) => val.reply_markup.as_ref(),
             Self::Voice(val) => val.reply_markup.as_ref(),
             Self::WebAppData(val) => val.reply_markup.as_ref(),
+            Self::Widget(val) => val.reply_markup.as_ref(),
             Self::WriteAccessAllowed(val) => val.reply_markup.as_ref(),
             Self::Unknown(val) => val.reply_markup.as_ref(),
         }
@@ -3558,6 +3668,7 @@ impl Message {
             Self::NewChatTitle(val) => val.reply_to_checklist_task_id,
             Self::PaidMedia(val) => val.reply_to_checklist_task_id,
             Self::PaidMessagePriceChanged(val) => val.reply_to_checklist_task_id,
+            Self::PaidMessagesWaived(val) => val.reply_to_checklist_task_id,
             Self::PassportData(val) => val.reply_to_checklist_task_id,
             Self::Photo(val) => val.reply_to_checklist_task_id,
             Self::PinnedMessage(val) => val.reply_to_checklist_task_id,
@@ -3577,6 +3688,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.reply_to_checklist_task_id,
             Self::SupergroupChatCreated(val) => val.reply_to_checklist_task_id,
             Self::Text(val) => val.reply_to_checklist_task_id,
+            Self::TonWalletTransfer(val) => val.reply_to_checklist_task_id,
             Self::UniqueGift(val) => val.reply_to_checklist_task_id,
             Self::UsersShared(val) => val.reply_to_checklist_task_id,
             Self::Video(val) => val.reply_to_checklist_task_id,
@@ -3587,6 +3699,7 @@ impl Message {
             Self::VideoNote(val) => val.reply_to_checklist_task_id,
             Self::Voice(val) => val.reply_to_checklist_task_id,
             Self::WebAppData(val) => val.reply_to_checklist_task_id,
+            Self::Widget(val) => val.reply_to_checklist_task_id,
             Self::WriteAccessAllowed(val) => val.reply_to_checklist_task_id,
             Self::Unknown(val) => val.reply_to_checklist_task_id,
         }
@@ -3646,6 +3759,7 @@ impl Message {
             Self::NewChatTitle(val) => val.reply_to_message.as_deref(),
             Self::PaidMedia(val) => val.reply_to_message.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.reply_to_message.as_deref(),
+            Self::PaidMessagesWaived(val) => val.reply_to_message.as_deref(),
             Self::PassportData(val) => val.reply_to_message.as_deref(),
             Self::Photo(val) => val.reply_to_message.as_deref(),
             Self::PinnedMessage(val) => val.reply_to_message.as_deref(),
@@ -3665,6 +3779,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.reply_to_message.as_deref(),
             Self::SupergroupChatCreated(val) => val.reply_to_message.as_deref(),
             Self::Text(val) => val.reply_to_message.as_deref(),
+            Self::TonWalletTransfer(val) => val.reply_to_message.as_deref(),
             Self::UniqueGift(val) => val.reply_to_message.as_deref(),
             Self::UsersShared(val) => val.reply_to_message.as_deref(),
             Self::Video(val) => val.reply_to_message.as_deref(),
@@ -3675,6 +3790,7 @@ impl Message {
             Self::VideoNote(val) => val.reply_to_message.as_deref(),
             Self::Voice(val) => val.reply_to_message.as_deref(),
             Self::WebAppData(val) => val.reply_to_message.as_deref(),
+            Self::Widget(val) => val.reply_to_message.as_deref(),
             Self::WriteAccessAllowed(val) => val.reply_to_message.as_deref(),
             Self::Unknown(val) => val.reply_to_message.as_deref(),
         }
@@ -3734,6 +3850,7 @@ impl Message {
             Self::NewChatTitle(val) => val.reply_to_poll_option_id.as_deref(),
             Self::PaidMedia(val) => val.reply_to_poll_option_id.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::PaidMessagesWaived(val) => val.reply_to_poll_option_id.as_deref(),
             Self::PassportData(val) => val.reply_to_poll_option_id.as_deref(),
             Self::Photo(val) => val.reply_to_poll_option_id.as_deref(),
             Self::PinnedMessage(val) => val.reply_to_poll_option_id.as_deref(),
@@ -3753,6 +3870,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.reply_to_poll_option_id.as_deref(),
             Self::SupergroupChatCreated(val) => val.reply_to_poll_option_id.as_deref(),
             Self::Text(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::TonWalletTransfer(val) => val.reply_to_poll_option_id.as_deref(),
             Self::UniqueGift(val) => val.reply_to_poll_option_id.as_deref(),
             Self::UsersShared(val) => val.reply_to_poll_option_id.as_deref(),
             Self::Video(val) => val.reply_to_poll_option_id.as_deref(),
@@ -3763,6 +3881,7 @@ impl Message {
             Self::VideoNote(val) => val.reply_to_poll_option_id.as_deref(),
             Self::Voice(val) => val.reply_to_poll_option_id.as_deref(),
             Self::WebAppData(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Widget(val) => val.reply_to_poll_option_id.as_deref(),
             Self::WriteAccessAllowed(val) => val.reply_to_poll_option_id.as_deref(),
             Self::Unknown(val) => val.reply_to_poll_option_id.as_deref(),
         }
@@ -3822,6 +3941,7 @@ impl Message {
             Self::NewChatTitle(val) => val.reply_to_story.as_ref(),
             Self::PaidMedia(val) => val.reply_to_story.as_ref(),
             Self::PaidMessagePriceChanged(val) => val.reply_to_story.as_ref(),
+            Self::PaidMessagesWaived(val) => val.reply_to_story.as_ref(),
             Self::PassportData(val) => val.reply_to_story.as_ref(),
             Self::Photo(val) => val.reply_to_story.as_ref(),
             Self::PinnedMessage(val) => val.reply_to_story.as_ref(),
@@ -3841,6 +3961,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.reply_to_story.as_ref(),
             Self::SupergroupChatCreated(val) => val.reply_to_story.as_ref(),
             Self::Text(val) => val.reply_to_story.as_ref(),
+            Self::TonWalletTransfer(val) => val.reply_to_story.as_ref(),
             Self::UniqueGift(val) => val.reply_to_story.as_ref(),
             Self::UsersShared(val) => val.reply_to_story.as_ref(),
             Self::Video(val) => val.reply_to_story.as_ref(),
@@ -3851,6 +3972,7 @@ impl Message {
             Self::VideoNote(val) => val.reply_to_story.as_ref(),
             Self::Voice(val) => val.reply_to_story.as_ref(),
             Self::WebAppData(val) => val.reply_to_story.as_ref(),
+            Self::Widget(val) => val.reply_to_story.as_ref(),
             Self::WriteAccessAllowed(val) => val.reply_to_story.as_ref(),
             Self::Unknown(val) => val.reply_to_story.as_ref(),
         }
@@ -3921,6 +4043,7 @@ impl Message {
             Self::NewChatTitle(val) => val.sender_boost_count,
             Self::PaidMedia(val) => val.sender_boost_count,
             Self::PaidMessagePriceChanged(val) => val.sender_boost_count,
+            Self::PaidMessagesWaived(val) => val.sender_boost_count,
             Self::PassportData(val) => val.sender_boost_count,
             Self::Photo(val) => val.sender_boost_count,
             Self::PinnedMessage(val) => val.sender_boost_count,
@@ -3940,6 +4063,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.sender_boost_count,
             Self::SupergroupChatCreated(val) => val.sender_boost_count,
             Self::Text(val) => val.sender_boost_count,
+            Self::TonWalletTransfer(val) => val.sender_boost_count,
             Self::UniqueGift(val) => val.sender_boost_count,
             Self::UsersShared(val) => val.sender_boost_count,
             Self::Video(val) => val.sender_boost_count,
@@ -3950,6 +4074,7 @@ impl Message {
             Self::VideoNote(val) => val.sender_boost_count,
             Self::Voice(val) => val.sender_boost_count,
             Self::WebAppData(val) => val.sender_boost_count,
+            Self::Widget(val) => val.sender_boost_count,
             Self::WriteAccessAllowed(val) => val.sender_boost_count,
             Self::Unknown(val) => val.sender_boost_count,
         }
@@ -4009,6 +4134,7 @@ impl Message {
             Self::NewChatTitle(val) => val.sender_business_bot.as_deref(),
             Self::PaidMedia(val) => val.sender_business_bot.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.sender_business_bot.as_deref(),
+            Self::PaidMessagesWaived(val) => val.sender_business_bot.as_deref(),
             Self::PassportData(val) => val.sender_business_bot.as_deref(),
             Self::Photo(val) => val.sender_business_bot.as_deref(),
             Self::PinnedMessage(val) => val.sender_business_bot.as_deref(),
@@ -4028,6 +4154,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.sender_business_bot.as_deref(),
             Self::SupergroupChatCreated(val) => val.sender_business_bot.as_deref(),
             Self::Text(val) => val.sender_business_bot.as_deref(),
+            Self::TonWalletTransfer(val) => val.sender_business_bot.as_deref(),
             Self::UniqueGift(val) => val.sender_business_bot.as_deref(),
             Self::UsersShared(val) => val.sender_business_bot.as_deref(),
             Self::Video(val) => val.sender_business_bot.as_deref(),
@@ -4038,6 +4165,7 @@ impl Message {
             Self::VideoNote(val) => val.sender_business_bot.as_deref(),
             Self::Voice(val) => val.sender_business_bot.as_deref(),
             Self::WebAppData(val) => val.sender_business_bot.as_deref(),
+            Self::Widget(val) => val.sender_business_bot.as_deref(),
             Self::WriteAccessAllowed(val) => val.sender_business_bot.as_deref(),
             Self::Unknown(val) => val.sender_business_bot.as_deref(),
         }
@@ -4097,6 +4225,7 @@ impl Message {
             Self::NewChatTitle(val) => val.sender_chat.as_deref(),
             Self::PaidMedia(val) => val.sender_chat.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.sender_chat.as_deref(),
+            Self::PaidMessagesWaived(val) => val.sender_chat.as_deref(),
             Self::PassportData(val) => val.sender_chat.as_deref(),
             Self::Photo(val) => val.sender_chat.as_deref(),
             Self::PinnedMessage(val) => val.sender_chat.as_deref(),
@@ -4116,6 +4245,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.sender_chat.as_deref(),
             Self::SupergroupChatCreated(val) => val.sender_chat.as_deref(),
             Self::Text(val) => val.sender_chat.as_deref(),
+            Self::TonWalletTransfer(val) => val.sender_chat.as_deref(),
             Self::UniqueGift(val) => val.sender_chat.as_deref(),
             Self::UsersShared(val) => val.sender_chat.as_deref(),
             Self::Video(val) => val.sender_chat.as_deref(),
@@ -4126,6 +4256,7 @@ impl Message {
             Self::VideoNote(val) => val.sender_chat.as_deref(),
             Self::Voice(val) => val.sender_chat.as_deref(),
             Self::WebAppData(val) => val.sender_chat.as_deref(),
+            Self::Widget(val) => val.sender_chat.as_deref(),
             Self::WriteAccessAllowed(val) => val.sender_chat.as_deref(),
             Self::Unknown(val) => val.sender_chat.as_deref(),
         }
@@ -4185,6 +4316,7 @@ impl Message {
             Self::NewChatTitle(val) => val.sender_tag.as_deref(),
             Self::PaidMedia(val) => val.sender_tag.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.sender_tag.as_deref(),
+            Self::PaidMessagesWaived(val) => val.sender_tag.as_deref(),
             Self::PassportData(val) => val.sender_tag.as_deref(),
             Self::Photo(val) => val.sender_tag.as_deref(),
             Self::PinnedMessage(val) => val.sender_tag.as_deref(),
@@ -4204,6 +4336,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.sender_tag.as_deref(),
             Self::SupergroupChatCreated(val) => val.sender_tag.as_deref(),
             Self::Text(val) => val.sender_tag.as_deref(),
+            Self::TonWalletTransfer(val) => val.sender_tag.as_deref(),
             Self::UniqueGift(val) => val.sender_tag.as_deref(),
             Self::UsersShared(val) => val.sender_tag.as_deref(),
             Self::Video(val) => val.sender_tag.as_deref(),
@@ -4214,6 +4347,7 @@ impl Message {
             Self::VideoNote(val) => val.sender_tag.as_deref(),
             Self::Voice(val) => val.sender_tag.as_deref(),
             Self::WebAppData(val) => val.sender_tag.as_deref(),
+            Self::Widget(val) => val.sender_tag.as_deref(),
             Self::WriteAccessAllowed(val) => val.sender_tag.as_deref(),
             Self::Unknown(val) => val.sender_tag.as_deref(),
         }
@@ -4221,7 +4355,7 @@ impl Message {
 
     /// Helper method for field `show_caption_above_media`.
     ///
-    /// `true`, if the caption must be shown above the message media
+    /// `true`, if the caption must be shown above the message media or the widget
     #[must_use]
     pub fn show_caption_above_media(&self) -> Option<bool> {
         match self {
@@ -4273,6 +4407,7 @@ impl Message {
             Self::NewChatTitle(val) => val.show_caption_above_media,
             Self::PaidMedia(val) => val.show_caption_above_media,
             Self::PaidMessagePriceChanged(val) => val.show_caption_above_media,
+            Self::PaidMessagesWaived(val) => val.show_caption_above_media,
             Self::PassportData(val) => val.show_caption_above_media,
             Self::Photo(val) => val.show_caption_above_media,
             Self::PinnedMessage(val) => val.show_caption_above_media,
@@ -4292,6 +4427,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.show_caption_above_media,
             Self::SupergroupChatCreated(val) => val.show_caption_above_media,
             Self::Text(val) => val.show_caption_above_media,
+            Self::TonWalletTransfer(val) => val.show_caption_above_media,
             Self::UniqueGift(val) => val.show_caption_above_media,
             Self::UsersShared(val) => val.show_caption_above_media,
             Self::Video(val) => val.show_caption_above_media,
@@ -4302,6 +4438,7 @@ impl Message {
             Self::VideoNote(val) => val.show_caption_above_media,
             Self::Voice(val) => val.show_caption_above_media,
             Self::WebAppData(val) => val.show_caption_above_media,
+            Self::Widget(val) => val.show_caption_above_media,
             Self::WriteAccessAllowed(val) => val.show_caption_above_media,
             Self::Unknown(val) => val.show_caption_above_media,
         }
@@ -4429,6 +4566,7 @@ impl Message {
             Self::NewChatTitle(val) => val.suggested_post_info.as_ref(),
             Self::PaidMedia(val) => val.suggested_post_info.as_ref(),
             Self::PaidMessagePriceChanged(val) => val.suggested_post_info.as_ref(),
+            Self::PaidMessagesWaived(val) => val.suggested_post_info.as_ref(),
             Self::PassportData(val) => val.suggested_post_info.as_ref(),
             Self::Photo(val) => val.suggested_post_info.as_ref(),
             Self::PinnedMessage(val) => val.suggested_post_info.as_ref(),
@@ -4448,6 +4586,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.suggested_post_info.as_ref(),
             Self::SupergroupChatCreated(val) => val.suggested_post_info.as_ref(),
             Self::Text(val) => val.suggested_post_info.as_ref(),
+            Self::TonWalletTransfer(val) => val.suggested_post_info.as_ref(),
             Self::UniqueGift(val) => val.suggested_post_info.as_ref(),
             Self::UsersShared(val) => val.suggested_post_info.as_ref(),
             Self::Video(val) => val.suggested_post_info.as_ref(),
@@ -4458,6 +4597,7 @@ impl Message {
             Self::VideoNote(val) => val.suggested_post_info.as_ref(),
             Self::Voice(val) => val.suggested_post_info.as_ref(),
             Self::WebAppData(val) => val.suggested_post_info.as_ref(),
+            Self::Widget(val) => val.suggested_post_info.as_ref(),
             Self::WriteAccessAllowed(val) => val.suggested_post_info.as_ref(),
             Self::Unknown(val) => val.suggested_post_info.as_ref(),
         }
@@ -4503,6 +4643,17 @@ impl Message {
     pub fn text(&self) -> Option<&str> {
         match self {
             Self::Text(val) => Some(val.text.as_ref()),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `ton_wallet_transfer`.
+    ///
+    /// Service message: a transfer with a TON wallet
+    #[must_use]
+    pub fn ton_wallet_transfer(&self) -> Option<&crate::types::TonWalletTransfer> {
+        match self {
+            Self::TonWalletTransfer(val) => Some(&val.ton_wallet_transfer),
             _ => None,
         }
     }
@@ -4594,6 +4745,7 @@ impl Message {
             Self::NewChatTitle(val) => val.via_bot.as_deref(),
             Self::PaidMedia(val) => val.via_bot.as_deref(),
             Self::PaidMessagePriceChanged(val) => val.via_bot.as_deref(),
+            Self::PaidMessagesWaived(val) => val.via_bot.as_deref(),
             Self::PassportData(val) => val.via_bot.as_deref(),
             Self::Photo(val) => val.via_bot.as_deref(),
             Self::PinnedMessage(val) => val.via_bot.as_deref(),
@@ -4613,6 +4765,7 @@ impl Message {
             Self::SuggestedPostRefunded(val) => val.via_bot.as_deref(),
             Self::SupergroupChatCreated(val) => val.via_bot.as_deref(),
             Self::Text(val) => val.via_bot.as_deref(),
+            Self::TonWalletTransfer(val) => val.via_bot.as_deref(),
             Self::UniqueGift(val) => val.via_bot.as_deref(),
             Self::UsersShared(val) => val.via_bot.as_deref(),
             Self::Video(val) => val.via_bot.as_deref(),
@@ -4623,6 +4776,7 @@ impl Message {
             Self::VideoNote(val) => val.via_bot.as_deref(),
             Self::Voice(val) => val.via_bot.as_deref(),
             Self::WebAppData(val) => val.via_bot.as_deref(),
+            Self::Widget(val) => val.via_bot.as_deref(),
             Self::WriteAccessAllowed(val) => val.via_bot.as_deref(),
             Self::Unknown(val) => val.via_bot.as_deref(),
         }
@@ -4718,6 +4872,17 @@ impl Message {
         }
     }
 
+    /// Helper method for field `widget`.
+    ///
+    /// Message is an HTML widget, information about the widget
+    #[must_use]
+    pub fn widget(&self) -> Option<&crate::types::Widget> {
+        match self {
+            Self::Widget(val) => Some(&val.widget),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `write_access_allowed`.
     ///
     /// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`
@@ -4772,18 +4937,6 @@ impl Message {
             Self::Poll(val) => {
                 let inner = val.poll.as_ref();
                 Some(crate::types::Poll::allows_revoting(inner))
-            }
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `amount`.
-    #[must_use]
-    pub fn amount(&self) -> Option<i64> {
-        match self {
-            Self::SuggestedPostPaid(val) => {
-                let inner = &val.suggested_post_paid;
-                inner.amount
             }
             _ => None,
         }
@@ -4865,6 +5018,18 @@ impl Message {
         }
     }
 
+    /// Helper method for nested field `chat_data`.
+    #[must_use]
+    pub fn chat_data(&self) -> Option<&str> {
+        match self {
+            Self::Widget(val) => {
+                let inner = &val.widget;
+                inner.chat_data.as_deref()
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `chat_id`.
     #[must_use]
     pub fn chat_id(&self) -> Option<i64> {
@@ -4923,6 +5088,10 @@ impl Message {
         match self {
             Self::SuggestedPostDeclined(val) => {
                 let inner = &val.suggested_post_declined;
+                inner.comment.as_deref()
+            }
+            Self::TonWalletTransfer(val) => {
+                let inner = &val.ton_wallet_transfer;
                 inner.comment.as_deref()
             }
             _ => None,
@@ -5483,6 +5652,10 @@ impl Message {
                 let inner = val.video.as_ref();
                 Some(inner.height)
             }
+            Self::Widget(val) => {
+                let inner = &val.widget;
+                inner.height
+            }
             _ => None,
         }
     }
@@ -5494,6 +5667,18 @@ impl Message {
             Self::Location(val) => {
                 let inner = &val.location;
                 inner.horizontal_accuracy
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `html`.
+    #[must_use]
+    pub fn html(&self) -> Option<&str> {
+        match self {
+            Self::Widget(val) => {
+                let inner = &val.widget;
+                Some(inner.html.as_ref())
             }
             _ => None,
         }
@@ -6095,6 +6280,18 @@ impl Message {
         }
     }
 
+    /// Helper method for nested field `peer_address`.
+    #[must_use]
+    pub fn peer_address(&self) -> Option<&str> {
+        match self {
+            Self::TonWalletTransfer(val) => {
+                let inner = &val.ton_wallet_transfer;
+                Some(inner.peer_address.as_ref())
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `performer`.
     #[must_use]
     pub fn performer(&self) -> Option<&str> {
@@ -6263,6 +6460,18 @@ impl Message {
         }
     }
 
+    /// Helper method for nested field `public_data`.
+    #[must_use]
+    pub fn public_data(&self) -> Option<&str> {
+        match self {
+            Self::Widget(val) => {
+                let inner = &val.widget;
+                inner.public_data.as_deref()
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `qualities`.
     #[must_use]
     pub fn qualities(&self) -> Option<&[crate::types::VideoQuality]> {
@@ -6325,6 +6534,12 @@ impl Message {
             }
             _ => None,
         }
+    }
+
+    /// Helper method for nested field `rich_texts`.
+    #[must_use]
+    pub fn rich_texts(&self) -> Option<&[crate::types::RichText]> {
+        self.quote().and_then(|inner| inner.rich_texts.as_deref())
     }
 
     /// Helper method for nested field `sender_user`.
@@ -6604,6 +6819,18 @@ impl Message {
         }
     }
 
+    /// Helper method for nested field `transaction_id`.
+    #[must_use]
+    pub fn transaction_id(&self) -> Option<&str> {
+        match self {
+            Self::TonWalletTransfer(val) => {
+                let inner = &val.ton_wallet_transfer;
+                Some(inner.transaction_id.as_ref())
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `transfer_star_count`.
     #[must_use]
     pub fn transfer_star_count(&self) -> Option<i64> {
@@ -6777,6 +7004,10 @@ impl Message {
             Self::Video(val) => {
                 let inner = val.video.as_ref();
                 Some(inner.width)
+            }
+            Self::Widget(val) => {
+                let inner = &val.widget;
+                inner.width
             }
             _ => None,
         }
@@ -7742,6 +7973,25 @@ impl TryFrom<Message> for crate::types::MessagePaidMessagePriceChanged {
         }
     }
 }
+impl From<crate::types::MessagePaidMessagesWaived> for Message {
+    fn from(val: crate::types::MessagePaidMessagesWaived) -> Self {
+        Self::PaidMessagesWaived(val)
+    }
+}
+impl TryFrom<Message> for crate::types::MessagePaidMessagesWaived {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Message) -> Result<Self, Self::Error> {
+        if let Message::PaidMessagesWaived(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Message),
+                stringify!(MessagePaidMessagesWaived),
+            ))
+        }
+    }
+}
 impl From<crate::types::MessagePassportData> for Message {
     fn from(val: crate::types::MessagePassportData) -> Self {
         Self::PassportData(val)
@@ -8103,6 +8353,25 @@ impl TryFrom<Message> for crate::types::MessageText {
         }
     }
 }
+impl From<crate::types::MessageTonWalletTransfer> for Message {
+    fn from(val: crate::types::MessageTonWalletTransfer) -> Self {
+        Self::TonWalletTransfer(val)
+    }
+}
+impl TryFrom<Message> for crate::types::MessageTonWalletTransfer {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Message) -> Result<Self, Self::Error> {
+        if let Message::TonWalletTransfer(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Message),
+                stringify!(MessageTonWalletTransfer),
+            ))
+        }
+    }
+}
 impl From<crate::types::MessageUniqueGift> for Message {
     fn from(val: crate::types::MessageUniqueGift) -> Self {
         Self::UniqueGift(val)
@@ -8289,6 +8558,25 @@ impl TryFrom<Message> for crate::types::MessageWebAppData {
             Err(Self::Error::new(
                 stringify!(Message),
                 stringify!(MessageWebAppData),
+            ))
+        }
+    }
+}
+impl From<crate::types::MessageWidget> for Message {
+    fn from(val: crate::types::MessageWidget) -> Self {
+        Self::Widget(val)
+    }
+}
+impl TryFrom<Message> for crate::types::MessageWidget {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Message) -> Result<Self, Self::Error> {
+        if let Message::Widget(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Message),
+                stringify!(MessageWidget),
             ))
         }
     }

@@ -36,19 +36,19 @@ fn lowercase_filter(request: &mut Request) -> impl Future<Output = FilterResult<
 }
 
 async fn uppercase_handler(bot: Bot, message: Message) -> HandlerResult<()> {
-    bot.send(SendMessage::new(message.chat().id(), "Uppercase message!"))
+    bot.send(SendMessage::new("Uppercase message!").chat_id(message.chat().id()))
         .await?;
     Ok(())
 }
 
 async fn lowercase_handler(bot: Bot, message: Message) -> HandlerResult<()> {
-    bot.send(SendMessage::new(message.chat().id(), "Lowercase message!"))
+    bot.send(SendMessage::new("Lowercase message!").chat_id(message.chat().id()))
         .await?;
     Ok(())
 }
 
 async fn any_case_handler(bot: Bot, message: Message) -> HandlerResult<()> {
-    bot.send(SendMessage::new(message.chat().id(), "Any case message!"))
+    bot.send(SendMessage::new("Any case message!").chat_id(message.chat().id()))
         .await?;
     Ok(())
 }

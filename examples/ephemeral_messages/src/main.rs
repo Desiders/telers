@@ -14,14 +14,14 @@ async fn whisper_handler(bot: Bot, message: Message) -> HandlerResult<()> {
 
     let sent = bot
         .send(
-            SendMessage::new(
-                message.chat().id(),
-                format!(
-                    "Hi {}! Only you can see this message in the group.",
-                    user.first_name
-                ),
-            )
-            .ephemeral_message_parameters(EphemeralMessageParameters::new(user.id)),
+            SendMessage::new(format!(
+                "Hi {}! Only you can see this message in the group.",
+                user.first_name
+            ))
+            .chat_id(message.chat().id())
+            .ephemeral_message_parameters(
+                EphemeralMessageParameters::new().receiver_user_id(user.id),
+            ),
         )
         .await?;
     let ephemeral_message_id = sent.ephemeral_message_id().unwrap();
@@ -42,8 +42,11 @@ async fn cleanup_handler(bot: Bot, message: Message) -> HandlerResult<()> {
 
     let sent = bot
         .send(
-            SendMessage::new(message.chat().id(), "This whisper will self-destruct...")
-                .ephemeral_message_parameters(EphemeralMessageParameters::new(user.id)),
+            SendMessage::new("This whisper will self-destruct...")
+                .chat_id(message.chat().id())
+                .ephemeral_message_parameters(
+                    EphemeralMessageParameters::new().receiver_user_id(user.id),
+                ),
         )
         .await?;
     let ephemeral_message_id = sent.ephemeral_message_id().unwrap();

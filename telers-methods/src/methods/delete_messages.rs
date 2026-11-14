@@ -7,7 +7,7 @@
 #[cfg_attr(feature = "deser", derive(deser::Serialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct DeleteMessages {
-    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
+    /// Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// A JSON-serialized list of 1-100 identifiers of messages to delete. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted.
     pub message_ids: Box<[i64]>,
@@ -16,7 +16,7 @@ impl DeleteMessages {
     /// Creates a new `DeleteMessages`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
+    /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username
     /// * `message_ids` - A JSON-serialized list of 1-100 identifiers of messages to delete. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted.
     #[must_use]
     pub fn new<
@@ -33,7 +33,7 @@ impl DeleteMessages {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
+    /// Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
         self.chat_id = val.into();

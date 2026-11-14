@@ -58,7 +58,8 @@ impl<'a> Renderer<'a> {
                     format: date_time.date_time_format.as_deref(),
                 },
                 // Auto-detected entities (mention, hashtag, cashtag, bot command, url, email,
-                // phone number) carry no markup — Telegram re-detects them — so they're skipped.
+                // phone number, bank card number, TON address) carry no markup — Telegram
+                // re-detects them — so they're skipped.
                 _ => continue,
             };
 

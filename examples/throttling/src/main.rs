@@ -33,7 +33,7 @@ async fn main() {
                             }
                             if let Some(chat_id) = chat_id {
                                 let _ = bot
-                                    .send(SendMessage::new(chat_id, "Too many requests!"))
+                                    .send(SendMessage::new("Too many requests!").chat_id(chat_id))
                                     .await;
                             }
                         }

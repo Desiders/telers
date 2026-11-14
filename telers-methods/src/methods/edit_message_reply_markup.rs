@@ -12,7 +12,7 @@ pub struct EditMessageReplyMarkup {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub business_connection_id: Option<Box<str>>,
-    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username.
+    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub chat_id: Option<crate::types::ChatIdKind>,
@@ -59,14 +59,14 @@ impl EditMessageReplyMarkup {
         self
     }
 
-    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username.
+    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username.
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
         self.chat_id = Some(val.into());
         self
     }
 
-    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username.
+    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username.
     #[must_use]
     pub fn chat_id_option<T: Into<crate::types::ChatIdKind>>(mut self, val: Option<T>) -> Self {
         self.chat_id = val.map(Into::into);

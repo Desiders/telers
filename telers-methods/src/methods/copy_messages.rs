@@ -1,4 +1,4 @@
-/// Use this method to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field `correct_option_ids` is known to the bot. The method is analogous to the method [`crate::methods::ForwardMessages`], but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an Array of [`crate::types::MessageId`] of the sent messages is returned.
+/// Use this method to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, paid media messages, giveaway messages, giveaway winners messages, invoice messages, and widget messages can't be copied. A quiz poll can be copied only if the value of the field `correct_option_ids` is known to the bot. The method is analogous to the method [`crate::methods::ForwardMessages`], but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an Array of [`crate::types::MessageId`] of the sent messages is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#copymessages>
 /// # Returns
@@ -7,7 +7,7 @@
 #[cfg_attr(feature = "deser", derive(deser::Serialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct CopyMessages {
-    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
+    /// Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
@@ -17,7 +17,7 @@ pub struct CopyMessages {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub direct_messages_topic_id: Option<i64>,
-    /// Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup or channel in the format @username)
+    /// Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup, or channel in the format @username)
     pub from_chat_id: crate::types::ChatIdKind,
     /// A JSON-serialized list of 1-100 identifiers of messages in the chat `from_chat_id` to copy. The identifiers must be specified in a strictly increasing order.
     pub message_ids: Box<[i64]>,
@@ -38,8 +38,8 @@ impl CopyMessages {
     /// Creates a new `CopyMessages`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
-    /// * `from_chat_id` - Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup or channel in the format @username)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username
+    /// * `from_chat_id` - Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup, or channel in the format @username)
     /// * `message_ids` - A JSON-serialized list of 1-100 identifiers of messages in the chat `from_chat_id` to copy. The identifiers must be specified in a strictly increasing order.
     ///
     /// # Notes
@@ -67,7 +67,7 @@ impl CopyMessages {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
+    /// Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
         self.chat_id = val.into();
@@ -102,7 +102,7 @@ impl CopyMessages {
         self
     }
 
-    /// Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup or channel in the format @username)
+    /// Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup, or channel in the format @username)
     #[must_use]
     pub fn from_chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
         self.from_chat_id = val.into();

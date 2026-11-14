@@ -864,6 +864,114 @@ impl InlineQueryResult {
         }
     }
 
+    /// Helper method for nested field `allow_queries`.
+    #[must_use]
+    pub fn allow_queries(&self) -> Option<bool> {
+        match self {
+            Self::Audio(val) => {
+                crate::types::InlineQueryResultAudioKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::allow_queries)
+            }
+            Self::Document(val) => {
+                crate::types::InlineQueryResultDocumentKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::allow_queries)
+            }
+            Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
+                .and_then(crate::types::InputMessageContent::allow_queries),
+            Self::Mpeg4Gif(val) => {
+                crate::types::InlineQueryResultMpeg4GifKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::allow_queries)
+            }
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::allow_queries)
+            }
+            Self::Sticker(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::allow_queries),
+            Self::Video(val) => {
+                crate::types::InlineQueryResultVideoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::allow_queries)
+            }
+            Self::Voice(val) => {
+                crate::types::InlineQueryResultVoiceKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::allow_queries)
+            }
+            Self::Article(val) => {
+                let inner = &val.input_message_content;
+                crate::types::InputMessageContent::allow_queries(inner)
+            }
+            Self::Contact(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::allow_queries),
+            Self::Location(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::allow_queries),
+            Self::Venue(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::allow_queries),
+            Self::Game(_) => None,
+        }
+    }
+
+    /// Helper method for nested field `chat_data`.
+    #[must_use]
+    pub fn chat_data(&self) -> Option<&str> {
+        match self {
+            Self::Audio(val) => {
+                crate::types::InlineQueryResultAudioKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::chat_data)
+            }
+            Self::Document(val) => {
+                crate::types::InlineQueryResultDocumentKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::chat_data)
+            }
+            Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
+                .and_then(crate::types::InputMessageContent::chat_data),
+            Self::Mpeg4Gif(val) => {
+                crate::types::InlineQueryResultMpeg4GifKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::chat_data)
+            }
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::chat_data)
+            }
+            Self::Sticker(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::chat_data),
+            Self::Video(val) => {
+                crate::types::InlineQueryResultVideoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::chat_data)
+            }
+            Self::Voice(val) => {
+                crate::types::InlineQueryResultVoiceKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::chat_data)
+            }
+            Self::Article(val) => {
+                let inner = &val.input_message_content;
+                crate::types::InputMessageContent::chat_data(inner)
+            }
+            Self::Contact(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::chat_data),
+            Self::Location(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::chat_data),
+            Self::Venue(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::chat_data),
+            Self::Game(_) => None,
+        }
+    }
+
     /// Helper method for nested field `currency`.
     #[must_use]
     pub fn currency(&self) -> Option<&str> {
@@ -978,6 +1086,114 @@ impl InlineQueryResult {
         self.reply_markup().and_then(|inner| inner.force_reply)
     }
 
+    /// Helper method for nested field `height`.
+    #[must_use]
+    pub fn height(&self) -> Option<u16> {
+        match self {
+            Self::Audio(val) => {
+                crate::types::InlineQueryResultAudioKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::height)
+            }
+            Self::Document(val) => {
+                crate::types::InlineQueryResultDocumentKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::height)
+            }
+            Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
+                .and_then(crate::types::InputMessageContent::height),
+            Self::Mpeg4Gif(val) => {
+                crate::types::InlineQueryResultMpeg4GifKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::height)
+            }
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::height)
+            }
+            Self::Sticker(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::height),
+            Self::Video(val) => {
+                crate::types::InlineQueryResultVideoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::height)
+            }
+            Self::Voice(val) => {
+                crate::types::InlineQueryResultVoiceKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::height)
+            }
+            Self::Article(val) => {
+                let inner = &val.input_message_content;
+                crate::types::InputMessageContent::height(inner)
+            }
+            Self::Contact(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::height),
+            Self::Location(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::height),
+            Self::Venue(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::height),
+            Self::Game(_) => None,
+        }
+    }
+
+    /// Helper method for nested field `html`.
+    #[must_use]
+    pub fn html(&self) -> Option<&str> {
+        match self {
+            Self::Audio(val) => {
+                crate::types::InlineQueryResultAudioKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::html)
+            }
+            Self::Document(val) => {
+                crate::types::InlineQueryResultDocumentKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::html)
+            }
+            Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
+                .and_then(crate::types::InputMessageContent::html),
+            Self::Mpeg4Gif(val) => {
+                crate::types::InlineQueryResultMpeg4GifKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::html)
+            }
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::html)
+            }
+            Self::Sticker(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::html),
+            Self::Video(val) => {
+                crate::types::InlineQueryResultVideoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::html)
+            }
+            Self::Voice(val) => {
+                crate::types::InlineQueryResultVoiceKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::html)
+            }
+            Self::Article(val) => {
+                let inner = &val.input_message_content;
+                crate::types::InputMessageContent::html(inner)
+            }
+            Self::Contact(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::html),
+            Self::Location(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::html),
+            Self::Venue(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::html),
+            Self::Game(_) => None,
+        }
+    }
+
     /// Helper method for nested field `inline_keyboard`.
     #[must_use]
     pub fn inline_keyboard(&self) -> Option<&[Box<[crate::types::InlineKeyboardButton]>]> {
@@ -1035,6 +1251,60 @@ impl InlineQueryResult {
                 .input_message_content
                 .as_ref()
                 .and_then(crate::types::InputMessageContent::is_flexible),
+            Self::Game(_) => None,
+        }
+    }
+
+    /// Helper method for nested field `is_shared`.
+    #[must_use]
+    pub fn is_shared(&self) -> Option<bool> {
+        match self {
+            Self::Audio(val) => {
+                crate::types::InlineQueryResultAudioKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::is_shared)
+            }
+            Self::Document(val) => {
+                crate::types::InlineQueryResultDocumentKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::is_shared)
+            }
+            Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
+                .and_then(crate::types::InputMessageContent::is_shared),
+            Self::Mpeg4Gif(val) => {
+                crate::types::InlineQueryResultMpeg4GifKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::is_shared)
+            }
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::is_shared)
+            }
+            Self::Sticker(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::is_shared),
+            Self::Video(val) => {
+                crate::types::InlineQueryResultVideoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::is_shared)
+            }
+            Self::Voice(val) => {
+                crate::types::InlineQueryResultVoiceKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::is_shared)
+            }
+            Self::Article(val) => {
+                let inner = &val.input_message_content;
+                crate::types::InputMessageContent::is_shared(inner)
+            }
+            Self::Contact(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::is_shared),
+            Self::Location(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::is_shared),
+            Self::Venue(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::is_shared),
             Self::Game(_) => None,
         }
     }
@@ -1687,6 +1957,60 @@ impl InlineQueryResult {
         }
     }
 
+    /// Helper method for nested field `public_data`.
+    #[must_use]
+    pub fn public_data(&self) -> Option<&str> {
+        match self {
+            Self::Audio(val) => {
+                crate::types::InlineQueryResultAudioKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::public_data)
+            }
+            Self::Document(val) => {
+                crate::types::InlineQueryResultDocumentKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::public_data)
+            }
+            Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
+                .and_then(crate::types::InputMessageContent::public_data),
+            Self::Mpeg4Gif(val) => {
+                crate::types::InlineQueryResultMpeg4GifKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::public_data)
+            }
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::public_data)
+            }
+            Self::Sticker(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::public_data),
+            Self::Video(val) => {
+                crate::types::InlineQueryResultVideoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::public_data)
+            }
+            Self::Voice(val) => {
+                crate::types::InlineQueryResultVoiceKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::public_data)
+            }
+            Self::Article(val) => {
+                let inner = &val.input_message_content;
+                crate::types::InputMessageContent::public_data(inner)
+            }
+            Self::Contact(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::public_data),
+            Self::Location(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::public_data),
+            Self::Venue(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::public_data),
+            Self::Game(_) => None,
+        }
+    }
+
     /// Helper method for nested field `rich_message`.
     #[must_use]
     pub fn rich_message(&self) -> Option<&crate::types::InputRichMessage> {
@@ -1899,6 +2223,114 @@ impl InlineQueryResult {
                 .input_message_content
                 .as_ref()
                 .and_then(crate::types::InputMessageContent::suggested_tip_amounts),
+            Self::Game(_) => None,
+        }
+    }
+
+    /// Helper method for nested field `widget_id`.
+    #[must_use]
+    pub fn widget_id(&self) -> Option<&str> {
+        match self {
+            Self::Audio(val) => {
+                crate::types::InlineQueryResultAudioKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::widget_id)
+            }
+            Self::Document(val) => {
+                crate::types::InlineQueryResultDocumentKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::widget_id)
+            }
+            Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
+                .and_then(crate::types::InputMessageContent::widget_id),
+            Self::Mpeg4Gif(val) => {
+                crate::types::InlineQueryResultMpeg4GifKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::widget_id)
+            }
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::widget_id)
+            }
+            Self::Sticker(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::widget_id),
+            Self::Video(val) => {
+                crate::types::InlineQueryResultVideoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::widget_id)
+            }
+            Self::Voice(val) => {
+                crate::types::InlineQueryResultVoiceKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::widget_id)
+            }
+            Self::Article(val) => {
+                let inner = &val.input_message_content;
+                crate::types::InputMessageContent::widget_id(inner)
+            }
+            Self::Contact(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::widget_id),
+            Self::Location(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::widget_id),
+            Self::Venue(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::widget_id),
+            Self::Game(_) => None,
+        }
+    }
+
+    /// Helper method for nested field `width`.
+    #[must_use]
+    pub fn width(&self) -> Option<i64> {
+        match self {
+            Self::Audio(val) => {
+                crate::types::InlineQueryResultAudioKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::width)
+            }
+            Self::Document(val) => {
+                crate::types::InlineQueryResultDocumentKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::width)
+            }
+            Self::Gif(val) => crate::types::InlineQueryResultGifKind::input_message_content(val)
+                .and_then(crate::types::InputMessageContent::width),
+            Self::Mpeg4Gif(val) => {
+                crate::types::InlineQueryResultMpeg4GifKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::width)
+            }
+            Self::Photo(val) => {
+                crate::types::InlineQueryResultPhotoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::width)
+            }
+            Self::Sticker(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::width),
+            Self::Video(val) => {
+                crate::types::InlineQueryResultVideoKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::width)
+            }
+            Self::Voice(val) => {
+                crate::types::InlineQueryResultVoiceKind::input_message_content(val)
+                    .and_then(crate::types::InputMessageContent::width)
+            }
+            Self::Article(val) => {
+                let inner = &val.input_message_content;
+                crate::types::InputMessageContent::width(inner)
+            }
+            Self::Contact(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::width),
+            Self::Location(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::width),
+            Self::Venue(val) => val
+                .input_message_content
+                .as_ref()
+                .and_then(crate::types::InputMessageContent::width),
             Self::Game(_) => None,
         }
     }

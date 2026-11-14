@@ -50,10 +50,13 @@ async fn send_data_handler(
     assert_eq!(num_data, extensions.get::<NumData>().unwrap().clone());
     assert_eq!(str_data, extensions.get::<StrData>().unwrap().clone());
 
-    bot.send(SendMessage::new(
-        message.chat().id(),
-        format!("NumData: {:?}. StrData: {:?}", num_data.0, str_data.0),
-    ))
+    bot.send(
+        SendMessage::new(format!(
+            "NumData: {:?}. StrData: {:?}",
+            num_data.0, str_data.0
+        ))
+        .chat_id(message.chat().id()),
+    )
     .await?;
     Ok(())
 }

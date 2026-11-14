@@ -7,7 +7,7 @@
 #[cfg_attr(feature = "deser", derive(deser::Serialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct ForwardMessages {
-    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
+    /// Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
@@ -17,7 +17,7 @@ pub struct ForwardMessages {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub direct_messages_topic_id: Option<i64>,
-    /// Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup or channel in the format @username)
+    /// Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup, or channel in the format @username)
     pub from_chat_id: crate::types::ChatIdKind,
     /// A JSON-serialized list of 1-100 identifiers of messages in the chat `from_chat_id` to forward. The identifiers must be specified in a strictly increasing order.
     pub message_ids: Box<[i64]>,
@@ -34,8 +34,8 @@ impl ForwardMessages {
     /// Creates a new `ForwardMessages`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
-    /// * `from_chat_id` - Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup or channel in the format @username)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username
+    /// * `from_chat_id` - Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup, or channel in the format @username)
     /// * `message_ids` - A JSON-serialized list of 1-100 identifiers of messages in the chat `from_chat_id` to forward. The identifiers must be specified in a strictly increasing order.
     ///
     /// # Notes
@@ -62,7 +62,7 @@ impl ForwardMessages {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
+    /// Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
         self.chat_id = val.into();
@@ -97,7 +97,7 @@ impl ForwardMessages {
         self
     }
 
-    /// Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup or channel in the format @username)
+    /// Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup, or channel in the format @username)
     #[must_use]
     pub fn from_chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
         self.from_chat_id = val.into();

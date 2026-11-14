@@ -24,11 +24,8 @@ enum State {
 }
 
 async fn start_handler(bot: Bot, message: Message, fsm: Fsm) -> HandlerResult<()> {
-    bot.send(SendMessage::new(
-        message.chat().id(),
-        "Hello! What's your name?",
-    ))
-    .await?;
+    bot.send(SendMessage::new("Hello! What's your name?").chat_id(message.chat().id()))
+        .await?;
 
     // We set state to `State::Name` to point that we are waiting for user's name.
     // `name_handler` will be called when user will send message,
@@ -50,10 +47,12 @@ async fn name_handler(bot: Bot, message: MessageText, fsm: Fsm) -> HandlerResult
     // because we want to be sure that we will receive message from user in the same state
     // (user can send message to bot before we set state and data to FSM storage, but it's rare case)
 
-    bot.send(SendMessage::new(
-        message.chat.id(),
-        format!("Nice to meet you, {name}! What's your native language?"),
-    ))
+    bot.send(
+        SendMessage::new(format!(
+            "Nice to meet you, {name}! What's your native language?"
+        ))
+        .chat_id(message.chat.id()),
+    )
     .await?;
 
     Ok(())
@@ -69,20 +68,19 @@ async fn language_handler(bot: Bot, message: MessageText, fsm: Fsm) -> HandlerRe
     // Check if user's language is acceptable
     match language.to_lowercase().as_str() {
         "english" | "en" => {
-            bot.send(SendMessage::new(
-                message.chat.id(),
-                format!("{name}, let's talk!"),
-            ))
-            .await?;
+            bot.send(SendMessage::new(format!("{name}, let's talk!")).chat_id(message.chat.id()))
+                .await?;
 
             // Remove state and data from FSM storage, because we don't need them anymore
             fsm.finish().await?;
         }
         _ => {
-            bot.send(SendMessage::new(
-                message.chat.id(),
-                format!("{name}, I don't speak your language. Please, choose another :("),
-            ))
+            bot.send(
+                SendMessage::new(format!(
+                    "{name}, I don't speak your language. Please, choose another :("
+                ))
+                .chat_id(message.chat.id()),
+            )
             .await?;
 
             // We don't need this, because `State::Language` is already set and doesn't change automatically

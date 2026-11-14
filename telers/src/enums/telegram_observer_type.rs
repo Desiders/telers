@@ -54,12 +54,16 @@ pub enum TelegramObserverType {
     PurchasedPaidMedia,
     #[strum(serialize = "removed_chat_boost")]
     RemovedChatBoost,
+    #[strum(serialize = "shared_widget_query")]
+    SharedWidgetQuery,
     #[strum(serialize = "shipping_query")]
     ShippingQuery,
     #[strum(serialize = "stopped_message_generation")]
     StoppedMessageGeneration,
     #[strum(serialize = "subscription")]
     Subscription,
+    #[strum(serialize = "widget_query")]
+    WidgetQuery,
     #[strum(serialize = "update")]
     Update,
     #[strum(serialize = "error")]
@@ -79,15 +83,16 @@ macro_rules! with_telegram_observer_variants {
         message_reaction_count), (MyChatMember, my_chat_member), (Poll, poll),
         (PollAnswer, poll_answer), (PreCheckoutQuery, pre_checkout_query),
         (PurchasedPaidMedia, purchased_paid_media), (RemovedChatBoost,
-        removed_chat_boost), (ShippingQuery, shipping_query), (StoppedMessageGeneration,
-        stopped_message_generation), (Subscription, subscription), (Update, update),
+        removed_chat_boost), (SharedWidgetQuery, shared_widget_query), (ShippingQuery,
+        shipping_query), (StoppedMessageGeneration, stopped_message_generation),
+        (Subscription, subscription), (WidgetQuery, widget_query), (Update, update),
         (Error, error), }
     };
 }
 pub(crate) use with_telegram_observer_variants;
 impl TelegramObserverType {
     #[must_use]
-    pub const fn all() -> [TelegramObserverType; 29usize] {
+    pub const fn all() -> [TelegramObserverType; 31usize] {
         [
             TelegramObserverType::BusinessConnection,
             TelegramObserverType::BusinessMessage,
@@ -113,9 +118,11 @@ impl TelegramObserverType {
             TelegramObserverType::PreCheckoutQuery,
             TelegramObserverType::PurchasedPaidMedia,
             TelegramObserverType::RemovedChatBoost,
+            TelegramObserverType::SharedWidgetQuery,
             TelegramObserverType::ShippingQuery,
             TelegramObserverType::StoppedMessageGeneration,
             TelegramObserverType::Subscription,
+            TelegramObserverType::WidgetQuery,
             TelegramObserverType::Update,
             TelegramObserverType::Error,
         ]
@@ -163,9 +170,11 @@ impl From<UpdateType> for TelegramObserverType {
             UpdateType::PreCheckoutQuery => TelegramObserverType::PreCheckoutQuery,
             UpdateType::PurchasedPaidMedia => TelegramObserverType::PurchasedPaidMedia,
             UpdateType::RemovedChatBoost => TelegramObserverType::RemovedChatBoost,
+            UpdateType::SharedWidgetQuery => TelegramObserverType::SharedWidgetQuery,
             UpdateType::ShippingQuery => TelegramObserverType::ShippingQuery,
             UpdateType::StoppedMessageGeneration => TelegramObserverType::StoppedMessageGeneration,
             UpdateType::Subscription => TelegramObserverType::Subscription,
+            UpdateType::WidgetQuery => TelegramObserverType::WidgetQuery,
         }
     }
 }

@@ -23,7 +23,7 @@ pub struct InlineKeyboardButton {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub callback_data: Option<Box<str>>,
-    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method [`telers_methods::methods::AnswerWebAppQuery`](https://docs.rs/telers-methods/latest/telers_methods/methods/answer_web_app_query/struct.AnswerWebAppQuery.html). Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account.
+    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method [`telers_methods::methods::AnswerWebAppQuery`](https://docs.rs/telers-methods/latest/telers_methods/methods/answer_web_app_query/struct.AnswerWebAppQuery.html). Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account and ephemeral messages.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub web_app: Option<crate::types::WebAppInfo>,
@@ -151,14 +151,14 @@ impl InlineKeyboardButton {
         self
     }
 
-    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method [`telers_methods::methods::AnswerWebAppQuery`](https://docs.rs/telers-methods/latest/telers_methods/methods/answer_web_app_query/struct.AnswerWebAppQuery.html). Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account.
+    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method [`telers_methods::methods::AnswerWebAppQuery`](https://docs.rs/telers-methods/latest/telers_methods/methods/answer_web_app_query/struct.AnswerWebAppQuery.html). Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account and ephemeral messages.
     #[must_use]
     pub fn web_app<T: Into<crate::types::WebAppInfo>>(mut self, val: T) -> Self {
         self.web_app = Some(val.into());
         self
     }
 
-    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method [`telers_methods::methods::AnswerWebAppQuery`](https://docs.rs/telers-methods/latest/telers_methods/methods/answer_web_app_query/struct.AnswerWebAppQuery.html). Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account.
+    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method [`telers_methods::methods::AnswerWebAppQuery`](https://docs.rs/telers-methods/latest/telers_methods/methods/answer_web_app_query/struct.AnswerWebAppQuery.html). Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account and ephemeral messages.
     #[must_use]
     pub fn web_app_option<T: Into<crate::types::WebAppInfo>>(mut self, val: Option<T>) -> Self {
         self.web_app = val.map(Into::into);

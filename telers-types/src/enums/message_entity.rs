@@ -2,6 +2,7 @@ use crate::types::MessageEntity;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc.
 /// Currently, it can be one of
+/// - [`crate::types::MessageEntityBankCardNumber`]
 /// - [`crate::types::MessageEntityBlockquote`]
 /// - [`crate::types::MessageEntityBold`]
 /// - [`crate::types::MessageEntityBotCommand`]
@@ -20,6 +21,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::MessageEntityStrikethrough`]
 /// - [`crate::types::MessageEntityTextLink`]
 /// - [`crate::types::MessageEntityTextMention`]
+/// - [`crate::types::MessageEntityTonAddress`]
 /// - [`crate::types::MessageEntityUnderline`]
 /// - [`crate::types::MessageEntityUrl`]
 /// # Documentation
@@ -42,6 +44,8 @@ pub enum MessageEntityType {
     Email,
     #[strum(serialize = "phone_number")]
     PhoneNumber,
+    #[strum(serialize = "bank_card_number")]
+    BankCardNumber,
     #[strum(serialize = "bold")]
     Bold,
     #[strum(serialize = "italic")]
@@ -68,12 +72,14 @@ pub enum MessageEntityType {
     CustomEmoji,
     #[strum(serialize = "date_time")]
     DateTime,
+    #[strum(serialize = "ton_address")]
+    TonAddress,
     #[strum(serialize = "unknown")]
     Unknown,
 }
 impl MessageEntityType {
     #[must_use]
-    pub const fn all() -> [MessageEntityType; 21usize] {
+    pub const fn all() -> [MessageEntityType; 23usize] {
         [
             MessageEntityType::Mention,
             MessageEntityType::Hashtag,
@@ -82,6 +88,7 @@ impl MessageEntityType {
             MessageEntityType::Url,
             MessageEntityType::Email,
             MessageEntityType::PhoneNumber,
+            MessageEntityType::BankCardNumber,
             MessageEntityType::Bold,
             MessageEntityType::Italic,
             MessageEntityType::Underline,
@@ -95,6 +102,7 @@ impl MessageEntityType {
             MessageEntityType::TextMention,
             MessageEntityType::CustomEmoji,
             MessageEntityType::DateTime,
+            MessageEntityType::TonAddress,
             MessageEntityType::Unknown,
         ]
     }
@@ -124,6 +132,7 @@ impl<'a> From<&'a MessageEntity> for MessageEntityType {
             MessageEntity::Url(_) => MessageEntityType::Url,
             MessageEntity::Email(_) => MessageEntityType::Email,
             MessageEntity::PhoneNumber(_) => MessageEntityType::PhoneNumber,
+            MessageEntity::BankCardNumber(_) => MessageEntityType::BankCardNumber,
             MessageEntity::Bold(_) => MessageEntityType::Bold,
             MessageEntity::Italic(_) => MessageEntityType::Italic,
             MessageEntity::Underline(_) => MessageEntityType::Underline,
@@ -137,6 +146,7 @@ impl<'a> From<&'a MessageEntity> for MessageEntityType {
             MessageEntity::TextMention(_) => MessageEntityType::TextMention,
             MessageEntity::CustomEmoji(_) => MessageEntityType::CustomEmoji,
             MessageEntity::DateTime(_) => MessageEntityType::DateTime,
+            MessageEntity::TonAddress(_) => MessageEntityType::TonAddress,
             MessageEntity::Unknown(_) => MessageEntityType::Unknown,
         }
     }

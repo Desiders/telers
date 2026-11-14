@@ -37,7 +37,7 @@ pub struct ChatPermissions {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub can_send_polls: Option<bool>,
-    /// `true`, if the user is allowed to send animations, games, stickers and use inline bots
+    /// `true`, if the user is allowed to send animations, games, stickers, widgets and use inline bots
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub can_send_other_messages: Option<bool>,
@@ -209,14 +209,14 @@ impl ChatPermissions {
         self
     }
 
-    /// `true`, if the user is allowed to send animations, games, stickers and use inline bots
+    /// `true`, if the user is allowed to send animations, games, stickers, widgets and use inline bots
     #[must_use]
     pub fn can_send_other_messages<T: Into<bool>>(mut self, val: T) -> Self {
         self.can_send_other_messages = Some(val.into());
         self
     }
 
-    /// `true`, if the user is allowed to send animations, games, stickers and use inline bots
+    /// `true`, if the user is allowed to send animations, games, stickers, widgets and use inline bots
     #[must_use]
     pub fn can_send_other_messages_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.can_send_other_messages = val.map(Into::into);

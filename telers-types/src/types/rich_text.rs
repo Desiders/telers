@@ -16,6 +16,7 @@
 /// - [`crate::types::RichTextEmailAddress`]
 /// - [`crate::types::RichTextPhoneNumber`]
 /// - [`crate::types::RichTextBankCardNumber`]
+/// - [`crate::types::RichTextTonAddress`]
 /// - [`crate::types::RichTextMention`]
 /// - [`crate::types::RichTextHashtag`]
 /// - [`crate::types::RichTextCashtag`]
@@ -50,6 +51,7 @@ pub enum RichText {
     EmailAddress(crate::types::RichTextEmailAddress),
     PhoneNumber(crate::types::RichTextPhoneNumber),
     BankCardNumber(crate::types::RichTextBankCardNumber),
+    TonAddress(crate::types::RichTextTonAddress),
     Mention(crate::types::RichTextMention),
     Hashtag(crate::types::RichTextHashtag),
     Cashtag(crate::types::RichTextCashtag),
@@ -73,6 +75,17 @@ pub enum RichText {
     Multiple(Box<[crate::types::RichText]>),
 }
 impl RichText {
+    /// Helper method for field `address`.
+    ///
+    /// The address
+    #[must_use]
+    pub fn address(&self) -> Option<&str> {
+        match self {
+            Self::TonAddress(val) => Some(val.address.as_ref()),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `alternative_text`.
     ///
     /// Alternative emoji for the custom emoji
@@ -234,6 +247,7 @@ impl RichText {
     ///
     /// # Variants
     /// - `RichTextBold`, `RichTextItalic`, `RichTextUnderline`, `RichTextStrikethrough`, `RichTextSpoiler`, `RichTextDateTime`, `RichTextTextMention`, `RichTextSubscript`, `RichTextSuperscript`, `RichTextMarked`, `RichTextCode`, `RichTextUrl`, `RichTextEmailAddress`, `RichTextPhoneNumber`, `RichTextBankCardNumber`, `RichTextMention`, `RichTextHashtag`, `RichTextCashtag`, `RichTextBotCommand`. The text
+    /// - `RichTextTonAddress`. Text of the address
     /// - `RichTextAnchorLink`, `RichTextReferenceLink`. The link text
     /// - `RichTextReference`. Text of the reference
     #[must_use]
@@ -254,6 +268,7 @@ impl RichText {
             Self::EmailAddress(val) => Some(val.text.as_ref()),
             Self::PhoneNumber(val) => Some(val.text.as_ref()),
             Self::BankCardNumber(val) => Some(val.text.as_ref()),
+            Self::TonAddress(val) => Some(val.text.as_ref()),
             Self::Mention(val) => Some(val.text.as_ref()),
             Self::Hashtag(val) => Some(val.text.as_ref()),
             Self::Cashtag(val) => Some(val.text.as_ref()),
@@ -967,6 +982,25 @@ impl TryFrom<RichText> for crate::types::RichTextBankCardNumber {
             Err(Self::Error::new(
                 stringify!(RichText),
                 stringify!(RichTextBankCardNumber),
+            ))
+        }
+    }
+}
+impl From<crate::types::RichTextTonAddress> for RichText {
+    fn from(val: crate::types::RichTextTonAddress) -> Self {
+        Self::TonAddress(val)
+    }
+}
+impl TryFrom<RichText> for crate::types::RichTextTonAddress {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: RichText) -> Result<Self, Self::Error> {
+        if let RichText::TonAddress(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(RichText),
+                stringify!(RichTextTonAddress),
             ))
         }
     }

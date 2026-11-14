@@ -49,6 +49,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::MessageNewChatTitle`]
 /// - [`crate::types::MessagePaidMedia`]
 /// - [`crate::types::MessagePaidMessagePriceChanged`]
+/// - [`crate::types::MessagePaidMessagesWaived`]
 /// - [`crate::types::MessagePassportData`]
 /// - [`crate::types::MessagePhoto`]
 /// - [`crate::types::MessagePinnedMessage`]
@@ -68,6 +69,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::MessageSuggestedPostRefunded`]
 /// - [`crate::types::MessageSupergroupChatCreated`]
 /// - [`crate::types::MessageText`]
+/// - [`crate::types::MessageTonWalletTransfer`]
 /// - [`crate::types::MessageUniqueGift`]
 /// - [`crate::types::MessageUsersShared`]
 /// - [`crate::types::MessageVenue`]
@@ -79,6 +81,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::MessageVideoNote`]
 /// - [`crate::types::MessageVoice`]
 /// - [`crate::types::MessageWebAppData`]
+/// - [`crate::types::MessageWidget`]
 /// - [`crate::types::MessageWriteAccessAllowed`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#message>
@@ -182,6 +185,8 @@ pub enum MessageType {
     PaidMedia,
     #[strum(serialize = "paid_message_price_changed")]
     PaidMessagePriceChanged,
+    #[strum(serialize = "paid_messages_waived")]
+    PaidMessagesWaived,
     #[strum(serialize = "passport_data")]
     PassportData,
     #[strum(serialize = "photo")]
@@ -220,6 +225,8 @@ pub enum MessageType {
     SupergroupChatCreated,
     #[strum(serialize = "text")]
     Text,
+    #[strum(serialize = "ton_wallet_transfer")]
+    TonWalletTransfer,
     #[strum(serialize = "unique_gift")]
     UniqueGift,
     #[strum(serialize = "users_shared")]
@@ -240,6 +247,8 @@ pub enum MessageType {
     Voice,
     #[strum(serialize = "web_app_data")]
     WebAppData,
+    #[strum(serialize = "widget")]
+    Widget,
     #[strum(serialize = "write_access_allowed")]
     WriteAccessAllowed,
     #[strum(serialize = "unknown")]
@@ -247,7 +256,7 @@ pub enum MessageType {
 }
 impl MessageType {
     #[must_use]
-    pub const fn all() -> [MessageType; 79usize] {
+    pub const fn all() -> [MessageType; 82usize] {
         [
             MessageType::Animation,
             MessageType::LivePhoto,
@@ -297,6 +306,7 @@ impl MessageType {
             MessageType::NewChatTitle,
             MessageType::PaidMedia,
             MessageType::PaidMessagePriceChanged,
+            MessageType::PaidMessagesWaived,
             MessageType::PassportData,
             MessageType::Photo,
             MessageType::PinnedMessage,
@@ -316,6 +326,7 @@ impl MessageType {
             MessageType::SuggestedPostRefunded,
             MessageType::SupergroupChatCreated,
             MessageType::Text,
+            MessageType::TonWalletTransfer,
             MessageType::UniqueGift,
             MessageType::UsersShared,
             MessageType::Video,
@@ -326,6 +337,7 @@ impl MessageType {
             MessageType::VideoNote,
             MessageType::Voice,
             MessageType::WebAppData,
+            MessageType::Widget,
             MessageType::WriteAccessAllowed,
             MessageType::Unknown,
         ]
@@ -397,6 +409,7 @@ impl<'a> From<&'a Message> for MessageType {
             Message::NewChatTitle(_) => MessageType::NewChatTitle,
             Message::PaidMedia(_) => MessageType::PaidMedia,
             Message::PaidMessagePriceChanged(_) => MessageType::PaidMessagePriceChanged,
+            Message::PaidMessagesWaived(_) => MessageType::PaidMessagesWaived,
             Message::PassportData(_) => MessageType::PassportData,
             Message::Photo(_) => MessageType::Photo,
             Message::PinnedMessage(_) => MessageType::PinnedMessage,
@@ -416,6 +429,7 @@ impl<'a> From<&'a Message> for MessageType {
             Message::SuggestedPostRefunded(_) => MessageType::SuggestedPostRefunded,
             Message::SupergroupChatCreated(_) => MessageType::SupergroupChatCreated,
             Message::Text(_) => MessageType::Text,
+            Message::TonWalletTransfer(_) => MessageType::TonWalletTransfer,
             Message::UniqueGift(_) => MessageType::UniqueGift,
             Message::UsersShared(_) => MessageType::UsersShared,
             Message::Video(_) => MessageType::Video,
@@ -426,6 +440,7 @@ impl<'a> From<&'a Message> for MessageType {
             Message::VideoNote(_) => MessageType::VideoNote,
             Message::Voice(_) => MessageType::Voice,
             Message::WebAppData(_) => MessageType::WebAppData,
+            Message::Widget(_) => MessageType::Widget,
             Message::WriteAccessAllowed(_) => MessageType::WriteAccessAllowed,
             Message::Unknown(_) => MessageType::Unknown,
         }

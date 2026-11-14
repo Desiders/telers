@@ -26,11 +26,8 @@ async fn set_age(bot: Bot, message: Message, command: CommandObject) -> HandlerR
         return Err(HandlerError::new(InvalidAge("age should be a number")));
     };
 
-    bot.send(SendMessage::new(
-        message.chat().id(),
-        format!("Your age is {age}"),
-    ))
-    .await?;
+    bot.send(SendMessage::new(format!("Your age is {age}")).chat_id(message.chat().id()))
+        .await?;
     Ok(())
 }
 
@@ -39,11 +36,8 @@ async fn set_name(bot: Bot, message: Message, command: CommandObject) -> Handler
         return Err(HandlerError::new(InvalidName("no name provided")));
     };
 
-    bot.send(SendMessage::new(
-        message.chat().id(),
-        format!("Your name is {name}"),
-    ))
-    .await?;
+    bot.send(SendMessage::new(format!("Your name is {name}")).chat_id(message.chat().id()))
+        .await?;
     Ok(())
 }
 
@@ -52,21 +46,15 @@ async fn on_invalid_age(
     message: Message,
     EventError(err): EventError<InvalidAge>,
 ) -> HandlerResult<()> {
-    bot.send(SendMessage::new(
-        message.chat().id(),
-        format!("Error caught: {err}"),
-    ))
-    .await?;
+    bot.send(SendMessage::new(format!("Error caught: {err}")).chat_id(message.chat().id()))
+        .await?;
     Ok(())
 }
 
 /// Handles the errors whose text starts with `Invalid`
 async fn on_invalid(bot: Bot, message: Message, err: EventErrorKind) -> HandlerResult<()> {
-    bot.send(SendMessage::new(
-        message.chat().id(),
-        format!("Error caught: {err}"),
-    ))
-    .await?;
+    bot.send(SendMessage::new(format!("Error caught: {err}")).chat_id(message.chat().id()))
+        .await?;
     Ok(())
 }
 

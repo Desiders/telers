@@ -57,6 +57,8 @@ const THIS_MESSAGE_FILLS: &[Fill] = &[Fill::ChatId, Fill::MessageId, Fill::Busin
 const SEND_METHODS: &[(&str, &str)] = &[
     ("", "sendMessage"),
     ("_rich", "sendRichMessage"),
+    ("_widget", "sendWidget"),
+    ("_shared_widget", "sendSharedWidget"),
     ("_animation", "sendAnimation"),
     ("_audio", "sendAudio"),
     ("_contact", "sendContact"),
@@ -91,6 +93,11 @@ const MESSAGE_SHORTCUTS: &[(&str, &str, &[Fill])] = &[
     ("edit_text", "editMessageText", THIS_MESSAGE_FILLS),
     ("edit_caption", "editMessageCaption", THIS_MESSAGE_FILLS),
     ("edit_media", "editMessageMedia", THIS_MESSAGE_FILLS),
+    (
+        "edit_widget_data",
+        "editMessageWidgetData",
+        THIS_MESSAGE_FILLS,
+    ),
     (
         "edit_reply_markup",
         "editMessageReplyMarkup",
@@ -368,7 +375,7 @@ fn tokenize_reply_helpers(access: &FieldAccess<'_>) -> TokenStream {
         #[must_use]
         fn as_ephemeral_message_parameters(&self) -> Option<EphemeralMessageParameters> {
             #ephemeral_message_id?;
-            #from.map(|from| EphemeralMessageParameters::new(from.id))
+            #from.map(|from| EphemeralMessageParameters::new().receiver_user_id(from.id))
         }
     }
 }

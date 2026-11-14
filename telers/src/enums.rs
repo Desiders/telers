@@ -8,7 +8,9 @@
 //! ```rust
 //! use telers::{enums::ParseMode, methods::SendMessage};
 //!
-//! let request = SendMessage::new(1_i64, "*Hello world!*").parse_mode(ParseMode::Markdown);
+//! let request = SendMessage::new("*Hello world!*")
+//!     .chat_id(1_i64)
+//!     .parse_mode(ParseMode::Markdown);
 //!
 //! assert_eq!(request.parse_mode.as_deref(), Some("Markdown"));
 //! ```

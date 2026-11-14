@@ -1070,6 +1070,7 @@ impl NormalizedSchema {
             "venue",
             "location",
             "rich_message",
+            "widget",
         ];
         let service_fields = [
             "new_chat_members",
@@ -1118,6 +1119,7 @@ impl NormalizedSchema {
             "giveaway_completed",
             "managed_bot_created",
             "paid_message_price_changed",
+            "paid_messages_waived",
             "poll_option_added",
             "poll_option_deleted",
             "suggested_post_approved",
@@ -1130,6 +1132,7 @@ impl NormalizedSchema {
             "video_chat_ended",
             "video_chat_participants_invited",
             "web_app_data",
+            "ton_wallet_transfer",
         ];
 
         let mut common_fields = vec![];
@@ -1747,6 +1750,7 @@ impl NormalizedSchema {
             "url",
             "email",
             "phone_number",
+            "bank_card_number",
             "bold",
             "italic",
             "underline",
@@ -1760,6 +1764,7 @@ impl NormalizedSchema {
             "text_mention",
             "custom_emoji",
             "date_time",
+            "ton_address",
         ];
 
         self.split_tagged_type(

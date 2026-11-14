@@ -95,7 +95,9 @@ async fn input_file_handler(bot: Bot, message: Message) -> telegram::HandlerResu
     );
 
     bot.send(
-        SendPhoto::new(message.chat().id(), cat_id_input_file).caption("Cat by telegram file ID"),
+        SendPhoto::new(cat_id_input_file)
+            .chat_id(message.chat().id())
+            .caption("Cat by telegram file ID"),
     )
     .await?;
     Ok(())

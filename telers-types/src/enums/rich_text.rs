@@ -18,6 +18,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::RichTextEmailAddress`]
 /// - [`crate::types::RichTextPhoneNumber`]
 /// - [`crate::types::RichTextBankCardNumber`]
+/// - [`crate::types::RichTextTonAddress`]
 /// - [`crate::types::RichTextMention`]
 /// - [`crate::types::RichTextHashtag`]
 /// - [`crate::types::RichTextCashtag`]
@@ -67,6 +68,8 @@ pub enum RichTextType {
     PhoneNumber,
     #[strum(serialize = "bank_card_number")]
     BankCardNumber,
+    #[strum(serialize = "ton_address")]
+    TonAddress,
     #[strum(serialize = "mention")]
     Mention,
     #[strum(serialize = "hashtag")]
@@ -90,7 +93,7 @@ pub enum RichTextType {
 }
 impl RichTextType {
     #[must_use]
-    pub const fn all() -> [RichTextType; 27usize] {
+    pub const fn all() -> [RichTextType; 28usize] {
         [
             RichTextType::Bold,
             RichTextType::Italic,
@@ -109,6 +112,7 @@ impl RichTextType {
             RichTextType::EmailAddress,
             RichTextType::PhoneNumber,
             RichTextType::BankCardNumber,
+            RichTextType::TonAddress,
             RichTextType::Mention,
             RichTextType::Hashtag,
             RichTextType::Cashtag,
@@ -159,6 +163,7 @@ impl<'a> TryFrom<&'a RichText> for RichTextType {
             RichText::EmailAddress(_) => Ok(RichTextType::EmailAddress),
             RichText::PhoneNumber(_) => Ok(RichTextType::PhoneNumber),
             RichText::BankCardNumber(_) => Ok(RichTextType::BankCardNumber),
+            RichText::TonAddress(_) => Ok(RichTextType::TonAddress),
             RichText::Mention(_) => Ok(RichTextType::Mention),
             RichText::Hashtag(_) => Ok(RichTextType::Hashtag),
             RichText::Cashtag(_) => Ok(RichTextType::Cashtag),

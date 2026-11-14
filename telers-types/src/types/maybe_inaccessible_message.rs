@@ -70,7 +70,7 @@ impl MaybeInaccessibleMessage {
 
     /// Helper method for field `caption`.
     ///
-    /// Caption for the animation, audio, document, paid media, photo, video or voice
+    /// Caption for the animation, audio, document, live photo, paid media, photo, video, voice, or widget
     #[must_use]
     pub fn caption(&self) -> Option<&str> {
         match self {
@@ -835,6 +835,17 @@ impl MaybeInaccessibleMessage {
         }
     }
 
+    /// Helper method for field `paid_messages_waived`.
+    ///
+    /// Service message: the sender of the message used a link of the other user, which allows sending messages to the user without paying Telegram Stars
+    #[must_use]
+    pub fn paid_messages_waived(&self) -> Option<&crate::types::PaidMessagesWaived> {
+        match self {
+            Self::Message(val) => crate::types::Message::paid_messages_waived(val),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
     /// Helper method for field `paid_star_count`.
     ///
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -1068,7 +1079,7 @@ impl MaybeInaccessibleMessage {
 
     /// Helper method for field `show_caption_above_media`.
     ///
-    /// `true`, if the caption must be shown above the message media
+    /// `true`, if the caption must be shown above the message media or the widget
     #[must_use]
     pub fn show_caption_above_media(&self) -> Option<bool> {
         match self {
@@ -1196,6 +1207,17 @@ impl MaybeInaccessibleMessage {
     pub fn text(&self) -> Option<&str> {
         match self {
             Self::Message(val) => crate::types::Message::text(val),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for field `ton_wallet_transfer`.
+    ///
+    /// Service message: a transfer with a TON wallet
+    #[must_use]
+    pub fn ton_wallet_transfer(&self) -> Option<&crate::types::TonWalletTransfer> {
+        match self {
+            Self::Message(val) => crate::types::Message::ton_wallet_transfer(val),
             Self::InaccessibleMessage(_) => None,
         }
     }
@@ -1334,6 +1356,17 @@ impl MaybeInaccessibleMessage {
         }
     }
 
+    /// Helper method for field `widget`.
+    ///
+    /// Message is an HTML widget, information about the widget
+    #[must_use]
+    pub fn widget(&self) -> Option<&crate::types::Widget> {
+        match self {
+            Self::Message(val) => crate::types::Message::widget(val),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
     /// Helper method for field `write_access_allowed`.
     ///
     /// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`
@@ -1383,17 +1416,6 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => {
                 crate::types::Message::poll(val).map(crate::types::Poll::allows_revoting)
-            }
-            Self::InaccessibleMessage(_) => None,
-        }
-    }
-
-    /// Helper method for nested field `amount`.
-    #[must_use]
-    pub fn amount(&self) -> Option<i64> {
-        match self {
-            Self::Message(val) => {
-                crate::types::Message::suggested_post_paid(val).and_then(|inner| inner.amount)
             }
             Self::InaccessibleMessage(_) => None,
         }
@@ -1453,6 +1475,17 @@ impl MaybeInaccessibleMessage {
         }
     }
 
+    /// Helper method for nested field `chat_data`.
+    #[must_use]
+    pub fn chat_data(&self) -> Option<&str> {
+        match self {
+            Self::Message(val) => {
+                crate::types::Message::widget(val).and_then(|inner| inner.chat_data.as_deref())
+            }
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
     /// Helper method for nested field `chat_id`.
     #[must_use]
     pub fn chat_id(&self) -> Option<i64> {
@@ -1482,16 +1515,6 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::poll(val).and_then(crate::types::Poll::close_date)
             }
-            Self::InaccessibleMessage(_) => None,
-        }
-    }
-
-    /// Helper method for nested field `comment`.
-    #[must_use]
-    pub fn comment(&self) -> Option<&str> {
-        match self {
-            Self::Message(val) => crate::types::Message::suggested_post_declined(val)
-                .and_then(|inner| inner.comment.as_deref()),
             Self::InaccessibleMessage(_) => None,
         }
     }
@@ -1726,6 +1749,17 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => {
                 crate::types::Message::location(val).and_then(|inner| inner.horizontal_accuracy)
+            }
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for nested field `html`.
+    #[must_use]
+    pub fn html(&self) -> Option<&str> {
+        match self {
+            Self::Message(val) => {
+                crate::types::Message::widget(val).map(|inner| inner.html.as_ref())
             }
             Self::InaccessibleMessage(_) => None,
         }
@@ -2075,6 +2109,16 @@ impl MaybeInaccessibleMessage {
         }
     }
 
+    /// Helper method for nested field `peer_address`.
+    #[must_use]
+    pub fn peer_address(&self) -> Option<&str> {
+        match self {
+            Self::Message(val) => crate::types::Message::ton_wallet_transfer(val)
+                .map(|inner| inner.peer_address.as_ref()),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
     /// Helper method for nested field `performer`.
     #[must_use]
     pub fn performer(&self) -> Option<&str> {
@@ -2147,6 +2191,17 @@ impl MaybeInaccessibleMessage {
         }
     }
 
+    /// Helper method for nested field `public_data`.
+    #[must_use]
+    pub fn public_data(&self) -> Option<&str> {
+        match self {
+            Self::Message(val) => {
+                crate::types::Message::widget(val).and_then(|inner| inner.public_data.as_deref())
+            }
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
     /// Helper method for nested field `qualities`.
     #[must_use]
     pub fn qualities(&self) -> Option<&[crate::types::VideoQuality]> {
@@ -2186,6 +2241,17 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => crate::types::Message::suggested_post_refunded(val)
                 .map(|inner| inner.reason.as_ref()),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for nested field `rich_texts`.
+    #[must_use]
+    pub fn rich_texts(&self) -> Option<&[crate::types::RichText]> {
+        match self {
+            Self::Message(val) => {
+                crate::types::Message::quote(val).and_then(|inner| inner.rich_texts.as_deref())
+            }
             Self::InaccessibleMessage(_) => None,
         }
     }
@@ -2355,6 +2421,16 @@ impl MaybeInaccessibleMessage {
             Self::Message(val) => {
                 crate::types::Message::poll(val).map(crate::types::Poll::total_voter_count)
             }
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for nested field `transaction_id`.
+    #[must_use]
+    pub fn transaction_id(&self) -> Option<&str> {
+        match self {
+            Self::Message(val) => crate::types::Message::ton_wallet_transfer(val)
+                .map(|inner| inner.transaction_id.as_ref()),
             Self::InaccessibleMessage(_) => None,
         }
     }

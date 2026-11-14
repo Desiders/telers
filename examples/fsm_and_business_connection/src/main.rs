@@ -45,12 +45,12 @@ impl PartialEq<&str> for State {
 
 async fn start_handler(bot: Bot, message: Message, fsm: Fsm) -> HandlerResult<()> {
     bot.send(
-        SendMessage::new(message.chat().id(), "Hello! What's your name?").business_connection_id(
-            message.business_connection_id().expect(
+        SendMessage::new("Hello! What's your name?")
+            .chat_id(message.chat().id())
+            .business_connection_id(message.business_connection_id().expect(
                 "Business connection id should be set, because we registered this handler for \
                  business connections only",
-            ),
-        ),
+            )),
     )
     .await?;
 
@@ -74,10 +74,10 @@ async fn name_handler(bot: Bot, message: MessageText, fsm: Fsm) -> HandlerResult
     // (user can send message to bot before we set state and data to FSM storage, but it's rare case)
 
     bot.send(
-        SendMessage::new(
-            message.chat.id(),
-            format!("Nice to meet you, {name}! What's your native language?"),
-        )
+        SendMessage::new(format!(
+            "Nice to meet you, {name}! What's your native language?"
+        ))
+        .chat_id(message.chat.id())
         .business_connection_id(message.business_connection_id.expect(
             "Business connection id should be set, because we registered this handler for \
              business connections only",
@@ -98,7 +98,8 @@ async fn language_handler(bot: Bot, message: MessageText, fsm: Fsm) -> HandlerRe
     match language.to_lowercase().as_str() {
         "english" | "en" => {
             bot.send(
-                SendMessage::new(message.chat.id(), format!("{name}, let's talk!"))
+                SendMessage::new(format!("{name}, let's talk!"))
+                    .chat_id(message.chat.id())
                     .business_connection_id(message.business_connection_id.expect(
                         "Business connection id should be set, because we registered this handler \
                          for business connections only",
@@ -111,10 +112,10 @@ async fn language_handler(bot: Bot, message: MessageText, fsm: Fsm) -> HandlerRe
         }
         _ => {
             bot.send(
-                SendMessage::new(
-                    message.chat.id(),
-                    format!("{name}, I don't speak your language. Please, choose another :("),
-                )
+                SendMessage::new(format!(
+                    "{name}, I don't speak your language. Please, choose another :("
+                ))
+                .chat_id(message.chat.id())
                 .business_connection_id(message.business_connection_id.expect(
                     "Business connection id should be set, because we registered this handler for \
                      business connections only",
