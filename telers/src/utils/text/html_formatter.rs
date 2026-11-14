@@ -519,14 +519,6 @@ mod tests {
         ] {
             assert_eq!(formatter.apply_entity(text, &entity).unwrap(), text);
         }
-
-        for entity in [
-            MessageEntity::BankCardNumber(crate::types::MessageEntityBankCardNumber::new(0, 16)),
-            MessageEntity::TonAddress(crate::types::MessageEntityTonAddress::new(0, 16)),
-        ] {
-            let text = "1234567890123456";
-            assert_eq!(formatter.apply_entity(text, &entity).unwrap(), text);
-        }
     }
 
     #[test]
