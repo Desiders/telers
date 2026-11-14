@@ -14,7 +14,7 @@ async fn managed_bot_created_handler(
     bot: Bot,
     message: MessageManagedBotCreated,
 ) -> HandlerResult<()> {
-    bot.send(SendMessage::new(message.chat.id(), "Managed bot created"))
+    bot.send(SendMessage::new("Managed bot created").chat_id(message.chat.id()))
         .await?;
     Ok(())
 }

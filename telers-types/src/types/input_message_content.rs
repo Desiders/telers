@@ -5,6 +5,8 @@
 /// - [`crate::types::InputVenueMessageContent`]
 /// - [`crate::types::InputContactMessageContent`]
 /// - [`crate::types::InputInvoiceMessageContent`]
+/// - [`crate::types::InputWidgetMessageContent`]
+/// - [`crate::types::InputSharedWidgetMessageContent`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmessagecontent>
 #[derive(Clone, Debug)]
@@ -17,6 +19,8 @@ pub enum InputMessageContent {
     InputVenueMessageContent(crate::types::InputVenueMessageContent),
     InputLocationMessageContent(crate::types::InputLocationMessageContent),
     InputContactMessageContent(crate::types::InputContactMessageContent),
+    InputWidgetMessageContent(crate::types::InputWidgetMessageContent),
+    InputSharedWidgetMessageContent(crate::types::InputSharedWidgetMessageContent),
     InputTextMessageContent(crate::types::InputTextMessageContent),
     InputRichMessageContent(crate::types::InputRichMessageContent),
 }
@@ -28,6 +32,53 @@ impl InputMessageContent {
     pub fn address(&self) -> Option<&str> {
         match self {
             Self::InputVenueMessageContent(val) => Some(val.address.as_ref()),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `allow_queries`.
+    ///
+    /// Pass `true` to allow the widget to send queries to the bot
+    #[must_use]
+    pub fn allow_queries(&self) -> Option<bool> {
+        match self {
+            Self::InputWidgetMessageContent(val) => val.allow_queries,
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `caption`.
+    ///
+    /// Widget caption, 0-1024 characters after entities parsing
+    #[must_use]
+    pub fn caption(&self) -> Option<&str> {
+        match self {
+            Self::InputWidgetMessageContent(val) => val.caption.as_deref(),
+            Self::InputSharedWidgetMessageContent(val) => val.caption.as_deref(),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `caption_entities`.
+    ///
+    /// List of special entities that appear in the caption, which can be specified instead of `parse_mode`
+    #[must_use]
+    pub fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        match self {
+            Self::InputWidgetMessageContent(val) => val.caption_entities.as_deref(),
+            Self::InputSharedWidgetMessageContent(val) => val.caption_entities.as_deref(),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `chat_data`.
+    ///
+    /// Data of the widget, which is specific to the message, 0-1024 bytes
+    #[must_use]
+    pub fn chat_data(&self) -> Option<&str> {
+        match self {
+            Self::InputWidgetMessageContent(val) => val.chat_data.as_deref(),
+            Self::InputSharedWidgetMessageContent(val) => val.chat_data.as_deref(),
             _ => None,
         }
     }
@@ -131,6 +182,17 @@ impl InputMessageContent {
         }
     }
 
+    /// Helper method for field `height`.
+    ///
+    /// Height of the widget in logical pixels; omit if the height of the widget isn't fixed. The height is clamped by the app to the range 50-600.
+    #[must_use]
+    pub fn height(&self) -> Option<u16> {
+        match self {
+            Self::InputWidgetMessageContent(val) => val.height,
+            _ => None,
+        }
+    }
+
     /// Helper method for field `horizontal_accuracy`.
     ///
     /// The radius of uncertainty for the location, measured in meters; 0-1500
@@ -142,6 +204,17 @@ impl InputMessageContent {
         }
     }
 
+    /// Helper method for field `html`.
+    ///
+    /// HTML code of the widget, 1-32768 bytes. The code must not exceed 4096 bytes when compressed by zlib with the maximum compression level.
+    #[must_use]
+    pub fn html(&self) -> Option<&str> {
+        match self {
+            Self::InputWidgetMessageContent(val) => Some(val.html.as_ref()),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `is_flexible`.
     ///
     /// Pass `true` if the final price depends on the shipping method. Ignored for payments in Telegram Stars.
@@ -149,6 +222,17 @@ impl InputMessageContent {
     pub fn is_flexible(&self) -> Option<bool> {
         match self {
             Self::InputInvoiceMessageContent(val) => val.is_flexible,
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `is_shared`.
+    ///
+    /// Pass `true` to create a shared widget. Each message sent from the result creates a separate shared widget, whose identifier is received by the bot only in the field `widget_id` of queries from the widget. To send an existing shared widget in response to an inline query, use [`crate::types::InputSharedWidgetMessageContent`] instead.
+    #[must_use]
+    pub fn is_shared(&self) -> Option<bool> {
+        match self {
+            Self::InputWidgetMessageContent(val) => val.is_shared,
             _ => None,
         }
     }
@@ -282,10 +366,14 @@ impl InputMessageContent {
 
     /// Helper method for field `parse_mode`.
     ///
-    /// Mode for parsing entities in the message text. See formatting options for more details.
+    /// # Variants
+    /// - `InputWidgetMessageContent`, `InputSharedWidgetMessageContent`. Mode for parsing entities in the widget caption. See formatting options for more details.
+    /// - `InputTextMessageContent`. Mode for parsing entities in the message text. See formatting options for more details.
     #[must_use]
     pub fn parse_mode(&self) -> Option<&str> {
         match self {
+            Self::InputWidgetMessageContent(val) => val.parse_mode.as_deref(),
+            Self::InputSharedWidgetMessageContent(val) => val.parse_mode.as_deref(),
             Self::InputTextMessageContent(val) => val.parse_mode.as_deref(),
             _ => None,
         }
@@ -401,6 +489,17 @@ impl InputMessageContent {
         }
     }
 
+    /// Helper method for field `public_data`.
+    ///
+    /// Public data of the widget, 0-1024 bytes, which will be available wherever the widget is shown. If the widget is shared, then all messages with it will have the same public data.
+    #[must_use]
+    pub fn public_data(&self) -> Option<&str> {
+        match self {
+            Self::InputWidgetMessageContent(val) => val.public_data.as_deref(),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `rich_message`.
     ///
     /// The message to be sent. Only previously uploaded files may be used in the message.
@@ -430,6 +529,18 @@ impl InputMessageContent {
     pub fn send_phone_number_to_provider(&self) -> Option<bool> {
         match self {
             Self::InputInvoiceMessageContent(val) => val.send_phone_number_to_provider,
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `show_caption_above_media`.
+    ///
+    /// Pass `true` if the caption must be shown above the widget
+    #[must_use]
+    pub fn show_caption_above_media(&self) -> Option<bool> {
+        match self {
+            Self::InputWidgetMessageContent(val) => val.show_caption_above_media,
+            Self::InputSharedWidgetMessageContent(val) => val.show_caption_above_media,
             _ => None,
         }
     }
@@ -470,6 +581,28 @@ impl InputMessageContent {
         }
     }
 
+    /// Helper method for field `widget_id`.
+    ///
+    /// Unique identifier of the shared widget created by the bot
+    #[must_use]
+    pub fn widget_id(&self) -> Option<&str> {
+        match self {
+            Self::InputSharedWidgetMessageContent(val) => Some(val.widget_id.as_ref()),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `width`.
+    ///
+    /// Width of the widget in logical pixels; omit if the widget must occupy the whole width of the message bubble. The width is clamped by the app to the range from 200 to the maximum width of the message bubble.
+    #[must_use]
+    pub fn width(&self) -> Option<i64> {
+        match self {
+            Self::InputWidgetMessageContent(val) => val.width,
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `blocks`.
     #[must_use]
     pub fn blocks(&self) -> Option<&[crate::types::InputRichBlock]> {
@@ -477,18 +610,6 @@ impl InputMessageContent {
             Self::InputRichMessageContent(val) => {
                 let inner = &val.rich_message;
                 inner.blocks.as_deref()
-            }
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `html`.
-    #[must_use]
-    pub fn html(&self) -> Option<&str> {
-        match self {
-            Self::InputRichMessageContent(val) => {
-                let inner = &val.rich_message;
-                inner.html.as_deref()
             }
             _ => None,
         }
@@ -674,6 +795,44 @@ impl TryFrom<InputMessageContent> for crate::types::InputContactMessageContent {
             Err(Self::Error::new(
                 stringify!(InputMessageContent),
                 stringify!(InputContactMessageContent),
+            ))
+        }
+    }
+}
+impl From<crate::types::InputWidgetMessageContent> for InputMessageContent {
+    fn from(val: crate::types::InputWidgetMessageContent) -> Self {
+        Self::InputWidgetMessageContent(val)
+    }
+}
+impl TryFrom<InputMessageContent> for crate::types::InputWidgetMessageContent {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: InputMessageContent) -> Result<Self, Self::Error> {
+        if let InputMessageContent::InputWidgetMessageContent(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(InputMessageContent),
+                stringify!(InputWidgetMessageContent),
+            ))
+        }
+    }
+}
+impl From<crate::types::InputSharedWidgetMessageContent> for InputMessageContent {
+    fn from(val: crate::types::InputSharedWidgetMessageContent) -> Self {
+        Self::InputSharedWidgetMessageContent(val)
+    }
+}
+impl TryFrom<InputMessageContent> for crate::types::InputSharedWidgetMessageContent {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: InputMessageContent) -> Result<Self, Self::Error> {
+        if let InputMessageContent::InputSharedWidgetMessageContent(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(InputMessageContent),
+                stringify!(InputSharedWidgetMessageContent),
             ))
         }
     }

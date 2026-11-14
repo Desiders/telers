@@ -1,11 +1,11 @@
 use crate::{
     methods::{
         CopyMessage, DeleteMessage, EditMessageCaption, EditMessageLiveLocation, EditMessageMedia,
-        EditMessageReplyMarkup, EditMessageText, ForwardMessage, PinChatMessage, SendAnimation,
-        SendAudio, SendContact, SendDice, SendDocument, SendGame, SendInvoice, SendLocation,
-        SendMediaGroup, SendMessage, SendPaidMedia, SendPhoto, SendPoll, SendRichMessage,
-        SendSticker, SendVenue, SendVideo, SendVideoNote, SendVoice, SetMessageReaction,
-        StopMessageLiveLocation, UnpinChatMessage,
+        EditMessageReplyMarkup, EditMessageText, EditMessageWidgetData, ForwardMessage,
+        PinChatMessage, SendAnimation, SendAudio, SendContact, SendDice, SendDocument, SendGame,
+        SendInvoice, SendLocation, SendMediaGroup, SendMessage, SendPaidMedia, SendPhoto, SendPoll,
+        SendRichMessage, SendSharedWidget, SendSticker, SendVenue, SendVideo, SendVideoNote,
+        SendVoice, SendWidget, SetMessageReaction, StopMessageLiveLocation, UnpinChatMessage,
     },
     types::{
         EphemeralMessageParameters, Message, MessageAnimation, MessageAudio, MessageBoostAdded,
@@ -22,16 +22,16 @@ use crate::{
         MessageLocation, MessageManagedBotCreated, MessageMessageAutoDeleteTimerChanged,
         MessageMigrateFromChatId, MessageMigrateToChatId, MessageNewChatMembers,
         MessageNewChatPhoto, MessageNewChatTitle, MessagePaidMedia, MessagePaidMessagePriceChanged,
-        MessagePassportData, MessagePhoto, MessagePinnedMessage, MessagePoll,
-        MessagePollOptionAdded, MessagePollOptionDeleted, MessageProximityAlertTriggered,
-        MessageRefundedPayment, MessageRichMessage, MessageSticker, MessageStory,
-        MessageSuccessfulPayment, MessageSuggestedPostApprovalFailed, MessageSuggestedPostApproved,
-        MessageSuggestedPostDeclined, MessageSuggestedPostPaid, MessageSuggestedPostRefunded,
-        MessageSupergroupChatCreated, MessageText, MessageUniqueGift, MessageUnknown,
-        MessageUsersShared, MessageVenue, MessageVideo, MessageVideoChatEnded,
-        MessageVideoChatParticipantsInvited, MessageVideoChatScheduled, MessageVideoChatStarted,
-        MessageVideoNote, MessageVoice, MessageWebAppData, MessageWriteAccessAllowed,
-        ReplyParameters,
+        MessagePaidMessagesWaived, MessagePassportData, MessagePhoto, MessagePinnedMessage,
+        MessagePoll, MessagePollOptionAdded, MessagePollOptionDeleted,
+        MessageProximityAlertTriggered, MessageRefundedPayment, MessageRichMessage, MessageSticker,
+        MessageStory, MessageSuccessfulPayment, MessageSuggestedPostApprovalFailed,
+        MessageSuggestedPostApproved, MessageSuggestedPostDeclined, MessageSuggestedPostPaid,
+        MessageSuggestedPostRefunded, MessageSupergroupChatCreated, MessageText,
+        MessageTonWalletTransfer, MessageUniqueGift, MessageUnknown, MessageUsersShared,
+        MessageVenue, MessageVideo, MessageVideoChatEnded, MessageVideoChatParticipantsInvited,
+        MessageVideoChatScheduled, MessageVideoChatStarted, MessageVideoNote, MessageVoice,
+        MessageWebAppData, MessageWidget, MessageWriteAccessAllowed, ReplyParameters,
     },
     utils::text::Renderer,
 };
@@ -68,8 +68,9 @@ pub trait MessageShortcuts {
     /// Creates `SendMessage` to the chat of this message.
     #[must_use]
     fn answer<T0: Into<Box<str>>>(&self, text: T0) -> SendMessage {
-        SendMessage::new(self.chat().id(), text)
+        SendMessage::new(text)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -78,8 +79,9 @@ pub trait MessageShortcuts {
     /// Creates `SendMessage` to reply to this message.
     #[must_use]
     fn reply<T0: Into<Box<str>>>(&self, text: T0) -> SendMessage {
-        SendMessage::new(self.chat().id(), text)
+        SendMessage::new(text)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -93,8 +95,9 @@ pub trait MessageShortcuts {
         &self,
         rich_message: T0,
     ) -> SendRichMessage {
-        SendRichMessage::new(self.chat().id(), rich_message)
+        SendRichMessage::new(rich_message)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -106,8 +109,9 @@ pub trait MessageShortcuts {
         &self,
         rich_message: T0,
     ) -> SendRichMessage {
-        SendRichMessage::new(self.chat().id(), rich_message)
+        SendRichMessage::new(rich_message)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -115,11 +119,48 @@ pub trait MessageShortcuts {
             .ephemeral_message_parameters_option(self.as_ephemeral_message_parameters())
             .reply_parameters(self.as_reply_parameters())
     }
+    /// Creates `SendWidget` to the chat of this message.
+    #[must_use]
+    fn answer_widget<T0: Into<Box<str>>>(&self, html: T0) -> SendWidget {
+        SendWidget::new(self.chat().id(), html).message_thread_id_option(
+            self.message_thread_id()
+                .filter(|_| self.is_topic_message() == Some(true)),
+        )
+    }
+    /// Creates `SendWidget` to reply to this message.
+    #[must_use]
+    fn reply_widget<T0: Into<Box<str>>>(&self, html: T0) -> SendWidget {
+        SendWidget::new(self.chat().id(), html)
+            .message_thread_id_option(
+                self.message_thread_id()
+                    .filter(|_| self.is_topic_message() == Some(true)),
+            )
+            .reply_parameters(self.as_reply_parameters())
+    }
+    /// Creates `SendSharedWidget` to the chat of this message.
+    #[must_use]
+    fn answer_shared_widget<T0: Into<Box<str>>>(&self, widget_id: T0) -> SendSharedWidget {
+        SendSharedWidget::new(self.chat().id(), widget_id).message_thread_id_option(
+            self.message_thread_id()
+                .filter(|_| self.is_topic_message() == Some(true)),
+        )
+    }
+    /// Creates `SendSharedWidget` to reply to this message.
+    #[must_use]
+    fn reply_shared_widget<T0: Into<Box<str>>>(&self, widget_id: T0) -> SendSharedWidget {
+        SendSharedWidget::new(self.chat().id(), widget_id)
+            .message_thread_id_option(
+                self.message_thread_id()
+                    .filter(|_| self.is_topic_message() == Some(true)),
+            )
+            .reply_parameters(self.as_reply_parameters())
+    }
     /// Creates `SendAnimation` to the chat of this message.
     #[must_use]
     fn answer_animation<T0: Into<crate::types::InputFile>>(&self, animation: T0) -> SendAnimation {
-        SendAnimation::new(self.chat().id(), animation)
+        SendAnimation::new(animation)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -128,8 +169,9 @@ pub trait MessageShortcuts {
     /// Creates `SendAnimation` to reply to this message.
     #[must_use]
     fn reply_animation<T0: Into<crate::types::InputFile>>(&self, animation: T0) -> SendAnimation {
-        SendAnimation::new(self.chat().id(), animation)
+        SendAnimation::new(animation)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -140,8 +182,9 @@ pub trait MessageShortcuts {
     /// Creates `SendAudio` to the chat of this message.
     #[must_use]
     fn answer_audio<T0: Into<crate::types::InputFile>>(&self, audio: T0) -> SendAudio {
-        SendAudio::new(self.chat().id(), audio)
+        SendAudio::new(audio)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -150,8 +193,9 @@ pub trait MessageShortcuts {
     /// Creates `SendAudio` to reply to this message.
     #[must_use]
     fn reply_audio<T0: Into<crate::types::InputFile>>(&self, audio: T0) -> SendAudio {
-        SendAudio::new(self.chat().id(), audio)
+        SendAudio::new(audio)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -166,8 +210,9 @@ pub trait MessageShortcuts {
         phone_number: T0,
         first_name: T1,
     ) -> SendContact {
-        SendContact::new(self.chat().id(), phone_number, first_name)
+        SendContact::new(phone_number, first_name)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -180,8 +225,9 @@ pub trait MessageShortcuts {
         phone_number: T0,
         first_name: T1,
     ) -> SendContact {
-        SendContact::new(self.chat().id(), phone_number, first_name)
+        SendContact::new(phone_number, first_name)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -192,8 +238,9 @@ pub trait MessageShortcuts {
     /// Creates `SendDocument` to the chat of this message.
     #[must_use]
     fn answer_document<T0: Into<crate::types::InputFile>>(&self, document: T0) -> SendDocument {
-        SendDocument::new(self.chat().id(), document)
+        SendDocument::new(document)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -202,8 +249,9 @@ pub trait MessageShortcuts {
     /// Creates `SendDocument` to reply to this message.
     #[must_use]
     fn reply_document<T0: Into<crate::types::InputFile>>(&self, document: T0) -> SendDocument {
-        SendDocument::new(self.chat().id(), document)
+        SendDocument::new(document)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -300,8 +348,9 @@ pub trait MessageShortcuts {
         latitude: T0,
         longitude: T1,
     ) -> SendLocation {
-        SendLocation::new(self.chat().id(), latitude, longitude)
+        SendLocation::new(latitude, longitude)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -314,8 +363,9 @@ pub trait MessageShortcuts {
         latitude: T0,
         longitude: T1,
     ) -> SendLocation {
-        SendLocation::new(self.chat().id(), latitude, longitude)
+        SendLocation::new(latitude, longitude)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -359,8 +409,9 @@ pub trait MessageShortcuts {
     /// Creates `SendPhoto` to the chat of this message.
     #[must_use]
     fn answer_photo<T0: Into<crate::types::InputFile>>(&self, photo: T0) -> SendPhoto {
-        SendPhoto::new(self.chat().id(), photo)
+        SendPhoto::new(photo)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -369,8 +420,9 @@ pub trait MessageShortcuts {
     /// Creates `SendPhoto` to reply to this message.
     #[must_use]
     fn reply_photo<T0: Into<crate::types::InputFile>>(&self, photo: T0) -> SendPhoto {
-        SendPhoto::new(self.chat().id(), photo)
+        SendPhoto::new(photo)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -439,8 +491,9 @@ pub trait MessageShortcuts {
     /// Creates `SendSticker` to the chat of this message.
     #[must_use]
     fn answer_sticker<T0: Into<crate::types::InputFile>>(&self, sticker: T0) -> SendSticker {
-        SendSticker::new(self.chat().id(), sticker)
+        SendSticker::new(sticker)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -449,8 +502,9 @@ pub trait MessageShortcuts {
     /// Creates `SendSticker` to reply to this message.
     #[must_use]
     fn reply_sticker<T0: Into<crate::types::InputFile>>(&self, sticker: T0) -> SendSticker {
-        SendSticker::new(self.chat().id(), sticker)
+        SendSticker::new(sticker)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -467,8 +521,9 @@ pub trait MessageShortcuts {
         title: T2,
         address: T3,
     ) -> SendVenue {
-        SendVenue::new(self.chat().id(), latitude, longitude, title, address)
+        SendVenue::new(latitude, longitude, title, address)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -483,8 +538,9 @@ pub trait MessageShortcuts {
         title: T2,
         address: T3,
     ) -> SendVenue {
-        SendVenue::new(self.chat().id(), latitude, longitude, title, address)
+        SendVenue::new(latitude, longitude, title, address)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -495,8 +551,9 @@ pub trait MessageShortcuts {
     /// Creates `SendVideo` to the chat of this message.
     #[must_use]
     fn answer_video<T0: Into<crate::types::InputFile>>(&self, video: T0) -> SendVideo {
-        SendVideo::new(self.chat().id(), video)
+        SendVideo::new(video)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -505,8 +562,9 @@ pub trait MessageShortcuts {
     /// Creates `SendVideo` to reply to this message.
     #[must_use]
     fn reply_video<T0: Into<crate::types::InputFile>>(&self, video: T0) -> SendVideo {
-        SendVideo::new(self.chat().id(), video)
+        SendVideo::new(video)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -520,8 +578,9 @@ pub trait MessageShortcuts {
         &self,
         video_note: T0,
     ) -> SendVideoNote {
-        SendVideoNote::new(self.chat().id(), video_note)
+        SendVideoNote::new(video_note)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -530,8 +589,9 @@ pub trait MessageShortcuts {
     /// Creates `SendVideoNote` to reply to this message.
     #[must_use]
     fn reply_video_note<T0: Into<crate::types::InputFile>>(&self, video_note: T0) -> SendVideoNote {
-        SendVideoNote::new(self.chat().id(), video_note)
+        SendVideoNote::new(video_note)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -542,8 +602,9 @@ pub trait MessageShortcuts {
     /// Creates `SendVoice` to the chat of this message.
     #[must_use]
     fn answer_voice<T0: Into<crate::types::InputFile>>(&self, voice: T0) -> SendVoice {
-        SendVoice::new(self.chat().id(), voice)
+        SendVoice::new(voice)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -552,8 +613,9 @@ pub trait MessageShortcuts {
     /// Creates `SendVoice` to reply to this message.
     #[must_use]
     fn reply_voice<T0: Into<crate::types::InputFile>>(&self, voice: T0) -> SendVoice {
-        SendVoice::new(self.chat().id(), voice)
+        SendVoice::new(voice)
             .business_connection_id_option(self.business_connection_id())
+            .chat_id(self.chat().id())
             .message_thread_id_option(
                 self.message_thread_id()
                     .filter(|_| self.is_topic_message() == Some(true)),
@@ -632,6 +694,13 @@ pub trait MessageShortcuts {
             .chat_id(self.chat().id())
             .message_id(self.message_id())
     }
+    /// Creates `EditMessageWidgetData` for this message.
+    #[must_use]
+    fn edit_widget_data(&self) -> EditMessageWidgetData {
+        EditMessageWidgetData::new()
+            .chat_id(self.chat().id())
+            .message_id(self.message_id())
+    }
     /// Creates `EditMessageReplyMarkup` for this message.
     #[must_use]
     fn edit_reply_markup(&self) -> EditMessageReplyMarkup {
@@ -706,7 +775,7 @@ pub trait MessageShortcuts {
     fn as_ephemeral_message_parameters(&self) -> Option<EphemeralMessageParameters> {
         self.ephemeral_message_id()?;
         self.from()
-            .map(|from| EphemeralMessageParameters::new(from.id))
+            .map(|from| EphemeralMessageParameters::new().receiver_user_id(from.id))
     }
 }
 impl MessageShortcuts for Message {
@@ -2130,6 +2199,35 @@ impl MessageShortcuts for MessagePaidMessagePriceChanged {
         self.from.as_deref()
     }
 }
+impl MessageShortcuts for MessagePaidMessagesWaived {
+    fn chat(&self) -> &crate::types::Chat {
+        self.chat.as_ref()
+    }
+
+    fn message_id(&self) -> i64 {
+        self.message_id
+    }
+
+    fn message_thread_id(&self) -> Option<i64> {
+        self.message_thread_id
+    }
+
+    fn is_topic_message(&self) -> Option<bool> {
+        self.is_topic_message
+    }
+
+    fn business_connection_id(&self) -> Option<&str> {
+        self.business_connection_id.as_deref()
+    }
+
+    fn ephemeral_message_id(&self) -> Option<i64> {
+        self.ephemeral_message_id
+    }
+
+    fn from(&self) -> Option<&crate::types::User> {
+        self.from.as_deref()
+    }
+}
 impl MessageShortcuts for MessagePassportData {
     fn chat(&self) -> &crate::types::Chat {
         self.chat.as_ref()
@@ -2681,6 +2779,35 @@ impl MessageShortcuts for MessageText {
         self.from.as_deref()
     }
 }
+impl MessageShortcuts for MessageTonWalletTransfer {
+    fn chat(&self) -> &crate::types::Chat {
+        self.chat.as_ref()
+    }
+
+    fn message_id(&self) -> i64 {
+        self.message_id
+    }
+
+    fn message_thread_id(&self) -> Option<i64> {
+        self.message_thread_id
+    }
+
+    fn is_topic_message(&self) -> Option<bool> {
+        self.is_topic_message
+    }
+
+    fn business_connection_id(&self) -> Option<&str> {
+        self.business_connection_id.as_deref()
+    }
+
+    fn ephemeral_message_id(&self) -> Option<i64> {
+        self.ephemeral_message_id
+    }
+
+    fn from(&self) -> Option<&crate::types::User> {
+        self.from.as_deref()
+    }
+}
 impl MessageShortcuts for MessageUniqueGift {
     fn chat(&self) -> &crate::types::Chat {
         self.chat.as_ref()
@@ -2943,6 +3070,35 @@ impl MessageShortcuts for MessageVoice {
     }
 }
 impl MessageShortcuts for MessageWebAppData {
+    fn chat(&self) -> &crate::types::Chat {
+        self.chat.as_ref()
+    }
+
+    fn message_id(&self) -> i64 {
+        self.message_id
+    }
+
+    fn message_thread_id(&self) -> Option<i64> {
+        self.message_thread_id
+    }
+
+    fn is_topic_message(&self) -> Option<bool> {
+        self.is_topic_message
+    }
+
+    fn business_connection_id(&self) -> Option<&str> {
+        self.business_connection_id.as_deref()
+    }
+
+    fn ephemeral_message_id(&self) -> Option<i64> {
+        self.ephemeral_message_id
+    }
+
+    fn from(&self) -> Option<&crate::types::User> {
+        self.from.as_deref()
+    }
+}
+impl MessageShortcuts for MessageWidget {
     fn chat(&self) -> &crate::types::Chat {
         self.chat.as_ref()
     }
@@ -3908,6 +4064,23 @@ impl MessageRenderers for MessagePaidMessagePriceChanged {
         self.caption_entities.as_deref()
     }
 }
+impl MessageRenderers for MessagePaidMessagesWaived {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
 impl MessageRenderers for MessagePassportData {
     fn text(&self) -> Option<&str> {
         None
@@ -4231,6 +4404,23 @@ impl MessageRenderers for MessageText {
         self.caption_entities.as_deref()
     }
 }
+impl MessageRenderers for MessageTonWalletTransfer {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
 impl MessageRenderers for MessageUniqueGift {
     fn text(&self) -> Option<&str> {
         None
@@ -4385,6 +4575,23 @@ impl MessageRenderers for MessageVoice {
     }
 }
 impl MessageRenderers for MessageWebAppData {
+    fn text(&self) -> Option<&str> {
+        None
+    }
+
+    fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.entities.as_deref()
+    }
+
+    fn caption(&self) -> Option<&str> {
+        self.caption.as_deref()
+    }
+
+    fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        self.caption_entities.as_deref()
+    }
+}
+impl MessageRenderers for MessageWidget {
     fn text(&self) -> Option<&str> {
         None
     }

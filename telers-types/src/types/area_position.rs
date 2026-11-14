@@ -1,33 +1,33 @@
-/// Describes the position of a clickable area within a story.
+/// Describes the position of a rectangle area on a story media or a TON wallet card.
 /// # Documentation
-/// <https://core.telegram.org/bots/api#storyareaposition>
+/// <https://core.telegram.org/bots/api#areaposition>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
-pub struct StoryAreaPosition {
-    /// The abscissa of the area's center, as a percentage of the media width
+pub struct AreaPosition {
+    /// The abscissa of the area's center, as a percentage of the media or the card width
     pub x_percentage: f64,
-    /// The ordinate of the area's center, as a percentage of the media height
+    /// The ordinate of the area's center, as a percentage of the media or the card height
     pub y_percentage: f64,
-    /// The width of the area's rectangle, as a percentage of the media width
+    /// The width of the area's rectangle, as a percentage of the media or the card width
     pub width_percentage: f64,
-    /// The height of the area's rectangle, as a percentage of the media height
+    /// The height of the area's rectangle, as a percentage of the media or the card height
     pub height_percentage: f64,
     /// The clockwise rotation angle of the rectangle, in degrees; 0-360
     pub rotation_angle: f64,
-    /// The radius of the rectangle corner rounding, as a percentage of the media width
+    /// The radius of the rectangle corner rounding, as a percentage of the media or the card width
     pub corner_radius_percentage: f64,
 }
-impl StoryAreaPosition {
-    /// Creates a new `StoryAreaPosition`.
+impl AreaPosition {
+    /// Creates a new `AreaPosition`.
     ///
     /// # Arguments
-    /// * `x_percentage` - The abscissa of the area's center, as a percentage of the media width
-    /// * `y_percentage` - The ordinate of the area's center, as a percentage of the media height
-    /// * `width_percentage` - The width of the area's rectangle, as a percentage of the media width
-    /// * `height_percentage` - The height of the area's rectangle, as a percentage of the media height
+    /// * `x_percentage` - The abscissa of the area's center, as a percentage of the media or the card width
+    /// * `y_percentage` - The ordinate of the area's center, as a percentage of the media or the card height
+    /// * `width_percentage` - The width of the area's rectangle, as a percentage of the media or the card width
+    /// * `height_percentage` - The height of the area's rectangle, as a percentage of the media or the card height
     /// * `rotation_angle` - The clockwise rotation angle of the rectangle, in degrees; 0-360
-    /// * `corner_radius_percentage` - The radius of the rectangle corner rounding, as a percentage of the media width
+    /// * `corner_radius_percentage` - The radius of the rectangle corner rounding, as a percentage of the media or the card width
     #[must_use]
     pub fn new<
         T0: Into<f64>,
@@ -54,28 +54,28 @@ impl StoryAreaPosition {
         }
     }
 
-    /// The abscissa of the area's center, as a percentage of the media width
+    /// The abscissa of the area's center, as a percentage of the media or the card width
     #[must_use]
     pub fn x_percentage<T: Into<f64>>(mut self, val: T) -> Self {
         self.x_percentage = val.into();
         self
     }
 
-    /// The ordinate of the area's center, as a percentage of the media height
+    /// The ordinate of the area's center, as a percentage of the media or the card height
     #[must_use]
     pub fn y_percentage<T: Into<f64>>(mut self, val: T) -> Self {
         self.y_percentage = val.into();
         self
     }
 
-    /// The width of the area's rectangle, as a percentage of the media width
+    /// The width of the area's rectangle, as a percentage of the media or the card width
     #[must_use]
     pub fn width_percentage<T: Into<f64>>(mut self, val: T) -> Self {
         self.width_percentage = val.into();
         self
     }
 
-    /// The height of the area's rectangle, as a percentage of the media height
+    /// The height of the area's rectangle, as a percentage of the media or the card height
     #[must_use]
     pub fn height_percentage<T: Into<f64>>(mut self, val: T) -> Self {
         self.height_percentage = val.into();
@@ -89,7 +89,7 @@ impl StoryAreaPosition {
         self
     }
 
-    /// The radius of the rectangle corner rounding, as a percentage of the media width
+    /// The radius of the rectangle corner rounding, as a percentage of the media or the card width
     #[must_use]
     pub fn corner_radius_percentage<T: Into<f64>>(mut self, val: T) -> Self {
         self.corner_radius_percentage = val.into();

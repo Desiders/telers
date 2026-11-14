@@ -334,7 +334,8 @@ impl MessageManager {
         old: &OldMessage,
     ) -> Result<(), DialogError> {
         trace!(chat_id = old.chat.id(), "Sending reply keyboard removal");
-        let m = SendMessage::new(old.chat.id(), "...")
+        let m = SendMessage::new("...")
+            .chat_id(old.chat.id())
             .reply_markup(ReplyKeyboardRemove::new(true))
             .business_connection_id_option(old.business_connection_id.clone());
         let _ = bot.send(m).await?;
@@ -554,7 +555,8 @@ impl MessageManager {
         );
         Ok(bot
             .send(
-                SendMessage::new(msg.chat.id(), msg.text)
+                SendMessage::new(msg.text)
+                    .chat_id(msg.chat.id())
                     .reply_markup_option(msg.reply_markup)
                     .parse_mode_option(msg.parse_mode)
                     .link_preview_options_option(msg.link_preview_options)
@@ -578,7 +580,8 @@ impl MessageManager {
             );
             return Ok(bot
                 .send(
-                    SendMessage::new(msg.chat.id(), msg.text.clone())
+                    SendMessage::new(msg.text.clone())
+                        .chat_id(msg.chat.id())
                         .reply_markup_option(msg.reply_markup.clone())
                         .parse_mode_option(msg.parse_mode.clone())
                         .link_preview_options_option(msg.link_preview_options.clone())
@@ -600,7 +603,8 @@ impl MessageManager {
 
         match media.content_type {
             MediaContentType::Photo => {
-                let m = SendPhoto::new(msg.chat.id(), input_file)
+                let m = SendPhoto::new(input_file)
+                    .chat_id(msg.chat.id())
                     .caption_option(caption)
                     .parse_mode_option(msg.parse_mode.clone())
                     .has_spoiler_option(media.has_spoiler)
@@ -612,7 +616,8 @@ impl MessageManager {
                 Ok(bot.send(m).await?)
             }
             MediaContentType::Video => {
-                let m = SendVideo::new(msg.chat.id(), input_file)
+                let m = SendVideo::new(input_file)
+                    .chat_id(msg.chat.id())
                     .caption_option(caption)
                     .parse_mode_option(msg.parse_mode.clone())
                     .has_spoiler_option(media.has_spoiler)
@@ -628,7 +633,8 @@ impl MessageManager {
                 Ok(bot.send(m).await?)
             }
             MediaContentType::Audio => {
-                let m = SendAudio::new(msg.chat.id(), input_file)
+                let m = SendAudio::new(input_file)
+                    .chat_id(msg.chat.id())
                     .caption_option(caption)
                     .parse_mode_option(msg.parse_mode.clone())
                     .duration_option(media.duration)
@@ -642,7 +648,8 @@ impl MessageManager {
             }
             // Voice and VideoNote are not typically used in dialogs, fall back to document.
             MediaContentType::Document | MediaContentType::Voice | MediaContentType::VideoNote => {
-                let m = SendDocument::new(msg.chat.id(), input_file)
+                let m = SendDocument::new(input_file)
+                    .chat_id(msg.chat.id())
                     .caption_option(caption)
                     .parse_mode_option(msg.parse_mode.clone())
                     .reply_markup_option(msg.reply_markup.clone())
@@ -652,7 +659,8 @@ impl MessageManager {
                 Ok(bot.send(m).await?)
             }
             MediaContentType::Animation => {
-                let m = SendAnimation::new(msg.chat.id(), input_file)
+                let m = SendAnimation::new(input_file)
+                    .chat_id(msg.chat.id())
                     .caption_option(caption)
                     .parse_mode_option(msg.parse_mode.clone())
                     .has_spoiler_option(media.has_spoiler)

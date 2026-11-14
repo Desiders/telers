@@ -13,8 +13,12 @@ async fn handler(bot: Bot, message: Message) -> HandlerResult<()> {
         "This is <b>bold</b> text.\nThis is <i>italic</i> text.\nThis is <a href=\"https://example.com\">link</a>.";
 
     // We should use `parse_mode` to specify that we use HTML formatting.
-    bot.send(SendMessage::new(message.chat().id(), text).parse_mode(ParseMode::HTML))
-        .await?;
+    bot.send(
+        SendMessage::new(text)
+            .chat_id(message.chat().id())
+            .parse_mode(ParseMode::HTML),
+    )
+    .await?;
 
     // Second way to format text by using `TextBuilder`.
     let text_builder = TextBuilder::new(HTMLFormatter::new())
@@ -28,8 +32,12 @@ async fn handler(bot: Bot, message: Message) -> HandlerResult<()> {
 
     let text = text_builder.get_text();
 
-    bot.send(SendMessage::new(message.chat().id(), text).parse_mode(ParseMode::HTML))
-        .await?;
+    bot.send(
+        SendMessage::new(text)
+            .chat_id(message.chat().id())
+            .parse_mode(ParseMode::HTML),
+    )
+    .await?;
 
     // Third way to format text by using `HTMLFormatter`.
     let html = HTMLFormatter::default();
@@ -42,8 +50,12 @@ async fn handler(bot: Bot, message: Message) -> HandlerResult<()> {
         link = html_text_link("link", "https://example.com")
     );
 
-    bot.send(SendMessage::new(message.chat().id(), text).parse_mode(ParseMode::HTML))
-        .await?;
+    bot.send(
+        SendMessage::new(text)
+            .chat_id(message.chat().id())
+            .parse_mode(ParseMode::HTML),
+    )
+    .await?;
     Ok(())
 }
 

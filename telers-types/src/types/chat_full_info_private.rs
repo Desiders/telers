@@ -139,6 +139,14 @@ pub struct ChatFullInfoPrivate {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub community: Option<crate::types::Community>,
+    /// For private chats, the TON wallet card of the user, which is shown on their profile page
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
+    pub ton_wallet_card: Option<crate::types::TonWalletCard>,
+    /// For private chats, supergroups and channels, the theme of the screen for sharing a link to the user or the chat; omitted if the default theme is used
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
+    pub share_theme: Option<crate::types::ChatShareTheme>,
 }
 impl ChatFullInfoPrivate {
     /// Creates a new `ChatFullInfoPrivate`.
@@ -199,6 +207,8 @@ impl ChatFullInfoPrivate {
             paid_message_star_count: None,
             guard_bot: None,
             community: None,
+            ton_wallet_card: None,
+            share_theme: None,
         }
     }
 
@@ -754,6 +764,40 @@ impl ChatFullInfoPrivate {
     #[must_use]
     pub fn community_option<T: Into<crate::types::Community>>(mut self, val: Option<T>) -> Self {
         self.community = val.map(Into::into);
+        self
+    }
+
+    /// For private chats, the TON wallet card of the user, which is shown on their profile page
+    #[must_use]
+    pub fn ton_wallet_card<T: Into<crate::types::TonWalletCard>>(mut self, val: T) -> Self {
+        self.ton_wallet_card = Some(val.into());
+        self
+    }
+
+    /// For private chats, the TON wallet card of the user, which is shown on their profile page
+    #[must_use]
+    pub fn ton_wallet_card_option<T: Into<crate::types::TonWalletCard>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.ton_wallet_card = val.map(Into::into);
+        self
+    }
+
+    /// For private chats, supergroups and channels, the theme of the screen for sharing a link to the user or the chat; omitted if the default theme is used
+    #[must_use]
+    pub fn share_theme<T: Into<crate::types::ChatShareTheme>>(mut self, val: T) -> Self {
+        self.share_theme = Some(val.into());
+        self
+    }
+
+    /// For private chats, supergroups and channels, the theme of the screen for sharing a link to the user or the chat; omitted if the default theme is used
+    #[must_use]
+    pub fn share_theme_option<T: Into<crate::types::ChatShareTheme>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.share_theme = val.map(Into::into);
         self
     }
 }

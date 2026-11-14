@@ -37,10 +37,10 @@ impl OuterMiddleware for IncomingEchoRouterUpdates {
 }
 
 async fn start_private(bot: Bot, message: Message) -> HandlerResult<()> {
-    bot.send(SendMessage::new(
-        message.chat().id(),
-        "Hello! I'm echo bot that will repeat all your messages!",
-    ))
+    bot.send(
+        SendMessage::new("Hello! I'm echo bot that will repeat all your messages!")
+            .chat_id(message.chat().id()),
+    )
     .await?;
     Ok(())
 }
@@ -62,7 +62,7 @@ async fn stats_echo_router(bot: Bot, message: Message, context: Context) -> Hand
             .get::<usize>("incoming_echo_router_updates_counter")
             .unwrap()
     );
-    bot.send(SendMessage::new(message.chat().id(), text))
+    bot.send(SendMessage::new(text).chat_id(message.chat().id()))
         .await?;
     Ok(())
 }

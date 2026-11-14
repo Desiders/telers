@@ -58,7 +58,8 @@ impl<'a> Renderer<'a> {
                     format: date_time.date_time_format.as_deref(),
                 },
                 // Auto-detected entities (mention, hashtag, cashtag, bot command, url, email,
-                // phone number) carry no markup — Telegram re-detects them — so they're skipped.
+                // phone number, bank card number, TON address) carry no markup — Telegram
+                // re-detects them — so they're skipped.
                 _ => continue,
             };
 
@@ -321,6 +322,17 @@ mod tests {
 
         assert_eq!(render.as_html(), "@user #tag");
         assert_eq!(render.as_markdown(), "@user \\#tag");
+
+        for entity in [
+            MessageEntity::BankCardNumber(crate::types::MessageEntityBankCardNumber::new(0, 16)),
+            MessageEntity::TonAddress(crate::types::MessageEntityTonAddress::new(0, 16)),
+        ] {
+            let text = "1234567890123456";
+            let entities = [entity];
+            let render = Renderer::new(text, &entities);
+            assert_eq!(render.as_html(), text);
+            assert_eq!(render.as_markdown(), text);
+        }
     }
 
     #[test]

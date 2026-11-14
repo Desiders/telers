@@ -8,27 +8,26 @@ use telers::{
 
 async fn handler(bot: Bot, message: Message) -> HandlerResult<()> {
     if message.text().is_none() {
-        bot.send(SendMessage::new(
-            message.chat().id(),
-            "Send me a text message with some formatting",
-        ))
+        bot.send(
+            SendMessage::new("Send me a text message with some formatting")
+                .chat_id(message.chat().id()),
+        )
         .await?;
 
         return Ok(());
     }
 
     if let Some(markdown) = message.html_text() {
-        bot.send(SendMessage::new(
-            message.chat().id(),
-            format!("HTML source:\n\n{markdown}"),
-        ))
+        bot.send(
+            SendMessage::new(format!("HTML source:\n\n{markdown}")).chat_id(message.chat().id()),
+        )
         .await?;
     }
     if let Some(markdown) = message.markdown_text() {
-        bot.send(SendMessage::new(
-            message.chat().id(),
-            format!("MarkdownV2 source:\n\n{markdown}"),
-        ))
+        bot.send(
+            SendMessage::new(format!("MarkdownV2 source:\n\n{markdown}"))
+                .chat_id(message.chat().id()),
+        )
         .await?;
     }
     Ok(())

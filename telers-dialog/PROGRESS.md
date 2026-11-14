@@ -1,6 +1,6 @@
 # telers-dialog Progress
 
-Updated: 2026-10-10 (UTC)
+Updated: 2026-11-14 (UTC)
 
 ## Goal
 - Focused Rust dialog framework for `telers`, borrowing `aiogram-dialog` behavior only where useful.
@@ -14,6 +14,7 @@ Updated: 2026-10-10 (UTC)
 - Widgets: text, keyboard, input, link preview, media, pager, stateful select, calendar, request keyboards.
 
 ## Implemented
+- Bot API 10.4 compatibility: text and media sends set `chat_id` through the builder after constructing the request.
 - Dialog context and manager middlewares prepare request data before calling the outer `Next` continuation through filters, handlers, and descendant routers.
 - Serialization follows `telers`: default `serde`, or native `deser` when enabled. Stored dialog contexts, stacks, access data, media, markup snapshots, and calendar state use the selected traits and JSON values. MiniJinja receives native values directly with Deser.
 - `DialogRegistry` indexes by state and rejects duplicates.
@@ -73,6 +74,7 @@ Updated: 2026-10-10 (UTC)
 - Different: explicit `telers` middleware integration, typed Rust actions/builders, smaller widget set, no managed wrapper types.
 
 ## Validation Snapshot
+- Bot API 10.4 constructor migration: `cargo check --workspace --all-targets --all-features --locked` passes; all 273 dialog unit tests pass in the all-features test run.
 - Outer middleware migration (2026-10-10): direct middleware tests now supply routing continuations. Workspace compilation is covered by `just clippy`; tests and formatters were not rerun during lint cleanup.
 - Convention review: grouped serialization imports, shortened the Deser README to 16 lines, and corrected private builder links. Generator tests pass (19); model and fixture output is unchanged.
 - `cargo doc -p telers -p telers-dialog --no-deps --all-features --locked`: passes without warnings.

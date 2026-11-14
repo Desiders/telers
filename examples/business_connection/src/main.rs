@@ -13,7 +13,8 @@ async fn connection(business_connection: BusinessConnection) -> HandlerResult<()
 async fn message(bot: Bot, message: Message) -> HandlerResult<()> {
     tracing::debug!(?message, "Received message");
     bot.send(
-        SendMessage::new(message.chat().id(), "Hello world!")
+        SendMessage::new("Hello world!")
+            .chat_id(message.chat().id())
             .business_connection_id(message.business_connection_id().unwrap()),
     )
     .await?;

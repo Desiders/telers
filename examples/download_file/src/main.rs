@@ -15,10 +15,10 @@ async fn photo_handler(bot: Bot, message: MessagePhoto) -> HandlerResult<()> {
 
     let bytes = bot.download(photo).await?.bytes().await?;
 
-    bot.send(SendMessage::new(
-        message.chat.id(),
-        format!("Downloaded photo of {} bytes", bytes.len()),
-    ))
+    bot.send(
+        SendMessage::new(format!("Downloaded photo of {} bytes", bytes.len()))
+            .chat_id(message.chat.id()),
+    )
     .await?;
 
     Ok(())
@@ -33,20 +33,19 @@ async fn document_handler(bot: Bot, message: MessageDocument) -> HandlerResult<(
 
     bot.download(document).await?.to_path(file_name).await?;
 
-    bot.send(SendMessage::new(
-        message.chat.id(),
-        format!("Saved document as `{file_name}`"),
-    ))
+    bot.send(
+        SendMessage::new(format!("Saved document as `{file_name}`")).chat_id(message.chat.id()),
+    )
     .await?;
 
     Ok(())
 }
 
 async fn fallback_handler(bot: Bot, message: Message) -> HandlerResult<()> {
-    bot.send(SendMessage::new(
-        message.chat().id(),
-        "Send me a photo or a document to download it",
-    ))
+    bot.send(
+        SendMessage::new("Send me a photo or a document to download it")
+            .chat_id(message.chat().id()),
+    )
     .await?;
 
     Ok(())

@@ -234,6 +234,8 @@ impl TextFormatter for Formatter {
             // Entity types unknown to the library can't be re-formatted either, so their
             // span is also kept as is.
             | MessageEntity::PhoneNumber(_)
+            | MessageEntity::BankCardNumber(_)
+            | MessageEntity::TonAddress(_)
             | MessageEntity::Unknown(_) => editable_text.clone(),
             MessageEntity::Bold(_) => self.bold(self.quote(editable_text)),
             MessageEntity::Italic(_) => self.italic(self.quote(editable_text)),
@@ -515,6 +517,14 @@ mod tests {
             MessageEntity::Cashtag(MessageEntityCashtag::new(11, 5)),
             MessageEntity::BotCommand(MessageEntityBotCommand::new(17, 4)),
         ] {
+            assert_eq!(formatter.apply_entity(text, &entity).unwrap(), text);
+        }
+
+        for entity in [
+            MessageEntity::BankCardNumber(crate::types::MessageEntityBankCardNumber::new(0, 16)),
+            MessageEntity::TonAddress(crate::types::MessageEntityTonAddress::new(0, 16)),
+        ] {
+            let text = "1234567890123456";
             assert_eq!(formatter.apply_entity(text, &entity).unwrap(), text);
         }
     }

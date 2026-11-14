@@ -7,6 +7,8 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::InputVenueMessageContent`]
 /// - [`crate::types::InputContactMessageContent`]
 /// - [`crate::types::InputInvoiceMessageContent`]
+/// - [`crate::types::InputWidgetMessageContent`]
+/// - [`crate::types::InputSharedWidgetMessageContent`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmessagecontent>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
@@ -21,6 +23,10 @@ pub enum InputMessageContentType {
     InputLocationMessageContent,
     #[strum(serialize = "input_contact_message_content")]
     InputContactMessageContent,
+    #[strum(serialize = "input_widget_message_content")]
+    InputWidgetMessageContent,
+    #[strum(serialize = "input_shared_widget_message_content")]
+    InputSharedWidgetMessageContent,
     #[strum(serialize = "input_text_message_content")]
     InputTextMessageContent,
     #[strum(serialize = "input_rich_message_content")]
@@ -28,12 +34,14 @@ pub enum InputMessageContentType {
 }
 impl InputMessageContentType {
     #[must_use]
-    pub const fn all() -> [InputMessageContentType; 6usize] {
+    pub const fn all() -> [InputMessageContentType; 8usize] {
         [
             InputMessageContentType::InputInvoiceMessageContent,
             InputMessageContentType::InputVenueMessageContent,
             InputMessageContentType::InputLocationMessageContent,
             InputMessageContentType::InputContactMessageContent,
+            InputMessageContentType::InputWidgetMessageContent,
+            InputMessageContentType::InputSharedWidgetMessageContent,
             InputMessageContentType::InputTextMessageContent,
             InputMessageContentType::InputRichMessageContent,
         ]
@@ -68,6 +76,12 @@ impl<'a> From<&'a InputMessageContent> for InputMessageContentType {
             }
             InputMessageContent::InputContactMessageContent(_) => {
                 InputMessageContentType::InputContactMessageContent
+            }
+            InputMessageContent::InputWidgetMessageContent(_) => {
+                InputMessageContentType::InputWidgetMessageContent
+            }
+            InputMessageContent::InputSharedWidgetMessageContent(_) => {
+                InputMessageContentType::InputSharedWidgetMessageContent
             }
             InputMessageContent::InputTextMessageContent(_) => {
                 InputMessageContentType::InputTextMessageContent

@@ -25,9 +25,11 @@
 /// - [`crate::types::UpdatePreCheckoutQuery`]
 /// - [`crate::types::UpdatePurchasedPaidMedia`]
 /// - [`crate::types::UpdateRemovedChatBoost`]
+/// - [`crate::types::UpdateSharedWidgetQuery`]
 /// - [`crate::types::UpdateShippingQuery`]
 /// - [`crate::types::UpdateStoppedMessageGeneration`]
 /// - [`crate::types::UpdateSubscription`]
+/// - [`crate::types::UpdateWidgetQuery`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#update>
 #[derive(Clone, Debug)]
@@ -60,9 +62,11 @@ pub enum Update {
     PreCheckoutQuery(crate::types::UpdatePreCheckoutQuery),
     PurchasedPaidMedia(crate::types::UpdatePurchasedPaidMedia),
     RemovedChatBoost(crate::types::UpdateRemovedChatBoost),
+    SharedWidgetQuery(crate::types::UpdateSharedWidgetQuery),
     ShippingQuery(crate::types::UpdateShippingQuery),
     StoppedMessageGeneration(crate::types::UpdateStoppedMessageGeneration),
     Subscription(crate::types::UpdateSubscription),
+    WidgetQuery(crate::types::UpdateWidgetQuery),
 }
 impl Update {
     /// Helper method for field `business_connection`.
@@ -329,6 +333,17 @@ impl Update {
         }
     }
 
+    /// Helper method for field `shared_widget_query`.
+    ///
+    /// New incoming query from a forwarded message with a shared widget
+    #[must_use]
+    pub fn shared_widget_query(&self) -> Option<&crate::types::SharedWidgetQuery> {
+        match self {
+            Self::SharedWidgetQuery(val) => Some(&val.shared_widget_query),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `shipping_query`.
     ///
     /// New incoming shipping query. Only for invoices with flexible price.
@@ -392,9 +407,22 @@ impl Update {
             Self::PreCheckoutQuery(val) => val.update_id,
             Self::PurchasedPaidMedia(val) => val.update_id,
             Self::RemovedChatBoost(val) => val.update_id,
+            Self::SharedWidgetQuery(val) => val.update_id,
             Self::ShippingQuery(val) => val.update_id,
             Self::StoppedMessageGeneration(val) => val.update_id,
             Self::Subscription(val) => val.update_id,
+            Self::WidgetQuery(val) => val.update_id,
+        }
+    }
+
+    /// Helper method for field `widget_query`.
+    ///
+    /// New incoming query from a widget in a message sent by the bot or via the bot
+    #[must_use]
+    pub fn widget_query(&self) -> Option<&crate::types::WidgetQuery> {
+        match self {
+            Self::WidgetQuery(val) => Some(&val.widget_query),
+            _ => None,
         }
     }
 
@@ -842,6 +870,10 @@ impl Update {
                 let inner = &val.stopped_message_generation;
                 Some(inner.chat.as_ref())
             }
+            Self::WidgetQuery(val) => {
+                let inner = &val.widget_query;
+                inner.chat.as_deref()
+            }
             _ => None,
         }
     }
@@ -888,6 +920,10 @@ impl Update {
         match self {
             Self::CallbackQuery(val) => {
                 let inner = &val.callback_query;
+                Some(inner.chat_instance.as_ref())
+            }
+            Self::WidgetQuery(val) => {
+                let inner = &val.widget_query;
                 Some(inner.chat_instance.as_ref())
             }
             _ => None,
@@ -1008,6 +1044,10 @@ impl Update {
         match self {
             Self::InlineQuery(val) => {
                 let inner = &val.inline_query;
+                inner.chat_type.as_deref()
+            }
+            Self::WidgetQuery(val) => {
+                let inner = &val.widget_query;
                 inner.chat_type.as_deref()
             }
             _ => None,
@@ -1357,6 +1397,14 @@ impl Update {
             Self::CallbackQuery(val) => {
                 let inner = &val.callback_query;
                 inner.data.as_deref()
+            }
+            Self::SharedWidgetQuery(val) => {
+                let inner = &val.shared_widget_query;
+                Some(inner.data.as_ref())
+            }
+            Self::WidgetQuery(val) => {
+                let inner = &val.widget_query;
+                Some(inner.data.as_ref())
             }
             _ => None,
         }
@@ -2098,8 +2146,16 @@ impl Update {
                 let inner = &val.purchased_paid_media;
                 Some(inner.from.as_ref())
             }
+            Self::SharedWidgetQuery(val) => {
+                let inner = &val.shared_widget_query;
+                Some(inner.from.as_ref())
+            }
             Self::ShippingQuery(val) => {
                 let inner = &val.shipping_query;
+                Some(inner.from.as_ref())
+            }
+            Self::WidgetQuery(val) => {
+                let inner = &val.widget_query;
                 Some(inner.from.as_ref())
             }
             _ => None,
@@ -2682,8 +2738,16 @@ impl Update {
                 let inner = &val.pre_checkout_query;
                 Some(inner.id.as_ref())
             }
+            Self::SharedWidgetQuery(val) => {
+                let inner = &val.shared_widget_query;
+                Some(inner.id.as_ref())
+            }
             Self::ShippingQuery(val) => {
                 let inner = &val.shipping_query;
+                Some(inner.id.as_ref())
+            }
+            Self::WidgetQuery(val) => {
+                let inner = &val.widget_query;
                 Some(inner.id.as_ref())
             }
             _ => None,
@@ -2700,6 +2764,10 @@ impl Update {
             }
             Self::ChosenInlineResult(val) => {
                 let inner = &val.chosen_inline_result;
+                inner.inline_message_id.as_deref()
+            }
+            Self::WidgetQuery(val) => {
+                let inner = &val.widget_query;
                 inner.inline_message_id.as_deref()
             }
             _ => None,
@@ -3288,6 +3356,10 @@ impl Update {
                 let inner = &val.message_reaction_count;
                 Some(inner.message_id)
             }
+            Self::WidgetQuery(val) => {
+                let inner = &val.widget_query;
+                inner.message_id
+            }
             _ => None,
         }
     }
@@ -3731,6 +3803,42 @@ impl Update {
             Self::Message(val) => {
                 let inner = val.message.as_ref();
                 crate::types::Message::paid_message_price_changed(inner)
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `paid_messages_waived`.
+    #[must_use]
+    pub fn paid_messages_waived(&self) -> Option<&crate::types::PaidMessagesWaived> {
+        match self {
+            Self::BusinessMessage(val) => {
+                let inner = val.business_message.as_ref();
+                crate::types::Message::paid_messages_waived(inner)
+            }
+            Self::ChannelPost(val) => {
+                let inner = val.channel_post.as_ref();
+                crate::types::Message::paid_messages_waived(inner)
+            }
+            Self::EditedBusinessMessage(val) => {
+                let inner = val.edited_business_message.as_ref();
+                crate::types::Message::paid_messages_waived(inner)
+            }
+            Self::EditedChannelPost(val) => {
+                let inner = val.edited_channel_post.as_ref();
+                crate::types::Message::paid_messages_waived(inner)
+            }
+            Self::EditedMessage(val) => {
+                let inner = val.edited_message.as_ref();
+                crate::types::Message::paid_messages_waived(inner)
+            }
+            Self::GuestMessage(val) => {
+                let inner = val.guest_message.as_ref();
+                crate::types::Message::paid_messages_waived(inner)
+            }
+            Self::Message(val) => {
+                let inner = val.message.as_ref();
+                crate::types::Message::paid_messages_waived(inner)
             }
             _ => None,
         }
@@ -5050,6 +5158,42 @@ impl Update {
         }
     }
 
+    /// Helper method for nested field `ton_wallet_transfer`.
+    #[must_use]
+    pub fn ton_wallet_transfer(&self) -> Option<&crate::types::TonWalletTransfer> {
+        match self {
+            Self::BusinessMessage(val) => {
+                let inner = val.business_message.as_ref();
+                crate::types::Message::ton_wallet_transfer(inner)
+            }
+            Self::ChannelPost(val) => {
+                let inner = val.channel_post.as_ref();
+                crate::types::Message::ton_wallet_transfer(inner)
+            }
+            Self::EditedBusinessMessage(val) => {
+                let inner = val.edited_business_message.as_ref();
+                crate::types::Message::ton_wallet_transfer(inner)
+            }
+            Self::EditedChannelPost(val) => {
+                let inner = val.edited_channel_post.as_ref();
+                crate::types::Message::ton_wallet_transfer(inner)
+            }
+            Self::EditedMessage(val) => {
+                let inner = val.edited_message.as_ref();
+                crate::types::Message::ton_wallet_transfer(inner)
+            }
+            Self::GuestMessage(val) => {
+                let inner = val.guest_message.as_ref();
+                crate::types::Message::ton_wallet_transfer(inner)
+            }
+            Self::Message(val) => {
+                let inner = val.message.as_ref();
+                crate::types::Message::ton_wallet_transfer(inner)
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `total_amount`.
     #[must_use]
     pub fn total_amount(&self) -> Option<i64> {
@@ -5069,6 +5213,22 @@ impl Update {
             Self::Poll(val) => {
                 let inner = val.poll.as_ref();
                 Some(crate::types::Poll::total_voter_count(inner))
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `type`.
+    #[must_use]
+    pub fn r#type(&self) -> Option<&crate::types::WidgetQueryType> {
+        match self {
+            Self::SharedWidgetQuery(val) => {
+                let inner = &val.shared_widget_query;
+                Some(&inner.r#type)
+            }
+            Self::WidgetQuery(val) => {
+                let inner = &val.widget_query;
+                Some(&inner.r#type)
             }
             _ => None,
         }
@@ -5591,6 +5751,58 @@ impl Update {
             Self::Message(val) => {
                 let inner = val.message.as_ref();
                 crate::types::Message::web_app_data(inner)
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `widget`.
+    #[must_use]
+    pub fn widget(&self) -> Option<&crate::types::Widget> {
+        match self {
+            Self::BusinessMessage(val) => {
+                let inner = val.business_message.as_ref();
+                crate::types::Message::widget(inner)
+            }
+            Self::ChannelPost(val) => {
+                let inner = val.channel_post.as_ref();
+                crate::types::Message::widget(inner)
+            }
+            Self::EditedBusinessMessage(val) => {
+                let inner = val.edited_business_message.as_ref();
+                crate::types::Message::widget(inner)
+            }
+            Self::EditedChannelPost(val) => {
+                let inner = val.edited_channel_post.as_ref();
+                crate::types::Message::widget(inner)
+            }
+            Self::EditedMessage(val) => {
+                let inner = val.edited_message.as_ref();
+                crate::types::Message::widget(inner)
+            }
+            Self::GuestMessage(val) => {
+                let inner = val.guest_message.as_ref();
+                crate::types::Message::widget(inner)
+            }
+            Self::Message(val) => {
+                let inner = val.message.as_ref();
+                crate::types::Message::widget(inner)
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `widget_id`.
+    #[must_use]
+    pub fn widget_id(&self) -> Option<&str> {
+        match self {
+            Self::SharedWidgetQuery(val) => {
+                let inner = &val.shared_widget_query;
+                Some(inner.widget_id.as_ref())
+            }
+            Self::WidgetQuery(val) => {
+                let inner = &val.widget_query;
+                inner.widget_id.as_deref()
             }
             _ => None,
         }
@@ -6179,6 +6391,14 @@ impl TryFrom<Update> for crate::types::MessagePaidMessagePriceChanged {
         parent.try_into()
     }
 }
+impl TryFrom<Update> for crate::types::MessagePaidMessagesWaived {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, Self::Error> {
+        let parent: crate::types::Message = val.try_into()?;
+        parent.try_into()
+    }
+}
 impl TryFrom<Update> for crate::types::MessagePassportData {
     type Error = crate::errors::ConvertToTypeError;
 
@@ -6331,6 +6551,14 @@ impl TryFrom<Update> for crate::types::MessageText {
         parent.try_into()
     }
 }
+impl TryFrom<Update> for crate::types::MessageTonWalletTransfer {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, Self::Error> {
+        let parent: crate::types::Message = val.try_into()?;
+        parent.try_into()
+    }
+}
 impl TryFrom<Update> for crate::types::MessageUniqueGift {
     type Error = crate::errors::ConvertToTypeError;
 
@@ -6404,6 +6632,14 @@ impl TryFrom<Update> for crate::types::MessageVoice {
     }
 }
 impl TryFrom<Update> for crate::types::MessageWebAppData {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, Self::Error> {
+        let parent: crate::types::Message = val.try_into()?;
+        parent.try_into()
+    }
+}
+impl TryFrom<Update> for crate::types::MessageWidget {
     type Error = crate::errors::ConvertToTypeError;
 
     fn try_from(val: Update) -> Result<Self, Self::Error> {
@@ -6542,6 +6778,19 @@ impl TryFrom<Update> for crate::types::PreCheckoutQuery {
         }
     }
 }
+impl TryFrom<Update> for crate::types::SharedWidgetQuery {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, crate::errors::ConvertToTypeError> {
+        match val {
+            Update::SharedWidgetQuery(val) => Ok(val.shared_widget_query),
+            _ => Err(crate::errors::ConvertToTypeError::new(
+                stringify!(Update),
+                stringify!(SharedWidgetQuery),
+            )),
+        }
+    }
+}
 impl TryFrom<Update> for crate::types::ShippingQuery {
     type Error = crate::errors::ConvertToTypeError;
 
@@ -6551,6 +6800,19 @@ impl TryFrom<Update> for crate::types::ShippingQuery {
             _ => Err(crate::errors::ConvertToTypeError::new(
                 stringify!(Update),
                 stringify!(ShippingQuery),
+            )),
+        }
+    }
+}
+impl TryFrom<Update> for crate::types::WidgetQuery {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, crate::errors::ConvertToTypeError> {
+        match val {
+            Update::WidgetQuery(val) => Ok(val.widget_query),
+            _ => Err(crate::errors::ConvertToTypeError::new(
+                stringify!(Update),
+                stringify!(WidgetQuery),
             )),
         }
     }
@@ -7008,6 +7270,25 @@ impl TryFrom<Update> for crate::types::UpdateRemovedChatBoost {
         }
     }
 }
+impl From<crate::types::UpdateSharedWidgetQuery> for Update {
+    fn from(val: crate::types::UpdateSharedWidgetQuery) -> Self {
+        Self::SharedWidgetQuery(val)
+    }
+}
+impl TryFrom<Update> for crate::types::UpdateSharedWidgetQuery {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, Self::Error> {
+        if let Update::SharedWidgetQuery(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Update),
+                stringify!(UpdateSharedWidgetQuery),
+            ))
+        }
+    }
+}
 impl From<crate::types::UpdateShippingQuery> for Update {
     fn from(val: crate::types::UpdateShippingQuery) -> Self {
         Self::ShippingQuery(val)
@@ -7061,6 +7342,25 @@ impl TryFrom<Update> for crate::types::UpdateSubscription {
             Err(Self::Error::new(
                 stringify!(Update),
                 stringify!(UpdateSubscription),
+            ))
+        }
+    }
+}
+impl From<crate::types::UpdateWidgetQuery> for Update {
+    fn from(val: crate::types::UpdateWidgetQuery) -> Self {
+        Self::WidgetQuery(val)
+    }
+}
+impl TryFrom<Update> for crate::types::UpdateWidgetQuery {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, Self::Error> {
+        if let Update::WidgetQuery(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Update),
+                stringify!(UpdateWidgetQuery),
             ))
         }
     }

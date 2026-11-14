@@ -44,10 +44,10 @@ async fn send_data_handler(
     assert_eq!(data1, context.get::<Data1>("data1").unwrap().clone());
     assert_eq!(data2, context.get::<Data2>("data2").unwrap().clone());
 
-    bot.send(SendMessage::new(
-        message.chat().id(),
-        format!("Data1: {}. Data2: {}", data1.0, data2.0),
-    ))
+    bot.send(
+        SendMessage::new(format!("Data1: {}. Data2: {}", data1.0, data2.0))
+            .chat_id(message.chat().id()),
+    )
     .await?;
     Ok(())
 }

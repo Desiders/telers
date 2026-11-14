@@ -1,6 +1,6 @@
 [package]
 name = "telers-types"
-version = "10.3.0"
+version = "10.4.0"
 edition = "2021"
 rust-version = "1.88.0"
 description = "Telegram Bot API types without an HTTP client or bot framework"

@@ -103,6 +103,10 @@ pub struct ChatFullInfoChannel {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub community: Option<crate::types::Community>,
+    /// For private chats, supergroups and channels, the theme of the screen for sharing a link to the user or the chat; omitted if the default theme is used
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
+    pub share_theme: Option<crate::types::ChatShareTheme>,
 }
 impl ChatFullInfoChannel {
     /// Creates a new `ChatFullInfoChannel`.
@@ -154,6 +158,7 @@ impl ChatFullInfoChannel {
             paid_message_star_count: None,
             guard_bot: None,
             community: None,
+            share_theme: None,
         }
     }
 
@@ -562,6 +567,23 @@ impl ChatFullInfoChannel {
     #[must_use]
     pub fn community_option<T: Into<crate::types::Community>>(mut self, val: Option<T>) -> Self {
         self.community = val.map(Into::into);
+        self
+    }
+
+    /// For private chats, supergroups and channels, the theme of the screen for sharing a link to the user or the chat; omitted if the default theme is used
+    #[must_use]
+    pub fn share_theme<T: Into<crate::types::ChatShareTheme>>(mut self, val: T) -> Self {
+        self.share_theme = Some(val.into());
+        self
+    }
+
+    /// For private chats, supergroups and channels, the theme of the screen for sharing a link to the user or the chat; omitted if the default theme is used
+    #[must_use]
+    pub fn share_theme_option<T: Into<crate::types::ChatShareTheme>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.share_theme = val.map(Into::into);
         self
     }
 }

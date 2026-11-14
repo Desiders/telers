@@ -29,7 +29,7 @@ pub struct ChatMemberRestricted {
     pub can_send_voice_notes: bool,
     /// `true`, if the user is allowed to send polls and checklists
     pub can_send_polls: bool,
-    /// `true`, if the user is allowed to send animations, games, stickers and use inline bots
+    /// `true`, if the user is allowed to send animations, games, stickers, widgets and use inline bots
     pub can_send_other_messages: bool,
     /// `true`, if the user is allowed to add web page previews to their messages
     pub can_add_web_page_previews: bool,
@@ -62,7 +62,7 @@ impl ChatMemberRestricted {
     /// * `can_send_video_notes` - `true`, if the user is allowed to send video notes
     /// * `can_send_voice_notes` - `true`, if the user is allowed to send voice notes
     /// * `can_send_polls` - `true`, if the user is allowed to send polls and checklists
-    /// * `can_send_other_messages` - `true`, if the user is allowed to send animations, games, stickers and use inline bots
+    /// * `can_send_other_messages` - `true`, if the user is allowed to send animations, games, stickers, widgets and use inline bots
     /// * `can_add_web_page_previews` - `true`, if the user is allowed to add web page previews to their messages
     /// * `can_react_to_messages` - `true`, if the user is allowed to react to messages
     /// * `can_edit_tag` - `true`, if the user is allowed to edit their own tag
@@ -224,7 +224,7 @@ impl ChatMemberRestricted {
         self
     }
 
-    /// `true`, if the user is allowed to send animations, games, stickers and use inline bots
+    /// `true`, if the user is allowed to send animations, games, stickers, widgets and use inline bots
     #[must_use]
     pub fn can_send_other_messages<T: Into<bool>>(mut self, val: T) -> Self {
         self.can_send_other_messages = val.into();

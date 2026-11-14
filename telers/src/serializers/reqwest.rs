@@ -270,7 +270,8 @@ mod tests {
 
     #[tokio::test]
     async fn multipart_preserves_scalars_json_and_omits_none() {
-        let request = SendMessage::new(-123_i64, "quotes: \" and newline\n")
+        let request = SendMessage::new("quotes: \" and newline\n")
+            .chat_id(-123_i64)
             .disable_notification(false)
             .reply_markup(InlineKeyboardMarkup::new([[InlineKeyboardButton::new(
                 "open",

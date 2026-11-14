@@ -72,7 +72,7 @@ async fn handler(bot: Bot, update: Update, context: Context) -> HandlerResult<()
         context.get::<usize>("processed_handlers_counter").unwrap()
     );
     if let Some(chat) = update.chat() {
-        bot.send(SendMessage::new(chat.id(), text)).await?;
+        bot.send(SendMessage::new(text).chat_id(chat.id())).await?;
     }
     Ok(())
 }

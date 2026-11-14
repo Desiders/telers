@@ -27,9 +27,11 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::UpdatePreCheckoutQuery`]
 /// - [`crate::types::UpdatePurchasedPaidMedia`]
 /// - [`crate::types::UpdateRemovedChatBoost`]
+/// - [`crate::types::UpdateSharedWidgetQuery`]
 /// - [`crate::types::UpdateShippingQuery`]
 /// - [`crate::types::UpdateStoppedMessageGeneration`]
 /// - [`crate::types::UpdateSubscription`]
+/// - [`crate::types::UpdateWidgetQuery`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#update>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
@@ -84,16 +86,20 @@ pub enum UpdateType {
     PurchasedPaidMedia,
     #[strum(serialize = "removed_chat_boost")]
     RemovedChatBoost,
+    #[strum(serialize = "shared_widget_query")]
+    SharedWidgetQuery,
     #[strum(serialize = "shipping_query")]
     ShippingQuery,
     #[strum(serialize = "stopped_message_generation")]
     StoppedMessageGeneration,
     #[strum(serialize = "subscription")]
     Subscription,
+    #[strum(serialize = "widget_query")]
+    WidgetQuery,
 }
 impl UpdateType {
     #[must_use]
-    pub const fn all() -> [UpdateType; 27usize] {
+    pub const fn all() -> [UpdateType; 29usize] {
         [
             UpdateType::BusinessConnection,
             UpdateType::BusinessMessage,
@@ -119,9 +125,11 @@ impl UpdateType {
             UpdateType::PreCheckoutQuery,
             UpdateType::PurchasedPaidMedia,
             UpdateType::RemovedChatBoost,
+            UpdateType::SharedWidgetQuery,
             UpdateType::ShippingQuery,
             UpdateType::StoppedMessageGeneration,
             UpdateType::Subscription,
+            UpdateType::WidgetQuery,
         ]
     }
 }
@@ -167,9 +175,11 @@ impl<'a> From<&'a Update> for UpdateType {
             Update::PreCheckoutQuery(_) => UpdateType::PreCheckoutQuery,
             Update::PurchasedPaidMedia(_) => UpdateType::PurchasedPaidMedia,
             Update::RemovedChatBoost(_) => UpdateType::RemovedChatBoost,
+            Update::SharedWidgetQuery(_) => UpdateType::SharedWidgetQuery,
             Update::ShippingQuery(_) => UpdateType::ShippingQuery,
             Update::StoppedMessageGeneration(_) => UpdateType::StoppedMessageGeneration,
             Update::Subscription(_) => UpdateType::Subscription,
+            Update::WidgetQuery(_) => UpdateType::WidgetQuery,
         }
     }
 }

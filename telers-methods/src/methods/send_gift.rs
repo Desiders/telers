@@ -11,7 +11,7 @@ pub struct SendGift {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub user_id: Option<i64>,
-    /// Required if `user_id` is not specified. Unique identifier for the chat or username of the channel (in the format @username) that will receive the gift.
+    /// Required if `user_id` is not specified. Unique identifier for the chat that will receive the gift or username of the channel in the format @username.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub chat_id: Option<crate::types::ChatIdKind>,
@@ -69,14 +69,14 @@ impl SendGift {
         self
     }
 
-    /// Required if `user_id` is not specified. Unique identifier for the chat or username of the channel (in the format @username) that will receive the gift.
+    /// Required if `user_id` is not specified. Unique identifier for the chat that will receive the gift or username of the channel in the format @username.
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
         self.chat_id = Some(val.into());
         self
     }
 
-    /// Required if `user_id` is not specified. Unique identifier for the chat or username of the channel (in the format @username) that will receive the gift.
+    /// Required if `user_id` is not specified. Unique identifier for the chat that will receive the gift or username of the channel in the format @username.
     #[must_use]
     pub fn chat_id_option<T: Into<crate::types::ChatIdKind>>(mut self, val: Option<T>) -> Self {
         self.chat_id = val.map(Into::into);

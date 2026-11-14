@@ -24,6 +24,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::ExternalReplyInfoVideo`]
 /// - [`crate::types::ExternalReplyInfoVideoNote`]
 /// - [`crate::types::ExternalReplyInfoVoice`]
+/// - [`crate::types::ExternalReplyInfoWidget`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#externalreplyinfo>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
@@ -72,12 +73,14 @@ pub enum ExternalReplyInfoType {
     VideoNote,
     #[strum(serialize = "voice")]
     Voice,
+    #[strum(serialize = "widget")]
+    Widget,
     #[strum(serialize = "unknown")]
     Unknown,
 }
 impl ExternalReplyInfoType {
     #[must_use]
-    pub const fn all() -> [ExternalReplyInfoType; 22usize] {
+    pub const fn all() -> [ExternalReplyInfoType; 23usize] {
         [
             ExternalReplyInfoType::Animation,
             ExternalReplyInfoType::LivePhoto,
@@ -100,6 +103,7 @@ impl ExternalReplyInfoType {
             ExternalReplyInfoType::Video,
             ExternalReplyInfoType::VideoNote,
             ExternalReplyInfoType::Voice,
+            ExternalReplyInfoType::Widget,
             ExternalReplyInfoType::Unknown,
         ]
     }
@@ -143,6 +147,7 @@ impl<'a> From<&'a ExternalReplyInfo> for ExternalReplyInfoType {
             ExternalReplyInfo::Video(_) => ExternalReplyInfoType::Video,
             ExternalReplyInfo::VideoNote(_) => ExternalReplyInfoType::VideoNote,
             ExternalReplyInfo::Voice(_) => ExternalReplyInfoType::Voice,
+            ExternalReplyInfo::Widget(_) => ExternalReplyInfoType::Widget,
             ExternalReplyInfo::Unknown(_) => ExternalReplyInfoType::Unknown,
         }
     }

@@ -12,7 +12,8 @@
 //! use telers::{errors::SessionErrorKind, methods::SendMessage, Bot};
 //!
 //! async fn send_text(bot: Bot) -> Result<(), SessionErrorKind> {
-//!     let request = SendMessage::new(1_i64, "Hello world!")
+//!     let request = SendMessage::new("Hello world!")
+//!         .chat_id(1_i64)
 //!         // Regular builder setter.
 //!         .disable_notification(true)
 //!         // `_option(...)` variant for Option<T> values.

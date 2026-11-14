@@ -20,7 +20,7 @@
 //!     let chat_id = 1;
 //!     let text = "Hello, world!";
 //!
-//!     let _ = bot.send(SendMessage::new(chat_id, text)).await;
+//!     let _ = bot.send(SendMessage::new(text).chat_id(chat_id)).await;
 //! }
 //! ```
 //!
@@ -35,7 +35,7 @@
 //!     let timeout = 10.0; // 10 seconds
 //!
 //!     let _ = bot
-//!         .send_with_timeout(SendMessage::new(chat_id, text), timeout)
+//!         .send_with_timeout(SendMessage::new(text).chat_id(chat_id), timeout)
 //!         .await;
 //! }
 //! ```

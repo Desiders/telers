@@ -1,5 +1,6 @@
 /// This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc.
 /// Currently, it can be one of
+/// - [`crate::types::MessageEntityBankCardNumber`]
 /// - [`crate::types::MessageEntityBlockquote`]
 /// - [`crate::types::MessageEntityBold`]
 /// - [`crate::types::MessageEntityBotCommand`]
@@ -18,6 +19,7 @@
 /// - [`crate::types::MessageEntityStrikethrough`]
 /// - [`crate::types::MessageEntityTextLink`]
 /// - [`crate::types::MessageEntityTextMention`]
+/// - [`crate::types::MessageEntityTonAddress`]
 /// - [`crate::types::MessageEntityUnderline`]
 /// - [`crate::types::MessageEntityUrl`]
 /// # Documentation
@@ -35,6 +37,7 @@ pub enum MessageEntity {
     Url(crate::types::MessageEntityUrl),
     Email(crate::types::MessageEntityEmail),
     PhoneNumber(crate::types::MessageEntityPhoneNumber),
+    BankCardNumber(crate::types::MessageEntityBankCardNumber),
     Bold(crate::types::MessageEntityBold),
     Italic(crate::types::MessageEntityItalic),
     Underline(crate::types::MessageEntityUnderline),
@@ -48,6 +51,7 @@ pub enum MessageEntity {
     TextMention(crate::types::MessageEntityTextMention),
     CustomEmoji(crate::types::MessageEntityCustomEmoji),
     DateTime(crate::types::MessageEntityDateTime),
+    TonAddress(crate::types::MessageEntityTonAddress),
     /// Content unknown to this version of the library
     #[cfg_attr(not(feature = "deser"), serde(untagged))]
     #[cfg_attr(feature = "deser", deser(untagged))]
@@ -100,6 +104,7 @@ impl MessageEntity {
             Self::Url(val) => val.length,
             Self::Email(val) => val.length,
             Self::PhoneNumber(val) => val.length,
+            Self::BankCardNumber(val) => val.length,
             Self::Bold(val) => val.length,
             Self::Italic(val) => val.length,
             Self::Underline(val) => val.length,
@@ -113,6 +118,7 @@ impl MessageEntity {
             Self::TextMention(val) => val.length,
             Self::CustomEmoji(val) => val.length,
             Self::DateTime(val) => val.length,
+            Self::TonAddress(val) => val.length,
             Self::Unknown(val) => val.length,
         }
     }
@@ -130,6 +136,7 @@ impl MessageEntity {
             Self::Url(val) => val.offset,
             Self::Email(val) => val.offset,
             Self::PhoneNumber(val) => val.offset,
+            Self::BankCardNumber(val) => val.offset,
             Self::Bold(val) => val.offset,
             Self::Italic(val) => val.offset,
             Self::Underline(val) => val.offset,
@@ -143,6 +150,7 @@ impl MessageEntity {
             Self::TextMention(val) => val.offset,
             Self::CustomEmoji(val) => val.offset,
             Self::DateTime(val) => val.offset,
+            Self::TonAddress(val) => val.offset,
             Self::Unknown(val) => val.offset,
         }
     }
@@ -529,6 +537,25 @@ impl TryFrom<MessageEntity> for crate::types::MessageEntityPhoneNumber {
         }
     }
 }
+impl From<crate::types::MessageEntityBankCardNumber> for MessageEntity {
+    fn from(val: crate::types::MessageEntityBankCardNumber) -> Self {
+        Self::BankCardNumber(val)
+    }
+}
+impl TryFrom<MessageEntity> for crate::types::MessageEntityBankCardNumber {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: MessageEntity) -> Result<Self, Self::Error> {
+        if let MessageEntity::BankCardNumber(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(MessageEntity),
+                stringify!(MessageEntityBankCardNumber),
+            ))
+        }
+    }
+}
 impl From<crate::types::MessageEntityBold> for MessageEntity {
     fn from(val: crate::types::MessageEntityBold) -> Self {
         Self::Bold(val)
@@ -772,6 +799,25 @@ impl TryFrom<MessageEntity> for crate::types::MessageEntityDateTime {
             Err(Self::Error::new(
                 stringify!(MessageEntity),
                 stringify!(MessageEntityDateTime),
+            ))
+        }
+    }
+}
+impl From<crate::types::MessageEntityTonAddress> for MessageEntity {
+    fn from(val: crate::types::MessageEntityTonAddress) -> Self {
+        Self::TonAddress(val)
+    }
+}
+impl TryFrom<MessageEntity> for crate::types::MessageEntityTonAddress {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: MessageEntity) -> Result<Self, Self::Error> {
+        if let MessageEntity::TonAddress(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(MessageEntity),
+                stringify!(MessageEntityTonAddress),
             ))
         }
     }

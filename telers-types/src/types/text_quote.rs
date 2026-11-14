@@ -5,13 +5,17 @@
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct TextQuote {
-    /// Text of the quoted part of a message that is replied to by the given message
+    /// Text of the quoted part of a message that is replied to by the given message; may be empty if the quote was chosen from a rich message
     pub text: Box<str>,
     /// Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are kept in quotes.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub entities: Option<Box<[crate::types::MessageEntity]>>,
-    /// Approximate quote position in the original message in UTF-16 code units as specified by the sender
+    /// Rich text of the quote if it was chosen from a rich message. May contain only plain text, [`crate::types::RichTextBold`], [`crate::types::RichTextItalic`], [`crate::types::RichTextUnderline`], [`crate::types::RichTextStrikethrough`], [`crate::types::RichTextSpoiler`], [`crate::types::RichTextSubscript`], [`crate::types::RichTextSuperscript`], [`crate::types::RichTextDateTime`], [`crate::types::RichTextCustomEmoji`], [`crate::types::RichTextMathematicalExpression`], and arrays of them.
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
+    pub rich_texts: Option<Box<[crate::types::RichText]>>,
+    /// Approximate quote position in the original message in UTF-16 code units as specified by the sender. For quotes from rich messages, it is the position in the text formed by joining plain texts of all quotable texts of the message, separated by line feeds.
     pub position: i64,
     /// `true`, if the quote was chosen manually by the message sender. Otherwise, the quote was added automatically by the server.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
@@ -22,8 +26,8 @@ impl TextQuote {
     /// Creates a new `TextQuote`.
     ///
     /// # Arguments
-    /// * `text` - Text of the quoted part of a message that is replied to by the given message
-    /// * `position` - Approximate quote position in the original message in UTF-16 code units as specified by the sender
+    /// * `text` - Text of the quoted part of a message that is replied to by the given message; may be empty if the quote was chosen from a rich message
+    /// * `position` - Approximate quote position in the original message in UTF-16 code units as specified by the sender. For quotes from rich messages, it is the position in the text formed by joining plain texts of all quotable texts of the message, separated by line feeds.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -32,12 +36,13 @@ impl TextQuote {
         Self {
             text: text.into(),
             entities: None,
+            rich_texts: None,
             position: position.into(),
             is_manual: None,
         }
     }
 
-    /// Text of the quoted part of a message that is replied to by the given message
+    /// Text of the quoted part of a message that is replied to by the given message; may be empty if the quote was chosen from a rich message
     #[must_use]
     pub fn text<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.text = val.into();
@@ -91,7 +96,54 @@ impl TextQuote {
         self
     }
 
-    /// Approximate quote position in the original message in UTF-16 code units as specified by the sender
+    /// Rich text of the quote if it was chosen from a rich message. May contain only plain text, [`crate::types::RichTextBold`], [`crate::types::RichTextItalic`], [`crate::types::RichTextUnderline`], [`crate::types::RichTextStrikethrough`], [`crate::types::RichTextSpoiler`], [`crate::types::RichTextSubscript`], [`crate::types::RichTextSuperscript`], [`crate::types::RichTextDateTime`], [`crate::types::RichTextCustomEmoji`], [`crate::types::RichTextMathematicalExpression`], and arrays of them.
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn rich_texts<T: Into<Box<[crate::types::RichText]>>>(mut self, val: T) -> Self {
+        self.rich_texts = Some(
+            self.rich_texts
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into())
+                .collect(),
+        );
+        self
+    }
+
+    /// Rich text of the quote if it was chosen from a rich message. May contain only plain text, [`crate::types::RichTextBold`], [`crate::types::RichTextItalic`], [`crate::types::RichTextUnderline`], [`crate::types::RichTextStrikethrough`], [`crate::types::RichTextSpoiler`], [`crate::types::RichTextSubscript`], [`crate::types::RichTextSuperscript`], [`crate::types::RichTextDateTime`], [`crate::types::RichTextCustomEmoji`], [`crate::types::RichTextMathematicalExpression`], and arrays of them.
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn rich_text<T: Into<crate::types::RichText>>(mut self, val: T) -> Self {
+        self.rich_texts = Some(
+            self.rich_texts
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        self
+    }
+
+    /// Rich text of the quote if it was chosen from a rich message. May contain only plain text, [`crate::types::RichTextBold`], [`crate::types::RichTextItalic`], [`crate::types::RichTextUnderline`], [`crate::types::RichTextStrikethrough`], [`crate::types::RichTextSpoiler`], [`crate::types::RichTextSubscript`], [`crate::types::RichTextSuperscript`], [`crate::types::RichTextDateTime`], [`crate::types::RichTextCustomEmoji`], [`crate::types::RichTextMathematicalExpression`], and arrays of them.
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn rich_texts_option<T: Into<Box<[crate::types::RichText]>>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.rich_texts = val.map(Into::into);
+        self
+    }
+
+    /// Approximate quote position in the original message in UTF-16 code units as specified by the sender. For quotes from rich messages, it is the position in the text formed by joining plain texts of all quotable texts of the message, separated by line feeds.
     #[must_use]
     pub fn position<T: Into<i64>>(mut self, val: T) -> Self {
         self.position = val.into();

@@ -519,6 +519,16 @@ impl<Client> crate::Extractor<Client> for MessagePaidMessagePriceChanged {
         async move { val }
     }
 }
+impl<Client> crate::Extractor<Client> for MessagePaidMessagesWaived {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
 impl<Client> crate::Extractor<Client> for MessagePassportData {
     type Error = crate::errors::ConvertToTypeError;
 
@@ -709,6 +719,16 @@ impl<Client> crate::Extractor<Client> for MessageText {
         async move { val }
     }
 }
+impl<Client> crate::Extractor<Client> for MessageTonWalletTransfer {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
 impl<Client> crate::Extractor<Client> for MessageUniqueGift {
     type Error = crate::errors::ConvertToTypeError;
 
@@ -800,6 +820,16 @@ impl<Client> crate::Extractor<Client> for MessageVoice {
     }
 }
 impl<Client> crate::Extractor<Client> for MessageWebAppData {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
+impl<Client> crate::Extractor<Client> for MessageWidget {
     type Error = crate::errors::ConvertToTypeError;
 
     fn extract(
@@ -1009,6 +1039,16 @@ impl<Client> crate::Extractor<Client> for ChatBoostRemoved {
         async move { val }
     }
 }
+impl<Client> crate::Extractor<Client> for SharedWidgetQuery {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
 impl<Client> crate::Extractor<Client> for ShippingQuery {
     type Error = crate::errors::ConvertToTypeError;
 
@@ -1030,6 +1070,16 @@ impl<Client> crate::Extractor<Client> for MessageGenerationStopped {
     }
 }
 impl<Client> crate::Extractor<Client> for BotSubscriptionUpdated {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
+impl<Client> crate::Extractor<Client> for WidgetQuery {
     type Error = crate::errors::ConvertToTypeError;
 
     fn extract(
@@ -1279,6 +1329,16 @@ impl<Client> crate::Extractor<Client> for UpdateRemovedChatBoost {
         async move { val }
     }
 }
+impl<Client> crate::Extractor<Client> for UpdateSharedWidgetQuery {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
 impl<Client> crate::Extractor<Client> for UpdateShippingQuery {
     type Error = crate::errors::ConvertToTypeError;
 
@@ -1300,6 +1360,16 @@ impl<Client> crate::Extractor<Client> for UpdateStoppedMessageGeneration {
     }
 }
 impl<Client> crate::Extractor<Client> for UpdateSubscription {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
+impl<Client> crate::Extractor<Client> for UpdateWidgetQuery {
     type Error = crate::errors::ConvertToTypeError;
 
     fn extract(

@@ -149,7 +149,7 @@ pub struct MessageVideoChatParticipantsInvited {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub effect_id: Option<Box<str>>,
-    /// Caption for the animation, audio, document, paid media, photo, video or voice
+    /// Caption for the animation, audio, document, live photo, paid media, photo, video, voice, or widget
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub caption: Option<Box<str>>,
@@ -157,7 +157,7 @@ pub struct MessageVideoChatParticipantsInvited {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub caption_entities: Option<Box<[crate::types::MessageEntity]>>,
-    /// `true`, if the caption must be shown above the message media
+    /// `true`, if the caption must be shown above the message media or the widget
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub show_caption_above_media: Option<bool>,
@@ -805,14 +805,14 @@ impl MessageVideoChatParticipantsInvited {
         self
     }
 
-    /// Caption for the animation, audio, document, paid media, photo, video or voice
+    /// Caption for the animation, audio, document, live photo, paid media, photo, video, voice, or widget
     #[must_use]
     pub fn caption<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.caption = Some(val.into());
         self
     }
 
-    /// Caption for the animation, audio, document, paid media, photo, video or voice
+    /// Caption for the animation, audio, document, live photo, paid media, photo, video, voice, or widget
     #[must_use]
     pub fn caption_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.caption = val.map(Into::into);
@@ -866,14 +866,14 @@ impl MessageVideoChatParticipantsInvited {
         self
     }
 
-    /// `true`, if the caption must be shown above the message media
+    /// `true`, if the caption must be shown above the message media or the widget
     #[must_use]
     pub fn show_caption_above_media<T: Into<bool>>(mut self, val: T) -> Self {
         self.show_caption_above_media = Some(val.into());
         self
     }
 
-    /// `true`, if the caption must be shown above the message media
+    /// `true`, if the caption must be shown above the message media or the widget
     #[must_use]
     pub fn show_caption_above_media_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.show_caption_above_media = val.map(Into::into);

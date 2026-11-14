@@ -13,10 +13,12 @@ use telers::{
 
 /// This handler send greeting message to chat.
 async fn start_handler(bot: Bot, message: MessageText) -> HandlerResult<()> {
-    bot.send(SendMessage::new(
-        message.chat.id(),
-        "Hello! Send me a sticker, and I'll send you a random sticker from this sticker pack!",
-    ))
+    bot.send(
+        SendMessage::new(
+            "Hello! Send me a sticker, and I'll send you a random sticker from this sticker pack!",
+        )
+        .chat_id(message.chat.id()),
+    )
     .await?;
 
     Ok(())
@@ -28,10 +30,12 @@ async fn sticker_handler(bot: Bot, message: MessageSticker) -> HandlerResult<()>
     let Some(sticker_set_name) = message.sticker.set_name() else {
         // if the sticker does not have the name of the sticker set to which it belongs,
         // then the sticker does not have a sticker set and exit from handler
-        bot.send(SendMessage::new(
-            message.chat.id(),
-            "Sorry, but this sticker without sticker set. Try send another sticker.",
-        ))
+        bot.send(
+            SendMessage::new(
+                "Sorry, but this sticker without sticker set. Try send another sticker.",
+            )
+            .chat_id(message.chat.id()),
+        )
         .await?;
         return Ok(());
     };
@@ -44,21 +48,15 @@ async fn sticker_handler(bot: Bot, message: MessageSticker) -> HandlerResult<()>
     let sticker_to_send = &sticker_set.stickers[rand_index_of_sticker_set];
 
     // send sticker by file ID of specify sticker
-    bot.send(SendSticker::new(
-        message.chat.id(),
-        InputFile::id(sticker_to_send.file_id()),
-    ))
-    .await?;
+    bot.send(SendSticker::new(InputFile::id(sticker_to_send.file_id())).chat_id(message.chat.id()))
+        .await?;
     Ok(())
 }
 
 /// This handler process all non-sticker messages
 async fn wrong_message_handler(bot: Bot, message: Message) -> HandlerResult<()> {
-    bot.send(SendMessage::new(
-        message.chat().id(),
-        "Please, send me any sticker.",
-    ))
-    .await?;
+    bot.send(SendMessage::new("Please, send me any sticker.").chat_id(message.chat().id()))
+        .await?;
     Ok(())
 }
 

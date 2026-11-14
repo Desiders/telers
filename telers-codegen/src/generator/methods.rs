@@ -605,7 +605,7 @@ pub fn tokenize_methods_mod(method_names: &[&String]) -> TokenStream {
         //! ```rust
         //! use telers_methods::{SendMessage, TelegramMethod as _};
         //!
-        //! let request = SendMessage::new(1_i64, "Hello world!")
+        //! let request = SendMessage::new("Hello world!").chat_id(1_i64)
         //!     // Regular builder setter.
         //!     .disable_notification(true)
         //!     // `_option(...)` variant for Option<T> values.

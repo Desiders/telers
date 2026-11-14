@@ -343,7 +343,8 @@ mod tests {
             let reference = file.str_to_file().to_owned();
             let client = Reqwest::default();
             let bot = Bot::with_client("123:token", client.clone());
-            let request = SendPhoto::new(123_i64, file)
+            let request = SendPhoto::new(file)
+                .chat_id(123_i64)
                 .caption("caption")
                 .build_request(&bot);
             let form = client

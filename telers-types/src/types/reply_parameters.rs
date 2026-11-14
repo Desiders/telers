@@ -9,7 +9,7 @@ pub struct ReplyParameters {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub message_id: Option<i64>,
-    /// If the message to be replied to is from a different chat, unique identifier for the chat or username of the bot, supergroup or channel in the format @username. Not supported for messages sent on behalf of a business account, messages from channel direct messages chats and ephemeral messages.
+    /// If the message to be replied to is from a different chat, unique identifier for the chat or username of the bot, supergroup, or channel in the format @username. Not supported for messages sent on behalf of a business account, messages from channel direct messages chats and ephemeral messages.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub chat_id: Option<crate::types::ChatIdKind>,
@@ -33,7 +33,11 @@ pub struct ReplyParameters {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub quote_entities: Option<Box<[crate::types::MessageEntity]>>,
-    /// Position of the quote in the original message in UTF-16 code units
+    /// A JSON-serialized list of quoted parts of the rich message to be replied to. Must contain one element for each quoted text of the message in the order of their appearance. Each of the following is a separate quoted text: the text of a paragraph, a heading, a preformatted block, a footer, or a mathematical expression; the text and the credit of a block quotation or a pull quotation; the summary of a details block; the caption and each cell of a table; the text and the credit of a caption of a media block, a collage, a slideshow, or a map. Texts of blocks nested in lists, block quotations, details, collages, and slideshows are separate quoted texts too. The first and the last elements can contain only a part of the corresponding text; all other elements must contain the whole text. Formatting of the quoted parts must be kept, and rich texts must be nested in the same way as in the message received from the server. Mathematical expressions must be quoted entirely. Buttons in [`crate::types::RichBlockButtons`], anchors and dividers can't be quoted. Up to 32 quoted texts with total length up to 1024 characters can be specified. Only plain text, [`crate::types::RichTextBold`], [`crate::types::RichTextItalic`], [`crate::types::RichTextUnderline`], [`crate::types::RichTextStrikethrough`], [`crate::types::RichTextSpoiler`], [`crate::types::RichTextSubscript`], [`crate::types::RichTextSuperscript`], [`crate::types::RichTextDateTime`], [`crate::types::RichTextCustomEmoji`], [`crate::types::RichTextMathematicalExpression`], and arrays of them are kept in the quote; other rich text types are replaced with their text. If non-empty, then quote, `quote_parse_mode` and `quote_entities` are ignored.
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
+    pub quote_rich_texts: Option<Box<[crate::types::RichText]>>,
+    /// Position of the quote in the original message in UTF-16 code units. For quotes from rich messages, it is the position in the text formed by joining plain texts of all quotable texts of the message, separated by line feeds.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub quote_position: Option<i64>,
@@ -61,6 +65,7 @@ impl ReplyParameters {
             quote: None,
             quote_parse_mode: None,
             quote_entities: None,
+            quote_rich_texts: None,
             quote_position: None,
             checklist_task_id: None,
             poll_option_id: None,
@@ -81,14 +86,14 @@ impl ReplyParameters {
         self
     }
 
-    /// If the message to be replied to is from a different chat, unique identifier for the chat or username of the bot, supergroup or channel in the format @username. Not supported for messages sent on behalf of a business account, messages from channel direct messages chats and ephemeral messages.
+    /// If the message to be replied to is from a different chat, unique identifier for the chat or username of the bot, supergroup, or channel in the format @username. Not supported for messages sent on behalf of a business account, messages from channel direct messages chats and ephemeral messages.
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
         self.chat_id = Some(val.into());
         self
     }
 
-    /// If the message to be replied to is from a different chat, unique identifier for the chat or username of the bot, supergroup or channel in the format @username. Not supported for messages sent on behalf of a business account, messages from channel direct messages chats and ephemeral messages.
+    /// If the message to be replied to is from a different chat, unique identifier for the chat or username of the bot, supergroup, or channel in the format @username. Not supported for messages sent on behalf of a business account, messages from channel direct messages chats and ephemeral messages.
     #[must_use]
     pub fn chat_id_option<T: Into<crate::types::ChatIdKind>>(mut self, val: Option<T>) -> Self {
         self.chat_id = val.map(Into::into);
@@ -198,14 +203,61 @@ impl ReplyParameters {
         self
     }
 
-    /// Position of the quote in the original message in UTF-16 code units
+    /// A JSON-serialized list of quoted parts of the rich message to be replied to. Must contain one element for each quoted text of the message in the order of their appearance. Each of the following is a separate quoted text: the text of a paragraph, a heading, a preformatted block, a footer, or a mathematical expression; the text and the credit of a block quotation or a pull quotation; the summary of a details block; the caption and each cell of a table; the text and the credit of a caption of a media block, a collage, a slideshow, or a map. Texts of blocks nested in lists, block quotations, details, collages, and slideshows are separate quoted texts too. The first and the last elements can contain only a part of the corresponding text; all other elements must contain the whole text. Formatting of the quoted parts must be kept, and rich texts must be nested in the same way as in the message received from the server. Mathematical expressions must be quoted entirely. Buttons in [`crate::types::RichBlockButtons`], anchors and dividers can't be quoted. Up to 32 quoted texts with total length up to 1024 characters can be specified. Only plain text, [`crate::types::RichTextBold`], [`crate::types::RichTextItalic`], [`crate::types::RichTextUnderline`], [`crate::types::RichTextStrikethrough`], [`crate::types::RichTextSpoiler`], [`crate::types::RichTextSubscript`], [`crate::types::RichTextSuperscript`], [`crate::types::RichTextDateTime`], [`crate::types::RichTextCustomEmoji`], [`crate::types::RichTextMathematicalExpression`], and arrays of them are kept in the quote; other rich text types are replaced with their text. If non-empty, then quote, `quote_parse_mode` and `quote_entities` are ignored.
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn quote_rich_texts<T: Into<Box<[crate::types::RichText]>>>(mut self, val: T) -> Self {
+        self.quote_rich_texts = Some(
+            self.quote_rich_texts
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into())
+                .collect(),
+        );
+        self
+    }
+
+    /// A JSON-serialized list of quoted parts of the rich message to be replied to. Must contain one element for each quoted text of the message in the order of their appearance. Each of the following is a separate quoted text: the text of a paragraph, a heading, a preformatted block, a footer, or a mathematical expression; the text and the credit of a block quotation or a pull quotation; the summary of a details block; the caption and each cell of a table; the text and the credit of a caption of a media block, a collage, a slideshow, or a map. Texts of blocks nested in lists, block quotations, details, collages, and slideshows are separate quoted texts too. The first and the last elements can contain only a part of the corresponding text; all other elements must contain the whole text. Formatting of the quoted parts must be kept, and rich texts must be nested in the same way as in the message received from the server. Mathematical expressions must be quoted entirely. Buttons in [`crate::types::RichBlockButtons`], anchors and dividers can't be quoted. Up to 32 quoted texts with total length up to 1024 characters can be specified. Only plain text, [`crate::types::RichTextBold`], [`crate::types::RichTextItalic`], [`crate::types::RichTextUnderline`], [`crate::types::RichTextStrikethrough`], [`crate::types::RichTextSpoiler`], [`crate::types::RichTextSubscript`], [`crate::types::RichTextSuperscript`], [`crate::types::RichTextDateTime`], [`crate::types::RichTextCustomEmoji`], [`crate::types::RichTextMathematicalExpression`], and arrays of them are kept in the quote; other rich text types are replaced with their text. If non-empty, then quote, `quote_parse_mode` and `quote_entities` are ignored.
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn quote_rich_text<T: Into<crate::types::RichText>>(mut self, val: T) -> Self {
+        self.quote_rich_texts = Some(
+            self.quote_rich_texts
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        self
+    }
+
+    /// A JSON-serialized list of quoted parts of the rich message to be replied to. Must contain one element for each quoted text of the message in the order of their appearance. Each of the following is a separate quoted text: the text of a paragraph, a heading, a preformatted block, a footer, or a mathematical expression; the text and the credit of a block quotation or a pull quotation; the summary of a details block; the caption and each cell of a table; the text and the credit of a caption of a media block, a collage, a slideshow, or a map. Texts of blocks nested in lists, block quotations, details, collages, and slideshows are separate quoted texts too. The first and the last elements can contain only a part of the corresponding text; all other elements must contain the whole text. Formatting of the quoted parts must be kept, and rich texts must be nested in the same way as in the message received from the server. Mathematical expressions must be quoted entirely. Buttons in [`crate::types::RichBlockButtons`], anchors and dividers can't be quoted. Up to 32 quoted texts with total length up to 1024 characters can be specified. Only plain text, [`crate::types::RichTextBold`], [`crate::types::RichTextItalic`], [`crate::types::RichTextUnderline`], [`crate::types::RichTextStrikethrough`], [`crate::types::RichTextSpoiler`], [`crate::types::RichTextSubscript`], [`crate::types::RichTextSuperscript`], [`crate::types::RichTextDateTime`], [`crate::types::RichTextCustomEmoji`], [`crate::types::RichTextMathematicalExpression`], and arrays of them are kept in the quote; other rich text types are replaced with their text. If non-empty, then quote, `quote_parse_mode` and `quote_entities` are ignored.
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn quote_rich_texts_option<T: Into<Box<[crate::types::RichText]>>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.quote_rich_texts = val.map(Into::into);
+        self
+    }
+
+    /// Position of the quote in the original message in UTF-16 code units. For quotes from rich messages, it is the position in the text formed by joining plain texts of all quotable texts of the message, separated by line feeds.
     #[must_use]
     pub fn quote_position<T: Into<i64>>(mut self, val: T) -> Self {
         self.quote_position = Some(val.into());
         self
     }
 
-    /// Position of the quote in the original message in UTF-16 code units
+    /// Position of the quote in the original message in UTF-16 code units. For quotes from rich messages, it is the position in the text formed by joining plain texts of all quotable texts of the message, separated by line feeds.
     #[must_use]
     pub fn quote_position_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.quote_position = val.map(Into::into);

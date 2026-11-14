@@ -11,8 +11,10 @@ pub struct SendLivePhoto {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub business_connection_id: Option<Box<str>>,
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-    pub chat_id: crate::types::ChatIdKind,
+    /// Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username; required unless the message is sent as an ephemeral reply to a callback query
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
+    pub chat_id: Option<crate::types::ChatIdKind>,
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
@@ -82,25 +84,19 @@ impl SendLivePhoto {
     /// Creates a new `SendLivePhoto`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername)
     /// * `live_photo` - Live photo video to send. The video must be no longer than 10 seconds and must not exceed 10 MB in size. Pass a `file_id` as String to send a video that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending live photos by a URL is currently unsupported.
     /// * `photo` - The static photo to send. Pass a `file_id` as String to send a photo that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending live photos by a URL is currently unsupported.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new<
-        T0: Into<crate::types::ChatIdKind>,
-        T1: Into<crate::types::InputFile>,
-        T2: Into<crate::types::InputFile>,
-    >(
-        chat_id: T0,
-        live_photo: T1,
-        photo: T2,
+    pub fn new<T0: Into<crate::types::InputFile>, T1: Into<crate::types::InputFile>>(
+        live_photo: T0,
+        photo: T1,
     ) -> Self {
         Self {
             business_connection_id: None,
-            chat_id: chat_id.into(),
+            chat_id: None,
             message_thread_id: None,
             direct_messages_topic_id: None,
             ephemeral_message_parameters: None,
@@ -135,10 +131,17 @@ impl SendLivePhoto {
         self
     }
 
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username; required unless the message is sent as an ephemeral reply to a callback query
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
+        self.chat_id = Some(val.into());
+        self
+    }
+
+    /// Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username; required unless the message is sent as an ephemeral reply to a callback query
+    #[must_use]
+    pub fn chat_id_option<T: Into<crate::types::ChatIdKind>>(mut self, val: Option<T>) -> Self {
+        self.chat_id = val.map(Into::into);
         self
     }
 

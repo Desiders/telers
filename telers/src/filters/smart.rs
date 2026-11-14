@@ -793,6 +793,13 @@ impl SmartFilter {
         Self::update().paid_message_price_changed()
     }
 
+    /// Path starting at the `paid_messages_waived` field of the incoming [`Update`]
+    #[must_use]
+    #[inline]
+    pub fn paid_messages_waived() -> SmartFilterPath<crate::types::PaidMessagesWaived> {
+        Self::update().paid_messages_waived()
+    }
+
     /// Path starting at the `passport_data` field of the incoming [`Update`]
     #[must_use]
     #[inline]
@@ -1003,6 +1010,13 @@ impl SmartFilter {
         Self::update().sender_tag()
     }
 
+    /// Path starting at the `shared_widget_query` field of the incoming [`Update`]
+    #[must_use]
+    #[inline]
+    pub fn shared_widget_query() -> SmartFilterPath<crate::types::SharedWidgetQuery> {
+        Self::update().shared_widget_query()
+    }
+
     /// Path starting at the `shipping_address` field of the incoming [`Update`]
     #[must_use]
     #[inline]
@@ -1123,6 +1137,20 @@ impl SmartFilter {
         Self::update().text()
     }
 
+    /// Path starting at the `ton_wallet_transfer` field of the incoming [`Update`]
+    #[must_use]
+    #[inline]
+    pub fn ton_wallet_transfer() -> SmartFilterPath<crate::types::TonWalletTransfer> {
+        Self::update().ton_wallet_transfer()
+    }
+
+    /// Path starting at the `type` field of the incoming [`Update`]
+    #[must_use]
+    #[inline]
+    pub fn r#type() -> SmartFilterPath<crate::types::WidgetQueryType> {
+        Self::update().r#type()
+    }
+
     /// Path starting at the `unique_gift` field of the incoming [`Update`]
     #[must_use]
     #[inline]
@@ -1220,6 +1248,27 @@ impl SmartFilter {
     #[inline]
     pub fn web_app_data() -> SmartFilterPath<crate::types::WebAppData> {
         Self::update().web_app_data()
+    }
+
+    /// Path starting at the `widget` field of the incoming [`Update`]
+    #[must_use]
+    #[inline]
+    pub fn widget() -> SmartFilterPath<crate::types::Widget> {
+        Self::update().widget()
+    }
+
+    /// Path starting at the `widget_id` field of the incoming [`Update`]
+    #[must_use]
+    #[inline]
+    pub fn widget_id() -> SmartFilterPath<str> {
+        Self::update().widget_id()
+    }
+
+    /// Path starting at the `widget_query` field of the incoming [`Update`]
+    #[must_use]
+    #[inline]
+    pub fn widget_query() -> SmartFilterPath<crate::types::WidgetQuery> {
+        Self::update().widget_query()
     }
 
     /// Path starting at the `write_access_allowed` field of the incoming [`Update`]
@@ -1363,6 +1412,49 @@ impl SmartFilterPath<crate::types::Animation> {
     #[inline]
     pub fn file_size(self) -> SmartFilterPath<i64> {
         self.and_then(|value| value.file_size.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::AreaPosition> {
+    /// Path to the `x_percentage` field of [`crate::types::AreaPosition`]
+    #[must_use]
+    #[inline]
+    pub fn x_percentage(self) -> SmartFilterPath<f64> {
+        self.map(|value| &value.x_percentage)
+    }
+
+    /// Path to the `y_percentage` field of [`crate::types::AreaPosition`]
+    #[must_use]
+    #[inline]
+    pub fn y_percentage(self) -> SmartFilterPath<f64> {
+        self.map(|value| &value.y_percentage)
+    }
+
+    /// Path to the `width_percentage` field of [`crate::types::AreaPosition`]
+    #[must_use]
+    #[inline]
+    pub fn width_percentage(self) -> SmartFilterPath<f64> {
+        self.map(|value| &value.width_percentage)
+    }
+
+    /// Path to the `height_percentage` field of [`crate::types::AreaPosition`]
+    #[must_use]
+    #[inline]
+    pub fn height_percentage(self) -> SmartFilterPath<f64> {
+        self.map(|value| &value.height_percentage)
+    }
+
+    /// Path to the `rotation_angle` field of [`crate::types::AreaPosition`]
+    #[must_use]
+    #[inline]
+    pub fn rotation_angle(self) -> SmartFilterPath<f64> {
+        self.map(|value| &value.rotation_angle)
+    }
+
+    /// Path to the `corner_radius_percentage` field of [`crate::types::AreaPosition`]
+    #[must_use]
+    #[inline]
+    pub fn corner_radius_percentage(self) -> SmartFilterPath<f64> {
+        self.map(|value| &value.corner_radius_percentage)
     }
 }
 impl SmartFilterPath<crate::types::Audio> {
@@ -2525,6 +2617,13 @@ impl SmartFilterPath<crate::types::ChatFullInfo> {
         self.and_then(|value| value.rating())
     }
 
+    /// Path to the optional `share_theme` field of [`crate::types::ChatFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn share_theme(self) -> SmartFilterPath<crate::types::ChatShareTheme> {
+        self.and_then(|value| value.share_theme())
+    }
+
     /// Path to the optional `sticker_set_name` field of [`crate::types::ChatFullInfo`]
     #[must_use]
     #[inline]
@@ -2537,6 +2636,13 @@ impl SmartFilterPath<crate::types::ChatFullInfo> {
     #[inline]
     pub fn title(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.title())
+    }
+
+    /// Path to the optional `ton_wallet_card` field of [`crate::types::ChatFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn ton_wallet_card(self) -> SmartFilterPath<crate::types::TonWalletCard> {
+        self.and_then(|value| value.ton_wallet_card())
     }
 
     /// Path to the optional `unique_gift_colors` field of [`crate::types::ChatFullInfo`]
@@ -2734,6 +2840,13 @@ impl SmartFilterPath<crate::types::ChatFullInfoChannel> {
     #[inline]
     pub fn community(self) -> SmartFilterPath<crate::types::Community> {
         self.and_then(|value| value.community.as_ref())
+    }
+
+    /// Path to the optional `share_theme` field of [`crate::types::ChatFullInfoChannel`]
+    #[must_use]
+    #[inline]
+    pub fn share_theme(self) -> SmartFilterPath<crate::types::ChatShareTheme> {
+        self.and_then(|value| value.share_theme.as_ref())
     }
 }
 impl SmartFilterPath<crate::types::ChatFullInfoGroup> {
@@ -3143,6 +3256,20 @@ impl SmartFilterPath<crate::types::ChatFullInfoPrivate> {
     pub fn community(self) -> SmartFilterPath<crate::types::Community> {
         self.and_then(|value| value.community.as_ref())
     }
+
+    /// Path to the optional `ton_wallet_card` field of [`crate::types::ChatFullInfoPrivate`]
+    #[must_use]
+    #[inline]
+    pub fn ton_wallet_card(self) -> SmartFilterPath<crate::types::TonWalletCard> {
+        self.and_then(|value| value.ton_wallet_card.as_ref())
+    }
+
+    /// Path to the optional `share_theme` field of [`crate::types::ChatFullInfoPrivate`]
+    #[must_use]
+    #[inline]
+    pub fn share_theme(self) -> SmartFilterPath<crate::types::ChatShareTheme> {
+        self.and_then(|value| value.share_theme.as_ref())
+    }
 }
 impl SmartFilterPath<crate::types::ChatFullInfoSupergroup> {
     /// Path to the `id` field of [`crate::types::ChatFullInfoSupergroup`]
@@ -3402,6 +3529,13 @@ impl SmartFilterPath<crate::types::ChatFullInfoSupergroup> {
     #[inline]
     pub fn community(self) -> SmartFilterPath<crate::types::Community> {
         self.and_then(|value| value.community.as_ref())
+    }
+
+    /// Path to the optional `share_theme` field of [`crate::types::ChatFullInfoSupergroup`]
+    #[must_use]
+    #[inline]
+    pub fn share_theme(self) -> SmartFilterPath<crate::types::ChatShareTheme> {
+        self.and_then(|value| value.share_theme.as_ref())
     }
 }
 impl SmartFilterPath<crate::types::ChatGroup> {
@@ -4198,6 +4332,74 @@ impl SmartFilterPath<crate::types::ChatPrivate> {
         self.and_then(|value| value.is_direct_messages.as_ref())
     }
 }
+impl SmartFilterPath<crate::types::ChatShareTheme> {
+    /// Path to the optional `emojis` field of [`crate::types::ChatShareTheme`]
+    #[must_use]
+    #[inline]
+    pub fn emojis(self) -> SmartFilterPath<[crate::types::EmojiType]> {
+        self.and_then(|value| value.emojis())
+    }
+
+    /// Path to the optional `gift` field of [`crate::types::ChatShareTheme`]
+    #[must_use]
+    #[inline]
+    pub fn gift(self) -> SmartFilterPath<crate::types::UniqueGift> {
+        self.and_then(|value| value.gift())
+    }
+}
+impl SmartFilterPath<crate::types::ChatShareThemeBackdrop> {
+    /// Path to the `id` field of [`crate::types::ChatShareThemeBackdrop`]
+    #[must_use]
+    #[inline]
+    pub fn id(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.id)
+    }
+
+    /// Path to the `name` field of [`crate::types::ChatShareThemeBackdrop`]
+    #[must_use]
+    #[inline]
+    pub fn name(self) -> SmartFilterPath<str> {
+        self.map(|value| value.name.as_ref())
+    }
+
+    /// Path to the `colors` field of [`crate::types::ChatShareThemeBackdrop`]
+    #[must_use]
+    #[inline]
+    pub fn colors(self) -> SmartFilterPath<crate::types::UniqueGiftBackdropColors> {
+        self.map(|value| &value.colors)
+    }
+}
+impl SmartFilterPath<crate::types::ChatShareThemeBackdrops> {
+    /// Path to the `backdrops` field of [`crate::types::ChatShareThemeBackdrops`]
+    #[must_use]
+    #[inline]
+    pub fn backdrops(self) -> SmartFilterPath<[crate::types::ChatShareThemeBackdrop]> {
+        self.map(|value| value.backdrops.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::ChatShareThemeEmoji> {
+    /// Path to the `emojis` field of [`crate::types::ChatShareThemeEmoji`]
+    #[must_use]
+    #[inline]
+    pub fn emojis(self) -> SmartFilterPath<[crate::types::EmojiType]> {
+        self.map(|value| value.emojis.as_ref())
+    }
+
+    /// Path to the optional `background_backdrop_id` field of [`crate::types::ChatShareThemeEmoji`]
+    #[must_use]
+    #[inline]
+    pub fn background_backdrop_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.background_backdrop_id.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::ChatShareThemeUniqueGift> {
+    /// Path to the `gift` field of [`crate::types::ChatShareThemeUniqueGift`]
+    #[must_use]
+    #[inline]
+    pub fn gift(self) -> SmartFilterPath<crate::types::UniqueGift> {
+        self.map(|value| value.gift.as_ref())
+    }
+}
 impl SmartFilterPath<crate::types::ChatShared> {
     /// Path to the `request_id` field of [`crate::types::ChatShared`]
     #[must_use]
@@ -4585,6 +4787,37 @@ impl SmartFilterPath<crate::types::Document> {
     #[inline]
     pub fn file_size(self) -> SmartFilterPath<i64> {
         self.and_then(|value| value.file_size.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::EmojiType> {
+    /// Path to the optional `custom_emoji_id` field of [`crate::types::EmojiType`]
+    #[must_use]
+    #[inline]
+    pub fn custom_emoji_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.custom_emoji_id())
+    }
+
+    /// Path to the optional `emoji` field of [`crate::types::EmojiType`]
+    #[must_use]
+    #[inline]
+    pub fn emoji(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.emoji())
+    }
+}
+impl SmartFilterPath<crate::types::EmojiTypeCustomEmoji> {
+    /// Path to the `custom_emoji_id` field of [`crate::types::EmojiTypeCustomEmoji`]
+    #[must_use]
+    #[inline]
+    pub fn custom_emoji_id(self) -> SmartFilterPath<str> {
+        self.map(|value| value.custom_emoji_id.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::EmojiTypeEmoji> {
+    /// Path to the `emoji` field of [`crate::types::EmojiTypeEmoji`]
+    #[must_use]
+    #[inline]
+    pub fn emoji(self) -> SmartFilterPath<str> {
+        self.map(|value| value.emoji.as_ref())
     }
 }
 impl SmartFilterPath<crate::types::EncryptedCredentials> {
@@ -5002,11 +5235,11 @@ impl SmartFilterPath<crate::types::EncryptedPassportElementUtilityBill> {
     }
 }
 impl SmartFilterPath<crate::types::EphemeralMessageParameters> {
-    /// Path to the `receiver_user_id` field of [`crate::types::EphemeralMessageParameters`]
+    /// Path to the optional `receiver_user_id` field of [`crate::types::EphemeralMessageParameters`]
     #[must_use]
     #[inline]
     pub fn receiver_user_id(self) -> SmartFilterPath<i64> {
-        self.map(|value| &value.receiver_user_id)
+        self.and_then(|value| value.receiver_user_id.as_ref())
     }
 
     /// Path to the optional `callback_query_id` field of [`crate::types::EphemeralMessageParameters`]
@@ -5190,6 +5423,13 @@ impl SmartFilterPath<crate::types::ExternalReplyInfo> {
     #[inline]
     pub fn voice(self) -> SmartFilterPath<crate::types::Voice> {
         self.and_then(|value| value.voice())
+    }
+
+    /// Path to the optional `widget` field of [`crate::types::ExternalReplyInfo`]
+    #[must_use]
+    #[inline]
+    pub fn widget(self) -> SmartFilterPath<crate::types::Widget> {
+        self.and_then(|value| value.widget())
     }
 }
 impl SmartFilterPath<crate::types::ExternalReplyInfoAnimation> {
@@ -6093,6 +6333,49 @@ impl SmartFilterPath<crate::types::ExternalReplyInfoVoice> {
     #[inline]
     pub fn voice(self) -> SmartFilterPath<crate::types::Voice> {
         self.map(|value| &value.voice)
+    }
+}
+impl SmartFilterPath<crate::types::ExternalReplyInfoWidget> {
+    /// Path to the `origin` field of [`crate::types::ExternalReplyInfoWidget`]
+    #[must_use]
+    #[inline]
+    pub fn origin(self) -> SmartFilterPath<crate::types::MessageOrigin> {
+        self.map(|value| &value.origin)
+    }
+
+    /// Path to the optional `chat` field of [`crate::types::ExternalReplyInfoWidget`]
+    #[must_use]
+    #[inline]
+    pub fn chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.and_then(|value| value.chat.as_deref())
+    }
+
+    /// Path to the optional `message_id` field of [`crate::types::ExternalReplyInfoWidget`]
+    #[must_use]
+    #[inline]
+    pub fn message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.message_id.as_ref())
+    }
+
+    /// Path to the optional `link_preview_options` field of [`crate::types::ExternalReplyInfoWidget`]
+    #[must_use]
+    #[inline]
+    pub fn link_preview_options(self) -> SmartFilterPath<crate::types::LinkPreviewOptions> {
+        self.and_then(|value| value.link_preview_options.as_ref())
+    }
+
+    /// Path to the optional `has_media_spoiler` field of [`crate::types::ExternalReplyInfoWidget`]
+    #[must_use]
+    #[inline]
+    pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.has_media_spoiler.as_ref())
+    }
+
+    /// Path to the `widget` field of [`crate::types::ExternalReplyInfoWidget`]
+    #[must_use]
+    #[inline]
+    pub fn widget(self) -> SmartFilterPath<crate::types::Widget> {
+        self.map(|value| &value.widget)
     }
 }
 impl SmartFilterPath<crate::types::File> {
@@ -10140,6 +10423,27 @@ impl SmartFilterPath<crate::types::InputMessageContent> {
         self.and_then(|value| value.address())
     }
 
+    /// Path to the optional `caption` field of [`crate::types::InputMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn caption(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.caption())
+    }
+
+    /// Path to the optional `caption_entities` field of [`crate::types::InputMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn caption_entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.caption_entities())
+    }
+
+    /// Path to the optional `chat_data` field of [`crate::types::InputMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn chat_data(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.chat_data())
+    }
+
     /// Path to the optional `currency` field of [`crate::types::InputMessageContent`]
     #[must_use]
     #[inline]
@@ -10194,6 +10498,13 @@ impl SmartFilterPath<crate::types::InputMessageContent> {
     #[inline]
     pub fn google_place_type(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.google_place_type())
+    }
+
+    /// Path to the optional `html` field of [`crate::types::InputMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn html(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.html())
     }
 
     /// Path to the optional `last_name` field of [`crate::types::InputMessageContent`]
@@ -10266,6 +10577,13 @@ impl SmartFilterPath<crate::types::InputMessageContent> {
         self.and_then(|value| value.provider_token())
     }
 
+    /// Path to the optional `public_data` field of [`crate::types::InputMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn public_data(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.public_data())
+    }
+
     /// Path to the optional `rich_message` field of [`crate::types::InputMessageContent`]
     #[must_use]
     #[inline]
@@ -10292,6 +10610,13 @@ impl SmartFilterPath<crate::types::InputMessageContent> {
     #[inline]
     pub fn vcard(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.vcard())
+    }
+
+    /// Path to the optional `widget_id` field of [`crate::types::InputMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn widget_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.widget_id())
     }
 }
 impl SmartFilterPath<crate::types::InputPaidMedia> {
@@ -11314,6 +11639,49 @@ impl SmartFilterPath<crate::types::InputRichMessageMediaContent> {
         self.and_then(|value| value.title())
     }
 }
+impl SmartFilterPath<crate::types::InputSharedWidgetMessageContent> {
+    /// Path to the `widget_id` field of [`crate::types::InputSharedWidgetMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn widget_id(self) -> SmartFilterPath<str> {
+        self.map(|value| value.widget_id.as_ref())
+    }
+
+    /// Path to the optional `chat_data` field of [`crate::types::InputSharedWidgetMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn chat_data(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.chat_data.as_deref())
+    }
+
+    /// Path to the optional `caption` field of [`crate::types::InputSharedWidgetMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn caption(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.caption.as_deref())
+    }
+
+    /// Path to the optional `parse_mode` field of [`crate::types::InputSharedWidgetMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn parse_mode(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.parse_mode.as_deref())
+    }
+
+    /// Path to the optional `caption_entities` field of [`crate::types::InputSharedWidgetMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn caption_entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.caption_entities.as_deref())
+    }
+
+    /// Path to the optional `show_caption_above_media` field of [`crate::types::InputSharedWidgetMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn show_caption_above_media(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.show_caption_above_media.as_ref())
+    }
+}
 impl SmartFilterPath<crate::types::InputSticker> {
     /// Path to the `sticker` field of [`crate::types::InputSticker`]
     #[must_use]
@@ -11486,6 +11854,84 @@ impl SmartFilterPath<crate::types::InputVenueMessageContent> {
     #[inline]
     pub fn google_place_type(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.google_place_type.as_deref())
+    }
+}
+impl SmartFilterPath<crate::types::InputWidgetMessageContent> {
+    /// Path to the `html` field of [`crate::types::InputWidgetMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn html(self) -> SmartFilterPath<str> {
+        self.map(|value| value.html.as_ref())
+    }
+
+    /// Path to the optional `width` field of [`crate::types::InputWidgetMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn width(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.width.as_ref())
+    }
+
+    /// Path to the optional `height` field of [`crate::types::InputWidgetMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn height(self) -> SmartFilterPath<u16> {
+        self.and_then(|value| value.height.as_ref())
+    }
+
+    /// Path to the optional `public_data` field of [`crate::types::InputWidgetMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn public_data(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.public_data.as_deref())
+    }
+
+    /// Path to the optional `chat_data` field of [`crate::types::InputWidgetMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn chat_data(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.chat_data.as_deref())
+    }
+
+    /// Path to the optional `caption` field of [`crate::types::InputWidgetMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn caption(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.caption.as_deref())
+    }
+
+    /// Path to the optional `parse_mode` field of [`crate::types::InputWidgetMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn parse_mode(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.parse_mode.as_deref())
+    }
+
+    /// Path to the optional `caption_entities` field of [`crate::types::InputWidgetMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn caption_entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.caption_entities.as_deref())
+    }
+
+    /// Path to the optional `show_caption_above_media` field of [`crate::types::InputWidgetMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn show_caption_above_media(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.show_caption_above_media.as_ref())
+    }
+
+    /// Path to the optional `allow_queries` field of [`crate::types::InputWidgetMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn allow_queries(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.allow_queries.as_ref())
+    }
+
+    /// Path to the optional `is_shared` field of [`crate::types::InputWidgetMessageContent`]
+    #[must_use]
+    #[inline]
+    pub fn is_shared(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_shared.as_ref())
     }
 }
 impl SmartFilterPath<crate::types::Invoice> {
@@ -12445,6 +12891,13 @@ impl SmartFilterPath<crate::types::MaybeInaccessibleMessage> {
         self.and_then(|value| value.paid_message_price_changed())
     }
 
+    /// Path to the optional `paid_messages_waived` field of [`crate::types::MaybeInaccessibleMessage`]
+    #[must_use]
+    #[inline]
+    pub fn paid_messages_waived(self) -> SmartFilterPath<crate::types::PaidMessagesWaived> {
+        self.and_then(|value| value.paid_messages_waived())
+    }
+
     /// Path to the optional `passport_data` field of [`crate::types::MaybeInaccessibleMessage`]
     #[must_use]
     #[inline]
@@ -12645,6 +13098,13 @@ impl SmartFilterPath<crate::types::MaybeInaccessibleMessage> {
         self.and_then(|value| value.text())
     }
 
+    /// Path to the optional `ton_wallet_transfer` field of [`crate::types::MaybeInaccessibleMessage`]
+    #[must_use]
+    #[inline]
+    pub fn ton_wallet_transfer(self) -> SmartFilterPath<crate::types::TonWalletTransfer> {
+        self.and_then(|value| value.ton_wallet_transfer())
+    }
+
     /// Path to the optional `unique_gift` field of [`crate::types::MaybeInaccessibleMessage`]
     #[must_use]
     #[inline]
@@ -12729,6 +13189,13 @@ impl SmartFilterPath<crate::types::MaybeInaccessibleMessage> {
     #[inline]
     pub fn web_app_data(self) -> SmartFilterPath<crate::types::WebAppData> {
         self.and_then(|value| value.web_app_data())
+    }
+
+    /// Path to the optional `widget` field of [`crate::types::MaybeInaccessibleMessage`]
+    #[must_use]
+    #[inline]
+    pub fn widget(self) -> SmartFilterPath<crate::types::Widget> {
+        self.and_then(|value| value.widget())
     }
 
     /// Path to the optional `write_access_allowed` field of [`crate::types::MaybeInaccessibleMessage`]
@@ -13187,6 +13654,13 @@ impl SmartFilterPath<crate::types::Message> {
         self.and_then(|value| value.paid_message_price_changed())
     }
 
+    /// Path to the optional `paid_messages_waived` field of [`crate::types::Message`]
+    #[must_use]
+    #[inline]
+    pub fn paid_messages_waived(self) -> SmartFilterPath<crate::types::PaidMessagesWaived> {
+        self.and_then(|value| value.paid_messages_waived())
+    }
+
     /// Path to the optional `passport_data` field of [`crate::types::Message`]
     #[must_use]
     #[inline]
@@ -13387,6 +13861,13 @@ impl SmartFilterPath<crate::types::Message> {
         self.and_then(|value| value.text())
     }
 
+    /// Path to the optional `ton_wallet_transfer` field of [`crate::types::Message`]
+    #[must_use]
+    #[inline]
+    pub fn ton_wallet_transfer(self) -> SmartFilterPath<crate::types::TonWalletTransfer> {
+        self.and_then(|value| value.ton_wallet_transfer())
+    }
+
     /// Path to the optional `unique_gift` field of [`crate::types::Message`]
     #[must_use]
     #[inline]
@@ -13471,6 +13952,13 @@ impl SmartFilterPath<crate::types::Message> {
     #[inline]
     pub fn web_app_data(self) -> SmartFilterPath<crate::types::WebAppData> {
         self.and_then(|value| value.web_app_data())
+    }
+
+    /// Path to the optional `widget` field of [`crate::types::Message`]
+    #[must_use]
+    #[inline]
+    pub fn widget(self) -> SmartFilterPath<crate::types::Widget> {
+        self.and_then(|value| value.widget())
     }
 
     /// Path to the optional `write_access_allowed` field of [`crate::types::Message`]
@@ -19566,6 +20054,21 @@ impl SmartFilterPath<crate::types::MessageEntity> {
         self.and_then(|value| value.user())
     }
 }
+impl SmartFilterPath<crate::types::MessageEntityBankCardNumber> {
+    /// Path to the `offset` field of [`crate::types::MessageEntityBankCardNumber`]
+    #[must_use]
+    #[inline]
+    pub fn offset(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.offset)
+    }
+
+    /// Path to the `length` field of [`crate::types::MessageEntityBankCardNumber`]
+    #[must_use]
+    #[inline]
+    pub fn length(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.length)
+    }
+}
 impl SmartFilterPath<crate::types::MessageEntityBlockquote> {
     /// Path to the `offset` field of [`crate::types::MessageEntityBlockquote`]
     #[must_use]
@@ -19876,6 +20379,21 @@ impl SmartFilterPath<crate::types::MessageEntityTextMention> {
     #[inline]
     pub fn user(self) -> SmartFilterPath<crate::types::User> {
         self.map(|value| value.user.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::MessageEntityTonAddress> {
+    /// Path to the `offset` field of [`crate::types::MessageEntityTonAddress`]
+    #[must_use]
+    #[inline]
+    pub fn offset(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.offset)
+    }
+
+    /// Path to the `length` field of [`crate::types::MessageEntityTonAddress`]
+    #[must_use]
+    #[inline]
+    pub fn length(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.length)
     }
 }
 impl SmartFilterPath<crate::types::MessageEntityUnderline> {
@@ -28217,6 +28735,308 @@ impl SmartFilterPath<crate::types::MessagePaidMessagePriceChanged> {
         self.map(|value| &value.paid_message_price_changed)
     }
 }
+impl SmartFilterPath<crate::types::MessagePaidMessagesWaived> {
+    /// Path to the `message_id` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn message_id(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.message_id)
+    }
+
+    /// Path to the optional `message_thread_id` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn message_thread_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.message_thread_id.as_ref())
+    }
+
+    /// Path to the optional `direct_messages_topic` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn direct_messages_topic(self) -> SmartFilterPath<crate::types::DirectMessagesTopic> {
+        self.and_then(|value| value.direct_messages_topic.as_ref())
+    }
+
+    /// Path to the optional `from` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn from(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.from.as_deref())
+    }
+
+    /// Path to the optional `sender_chat` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn sender_chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.and_then(|value| value.sender_chat.as_deref())
+    }
+
+    /// Path to the optional `sender_boost_count` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn sender_boost_count(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.sender_boost_count.as_ref())
+    }
+
+    /// Path to the optional `sender_business_bot` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn sender_business_bot(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.sender_business_bot.as_deref())
+    }
+
+    /// Path to the optional `sender_tag` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn sender_tag(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    /// Path to the optional `receiver_user` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    /// Path to the optional `ephemeral_message_id` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    /// Path to the `date` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn date(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.date)
+    }
+
+    /// Path to the optional `guest_query_id` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn guest_query_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.guest_query_id.as_deref())
+    }
+
+    /// Path to the optional `business_connection_id` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn business_connection_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.business_connection_id.as_deref())
+    }
+
+    /// Path to the `chat` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.map(|value| value.chat.as_ref())
+    }
+
+    /// Path to the optional `forward_origin` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn forward_origin(self) -> SmartFilterPath<crate::types::MessageOrigin> {
+        self.and_then(|value| value.forward_origin.as_ref())
+    }
+
+    /// Path to the optional `is_topic_message` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn is_topic_message(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_topic_message.as_ref())
+    }
+
+    /// Path to the optional `is_automatic_forward` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn is_automatic_forward(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_automatic_forward.as_ref())
+    }
+
+    /// Path to the optional `reply_to_message` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn reply_to_message(self) -> SmartFilterPath<crate::types::Message> {
+        self.and_then(|value| value.reply_to_message.as_deref())
+    }
+
+    /// Path to the optional `external_reply` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn external_reply(self) -> SmartFilterPath<crate::types::ExternalReplyInfo> {
+        self.and_then(|value| value.external_reply.as_deref())
+    }
+
+    /// Path to the optional `quote` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn quote(self) -> SmartFilterPath<crate::types::TextQuote> {
+        self.and_then(|value| value.quote.as_ref())
+    }
+
+    /// Path to the optional `reply_to_story` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn reply_to_story(self) -> SmartFilterPath<crate::types::Story> {
+        self.and_then(|value| value.reply_to_story.as_ref())
+    }
+
+    /// Path to the optional `reply_to_checklist_task_id` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn reply_to_checklist_task_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.reply_to_checklist_task_id.as_ref())
+    }
+
+    /// Path to the optional `reply_to_poll_option_id` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn reply_to_poll_option_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.reply_to_poll_option_id.as_deref())
+    }
+
+    /// Path to the optional `via_bot` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn via_bot(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.via_bot.as_deref())
+    }
+
+    /// Path to the optional `guest_bot_caller_user` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn guest_bot_caller_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.guest_bot_caller_user.as_deref())
+    }
+
+    /// Path to the optional `guest_bot_caller_chat` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn guest_bot_caller_chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.and_then(|value| value.guest_bot_caller_chat.as_deref())
+    }
+
+    /// Path to the optional `edit_date` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn edit_date(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.edit_date.as_ref())
+    }
+
+    /// Path to the optional `has_protected_content` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn has_protected_content(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.has_protected_content.as_ref())
+    }
+
+    /// Path to the optional `is_from_offline` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn is_from_offline(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_from_offline.as_ref())
+    }
+
+    /// Path to the optional `is_paid_post` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn is_paid_post(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_paid_post.as_ref())
+    }
+
+    /// Path to the optional `media_group_id` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn media_group_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.media_group_id.as_deref())
+    }
+
+    /// Path to the optional `author_signature` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn author_signature(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.author_signature.as_deref())
+    }
+
+    /// Path to the optional `paid_star_count` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn paid_star_count(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.paid_star_count.as_ref())
+    }
+
+    /// Path to the optional `entities` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.entities.as_deref())
+    }
+
+    /// Path to the optional `link_preview_options` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn link_preview_options(self) -> SmartFilterPath<crate::types::LinkPreviewOptions> {
+        self.and_then(|value| value.link_preview_options.as_ref())
+    }
+
+    /// Path to the optional `suggested_post_info` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn suggested_post_info(self) -> SmartFilterPath<crate::types::SuggestedPostInfo> {
+        self.and_then(|value| value.suggested_post_info.as_ref())
+    }
+
+    /// Path to the optional `effect_id` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn effect_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.effect_id.as_deref())
+    }
+
+    /// Path to the optional `caption` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn caption(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.caption.as_deref())
+    }
+
+    /// Path to the optional `caption_entities` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn caption_entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.caption_entities.as_deref())
+    }
+
+    /// Path to the optional `show_caption_above_media` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn show_caption_above_media(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.show_caption_above_media.as_ref())
+    }
+
+    /// Path to the optional `has_media_spoiler` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.has_media_spoiler.as_ref())
+    }
+
+    /// Path to the optional `reply_markup` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn reply_markup(self) -> SmartFilterPath<crate::types::InlineKeyboardMarkup> {
+        self.and_then(|value| value.reply_markup.as_ref())
+    }
+
+    /// Path to the `paid_messages_waived` field of [`crate::types::MessagePaidMessagesWaived`]
+    #[must_use]
+    #[inline]
+    pub fn paid_messages_waived(self) -> SmartFilterPath<crate::types::PaidMessagesWaived> {
+        self.map(|value| &value.paid_messages_waived)
+    }
+}
 impl SmartFilterPath<crate::types::MessagePassportData> {
     /// Path to the `message_id` field of [`crate::types::MessagePassportData`]
     #[must_use]
@@ -34038,6 +34858,308 @@ impl SmartFilterPath<crate::types::MessageText> {
         self.map(|value| value.text.as_ref())
     }
 }
+impl SmartFilterPath<crate::types::MessageTonWalletTransfer> {
+    /// Path to the `message_id` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn message_id(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.message_id)
+    }
+
+    /// Path to the optional `message_thread_id` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn message_thread_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.message_thread_id.as_ref())
+    }
+
+    /// Path to the optional `direct_messages_topic` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn direct_messages_topic(self) -> SmartFilterPath<crate::types::DirectMessagesTopic> {
+        self.and_then(|value| value.direct_messages_topic.as_ref())
+    }
+
+    /// Path to the optional `from` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn from(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.from.as_deref())
+    }
+
+    /// Path to the optional `sender_chat` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn sender_chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.and_then(|value| value.sender_chat.as_deref())
+    }
+
+    /// Path to the optional `sender_boost_count` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn sender_boost_count(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.sender_boost_count.as_ref())
+    }
+
+    /// Path to the optional `sender_business_bot` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn sender_business_bot(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.sender_business_bot.as_deref())
+    }
+
+    /// Path to the optional `sender_tag` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn sender_tag(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    /// Path to the optional `receiver_user` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    /// Path to the optional `ephemeral_message_id` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    /// Path to the `date` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn date(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.date)
+    }
+
+    /// Path to the optional `guest_query_id` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn guest_query_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.guest_query_id.as_deref())
+    }
+
+    /// Path to the optional `business_connection_id` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn business_connection_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.business_connection_id.as_deref())
+    }
+
+    /// Path to the `chat` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.map(|value| value.chat.as_ref())
+    }
+
+    /// Path to the optional `forward_origin` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn forward_origin(self) -> SmartFilterPath<crate::types::MessageOrigin> {
+        self.and_then(|value| value.forward_origin.as_ref())
+    }
+
+    /// Path to the optional `is_topic_message` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn is_topic_message(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_topic_message.as_ref())
+    }
+
+    /// Path to the optional `is_automatic_forward` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn is_automatic_forward(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_automatic_forward.as_ref())
+    }
+
+    /// Path to the optional `reply_to_message` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn reply_to_message(self) -> SmartFilterPath<crate::types::Message> {
+        self.and_then(|value| value.reply_to_message.as_deref())
+    }
+
+    /// Path to the optional `external_reply` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn external_reply(self) -> SmartFilterPath<crate::types::ExternalReplyInfo> {
+        self.and_then(|value| value.external_reply.as_deref())
+    }
+
+    /// Path to the optional `quote` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn quote(self) -> SmartFilterPath<crate::types::TextQuote> {
+        self.and_then(|value| value.quote.as_ref())
+    }
+
+    /// Path to the optional `reply_to_story` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn reply_to_story(self) -> SmartFilterPath<crate::types::Story> {
+        self.and_then(|value| value.reply_to_story.as_ref())
+    }
+
+    /// Path to the optional `reply_to_checklist_task_id` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn reply_to_checklist_task_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.reply_to_checklist_task_id.as_ref())
+    }
+
+    /// Path to the optional `reply_to_poll_option_id` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn reply_to_poll_option_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.reply_to_poll_option_id.as_deref())
+    }
+
+    /// Path to the optional `via_bot` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn via_bot(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.via_bot.as_deref())
+    }
+
+    /// Path to the optional `guest_bot_caller_user` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn guest_bot_caller_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.guest_bot_caller_user.as_deref())
+    }
+
+    /// Path to the optional `guest_bot_caller_chat` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn guest_bot_caller_chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.and_then(|value| value.guest_bot_caller_chat.as_deref())
+    }
+
+    /// Path to the optional `edit_date` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn edit_date(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.edit_date.as_ref())
+    }
+
+    /// Path to the optional `has_protected_content` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn has_protected_content(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.has_protected_content.as_ref())
+    }
+
+    /// Path to the optional `is_from_offline` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn is_from_offline(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_from_offline.as_ref())
+    }
+
+    /// Path to the optional `is_paid_post` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn is_paid_post(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_paid_post.as_ref())
+    }
+
+    /// Path to the optional `media_group_id` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn media_group_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.media_group_id.as_deref())
+    }
+
+    /// Path to the optional `author_signature` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn author_signature(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.author_signature.as_deref())
+    }
+
+    /// Path to the optional `paid_star_count` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn paid_star_count(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.paid_star_count.as_ref())
+    }
+
+    /// Path to the optional `entities` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.entities.as_deref())
+    }
+
+    /// Path to the optional `link_preview_options` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn link_preview_options(self) -> SmartFilterPath<crate::types::LinkPreviewOptions> {
+        self.and_then(|value| value.link_preview_options.as_ref())
+    }
+
+    /// Path to the optional `suggested_post_info` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn suggested_post_info(self) -> SmartFilterPath<crate::types::SuggestedPostInfo> {
+        self.and_then(|value| value.suggested_post_info.as_ref())
+    }
+
+    /// Path to the optional `effect_id` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn effect_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.effect_id.as_deref())
+    }
+
+    /// Path to the optional `caption` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn caption(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.caption.as_deref())
+    }
+
+    /// Path to the optional `caption_entities` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn caption_entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.caption_entities.as_deref())
+    }
+
+    /// Path to the optional `show_caption_above_media` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn show_caption_above_media(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.show_caption_above_media.as_ref())
+    }
+
+    /// Path to the optional `has_media_spoiler` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.has_media_spoiler.as_ref())
+    }
+
+    /// Path to the optional `reply_markup` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn reply_markup(self) -> SmartFilterPath<crate::types::InlineKeyboardMarkup> {
+        self.and_then(|value| value.reply_markup.as_ref())
+    }
+
+    /// Path to the `ton_wallet_transfer` field of [`crate::types::MessageTonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn ton_wallet_transfer(self) -> SmartFilterPath<crate::types::TonWalletTransfer> {
+        self.map(|value| &value.ton_wallet_transfer)
+    }
+}
 impl SmartFilterPath<crate::types::MessageUniqueGift> {
     /// Path to the `message_id` field of [`crate::types::MessageUniqueGift`]
     #[must_use]
@@ -37362,6 +38484,308 @@ impl SmartFilterPath<crate::types::MessageWebAppData> {
         self.map(|value| &value.web_app_data)
     }
 }
+impl SmartFilterPath<crate::types::MessageWidget> {
+    /// Path to the `message_id` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn message_id(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.message_id)
+    }
+
+    /// Path to the optional `message_thread_id` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn message_thread_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.message_thread_id.as_ref())
+    }
+
+    /// Path to the optional `direct_messages_topic` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn direct_messages_topic(self) -> SmartFilterPath<crate::types::DirectMessagesTopic> {
+        self.and_then(|value| value.direct_messages_topic.as_ref())
+    }
+
+    /// Path to the optional `from` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn from(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.from.as_deref())
+    }
+
+    /// Path to the optional `sender_chat` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn sender_chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.and_then(|value| value.sender_chat.as_deref())
+    }
+
+    /// Path to the optional `sender_boost_count` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn sender_boost_count(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.sender_boost_count.as_ref())
+    }
+
+    /// Path to the optional `sender_business_bot` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn sender_business_bot(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.sender_business_bot.as_deref())
+    }
+
+    /// Path to the optional `sender_tag` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn sender_tag(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.sender_tag.as_deref())
+    }
+
+    /// Path to the optional `receiver_user` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn receiver_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.receiver_user.as_deref())
+    }
+
+    /// Path to the optional `ephemeral_message_id` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn ephemeral_message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.ephemeral_message_id.as_ref())
+    }
+
+    /// Path to the `date` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn date(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.date)
+    }
+
+    /// Path to the optional `guest_query_id` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn guest_query_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.guest_query_id.as_deref())
+    }
+
+    /// Path to the optional `business_connection_id` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn business_connection_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.business_connection_id.as_deref())
+    }
+
+    /// Path to the `chat` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.map(|value| value.chat.as_ref())
+    }
+
+    /// Path to the optional `forward_origin` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn forward_origin(self) -> SmartFilterPath<crate::types::MessageOrigin> {
+        self.and_then(|value| value.forward_origin.as_ref())
+    }
+
+    /// Path to the optional `is_topic_message` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn is_topic_message(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_topic_message.as_ref())
+    }
+
+    /// Path to the optional `is_automatic_forward` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn is_automatic_forward(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_automatic_forward.as_ref())
+    }
+
+    /// Path to the optional `reply_to_message` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn reply_to_message(self) -> SmartFilterPath<crate::types::Message> {
+        self.and_then(|value| value.reply_to_message.as_deref())
+    }
+
+    /// Path to the optional `external_reply` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn external_reply(self) -> SmartFilterPath<crate::types::ExternalReplyInfo> {
+        self.and_then(|value| value.external_reply.as_deref())
+    }
+
+    /// Path to the optional `quote` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn quote(self) -> SmartFilterPath<crate::types::TextQuote> {
+        self.and_then(|value| value.quote.as_ref())
+    }
+
+    /// Path to the optional `reply_to_story` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn reply_to_story(self) -> SmartFilterPath<crate::types::Story> {
+        self.and_then(|value| value.reply_to_story.as_ref())
+    }
+
+    /// Path to the optional `reply_to_checklist_task_id` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn reply_to_checklist_task_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.reply_to_checklist_task_id.as_ref())
+    }
+
+    /// Path to the optional `reply_to_poll_option_id` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn reply_to_poll_option_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.reply_to_poll_option_id.as_deref())
+    }
+
+    /// Path to the optional `via_bot` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn via_bot(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.via_bot.as_deref())
+    }
+
+    /// Path to the optional `guest_bot_caller_user` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn guest_bot_caller_user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.guest_bot_caller_user.as_deref())
+    }
+
+    /// Path to the optional `guest_bot_caller_chat` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn guest_bot_caller_chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.and_then(|value| value.guest_bot_caller_chat.as_deref())
+    }
+
+    /// Path to the optional `edit_date` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn edit_date(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.edit_date.as_ref())
+    }
+
+    /// Path to the optional `has_protected_content` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn has_protected_content(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.has_protected_content.as_ref())
+    }
+
+    /// Path to the optional `is_from_offline` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn is_from_offline(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_from_offline.as_ref())
+    }
+
+    /// Path to the optional `is_paid_post` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn is_paid_post(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.is_paid_post.as_ref())
+    }
+
+    /// Path to the optional `media_group_id` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn media_group_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.media_group_id.as_deref())
+    }
+
+    /// Path to the optional `author_signature` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn author_signature(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.author_signature.as_deref())
+    }
+
+    /// Path to the optional `paid_star_count` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn paid_star_count(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.paid_star_count.as_ref())
+    }
+
+    /// Path to the optional `entities` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.entities.as_deref())
+    }
+
+    /// Path to the optional `link_preview_options` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn link_preview_options(self) -> SmartFilterPath<crate::types::LinkPreviewOptions> {
+        self.and_then(|value| value.link_preview_options.as_ref())
+    }
+
+    /// Path to the optional `suggested_post_info` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn suggested_post_info(self) -> SmartFilterPath<crate::types::SuggestedPostInfo> {
+        self.and_then(|value| value.suggested_post_info.as_ref())
+    }
+
+    /// Path to the optional `effect_id` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn effect_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.effect_id.as_deref())
+    }
+
+    /// Path to the optional `caption` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn caption(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.caption.as_deref())
+    }
+
+    /// Path to the optional `caption_entities` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn caption_entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.caption_entities.as_deref())
+    }
+
+    /// Path to the optional `show_caption_above_media` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn show_caption_above_media(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.show_caption_above_media.as_ref())
+    }
+
+    /// Path to the optional `has_media_spoiler` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn has_media_spoiler(self) -> SmartFilterPath<bool> {
+        self.and_then(|value| value.has_media_spoiler.as_ref())
+    }
+
+    /// Path to the optional `reply_markup` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn reply_markup(self) -> SmartFilterPath<crate::types::InlineKeyboardMarkup> {
+        self.and_then(|value| value.reply_markup.as_ref())
+    }
+
+    /// Path to the `widget` field of [`crate::types::MessageWidget`]
+    #[must_use]
+    #[inline]
+    pub fn widget(self) -> SmartFilterPath<crate::types::Widget> {
+        self.map(|value| &value.widget)
+    }
+}
 impl SmartFilterPath<crate::types::MessageWriteAccessAllowed> {
     /// Path to the `message_id` field of [`crate::types::MessageWriteAccessAllowed`]
     #[must_use]
@@ -38006,6 +39430,7 @@ impl SmartFilterPath<crate::types::PaidMessagePriceChanged> {
         self.map(|value| &value.paid_message_star_count)
     }
 }
+impl SmartFilterPath<crate::types::PaidMessagesWaived> {}
 impl SmartFilterPath<crate::types::PassportData> {
     /// Path to the `data` field of [`crate::types::PassportData`]
     #[must_use]
@@ -39304,6 +40729,13 @@ impl SmartFilterPath<crate::types::ReplyParameters> {
         self.and_then(|value| value.quote_entities.as_deref())
     }
 
+    /// Path to the optional `quote_rich_texts` field of [`crate::types::ReplyParameters`]
+    #[must_use]
+    #[inline]
+    pub fn quote_rich_texts(self) -> SmartFilterPath<[crate::types::RichText]> {
+        self.and_then(|value| value.quote_rich_texts.as_deref())
+    }
+
     /// Path to the optional `quote_position` field of [`crate::types::ReplyParameters`]
     #[must_use]
     #[inline]
@@ -40063,6 +41495,13 @@ impl SmartFilterPath<crate::types::RichMessageButton> {
     }
 }
 impl SmartFilterPath<crate::types::RichText> {
+    /// Path to the optional `address` field of [`crate::types::RichText`]
+    #[must_use]
+    #[inline]
+    pub fn address(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.address())
+    }
+
     /// Path to the optional `alternative_text` field of [`crate::types::RichText`]
     #[must_use]
     #[inline]
@@ -40479,6 +41918,21 @@ impl SmartFilterPath<crate::types::RichTextTextMention> {
         self.map(|value| value.user.as_ref())
     }
 }
+impl SmartFilterPath<crate::types::RichTextTonAddress> {
+    /// Path to the `text` field of [`crate::types::RichTextTonAddress`]
+    #[must_use]
+    #[inline]
+    pub fn text(self) -> SmartFilterPath<crate::types::RichText> {
+        self.map(|value| value.text.as_ref())
+    }
+
+    /// Path to the `address` field of [`crate::types::RichTextTonAddress`]
+    #[must_use]
+    #[inline]
+    pub fn address(self) -> SmartFilterPath<str> {
+        self.map(|value| value.address.as_ref())
+    }
+}
 impl SmartFilterPath<crate::types::RichTextUnderline> {
     /// Path to the `text` field of [`crate::types::RichTextUnderline`]
     #[must_use]
@@ -40552,6 +42006,42 @@ impl SmartFilterPath<crate::types::SharedUser> {
     #[inline]
     pub fn photo(self) -> SmartFilterPath<[crate::types::PhotoSize]> {
         self.and_then(|value| value.photo.as_deref())
+    }
+}
+impl SmartFilterPath<crate::types::SharedWidgetQuery> {
+    /// Path to the `id` field of [`crate::types::SharedWidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn id(self) -> SmartFilterPath<str> {
+        self.map(|value| value.id.as_ref())
+    }
+
+    /// Path to the `from` field of [`crate::types::SharedWidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn from(self) -> SmartFilterPath<crate::types::User> {
+        self.map(|value| value.from.as_ref())
+    }
+
+    /// Path to the `type` field of [`crate::types::SharedWidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn r#type(self) -> SmartFilterPath<crate::types::WidgetQueryType> {
+        self.map(|value| &value.r#type)
+    }
+
+    /// Path to the `data` field of [`crate::types::SharedWidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn data(self) -> SmartFilterPath<str> {
+        self.map(|value| value.data.as_ref())
+    }
+
+    /// Path to the `widget_id` field of [`crate::types::SharedWidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn widget_id(self) -> SmartFilterPath<str> {
+        self.map(|value| value.widget_id.as_ref())
     }
 }
 impl SmartFilterPath<crate::types::ShippingAddress> {
@@ -41132,7 +42622,7 @@ impl SmartFilterPath<crate::types::StoryArea> {
     /// Path to the `position` field of [`crate::types::StoryArea`]
     #[must_use]
     #[inline]
-    pub fn position(self) -> SmartFilterPath<crate::types::StoryAreaPosition> {
+    pub fn position(self) -> SmartFilterPath<crate::types::AreaPosition> {
         self.map(|value| &value.position)
     }
 
@@ -41141,49 +42631,6 @@ impl SmartFilterPath<crate::types::StoryArea> {
     #[inline]
     pub fn r#type(self) -> SmartFilterPath<crate::types::StoryAreaType> {
         self.map(|value| &value.r#type)
-    }
-}
-impl SmartFilterPath<crate::types::StoryAreaPosition> {
-    /// Path to the `x_percentage` field of [`crate::types::StoryAreaPosition`]
-    #[must_use]
-    #[inline]
-    pub fn x_percentage(self) -> SmartFilterPath<f64> {
-        self.map(|value| &value.x_percentage)
-    }
-
-    /// Path to the `y_percentage` field of [`crate::types::StoryAreaPosition`]
-    #[must_use]
-    #[inline]
-    pub fn y_percentage(self) -> SmartFilterPath<f64> {
-        self.map(|value| &value.y_percentage)
-    }
-
-    /// Path to the `width_percentage` field of [`crate::types::StoryAreaPosition`]
-    #[must_use]
-    #[inline]
-    pub fn width_percentage(self) -> SmartFilterPath<f64> {
-        self.map(|value| &value.width_percentage)
-    }
-
-    /// Path to the `height_percentage` field of [`crate::types::StoryAreaPosition`]
-    #[must_use]
-    #[inline]
-    pub fn height_percentage(self) -> SmartFilterPath<f64> {
-        self.map(|value| &value.height_percentage)
-    }
-
-    /// Path to the `rotation_angle` field of [`crate::types::StoryAreaPosition`]
-    #[must_use]
-    #[inline]
-    pub fn rotation_angle(self) -> SmartFilterPath<f64> {
-        self.map(|value| &value.rotation_angle)
-    }
-
-    /// Path to the `corner_radius_percentage` field of [`crate::types::StoryAreaPosition`]
-    #[must_use]
-    #[inline]
-    pub fn corner_radius_percentage(self) -> SmartFilterPath<f64> {
-        self.map(|value| &value.corner_radius_percentage)
     }
 }
 impl SmartFilterPath<crate::types::StoryAreaType> {
@@ -41574,6 +43021,13 @@ impl SmartFilterPath<crate::types::TextQuote> {
         self.and_then(|value| value.entities.as_deref())
     }
 
+    /// Path to the optional `rich_texts` field of [`crate::types::TextQuote`]
+    #[must_use]
+    #[inline]
+    pub fn rich_texts(self) -> SmartFilterPath<[crate::types::RichText]> {
+        self.and_then(|value| value.rich_texts.as_deref())
+    }
+
     /// Path to the `position` field of [`crate::types::TextQuote`]
     #[must_use]
     #[inline]
@@ -41586,6 +43040,144 @@ impl SmartFilterPath<crate::types::TextQuote> {
     #[inline]
     pub fn is_manual(self) -> SmartFilterPath<bool> {
         self.and_then(|value| value.is_manual.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::TonNft> {
+    /// Path to the `address` field of [`crate::types::TonNft`]
+    #[must_use]
+    #[inline]
+    pub fn address(self) -> SmartFilterPath<str> {
+        self.map(|value| value.address.as_ref())
+    }
+
+    /// Path to the optional `collection_address` field of [`crate::types::TonNft`]
+    #[must_use]
+    #[inline]
+    pub fn collection_address(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.collection_address.as_deref())
+    }
+
+    /// Path to the `index` field of [`crate::types::TonNft`]
+    #[must_use]
+    #[inline]
+    pub fn index(self) -> SmartFilterPath<str> {
+        self.map(|value| value.index.as_ref())
+    }
+
+    /// Path to the `name` field of [`crate::types::TonNft`]
+    #[must_use]
+    #[inline]
+    pub fn name(self) -> SmartFilterPath<str> {
+        self.map(|value| value.name.as_ref())
+    }
+
+    /// Path to the `description` field of [`crate::types::TonNft`]
+    #[must_use]
+    #[inline]
+    pub fn description(self) -> SmartFilterPath<str> {
+        self.map(|value| value.description.as_ref())
+    }
+
+    /// Path to the optional `attributes` field of [`crate::types::TonNft`]
+    #[must_use]
+    #[inline]
+    pub fn attributes(self) -> SmartFilterPath<[crate::types::TonNftAttribute]> {
+        self.and_then(|value| value.attributes.as_deref())
+    }
+
+    /// Path to the optional `gift` field of [`crate::types::TonNft`]
+    #[must_use]
+    #[inline]
+    pub fn gift(self) -> SmartFilterPath<crate::types::UniqueGift> {
+        self.and_then(|value| value.gift.as_deref())
+    }
+}
+impl SmartFilterPath<crate::types::TonNftAttribute> {
+    /// Path to the `trait_type` field of [`crate::types::TonNftAttribute`]
+    #[must_use]
+    #[inline]
+    pub fn trait_type(self) -> SmartFilterPath<str> {
+        self.map(|value| value.trait_type.as_ref())
+    }
+
+    /// Path to the `value` field of [`crate::types::TonNftAttribute`]
+    #[must_use]
+    #[inline]
+    pub fn value(self) -> SmartFilterPath<str> {
+        self.map(|value| value.value.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::TonWalletCard> {
+    /// Path to the `address` field of [`crate::types::TonWalletCard`]
+    #[must_use]
+    #[inline]
+    pub fn address(self) -> SmartFilterPath<str> {
+        self.map(|value| value.address.as_ref())
+    }
+
+    /// Path to the `amount` field of [`crate::types::TonWalletCard`]
+    #[must_use]
+    #[inline]
+    pub fn amount(self) -> SmartFilterPath<str> {
+        self.map(|value| value.amount.as_ref())
+    }
+
+    /// Path to the `stickers` field of [`crate::types::TonWalletCard`]
+    #[must_use]
+    #[inline]
+    pub fn stickers(self) -> SmartFilterPath<[crate::types::TonWalletCardSticker]> {
+        self.map(|value| value.stickers.as_ref())
+    }
+
+    /// Path to the optional `background_nft_address` field of [`crate::types::TonWalletCard`]
+    #[must_use]
+    #[inline]
+    pub fn background_nft_address(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.background_nft_address.as_deref())
+    }
+}
+impl SmartFilterPath<crate::types::TonWalletCardSticker> {
+    /// Path to the `position` field of [`crate::types::TonWalletCardSticker`]
+    #[must_use]
+    #[inline]
+    pub fn position(self) -> SmartFilterPath<crate::types::AreaPosition> {
+        self.map(|value| &value.position)
+    }
+
+    /// Path to the `nft` field of [`crate::types::TonWalletCardSticker`]
+    #[must_use]
+    #[inline]
+    pub fn nft(self) -> SmartFilterPath<crate::types::TonNft> {
+        self.map(|value| &value.nft)
+    }
+}
+impl SmartFilterPath<crate::types::TonWalletTransfer> {
+    /// Path to the `transaction_id` field of [`crate::types::TonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn transaction_id(self) -> SmartFilterPath<str> {
+        self.map(|value| value.transaction_id.as_ref())
+    }
+
+    /// Path to the `peer_address` field of [`crate::types::TonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn peer_address(self) -> SmartFilterPath<str> {
+        self.map(|value| value.peer_address.as_ref())
+    }
+
+    /// Path to the `amount` field of [`crate::types::TonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn amount(self) -> SmartFilterPath<str> {
+        self.map(|value| value.amount.as_ref())
+    }
+
+    /// Path to the optional `comment` field of [`crate::types::TonWalletTransfer`]
+    #[must_use]
+    #[inline]
+    pub fn comment(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.comment.as_deref())
     }
 }
 impl SmartFilterPath<crate::types::TransactionPartner> {
@@ -42925,6 +44517,13 @@ impl SmartFilterPath<crate::types::Update> {
         self.and_then(|value| value.paid_message_price_changed())
     }
 
+    /// Path to the optional `paid_messages_waived` field of [`crate::types::Update`]
+    #[must_use]
+    #[inline]
+    pub fn paid_messages_waived(self) -> SmartFilterPath<crate::types::PaidMessagesWaived> {
+        self.and_then(|value| value.paid_messages_waived())
+    }
+
     /// Path to the optional `passport_data` field of [`crate::types::Update`]
     #[must_use]
     #[inline]
@@ -43137,6 +44736,13 @@ impl SmartFilterPath<crate::types::Update> {
         self.and_then(|value| value.sender_tag())
     }
 
+    /// Path to the optional `shared_widget_query` field of [`crate::types::Update`]
+    #[must_use]
+    #[inline]
+    pub fn shared_widget_query(self) -> SmartFilterPath<crate::types::SharedWidgetQuery> {
+        self.and_then(|value| value.shared_widget_query())
+    }
+
     /// Path to the optional `shipping_address` field of [`crate::types::Update`]
     #[must_use]
     #[inline]
@@ -43260,6 +44866,20 @@ impl SmartFilterPath<crate::types::Update> {
         self.and_then(|value| value.text())
     }
 
+    /// Path to the optional `ton_wallet_transfer` field of [`crate::types::Update`]
+    #[must_use]
+    #[inline]
+    pub fn ton_wallet_transfer(self) -> SmartFilterPath<crate::types::TonWalletTransfer> {
+        self.and_then(|value| value.ton_wallet_transfer())
+    }
+
+    /// Path to the optional `type` field of [`crate::types::Update`]
+    #[must_use]
+    #[inline]
+    pub fn r#type(self) -> SmartFilterPath<crate::types::WidgetQueryType> {
+        self.and_then(|value| value.r#type())
+    }
+
     /// Path to the optional `unique_gift` field of [`crate::types::Update`]
     #[must_use]
     #[inline]
@@ -43358,6 +44978,27 @@ impl SmartFilterPath<crate::types::Update> {
     #[inline]
     pub fn web_app_data(self) -> SmartFilterPath<crate::types::WebAppData> {
         self.and_then(|value| value.web_app_data())
+    }
+
+    /// Path to the optional `widget` field of [`crate::types::Update`]
+    #[must_use]
+    #[inline]
+    pub fn widget(self) -> SmartFilterPath<crate::types::Widget> {
+        self.and_then(|value| value.widget())
+    }
+
+    /// Path to the optional `widget_id` field of [`crate::types::Update`]
+    #[must_use]
+    #[inline]
+    pub fn widget_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.widget_id())
+    }
+
+    /// Path to the optional `widget_query` field of [`crate::types::Update`]
+    #[must_use]
+    #[inline]
+    pub fn widget_query(self) -> SmartFilterPath<crate::types::WidgetQuery> {
+        self.and_then(|value| value.widget_query())
     }
 
     /// Path to the optional `write_access_allowed` field of [`crate::types::Update`]
@@ -43731,6 +45372,21 @@ impl SmartFilterPath<crate::types::UpdateRemovedChatBoost> {
         self.map(|value| &value.removed_chat_boost)
     }
 }
+impl SmartFilterPath<crate::types::UpdateSharedWidgetQuery> {
+    /// Path to the `update_id` field of [`crate::types::UpdateSharedWidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn update_id(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.update_id)
+    }
+
+    /// Path to the `shared_widget_query` field of [`crate::types::UpdateSharedWidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn shared_widget_query(self) -> SmartFilterPath<crate::types::SharedWidgetQuery> {
+        self.map(|value| &value.shared_widget_query)
+    }
+}
 impl SmartFilterPath<crate::types::UpdateShippingQuery> {
     /// Path to the `update_id` field of [`crate::types::UpdateShippingQuery`]
     #[must_use]
@@ -43784,6 +45440,21 @@ impl SmartFilterPath<crate::types::UpdateUnparsed> {
     #[inline]
     pub fn update_id(self) -> SmartFilterPath<i64> {
         self.map(|value| &value.update_id)
+    }
+}
+impl SmartFilterPath<crate::types::UpdateWidgetQuery> {
+    /// Path to the `update_id` field of [`crate::types::UpdateWidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn update_id(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.update_id)
+    }
+
+    /// Path to the `widget_query` field of [`crate::types::UpdateWidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn widget_query(self) -> SmartFilterPath<crate::types::WidgetQuery> {
+        self.map(|value| &value.widget_query)
     }
 }
 impl SmartFilterPath<crate::types::User> {
@@ -44362,6 +46033,216 @@ impl SmartFilterPath<crate::types::WebhookInfo> {
     #[inline]
     pub fn allowed_updates(self) -> SmartFilterPath<[Box<str>]> {
         self.and_then(|value| value.allowed_updates.as_deref())
+    }
+}
+impl SmartFilterPath<crate::types::Widget> {
+    /// Path to the optional `id` field of [`crate::types::Widget`]
+    #[must_use]
+    #[inline]
+    pub fn id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.id.as_deref())
+    }
+
+    /// Path to the optional `width` field of [`crate::types::Widget`]
+    #[must_use]
+    #[inline]
+    pub fn width(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.width.as_ref())
+    }
+
+    /// Path to the optional `height` field of [`crate::types::Widget`]
+    #[must_use]
+    #[inline]
+    pub fn height(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.height.as_ref())
+    }
+
+    /// Path to the `html` field of [`crate::types::Widget`]
+    #[must_use]
+    #[inline]
+    pub fn html(self) -> SmartFilterPath<str> {
+        self.map(|value| value.html.as_ref())
+    }
+
+    /// Path to the optional `public_data` field of [`crate::types::Widget`]
+    #[must_use]
+    #[inline]
+    pub fn public_data(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.public_data.as_deref())
+    }
+
+    /// Path to the optional `chat_data` field of [`crate::types::Widget`]
+    #[must_use]
+    #[inline]
+    pub fn chat_data(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.chat_data.as_deref())
+    }
+}
+impl SmartFilterPath<crate::types::WidgetQuery> {
+    /// Path to the `id` field of [`crate::types::WidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn id(self) -> SmartFilterPath<str> {
+        self.map(|value| value.id.as_ref())
+    }
+
+    /// Path to the `from` field of [`crate::types::WidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn from(self) -> SmartFilterPath<crate::types::User> {
+        self.map(|value| value.from.as_ref())
+    }
+
+    /// Path to the optional `chat` field of [`crate::types::WidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.and_then(|value| value.chat.as_deref())
+    }
+
+    /// Path to the optional `message_id` field of [`crate::types::WidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn message_id(self) -> SmartFilterPath<i64> {
+        self.and_then(|value| value.message_id.as_ref())
+    }
+
+    /// Path to the optional `inline_message_id` field of [`crate::types::WidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn inline_message_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.inline_message_id.as_deref())
+    }
+
+    /// Path to the `chat_instance` field of [`crate::types::WidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn chat_instance(self) -> SmartFilterPath<str> {
+        self.map(|value| value.chat_instance.as_ref())
+    }
+
+    /// Path to the optional `chat_type` field of [`crate::types::WidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn chat_type(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.chat_type.as_deref())
+    }
+
+    /// Path to the `type` field of [`crate::types::WidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn r#type(self) -> SmartFilterPath<crate::types::WidgetQueryType> {
+        self.map(|value| &value.r#type)
+    }
+
+    /// Path to the `data` field of [`crate::types::WidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn data(self) -> SmartFilterPath<str> {
+        self.map(|value| value.data.as_ref())
+    }
+
+    /// Path to the optional `widget_id` field of [`crate::types::WidgetQuery`]
+    #[must_use]
+    #[inline]
+    pub fn widget_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.widget_id.as_deref())
+    }
+}
+impl SmartFilterPath<crate::types::WidgetQueryType> {
+    /// Path to the optional `msg_hash` field of [`crate::types::WidgetQueryType`]
+    #[must_use]
+    #[inline]
+    pub fn msg_hash(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.msg_hash())
+    }
+
+    /// Path to the optional `sign_data` field of [`crate::types::WidgetQueryType`]
+    #[must_use]
+    #[inline]
+    pub fn sign_data(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.sign_data())
+    }
+
+    /// Path to the optional `wallet` field of [`crate::types::WidgetQueryType`]
+    #[must_use]
+    #[inline]
+    pub fn wallet(self) -> SmartFilterPath<crate::types::WidgetQueryWallet> {
+        self.and_then(|value| value.wallet())
+    }
+
+    /// Path to the optional `wallet_card` field of [`crate::types::WidgetQueryType`]
+    #[must_use]
+    #[inline]
+    pub fn wallet_card(self) -> SmartFilterPath<crate::types::TonWalletCard> {
+        self.and_then(|value| value.wallet_card())
+    }
+}
+impl SmartFilterPath<crate::types::WidgetQueryTypeData> {
+    /// Path to the optional `wallet_card` field of [`crate::types::WidgetQueryTypeData`]
+    #[must_use]
+    #[inline]
+    pub fn wallet_card(self) -> SmartFilterPath<crate::types::TonWalletCard> {
+        self.and_then(|value| value.wallet_card.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::WidgetQueryTypeSentTransaction> {
+    /// Path to the `wallet` field of [`crate::types::WidgetQueryTypeSentTransaction`]
+    #[must_use]
+    #[inline]
+    pub fn wallet(self) -> SmartFilterPath<crate::types::WidgetQueryWallet> {
+        self.map(|value| &value.wallet)
+    }
+
+    /// Path to the `msg_hash` field of [`crate::types::WidgetQueryTypeSentTransaction`]
+    #[must_use]
+    #[inline]
+    pub fn msg_hash(self) -> SmartFilterPath<str> {
+        self.map(|value| value.msg_hash.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::WidgetQueryTypeSignData> {
+    /// Path to the `wallet` field of [`crate::types::WidgetQueryTypeSignData`]
+    #[must_use]
+    #[inline]
+    pub fn wallet(self) -> SmartFilterPath<crate::types::WidgetQueryWallet> {
+        self.map(|value| &value.wallet)
+    }
+
+    /// Path to the `sign_data` field of [`crate::types::WidgetQueryTypeSignData`]
+    #[must_use]
+    #[inline]
+    pub fn sign_data(self) -> SmartFilterPath<str> {
+        self.map(|value| value.sign_data.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::WidgetQueryWallet> {
+    /// Path to the `address` field of [`crate::types::WidgetQueryWallet`]
+    #[must_use]
+    #[inline]
+    pub fn address(self) -> SmartFilterPath<str> {
+        self.map(|value| value.address.as_ref())
+    }
+
+    /// Path to the `amount` field of [`crate::types::WidgetQueryWallet`]
+    #[must_use]
+    #[inline]
+    pub fn amount(self) -> SmartFilterPath<str> {
+        self.map(|value| value.amount.as_ref())
+    }
+
+    /// Path to the optional `public_key` field of [`crate::types::WidgetQueryWallet`]
+    #[must_use]
+    #[inline]
+    pub fn public_key(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.public_key.as_deref())
+    }
+
+    /// Path to the optional `state_init` field of [`crate::types::WidgetQueryWallet`]
+    #[must_use]
+    #[inline]
+    pub fn state_init(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.state_init.as_deref())
     }
 }
 impl SmartFilterPath<crate::types::WriteAccessAllowed> {
