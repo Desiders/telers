@@ -3831,6 +3831,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "widgets"
+version = "0.1.0"
+dependencies = [
+ "telers",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "winapi-util"
 version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"

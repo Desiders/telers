@@ -102,6 +102,7 @@ For more, check out the [crate documentation][docs] and the [examples below][exa
  - [Serialize][examples/serialize]. This example shows how to serialize an update back into JSON.
  - [Skip updates][examples/skip_updates]. This example shows how to drop the updates that piled up before the bot started.
  - [Callback data][examples/callback_data]. This example shows how to pack structured data into inline keyboard buttons and unpack it in handlers.
+ - [Widgets][examples/widgets]. This example shows how to send an HTML widget in a message.
  - [Commands][examples/commands]. This example shows how to declare commands with the `Command` derive, publish them to BotFather and parse their arguments.
  - [Finite state machine][examples/fsm]. This example shows how to use a finite state machine (conversation).
  - [Dialogs][examples/dialogs_mega]. This example shows how to build a multi-step dialog with `telers-dialog`.
@@ -145,6 +146,7 @@ This project is licensed under either of the following licenses, at your option:
 [examples/input_file]: https://github.com/Desiders/telers/tree/dev-1.x/examples/input_file
 [examples/download_file]: https://github.com/Desiders/telers/tree/dev-1.x/examples/download_file
 [examples/callback_data]: https://github.com/Desiders/telers/tree/dev-1.x/examples/callback_data
+[examples/widgets]: https://github.com/Desiders/telers/tree/dev-1.x/examples/widgets
 [examples/stats_incoming_updates_middleware]: https://github.com/Desiders/telers/tree/dev-1.x/examples/stats_incoming_updates_middleware
 [examples/smart_filter]: https://github.com/Desiders/telers/tree/dev-1.x/examples/smart_filter
 [examples/text_case_filters]: https://github.com/Desiders/telers/tree/dev-1.x/examples/text_case_filters

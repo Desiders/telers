@@ -1,0 +1,16 @@
+<h3>Say hello</h3>
+<p id="result">Press the button to ask the bot for a greeting.</p>
+<button id="hello">Say hello</button>
+
+<script>
+const button = document.getElementById('hello');
+const result = document.getElementById('result');
+
+button.onclick = () => {
+  button.disabled = true;
+  TelegramWidget.request('hello').then(
+    answer => { result.textContent = answer.result || ''; },
+    error => { result.textContent = error.code; }
+  ).finally(() => { button.disabled = false; });
+};
+</script>
