@@ -28,6 +28,13 @@ impl<S> Context<S> {
             key,
         }
     }
+
+    /// Returns the key this context reads and writes under
+    #[inline]
+    #[must_use]
+    pub fn key(&self) -> &StorageKey {
+        &self.key
+    }
 }
 
 impl<S> Clone for Context<S>

@@ -1,9 +1,11 @@
-use super::{Error, Storage, StorageKey};
+use super::{Error, EventIsolation, IsolationGuard, Storage, StorageKey};
 
 use crate::serialization::{DeserializeOwned, Serialize};
+use futures_util::future::BoxFuture;
 use std::{
     collections::{hash_map::Entry, HashMap},
-    sync::Arc,
+    fmt::{self, Debug, Formatter},
+    sync::{Arc, Mutex as StdMutex, PoisonError},
 };
 use tokio::sync::Mutex;
 use tracing::{event, instrument, Level, Span};
@@ -34,6 +36,42 @@ impl Memory {
     #[must_use]
     pub fn new() -> Self {
         Self::default()
+    }
+}
+
+/// Isolation that locks one key at a time inside the current process, shared by every clone
+#[derive(Clone, Default)]
+pub struct MemoryEventIsolation {
+    locks: Arc<StdMutex<HashMap<StorageKey, Arc<Mutex<()>>>>>,
+}
+
+impl MemoryEventIsolation {
+    /// Creates isolation that has not locked any key yet
+    #[inline]
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
+impl Debug for MemoryEventIsolation {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("MemoryEventIsolation")
+            .finish_non_exhaustive()
+    }
+}
+
+impl EventIsolation for MemoryEventIsolation {
+    fn lock(&self, key: &StorageKey) -> BoxFuture<'_, Result<IsolationGuard, Error>> {
+        let lock = Arc::clone(
+            self.locks
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .entry(key.clone())
+                .or_default(),
+        );
+
+        Box::pin(async move { Ok(Box::new(lock.lock_owned().await) as IsolationGuard) })
     }
 }
 
