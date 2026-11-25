@@ -7,14 +7,14 @@
 #[cfg_attr(feature = "deser", derive(deser::Serialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct RemoveChatVerification {
-    /// Unique identifier for the target chat or username of the target bot or channel in the format @username
+    /// Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
 }
 impl RemoveChatVerification {
     /// Creates a new `RemoveChatVerification`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target bot or channel in the format @username
+    /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username
     #[must_use]
     pub fn new<T0: Into<crate::types::ChatIdKind>>(chat_id: T0) -> Self {
         Self {
@@ -22,7 +22,7 @@ impl RemoveChatVerification {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target bot or channel in the format @username
+    /// Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
         self.chat_id = val.into();

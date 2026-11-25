@@ -41,7 +41,7 @@ pub struct GetBusinessAccountGifts {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub sort_by_price: Option<bool>,
-    /// Offset of the first entry to return as received from the previous request; use empty string to get the first chunk of results
+    /// Offset of the first entry to return as received from the previous request; use an empty string to get the first chunk of results
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub offset: Option<Box<str>>,
@@ -194,14 +194,14 @@ impl GetBusinessAccountGifts {
         self
     }
 
-    /// Offset of the first entry to return as received from the previous request; use empty string to get the first chunk of results
+    /// Offset of the first entry to return as received from the previous request; use an empty string to get the first chunk of results
     #[must_use]
     pub fn offset<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.offset = Some(val.into());
         self
     }
 
-    /// Offset of the first entry to return as received from the previous request; use empty string to get the first chunk of results
+    /// Offset of the first entry to return as received from the previous request; use an empty string to get the first chunk of results
     #[must_use]
     pub fn offset_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.offset = val.map(Into::into);

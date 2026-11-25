@@ -164,15 +164,6 @@ impl TransactionPartnerUser {
         }
     }
 
-    /// Helper method for nested field `allows_users_to_create_topics`.
-    #[must_use]
-    pub fn allows_users_to_create_topics(&self) -> Option<bool> {
-        {
-            let inner = self.user();
-            inner.allows_users_to_create_topics
-        }
-    }
-
     /// Helper method for nested field `amount`.
     #[must_use]
     pub fn amount(&self) -> Option<i64> {
@@ -192,42 +183,6 @@ impl TransactionPartnerUser {
                 inner.background.as_ref()
             }
             _ => None,
-        }
-    }
-
-    /// Helper method for nested field `can_connect_to_business`.
-    #[must_use]
-    pub fn can_connect_to_business(&self) -> Option<bool> {
-        {
-            let inner = self.user();
-            inner.can_connect_to_business
-        }
-    }
-
-    /// Helper method for nested field `can_join_groups`.
-    #[must_use]
-    pub fn can_join_groups(&self) -> Option<bool> {
-        {
-            let inner = self.user();
-            inner.can_join_groups
-        }
-    }
-
-    /// Helper method for nested field `can_manage_bots`.
-    #[must_use]
-    pub fn can_manage_bots(&self) -> Option<bool> {
-        {
-            let inner = self.user();
-            inner.can_manage_bots
-        }
-    }
-
-    /// Helper method for nested field `can_read_all_group_messages`.
-    #[must_use]
-    pub fn can_read_all_group_messages(&self) -> Option<bool> {
-        {
-            let inner = self.user();
-            inner.can_read_all_group_messages
         }
     }
 
@@ -265,24 +220,6 @@ impl TransactionPartnerUser {
                 inner.has_colors
             }
             _ => None,
-        }
-    }
-
-    /// Helper method for nested field `has_main_web_app`.
-    #[must_use]
-    pub fn has_main_web_app(&self) -> Option<bool> {
-        {
-            let inner = self.user();
-            inner.has_main_web_app
-        }
-    }
-
-    /// Helper method for nested field `has_topics_enabled`.
-    #[must_use]
-    pub fn has_topics_enabled(&self) -> Option<bool> {
-        {
-            let inner = self.user();
-            inner.has_topics_enabled
         }
     }
 
@@ -398,33 +335,6 @@ impl TransactionPartnerUser {
                 Some(inner.sticker.as_ref())
             }
             _ => None,
-        }
-    }
-
-    /// Helper method for nested field `supports_guest_queries`.
-    #[must_use]
-    pub fn supports_guest_queries(&self) -> Option<bool> {
-        {
-            let inner = self.user();
-            inner.supports_guest_queries
-        }
-    }
-
-    /// Helper method for nested field `supports_inline_queries`.
-    #[must_use]
-    pub fn supports_inline_queries(&self) -> Option<bool> {
-        {
-            let inner = self.user();
-            inner.supports_inline_queries
-        }
-    }
-
-    /// Helper method for nested field `supports_join_request_queries`.
-    #[must_use]
-    pub fn supports_join_request_queries(&self) -> Option<bool> {
-        {
-            let inner = self.user();
-            inner.supports_join_request_queries
         }
     }
 

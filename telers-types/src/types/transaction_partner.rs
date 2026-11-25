@@ -211,22 +211,6 @@ impl TransactionPartner {
         }
     }
 
-    /// Helper method for nested field `allows_users_to_create_topics`.
-    #[must_use]
-    pub fn allows_users_to_create_topics(&self) -> Option<bool> {
-        match self {
-            Self::AffiliateProgram(val) => val
-                .sponsor_user
-                .as_deref()
-                .and_then(|inner| inner.allows_users_to_create_topics),
-            Self::User(val) => {
-                let inner = crate::types::TransactionPartnerUser::user(val);
-                inner.allows_users_to_create_topics
-            }
-            _ => None,
-        }
-    }
-
     /// Helper method for nested field `amount`.
     #[must_use]
     pub fn amount(&self) -> Option<i64> {
@@ -248,70 +232,6 @@ impl TransactionPartner {
                 .gift
                 .as_deref()
                 .and_then(|inner| inner.background.as_ref()),
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `can_connect_to_business`.
-    #[must_use]
-    pub fn can_connect_to_business(&self) -> Option<bool> {
-        match self {
-            Self::AffiliateProgram(val) => val
-                .sponsor_user
-                .as_deref()
-                .and_then(|inner| inner.can_connect_to_business),
-            Self::User(val) => {
-                let inner = crate::types::TransactionPartnerUser::user(val);
-                inner.can_connect_to_business
-            }
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `can_join_groups`.
-    #[must_use]
-    pub fn can_join_groups(&self) -> Option<bool> {
-        match self {
-            Self::AffiliateProgram(val) => val
-                .sponsor_user
-                .as_deref()
-                .and_then(|inner| inner.can_join_groups),
-            Self::User(val) => {
-                let inner = crate::types::TransactionPartnerUser::user(val);
-                inner.can_join_groups
-            }
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `can_manage_bots`.
-    #[must_use]
-    pub fn can_manage_bots(&self) -> Option<bool> {
-        match self {
-            Self::AffiliateProgram(val) => val
-                .sponsor_user
-                .as_deref()
-                .and_then(|inner| inner.can_manage_bots),
-            Self::User(val) => {
-                let inner = crate::types::TransactionPartnerUser::user(val);
-                inner.can_manage_bots
-            }
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `can_read_all_group_messages`.
-    #[must_use]
-    pub fn can_read_all_group_messages(&self) -> Option<bool> {
-        match self {
-            Self::AffiliateProgram(val) => val
-                .sponsor_user
-                .as_deref()
-                .and_then(|inner| inner.can_read_all_group_messages),
-            Self::User(val) => {
-                let inner = crate::types::TransactionPartnerUser::user(val);
-                inner.can_read_all_group_messages
-            }
             _ => None,
         }
     }
@@ -356,38 +276,6 @@ impl TransactionPartner {
                 crate::types::TransactionPartnerUser::gift(val).and_then(|inner| inner.has_colors)
             }
             Self::Chat(val) => val.gift.as_deref().and_then(|inner| inner.has_colors),
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `has_main_web_app`.
-    #[must_use]
-    pub fn has_main_web_app(&self) -> Option<bool> {
-        match self {
-            Self::AffiliateProgram(val) => val
-                .sponsor_user
-                .as_deref()
-                .and_then(|inner| inner.has_main_web_app),
-            Self::User(val) => {
-                let inner = crate::types::TransactionPartnerUser::user(val);
-                inner.has_main_web_app
-            }
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `has_topics_enabled`.
-    #[must_use]
-    pub fn has_topics_enabled(&self) -> Option<bool> {
-        match self {
-            Self::AffiliateProgram(val) => val
-                .sponsor_user
-                .as_deref()
-                .and_then(|inner| inner.has_topics_enabled),
-            Self::User(val) => {
-                let inner = crate::types::TransactionPartnerUser::user(val);
-                inner.has_topics_enabled
-            }
             _ => None,
         }
     }
@@ -548,54 +436,6 @@ impl TransactionPartner {
                 crate::types::TransactionPartnerUser::gift(val).map(|inner| inner.sticker.as_ref())
             }
             Self::Chat(val) => val.gift.as_deref().map(|inner| inner.sticker.as_ref()),
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `supports_guest_queries`.
-    #[must_use]
-    pub fn supports_guest_queries(&self) -> Option<bool> {
-        match self {
-            Self::AffiliateProgram(val) => val
-                .sponsor_user
-                .as_deref()
-                .and_then(|inner| inner.supports_guest_queries),
-            Self::User(val) => {
-                let inner = crate::types::TransactionPartnerUser::user(val);
-                inner.supports_guest_queries
-            }
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `supports_inline_queries`.
-    #[must_use]
-    pub fn supports_inline_queries(&self) -> Option<bool> {
-        match self {
-            Self::AffiliateProgram(val) => val
-                .sponsor_user
-                .as_deref()
-                .and_then(|inner| inner.supports_inline_queries),
-            Self::User(val) => {
-                let inner = crate::types::TransactionPartnerUser::user(val);
-                inner.supports_inline_queries
-            }
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `supports_join_request_queries`.
-    #[must_use]
-    pub fn supports_join_request_queries(&self) -> Option<bool> {
-        match self {
-            Self::AffiliateProgram(val) => val
-                .sponsor_user
-                .as_deref()
-                .and_then(|inner| inner.supports_join_request_queries),
-            Self::User(val) => {
-                let inner = crate::types::TransactionPartnerUser::user(val);
-                inner.supports_join_request_queries
-            }
             _ => None,
         }
     }

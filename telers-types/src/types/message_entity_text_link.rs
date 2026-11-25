@@ -11,7 +11,7 @@ pub struct MessageEntityTextLink {
     pub offset: i64,
     /// Length of the entity in UTF-16 code units
     pub length: i64,
-    /// For `text_link` only, URL that will be opened after user taps on the text
+    /// For `text_link` only, URL that will be opened after the user taps on the text
     pub url: Box<str>,
 }
 impl MessageEntityTextLink {
@@ -20,7 +20,7 @@ impl MessageEntityTextLink {
     /// # Arguments
     /// * `offset` - Offset in UTF-16 code units to the start of the entity
     /// * `length` - Length of the entity in UTF-16 code units
-    /// * `url` - For `text_link` only, URL that will be opened after user taps on the text
+    /// * `url` - For `text_link` only, URL that will be opened after the user taps on the text
     #[must_use]
     pub fn new<T0: Into<i64>, T1: Into<i64>, T2: Into<Box<str>>>(
         offset: T0,
@@ -48,7 +48,7 @@ impl MessageEntityTextLink {
         self
     }
 
-    /// For `text_link` only, URL that will be opened after user taps on the text
+    /// For `text_link` only, URL that will be opened after the user taps on the text
     #[must_use]
     pub fn url<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.url = val.into();

@@ -1,4 +1,4 @@
-/// Service message: the channel has been created. This field can't be received in a message coming through updates, because bot can't be a member of a channel when it is created. It can only be found in `reply_to_message` if someone replies to a very first message in a channel.
+/// Service message: the channel has been created. This field can't be received in a message coming through updates, because a bot can't be a member of a channel when it is created. It can only be found in `reply_to_message` if someone replies to the very first message in a channel.
 /// # Notes
 /// This object represents a service message from original message field `channel_chat_created`.
 /// # Documentation
@@ -169,7 +169,7 @@ pub struct MessageChannelChatCreated {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
-    /// Service message: the channel has been created. This field can't be received in a message coming through updates, because bot can't be a member of a channel when it is created. It can only be found in `reply_to_message` if someone replies to a very first message in a channel.
+    /// Service message: the channel has been created. This field can't be received in a message coming through updates, because a bot can't be a member of a channel when it is created. It can only be found in `reply_to_message` if someone replies to the very first message in a channel.
     pub channel_chat_created: bool,
 }
 impl MessageChannelChatCreated {
@@ -179,7 +179,7 @@ impl MessageChannelChatCreated {
     /// * `message_id` - Unique message identifier inside this chat; 0 for ephemeral messages. In specific instances (e.g., a message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     /// * `date` - Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     /// * `chat` - Chat the message belongs to
-    /// * `channel_chat_created` - Service message: the channel has been created. This field can't be received in a message coming through updates, because bot can't be a member of a channel when it is created. It can only be found in `reply_to_message` if someone replies to a very first message in a channel.
+    /// * `channel_chat_created` - Service message: the channel has been created. This field can't be received in a message coming through updates, because a bot can't be a member of a channel when it is created. It can only be found in `reply_to_message` if someone replies to the very first message in a channel.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -906,7 +906,7 @@ impl MessageChannelChatCreated {
         self
     }
 
-    /// Service message: the channel has been created. This field can't be received in a message coming through updates, because bot can't be a member of a channel when it is created. It can only be found in `reply_to_message` if someone replies to a very first message in a channel.
+    /// Service message: the channel has been created. This field can't be received in a message coming through updates, because a bot can't be a member of a channel when it is created. It can only be found in `reply_to_message` if someone replies to the very first message in a channel.
     #[must_use]
     pub fn channel_chat_created<T: Into<bool>>(mut self, val: T) -> Self {
         self.channel_chat_created = val.into();

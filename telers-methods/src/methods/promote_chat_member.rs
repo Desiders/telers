@@ -35,7 +35,7 @@ pub struct PromoteChatMember {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub can_promote_members: Option<bool>,
-    /// Pass `true` if the administrator can change chat title, photo and other settings
+    /// Pass `true` if the administrator can change the chat title, photo and other settings
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub can_change_info: Option<bool>,
@@ -220,14 +220,14 @@ impl PromoteChatMember {
         self
     }
 
-    /// Pass `true` if the administrator can change chat title, photo and other settings
+    /// Pass `true` if the administrator can change the chat title, photo and other settings
     #[must_use]
     pub fn can_change_info<T: Into<bool>>(mut self, val: T) -> Self {
         self.can_change_info = Some(val.into());
         self
     }
 
-    /// Pass `true` if the administrator can change chat title, photo and other settings
+    /// Pass `true` if the administrator can change the chat title, photo and other settings
     #[must_use]
     pub fn can_change_info_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.can_change_info = val.map(Into::into);

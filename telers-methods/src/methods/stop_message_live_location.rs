@@ -1,4 +1,4 @@
-/// Use this method to stop updating a live location message before `live_period` expires. On success, if the message is not an inline message, the edited Message is returned, otherwise `true` is returned.
+/// Use this method to stop updating a live location message before `live_period` expires. On success, if the message is not an inline message, the edited Message is returned; otherwise, `true` is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#stopmessagelivelocation>
 /// # Returns

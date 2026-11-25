@@ -1,5 +1,5 @@
 /// Represents a result of an inline query that was chosen by the user and sent to their chat partner.
-/// Note: It is necessary to enable inline feedback via @`BotFather` in order to receive these objects in updates.
+/// Note: It is necessary to enable inline feedback via @`BotFather` or using the parameter `inline_feedback_share_denominator` of the method [`telers_methods::methods::SetMySettings`](https://docs.rs/telers-methods/latest/telers_methods/methods/set_my_settings/struct.SetMySettings.html) in order to receive these objects in updates.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#choseninlineresult>
 #[derive(Clone, Debug)]
@@ -10,11 +10,11 @@ pub struct ChosenInlineResult {
     pub result_id: Box<str>,
     /// The user that chose the result
     pub from: Box<crate::types::User>,
-    /// Sender location, only for bots that require user location
+    /// Sender location, only for bots that enabled user location requests via @`BotFather` or using the parameter `needs_inline_query_location` of the method [`telers_methods::methods::SetMySettings`](https://docs.rs/telers-methods/latest/telers_methods/methods/set_my_settings/struct.SetMySettings.html)
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub location: Option<crate::types::Location>,
-    /// Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. Will be also received in callback queries and can be used to edit the message.
+    /// Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. Will also be received in callback queries and can be used to edit the message.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub inline_message_id: Option<Box<str>>,
@@ -60,28 +60,28 @@ impl ChosenInlineResult {
         self
     }
 
-    /// Sender location, only for bots that require user location
+    /// Sender location, only for bots that enabled user location requests via @`BotFather` or using the parameter `needs_inline_query_location` of the method [`telers_methods::methods::SetMySettings`](https://docs.rs/telers-methods/latest/telers_methods/methods/set_my_settings/struct.SetMySettings.html)
     #[must_use]
     pub fn location<T: Into<crate::types::Location>>(mut self, val: T) -> Self {
         self.location = Some(val.into());
         self
     }
 
-    /// Sender location, only for bots that require user location
+    /// Sender location, only for bots that enabled user location requests via @`BotFather` or using the parameter `needs_inline_query_location` of the method [`telers_methods::methods::SetMySettings`](https://docs.rs/telers-methods/latest/telers_methods/methods/set_my_settings/struct.SetMySettings.html)
     #[must_use]
     pub fn location_option<T: Into<crate::types::Location>>(mut self, val: Option<T>) -> Self {
         self.location = val.map(Into::into);
         self
     }
 
-    /// Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. Will be also received in callback queries and can be used to edit the message.
+    /// Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. Will also be received in callback queries and can be used to edit the message.
     #[must_use]
     pub fn inline_message_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.inline_message_id = Some(val.into());
         self
     }
 
-    /// Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. Will be also received in callback queries and can be used to edit the message.
+    /// Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. Will also be received in callback queries and can be used to edit the message.
     #[must_use]
     pub fn inline_message_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.inline_message_id = val.map(Into::into);

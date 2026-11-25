@@ -5,7 +5,7 @@
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct PassportData {
-    /// Array with information about documents and other Telegram Passport elements that was shared with the bot
+    /// Array with information shared with the bot about documents and other Telegram Passport elements
     pub data: Box<[crate::types::EncryptedPassportElement]>,
     /// Encrypted credentials required to decrypt the data
     pub credentials: crate::types::EncryptedCredentials,
@@ -14,7 +14,7 @@ impl PassportData {
     /// Creates a new `PassportData`.
     ///
     /// # Arguments
-    /// * `data` - Array with information about documents and other Telegram Passport elements that was shared with the bot
+    /// * `data` - Array with information shared with the bot about documents and other Telegram Passport elements
     /// * `credentials` - Encrypted credentials required to decrypt the data
     #[must_use]
     pub fn new<
@@ -31,7 +31,7 @@ impl PassportData {
         }
     }
 
-    /// Array with information about documents and other Telegram Passport elements that was shared with the bot
+    /// Array with information shared with the bot about documents and other Telegram Passport elements
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -41,7 +41,7 @@ impl PassportData {
         self
     }
 
-    /// Array with information about documents and other Telegram Passport elements that was shared with the bot
+    /// Array with information shared with the bot about documents and other Telegram Passport elements
     ///
     /// # Notes
     /// Adds a single element.

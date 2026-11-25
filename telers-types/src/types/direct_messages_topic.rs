@@ -5,7 +5,7 @@
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct DirectMessagesTopic {
-    /// Unique identifier of the topic. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// Unique identifier of the topic. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type is safe for storing this identifier.
     pub topic_id: i64,
     /// Information about the user that created the topic. Currently, it is always present.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
@@ -16,7 +16,7 @@ impl DirectMessagesTopic {
     /// Creates a new `DirectMessagesTopic`.
     ///
     /// # Arguments
-    /// * `topic_id` - Unique identifier of the topic. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// * `topic_id` - Unique identifier of the topic. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type is safe for storing this identifier.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -28,7 +28,7 @@ impl DirectMessagesTopic {
         }
     }
 
-    /// Unique identifier of the topic. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// Unique identifier of the topic. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type is safe for storing this identifier.
     #[must_use]
     pub fn topic_id<T: Into<i64>>(mut self, val: T) -> Self {
         self.topic_id = val.into();

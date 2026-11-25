@@ -11,7 +11,7 @@ pub struct BanChatMember {
     pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier of the target user
     pub user_id: i64,
-    /// Date when the user will be unbanned; Unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever. Applied for supergroups and channels only.
+    /// Date when the user will be unbanned; Unix time. If the user is banned for more than 366 days or less than 30 seconds from the current time, they are considered to be banned forever. Applied for supergroups and channels only.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub until_date: Option<i64>,
@@ -56,14 +56,14 @@ impl BanChatMember {
         self
     }
 
-    /// Date when the user will be unbanned; Unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever. Applied for supergroups and channels only.
+    /// Date when the user will be unbanned; Unix time. If the user is banned for more than 366 days or less than 30 seconds from the current time, they are considered to be banned forever. Applied for supergroups and channels only.
     #[must_use]
     pub fn until_date<T: Into<i64>>(mut self, val: T) -> Self {
         self.until_date = Some(val.into());
         self
     }
 
-    /// Date when the user will be unbanned; Unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever. Applied for supergroups and channels only.
+    /// Date when the user will be unbanned; Unix time. If the user is banned for more than 366 days or less than 30 seconds from the current time, they are considered to be banned forever. Applied for supergroups and channels only.
     #[must_use]
     pub fn until_date_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.until_date = val.map(Into::into);

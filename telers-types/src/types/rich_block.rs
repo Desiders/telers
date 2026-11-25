@@ -97,13 +97,14 @@ impl RichBlock {
     /// Helper method for field `blocks`.
     ///
     /// # Variants
-    /// - `RichBlockBlockQuotation`, `RichBlockDetails`. Content of the block
+    /// - `RichBlockBlockQuotation`, `RichBlockExpandableBlockQuotation`, `RichBlockDetails`. Content of the block
     /// - `RichBlockCollage`. Elements of the collage
     /// - `RichBlockSlideshow`. Elements of the slideshow
     #[must_use]
     pub fn blocks(&self) -> Option<&[crate::types::RichBlock]> {
         match self {
             Self::Blockquote(val) => Some(val.blocks.as_ref()),
+            Self::ExpandableBlockquote(val) => Some(val.blocks.as_ref()),
             Self::Collage(val) => Some(val.blocks.as_ref()),
             Self::Slideshow(val) => Some(val.blocks.as_ref()),
             Self::Details(val) => Some(val.blocks.as_ref()),
@@ -317,7 +318,6 @@ impl RichBlock {
     ///
     /// # Variants
     /// - `RichBlockParagraph`, `RichBlockSectionHeading`, `RichBlockPreformatted`, `RichBlockFooter`, `RichBlockPullQuotation`. Text of the block
-    /// - `RichBlockExpandableBlockQuotation`. Content of the block
     /// - `RichBlockThinking`. Text of the block. See <https://t.me/addemoji/AIActions> for examples of custom emoji that are recommended for usage in the block.
     #[must_use]
     pub fn text(&self) -> Option<&crate::types::RichText> {
@@ -326,7 +326,6 @@ impl RichBlock {
             Self::Heading(val) => Some(val.text.as_ref()),
             Self::Pre(val) => Some(val.text.as_ref()),
             Self::Footer(val) => Some(val.text.as_ref()),
-            Self::ExpandableBlockquote(val) => Some(val.text.as_ref()),
             Self::Pullquote(val) => Some(val.text.as_ref()),
             Self::Thinking(val) => Some(val.text.as_ref()),
             _ => None,

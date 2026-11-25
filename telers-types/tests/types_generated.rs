@@ -392,6 +392,21 @@ fn test_bot_description_serialize_deserialize() {
     must_roundtrip(stringify!(BotDescription), &parsed);
 }
 #[test]
+fn test_bot_full_info_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "id" : 1, "is_bot" : true, "first_name" : "test", "can_join_groups" : true,
+        "can_read_all_group_messages" : true, "supports_guest_queries" : true,
+        "supports_inline_queries" : true, "needs_inline_query_location" : true,
+        "can_connect_to_business" : true, "has_main_web_app" : true, "has_topics_enabled"
+        : true, "allows_users_to_create_topics" : true, "has_topic_sidebar" : true,
+        "can_manage_bots" : true, "supports_join_request_queries" : true }
+    );
+    let parsed: BotFullInfo = must_parse(stringify!(BotFullInfo), &value);
+    let parsed_value = must_to_value(stringify!(BotFullInfo), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(BotFullInfo), &parsed);
+}
+#[test]
 fn test_bot_name_serialize_deserialize() {
     let value = serde_json::json!({ "name" : "test" });
     let parsed: BotName = must_parse(stringify!(BotName), &value);
@@ -3279,7 +3294,10 @@ fn test_input_rich_block_document_serialize_deserialize() {
 }
 #[test]
 fn test_input_rich_block_expandable_block_quotation_serialize_deserialize() {
-    let value = serde_json::json!({ "type" : "expandable_blockquote", "text" : "test" });
+    let value = serde_json::json!(
+        { "type" : "expandable_blockquote", "blocks" : [{ "type" : "paragraph", "text" :
+        "test" }] }
+    );
     let parsed: InputRichBlock = must_parse(stringify!(InputRichBlock), &value);
     assert!(
         matches!(&parsed, InputRichBlock::ExpandableBlockquote(_)),
@@ -7028,7 +7046,10 @@ fn test_rich_block_document_serialize_deserialize() {
 }
 #[test]
 fn test_rich_block_expandable_block_quotation_serialize_deserialize() {
-    let value = serde_json::json!({ "type" : "expandable_blockquote", "text" : "test" });
+    let value = serde_json::json!(
+        { "type" : "expandable_blockquote", "blocks" : [{ "type" : "paragraph", "text" :
+        "test" }] }
+    );
     let parsed: RichBlock = must_parse(stringify!(RichBlock), &value);
     assert!(
         matches!(&parsed, RichBlock::ExpandableBlockquote(_)),

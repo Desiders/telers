@@ -1,4 +1,4 @@
-/// Use this method to send answers to callback queries sent from inline keyboards. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, `true` is returned.
+/// Use this method to send answers to callback queries sent from inline keyboards or rich messages. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, `true` is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#answercallbackquery>
 /// # Returns

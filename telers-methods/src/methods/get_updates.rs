@@ -15,7 +15,7 @@ pub struct GetUpdates {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub limit: Option<u8>,
-    /// Timeout in seconds for long polling. Defaults to 0, i.e. usual short polling. Should be positive, short polling should be used for testing purposes only.
+    /// Timeout in seconds for long polling. Defaults to 0, i.e. usual short polling. Should be positive; short polling should be used for testing purposes only.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub timeout: Option<i64>,
@@ -67,14 +67,14 @@ impl GetUpdates {
         self
     }
 
-    /// Timeout in seconds for long polling. Defaults to 0, i.e. usual short polling. Should be positive, short polling should be used for testing purposes only.
+    /// Timeout in seconds for long polling. Defaults to 0, i.e. usual short polling. Should be positive; short polling should be used for testing purposes only.
     #[must_use]
     pub fn timeout<T: Into<i64>>(mut self, val: T) -> Self {
         self.timeout = Some(val.into());
         self
     }
 
-    /// Timeout in seconds for long polling. Defaults to 0, i.e. usual short polling. Should be positive, short polling should be used for testing purposes only.
+    /// Timeout in seconds for long polling. Defaults to 0, i.e. usual short polling. Should be positive; short polling should be used for testing purposes only.
     #[must_use]
     pub fn timeout_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.timeout = val.map(Into::into);

@@ -9,7 +9,7 @@
 pub struct SetStickerKeywords {
     /// File identifier of the sticker
     pub sticker: Box<str>,
-    /// A JSON-serialized list of 0-20 search keywords for the sticker with total length of up to 64 characters
+    /// A JSON-serialized list of 0-20 search keywords for the sticker with a total length of up to 64 characters
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub keywords: Option<Box<[Box<str>]>>,
@@ -37,7 +37,7 @@ impl SetStickerKeywords {
         self
     }
 
-    /// A JSON-serialized list of 0-20 search keywords for the sticker with total length of up to 64 characters
+    /// A JSON-serialized list of 0-20 search keywords for the sticker with a total length of up to 64 characters
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -57,7 +57,7 @@ impl SetStickerKeywords {
         self
     }
 
-    /// A JSON-serialized list of 0-20 search keywords for the sticker with total length of up to 64 characters
+    /// A JSON-serialized list of 0-20 search keywords for the sticker with a total length of up to 64 characters
     ///
     /// # Notes
     /// Adds a single element.
@@ -74,7 +74,7 @@ impl SetStickerKeywords {
         self
     }
 
-    /// A JSON-serialized list of 0-20 search keywords for the sticker with total length of up to 64 characters
+    /// A JSON-serialized list of 0-20 search keywords for the sticker with a total length of up to 64 characters
     ///
     /// # Notes
     /// Adds multiple elements.

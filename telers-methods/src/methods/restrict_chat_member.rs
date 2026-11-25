@@ -17,7 +17,7 @@ pub struct RestrictChatMember {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub use_independent_chat_permissions: Option<bool>,
-    /// Date when restrictions will be lifted for the user; Unix time. If user is restricted for more than 366 days or less than 30 seconds from the current time, they are considered to be restricted forever.
+    /// Date when restrictions will be lifted for the user; Unix time. If the user is restricted for more than 366 days or less than 30 seconds from the current time, they are considered to be restricted forever.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub until_date: Option<i64>,
@@ -89,14 +89,14 @@ impl RestrictChatMember {
         self
     }
 
-    /// Date when restrictions will be lifted for the user; Unix time. If user is restricted for more than 366 days or less than 30 seconds from the current time, they are considered to be restricted forever.
+    /// Date when restrictions will be lifted for the user; Unix time. If the user is restricted for more than 366 days or less than 30 seconds from the current time, they are considered to be restricted forever.
     #[must_use]
     pub fn until_date<T: Into<i64>>(mut self, val: T) -> Self {
         self.until_date = Some(val.into());
         self
     }
 
-    /// Date when restrictions will be lifted for the user; Unix time. If user is restricted for more than 366 days or less than 30 seconds from the current time, they are considered to be restricted forever.
+    /// Date when restrictions will be lifted for the user; Unix time. If the user is restricted for more than 366 days or less than 30 seconds from the current time, they are considered to be restricted forever.
     #[must_use]
     pub fn until_date_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.until_date = val.map(Into::into);

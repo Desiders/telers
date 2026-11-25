@@ -11,7 +11,7 @@ pub struct StoryAreaTypeSuggestedReaction {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_dark: Option<bool>,
-    /// Pass `true` if reaction area corner is flipped
+    /// Pass `true` if the reaction area corner is flipped
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_flipped: Option<bool>,
@@ -54,14 +54,14 @@ impl StoryAreaTypeSuggestedReaction {
         self
     }
 
-    /// Pass `true` if reaction area corner is flipped
+    /// Pass `true` if the reaction area corner is flipped
     #[must_use]
     pub fn is_flipped<T: Into<bool>>(mut self, val: T) -> Self {
         self.is_flipped = Some(val.into());
         self
     }
 
-    /// Pass `true` if reaction area corner is flipped
+    /// Pass `true` if the reaction area corner is flipped
     #[must_use]
     pub fn is_flipped_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.is_flipped = val.map(Into::into);

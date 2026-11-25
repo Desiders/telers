@@ -5,7 +5,7 @@
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct User {
-    /// Unique identifier for this user or bot. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// Unique identifier for this user or bot. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type is safe for storing this identifier.
     pub id: i64,
     /// `true`, if this user is a bot
     pub is_bot: bool,
@@ -31,52 +31,12 @@ pub struct User {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub added_to_attachment_menu: Option<bool>,
-    /// `true`, if the bot can be invited to groups. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
-    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
-    pub can_join_groups: Option<bool>,
-    /// `true`, if privacy mode is disabled for the bot. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
-    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
-    pub can_read_all_group_messages: Option<bool>,
-    /// `true`, if the bot supports guest queries from chats it is not a member of. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
-    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
-    pub supports_guest_queries: Option<bool>,
-    /// `true`, if the bot supports inline queries. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
-    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
-    pub supports_inline_queries: Option<bool>,
-    /// `true`, if the bot can be connected to a user account to manage it. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
-    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
-    pub can_connect_to_business: Option<bool>,
-    /// `true`, if the bot has a main Web App. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
-    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
-    pub has_main_web_app: Option<bool>,
-    /// `true`, if the bot has forum topic mode enabled in private chats. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
-    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
-    pub has_topics_enabled: Option<bool>,
-    /// `true`, if the bot allows users to create and delete topics in private chats. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
-    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
-    pub allows_users_to_create_topics: Option<bool>,
-    /// `true`, if other bots can be created to be controlled by the bot. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
-    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
-    pub can_manage_bots: Option<bool>,
-    /// `true`, if the bot supports join request queries and can be assigned to process them. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
-    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
-    pub supports_join_request_queries: Option<bool>,
 }
 impl User {
     /// Creates a new `User`.
     ///
     /// # Arguments
-    /// * `id` - Unique identifier for this user or bot. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// * `id` - Unique identifier for this user or bot. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type is safe for storing this identifier.
     /// * `is_bot` - `true`, if this user is a bot
     /// * `first_name` - User's or bot's first name
     ///
@@ -97,20 +57,10 @@ impl User {
             language_code: None,
             is_premium: None,
             added_to_attachment_menu: None,
-            can_join_groups: None,
-            can_read_all_group_messages: None,
-            supports_guest_queries: None,
-            supports_inline_queries: None,
-            can_connect_to_business: None,
-            has_main_web_app: None,
-            has_topics_enabled: None,
-            allows_users_to_create_topics: None,
-            can_manage_bots: None,
-            supports_join_request_queries: None,
         }
     }
 
-    /// Unique identifier for this user or bot. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// Unique identifier for this user or bot. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type is safe for storing this identifier.
     #[must_use]
     pub fn id<T: Into<i64>>(mut self, val: T) -> Self {
         self.id = val.into();
@@ -198,146 +148,6 @@ impl User {
     #[must_use]
     pub fn added_to_attachment_menu_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.added_to_attachment_menu = val.map(Into::into);
-        self
-    }
-
-    /// `true`, if the bot can be invited to groups. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn can_join_groups<T: Into<bool>>(mut self, val: T) -> Self {
-        self.can_join_groups = Some(val.into());
-        self
-    }
-
-    /// `true`, if the bot can be invited to groups. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn can_join_groups_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
-        self.can_join_groups = val.map(Into::into);
-        self
-    }
-
-    /// `true`, if privacy mode is disabled for the bot. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn can_read_all_group_messages<T: Into<bool>>(mut self, val: T) -> Self {
-        self.can_read_all_group_messages = Some(val.into());
-        self
-    }
-
-    /// `true`, if privacy mode is disabled for the bot. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn can_read_all_group_messages_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
-        self.can_read_all_group_messages = val.map(Into::into);
-        self
-    }
-
-    /// `true`, if the bot supports guest queries from chats it is not a member of. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn supports_guest_queries<T: Into<bool>>(mut self, val: T) -> Self {
-        self.supports_guest_queries = Some(val.into());
-        self
-    }
-
-    /// `true`, if the bot supports guest queries from chats it is not a member of. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn supports_guest_queries_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
-        self.supports_guest_queries = val.map(Into::into);
-        self
-    }
-
-    /// `true`, if the bot supports inline queries. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn supports_inline_queries<T: Into<bool>>(mut self, val: T) -> Self {
-        self.supports_inline_queries = Some(val.into());
-        self
-    }
-
-    /// `true`, if the bot supports inline queries. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn supports_inline_queries_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
-        self.supports_inline_queries = val.map(Into::into);
-        self
-    }
-
-    /// `true`, if the bot can be connected to a user account to manage it. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn can_connect_to_business<T: Into<bool>>(mut self, val: T) -> Self {
-        self.can_connect_to_business = Some(val.into());
-        self
-    }
-
-    /// `true`, if the bot can be connected to a user account to manage it. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn can_connect_to_business_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
-        self.can_connect_to_business = val.map(Into::into);
-        self
-    }
-
-    /// `true`, if the bot has a main Web App. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn has_main_web_app<T: Into<bool>>(mut self, val: T) -> Self {
-        self.has_main_web_app = Some(val.into());
-        self
-    }
-
-    /// `true`, if the bot has a main Web App. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn has_main_web_app_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
-        self.has_main_web_app = val.map(Into::into);
-        self
-    }
-
-    /// `true`, if the bot has forum topic mode enabled in private chats. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn has_topics_enabled<T: Into<bool>>(mut self, val: T) -> Self {
-        self.has_topics_enabled = Some(val.into());
-        self
-    }
-
-    /// `true`, if the bot has forum topic mode enabled in private chats. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn has_topics_enabled_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
-        self.has_topics_enabled = val.map(Into::into);
-        self
-    }
-
-    /// `true`, if the bot allows users to create and delete topics in private chats. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn allows_users_to_create_topics<T: Into<bool>>(mut self, val: T) -> Self {
-        self.allows_users_to_create_topics = Some(val.into());
-        self
-    }
-
-    /// `true`, if the bot allows users to create and delete topics in private chats. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn allows_users_to_create_topics_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
-        self.allows_users_to_create_topics = val.map(Into::into);
-        self
-    }
-
-    /// `true`, if other bots can be created to be controlled by the bot. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn can_manage_bots<T: Into<bool>>(mut self, val: T) -> Self {
-        self.can_manage_bots = Some(val.into());
-        self
-    }
-
-    /// `true`, if other bots can be created to be controlled by the bot. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn can_manage_bots_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
-        self.can_manage_bots = val.map(Into::into);
-        self
-    }
-
-    /// `true`, if the bot supports join request queries and can be assigned to process them. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn supports_join_request_queries<T: Into<bool>>(mut self, val: T) -> Self {
-        self.supports_join_request_queries = Some(val.into());
-        self
-    }
-
-    /// `true`, if the bot supports join request queries and can be assigned to process them. Returned only in [`telers_methods::methods::GetMe`](https://docs.rs/telers-methods/latest/telers_methods/methods/get_me/struct.GetMe.html).
-    #[must_use]
-    pub fn supports_join_request_queries_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
-        self.supports_join_request_queries = val.map(Into::into);
         self
     }
 }

@@ -1,4 +1,4 @@
-/// A chat photo was change to this value
+/// A chat photo was changed to this value
 /// # Notes
 /// This object represents a service message from original message field `new_chat_photo`.
 /// # Documentation
@@ -169,7 +169,7 @@ pub struct MessageNewChatPhoto {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
-    /// A chat photo was change to this value
+    /// A chat photo was changed to this value
     pub new_chat_photo: Box<[crate::types::PhotoSize]>,
 }
 impl MessageNewChatPhoto {
@@ -179,7 +179,7 @@ impl MessageNewChatPhoto {
     /// * `message_id` - Unique message identifier inside this chat; 0 for ephemeral messages. In specific instances (e.g., a message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     /// * `date` - Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     /// * `chat` - Chat the message belongs to
-    /// * `new_chat_photo` - A chat photo was change to this value
+    /// * `new_chat_photo` - A chat photo was changed to this value
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -912,7 +912,7 @@ impl MessageNewChatPhoto {
         self
     }
 
-    /// A chat photo was change to this value
+    /// A chat photo was changed to this value
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -927,7 +927,7 @@ impl MessageNewChatPhoto {
         self
     }
 
-    /// A chat photo was change to this value
+    /// A chat photo was changed to this value
     ///
     /// # Notes
     /// Adds a single element.

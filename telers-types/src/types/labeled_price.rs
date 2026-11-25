@@ -7,7 +7,7 @@
 pub struct LabeledPrice {
     /// Portion label
     pub label: Box<str>,
-    /// Price of the product in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
+    /// Price of the product in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json; it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
     pub amount: i64,
 }
 impl LabeledPrice {
@@ -15,7 +15,7 @@ impl LabeledPrice {
     ///
     /// # Arguments
     /// * `label` - Portion label
-    /// * `amount` - Price of the product in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
+    /// * `amount` - Price of the product in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json; it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
     #[must_use]
     pub fn new<T0: Into<Box<str>>, T1: Into<i64>>(label: T0, amount: T1) -> Self {
         Self {
@@ -31,7 +31,7 @@ impl LabeledPrice {
         self
     }
 
-    /// Price of the product in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
+    /// Price of the product in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json; it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
     #[must_use]
     pub fn amount<T: Into<i64>>(mut self, val: T) -> Self {
         self.amount = val.into();

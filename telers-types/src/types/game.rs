@@ -1,4 +1,4 @@
-/// This object represents a game. Use `BotFather` to create and edit games, their short names will act as unique identifiers.
+/// This object represents a game. Use `BotFather` to create and edit games; their short names will act as unique identifiers.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#game>
 #[derive(Clone, Debug)]

@@ -19,7 +19,7 @@ pub struct ChatInviteLink {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub name: Option<Box<str>>,
-    /// Point in time (Unix timestamp) when the link will expire or has been expired
+    /// Point in time (Unix timestamp) when the link will expire or has expired
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub expire_date: Option<i64>,
@@ -130,14 +130,14 @@ impl ChatInviteLink {
         self
     }
 
-    /// Point in time (Unix timestamp) when the link will expire or has been expired
+    /// Point in time (Unix timestamp) when the link will expire or has expired
     #[must_use]
     pub fn expire_date<T: Into<i64>>(mut self, val: T) -> Self {
         self.expire_date = Some(val.into());
         self
     }
 
-    /// Point in time (Unix timestamp) when the link will expire or has been expired
+    /// Point in time (Unix timestamp) when the link will expire or has expired
     #[must_use]
     pub fn expire_date_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.expire_date = val.map(Into::into);

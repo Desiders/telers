@@ -35,7 +35,7 @@ pub struct GiveawayWinnersPremium {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub was_refunded: Option<bool>,
-    /// Description of additional giveaway prize
+    /// Description of an additional giveaway prize
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub prize_description: Option<Box<str>>,
@@ -206,14 +206,14 @@ impl GiveawayWinnersPremium {
         self
     }
 
-    /// Description of additional giveaway prize
+    /// Description of an additional giveaway prize
     #[must_use]
     pub fn prize_description<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.prize_description = Some(val.into());
         self
     }
 
-    /// Description of additional giveaway prize
+    /// Description of an additional giveaway prize
     #[must_use]
     pub fn prize_description_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.prize_description = val.map(Into::into);

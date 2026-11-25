@@ -11,7 +11,7 @@ pub struct PreCheckoutQuery {
     pub from: Box<crate::types::User>,
     /// Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram Stars
     pub currency: Box<str>,
-    /// Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
+    /// Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45, `total_amount` = 145. See the exp parameter in currencies.json; it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
     pub total_amount: i64,
     /// Bot-specified invoice payload
     pub invoice_payload: Box<str>,
@@ -31,7 +31,7 @@ impl PreCheckoutQuery {
     /// * `id` - Unique query identifier
     /// * `from` - User who sent the query
     /// * `currency` - Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram Stars
-    /// * `total_amount` - Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
+    /// * `total_amount` - Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45, `total_amount` = 145. See the exp parameter in currencies.json; it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
     /// * `invoice_payload` - Bot-specified invoice payload
     ///
     /// # Notes
@@ -82,7 +82,7 @@ impl PreCheckoutQuery {
         self
     }
 
-    /// Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
+    /// Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45, `total_amount` = 145. See the exp parameter in currencies.json; it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
     #[must_use]
     pub fn total_amount<T: Into<i64>>(mut self, val: T) -> Self {
         self.total_amount = val.into();

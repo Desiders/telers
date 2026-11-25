@@ -51,7 +51,7 @@ pub struct InlineKeyboardButton {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub callback_game: Option<crate::types::CallbackGame>,
-    /// Specify `true`, to send a Pay button. Substrings `⭐` and `XTR` in the buttons's text will be replaced with a Telegram Star icon. NOTE: This type of button must always be the first button in the first row and can only be used in invoice messages.
+    /// Specify `true` to send a Pay button. Substrings `⭐` and `XTR` in the button's text will be replaced with a Telegram Star icon. NOTE: This type of button must always be the first button in the first row and can only be used in invoice messages.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub pay: Option<bool>,
@@ -266,14 +266,14 @@ impl InlineKeyboardButton {
         self
     }
 
-    /// Specify `true`, to send a Pay button. Substrings `⭐` and `XTR` in the buttons's text will be replaced with a Telegram Star icon. NOTE: This type of button must always be the first button in the first row and can only be used in invoice messages.
+    /// Specify `true` to send a Pay button. Substrings `⭐` and `XTR` in the button's text will be replaced with a Telegram Star icon. NOTE: This type of button must always be the first button in the first row and can only be used in invoice messages.
     #[must_use]
     pub fn pay<T: Into<bool>>(mut self, val: T) -> Self {
         self.pay = Some(val.into());
         self
     }
 
-    /// Specify `true`, to send a Pay button. Substrings `⭐` and `XTR` in the buttons's text will be replaced with a Telegram Star icon. NOTE: This type of button must always be the first button in the first row and can only be used in invoice messages.
+    /// Specify `true` to send a Pay button. Substrings `⭐` and `XTR` in the button's text will be replaced with a Telegram Star icon. NOTE: This type of button must always be the first button in the first row and can only be used in invoice messages.
     #[must_use]
     pub fn pay_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.pay = val.map(Into::into);

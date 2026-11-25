@@ -1,4 +1,4 @@
-/// Marks incoming message as read on behalf of a business account. Requires the `can_read_messages` business bot right. Returns `true` on success.
+/// Marks an incoming message as read on behalf of a business account. Requires the `can_read_messages` business bot right. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#readbusinessmessage>
 /// # Returns

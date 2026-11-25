@@ -116,66 +116,6 @@ impl MessageOrigin {
         }
     }
 
-    /// Helper method for nested field `allows_users_to_create_topics`.
-    #[must_use]
-    pub fn allows_users_to_create_topics(&self) -> Option<bool> {
-        match self {
-            Self::User(val) => {
-                let inner = val.sender_user.as_ref();
-                inner.allows_users_to_create_topics
-            }
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `can_connect_to_business`.
-    #[must_use]
-    pub fn can_connect_to_business(&self) -> Option<bool> {
-        match self {
-            Self::User(val) => {
-                let inner = val.sender_user.as_ref();
-                inner.can_connect_to_business
-            }
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `can_join_groups`.
-    #[must_use]
-    pub fn can_join_groups(&self) -> Option<bool> {
-        match self {
-            Self::User(val) => {
-                let inner = val.sender_user.as_ref();
-                inner.can_join_groups
-            }
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `can_manage_bots`.
-    #[must_use]
-    pub fn can_manage_bots(&self) -> Option<bool> {
-        match self {
-            Self::User(val) => {
-                let inner = val.sender_user.as_ref();
-                inner.can_manage_bots
-            }
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `can_read_all_group_messages`.
-    #[must_use]
-    pub fn can_read_all_group_messages(&self) -> Option<bool> {
-        match self {
-            Self::User(val) => {
-                let inner = val.sender_user.as_ref();
-                inner.can_read_all_group_messages
-            }
-            _ => None,
-        }
-    }
-
     /// Helper method for nested field `first_name`.
     #[must_use]
     pub fn first_name(&self) -> Option<&str> {
@@ -191,30 +131,6 @@ impl MessageOrigin {
             Self::User(val) => {
                 let inner = val.sender_user.as_ref();
                 Some(inner.first_name.as_ref())
-            }
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `has_main_web_app`.
-    #[must_use]
-    pub fn has_main_web_app(&self) -> Option<bool> {
-        match self {
-            Self::User(val) => {
-                let inner = val.sender_user.as_ref();
-                inner.has_main_web_app
-            }
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `has_topics_enabled`.
-    #[must_use]
-    pub fn has_topics_enabled(&self) -> Option<bool> {
-        match self {
-            Self::User(val) => {
-                let inner = val.sender_user.as_ref();
-                inner.has_topics_enabled
             }
             _ => None,
         }
@@ -323,42 +239,6 @@ impl MessageOrigin {
             Self::User(val) => {
                 let inner = val.sender_user.as_ref();
                 inner.last_name.as_deref()
-            }
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `supports_guest_queries`.
-    #[must_use]
-    pub fn supports_guest_queries(&self) -> Option<bool> {
-        match self {
-            Self::User(val) => {
-                let inner = val.sender_user.as_ref();
-                inner.supports_guest_queries
-            }
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `supports_inline_queries`.
-    #[must_use]
-    pub fn supports_inline_queries(&self) -> Option<bool> {
-        match self {
-            Self::User(val) => {
-                let inner = val.sender_user.as_ref();
-                inner.supports_inline_queries
-            }
-            _ => None,
-        }
-    }
-
-    /// Helper method for nested field `supports_join_request_queries`.
-    #[must_use]
-    pub fn supports_join_request_queries(&self) -> Option<bool> {
-        match self {
-            Self::User(val) => {
-                let inner = val.sender_user.as_ref();
-                inner.supports_join_request_queries
             }
             _ => None,
         }

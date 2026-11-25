@@ -7,7 +7,7 @@
 pub struct RichTextAnchorLink {
     /// The link text
     pub text: Box<crate::types::RichText>,
-    /// The name of the anchor. If the name is empty, then the link brings back to the top of the message.
+    /// The name of the anchor. If the name is empty, then the link brings the user back to the top of the message.
     pub anchor_name: Box<str>,
 }
 impl RichTextAnchorLink {
@@ -15,7 +15,7 @@ impl RichTextAnchorLink {
     ///
     /// # Arguments
     /// * `text` - The link text
-    /// * `anchor_name` - The name of the anchor. If the name is empty, then the link brings back to the top of the message.
+    /// * `anchor_name` - The name of the anchor. If the name is empty, then the link brings the user back to the top of the message.
     #[must_use]
     pub fn new<T0: Into<crate::types::RichText>, T1: Into<Box<str>>>(
         text: T0,
@@ -34,7 +34,7 @@ impl RichTextAnchorLink {
         self
     }
 
-    /// The name of the anchor. If the name is empty, then the link brings back to the top of the message.
+    /// The name of the anchor. If the name is empty, then the link brings the user back to the top of the message.
     #[must_use]
     pub fn anchor_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.anchor_name = val.into();

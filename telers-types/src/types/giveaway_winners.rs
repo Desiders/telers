@@ -76,7 +76,7 @@ impl GiveawayWinners {
 
     /// Helper method for field `prize_description`.
     ///
-    /// Description of additional giveaway prize
+    /// Description of an additional giveaway prize
     #[must_use]
     pub fn prize_description(&self) -> Option<&str> {
         match self {

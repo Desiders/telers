@@ -25,7 +25,7 @@ pub struct SendPaidMedia {
     pub star_count: u16,
     /// A JSON-serialized Array describing the media to be sent; up to 10 items
     pub media: Box<[crate::types::InputPaidMedia]>,
-    /// Bot-defined paid media payload, 0-128 bytes. This will not be displayed to the user, use it for your internal processes.
+    /// Bot-defined paid media payload, 0-128 bytes. This will not be displayed to the user; use it for your internal processes.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub payload: Option<Box<str>>,
@@ -186,14 +186,14 @@ impl SendPaidMedia {
         self
     }
 
-    /// Bot-defined paid media payload, 0-128 bytes. This will not be displayed to the user, use it for your internal processes.
+    /// Bot-defined paid media payload, 0-128 bytes. This will not be displayed to the user; use it for your internal processes.
     #[must_use]
     pub fn payload<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.payload = Some(val.into());
         self
     }
 
-    /// Bot-defined paid media payload, 0-128 bytes. This will not be displayed to the user, use it for your internal processes.
+    /// Bot-defined paid media payload, 0-128 bytes. This will not be displayed to the user; use it for your internal processes.
     #[must_use]
     pub fn payload_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.payload = val.map(Into::into);

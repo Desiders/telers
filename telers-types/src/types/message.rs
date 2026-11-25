@@ -572,7 +572,7 @@ impl Message {
 
     /// Helper method for field `channel_chat_created`.
     ///
-    /// Service message: the channel has been created. This field can't be received in a message coming through updates, because bot can't be a member of a channel when it is created. It can only be found in `reply_to_message` if someone replies to a very first message in a channel.
+    /// Service message: the channel has been created. This field can't be received in a message coming through updates, because a bot can't be a member of a channel when it is created. It can only be found in `reply_to_message` if someone replies to the very first message in a channel.
     #[must_use]
     pub fn channel_chat_created(&self) -> Option<bool> {
         match self {
@@ -3076,7 +3076,7 @@ impl Message {
 
     /// Helper method for field `migrate_from_chat_id`.
     ///
-    /// The supergroup has been migrated from a group with the specified identifier. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// The supergroup has been migrated from a group with the specified identifier. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type is safe for storing this identifier.
     #[must_use]
     pub fn migrate_from_chat_id(&self) -> Option<i64> {
         match self {
@@ -3087,7 +3087,7 @@ impl Message {
 
     /// Helper method for field `migrate_to_chat_id`.
     ///
-    /// The group has been migrated to a supergroup with the specified identifier. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// The group has been migrated to a supergroup with the specified identifier. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type is safe for storing this identifier.
     #[must_use]
     pub fn migrate_to_chat_id(&self) -> Option<i64> {
         match self {
@@ -3109,7 +3109,7 @@ impl Message {
 
     /// Helper method for field `new_chat_photo`.
     ///
-    /// A chat photo was change to this value
+    /// A chat photo was changed to this value
     #[must_use]
     pub fn new_chat_photo(&self) -> Option<&[crate::types::PhotoSize]> {
         match self {
@@ -4627,7 +4627,7 @@ impl Message {
 
     /// Helper method for field `supergroup_chat_created`.
     ///
-    /// Service message: the supergroup has been created. This field can't be received in a message coming through updates, because bot can't be a member of a supergroup when it is created. It can only be found in `reply_to_message` if someone replies to a very first message in a directly created supergroup.
+    /// Service message: the supergroup has been created. This field can't be received in a message coming through updates, because a bot can't be a member of a supergroup when it is created. It can only be found in `reply_to_message` if someone replies to the very first message in a directly created supergroup.
     #[must_use]
     pub fn supergroup_chat_created(&self) -> Option<bool> {
         match self {
@@ -4885,7 +4885,7 @@ impl Message {
 
     /// Helper method for field `write_access_allowed`.
     ///
-    /// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`
+    /// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`, or the user was invited to the private chat with the bot by the owner of the bot
     #[must_use]
     pub fn write_access_allowed(&self) -> Option<&crate::types::WriteAccessAllowed> {
         match self {
@@ -5717,6 +5717,18 @@ impl Message {
     pub fn inline_keyboard(&self) -> Option<&[Box<[crate::types::InlineKeyboardButton]>]> {
         self.reply_markup()
             .map(|inner| inner.inline_keyboard.as_ref())
+    }
+
+    /// Helper method for nested field `inviter`.
+    #[must_use]
+    pub fn inviter(&self) -> Option<&crate::types::User> {
+        match self {
+            Self::WriteAccessAllowed(val) => {
+                let inner = &val.write_access_allowed;
+                inner.inviter.as_deref()
+            }
+            _ => None,
+        }
     }
 
     /// Helper method for nested field `invoice_payload`.

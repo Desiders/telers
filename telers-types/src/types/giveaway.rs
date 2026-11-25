@@ -76,7 +76,7 @@ impl Giveaway {
 
     /// Helper method for field `prize_description`.
     ///
-    /// Description of additional giveaway prize
+    /// Description of an additional giveaway prize
     #[must_use]
     pub fn prize_description(&self) -> Option<&str> {
         match self {
@@ -99,7 +99,7 @@ impl Giveaway {
 
     /// Helper method for field `winner_count`.
     ///
-    /// The number of users which are supposed to be selected as winners of the giveaway
+    /// The number of users who are supposed to be selected as winners of the giveaway
     #[must_use]
     pub fn winner_count(&self) -> i64 {
         match self {

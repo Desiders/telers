@@ -1,4 +1,4 @@
-/// Changes the username of a managed business account. Requires the `can_change_username` business bot right. Returns `true` on success.
+/// Changes the username of a managed business account. Requires the `can_edit_username` business bot right. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setbusinessaccountusername>
 /// # Returns

@@ -7,7 +7,7 @@
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct UpdateChatJoinRequest {
-    /// The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
+    /// The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then the identifier of the next update will be chosen randomly instead of sequentially.
     pub update_id: i64,
     /// A request to join the chat has been sent. The bot must have the `can_invite_users` administrator right in the chat to receive these updates.
     pub chat_join_request: crate::types::ChatJoinRequest,
@@ -16,7 +16,7 @@ impl UpdateChatJoinRequest {
     /// Creates a new `UpdateChatJoinRequest`.
     ///
     /// # Arguments
-    /// * `update_id` - The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
+    /// * `update_id` - The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then the identifier of the next update will be chosen randomly instead of sequentially.
     /// * `chat_join_request` - A request to join the chat has been sent. The bot must have the `can_invite_users` administrator right in the chat to receive these updates.
     #[must_use]
     pub fn new<T0: Into<i64>, T1: Into<crate::types::ChatJoinRequest>>(
@@ -29,7 +29,7 @@ impl UpdateChatJoinRequest {
         }
     }
 
-    /// The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
+    /// The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then the identifier of the next update will be chosen randomly instead of sequentially.
     #[must_use]
     pub fn update_id<T: Into<i64>>(mut self, val: T) -> Self {
         self.update_id = val.into();

@@ -9,9 +9,9 @@ pub struct LivePhoto {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub photo: Option<Box<[crate::types::PhotoSize]>>,
-    /// Identifier for the video file which can be used to download or reuse the file
+    /// Identifier for the video file, which can be used to download or reuse the file
     pub file_id: Box<str>,
-    /// Unique identifier for the video file which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
+    /// Unique identifier for the video file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
     pub file_unique_id: Box<str>,
     /// Video width as defined by the sender
     pub width: i64,
@@ -23,7 +23,7 @@ pub struct LivePhoto {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub mime_type: Option<Box<str>>,
-    /// File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
+    /// File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type is safe for storing this value.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub file_size: Option<i64>,
@@ -32,8 +32,8 @@ impl LivePhoto {
     /// Creates a new `LivePhoto`.
     ///
     /// # Arguments
-    /// * `file_id` - Identifier for the video file which can be used to download or reuse the file
-    /// * `file_unique_id` - Unique identifier for the video file which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
+    /// * `file_id` - Identifier for the video file, which can be used to download or reuse the file
+    /// * `file_unique_id` - Unique identifier for the video file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
     /// * `width` - Video width as defined by the sender
     /// * `height` - Video height as defined by the sender
     /// * `duration` - Duration of the video in seconds as defined by the sender
@@ -110,14 +110,14 @@ impl LivePhoto {
         self
     }
 
-    /// Identifier for the video file which can be used to download or reuse the file
+    /// Identifier for the video file, which can be used to download or reuse the file
     #[must_use]
     pub fn file_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.file_id = val.into();
         self
     }
 
-    /// Unique identifier for the video file which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
+    /// Unique identifier for the video file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
     #[must_use]
     pub fn file_unique_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.file_unique_id = val.into();
@@ -159,14 +159,14 @@ impl LivePhoto {
         self
     }
 
-    /// File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
+    /// File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type is safe for storing this value.
     #[must_use]
     pub fn file_size<T: Into<i64>>(mut self, val: T) -> Self {
         self.file_size = Some(val.into());
         self
     }
 
-    /// File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
+    /// File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type is safe for storing this value.
     #[must_use]
     pub fn file_size_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.file_size = val.map(Into::into);

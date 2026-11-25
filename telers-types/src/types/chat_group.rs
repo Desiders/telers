@@ -7,7 +7,7 @@
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatGroup {
-    /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type is safe for storing this identifier.
     pub id: i64,
     /// Title, for supergroups, channels and group chats
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
@@ -22,7 +22,7 @@ impl ChatGroup {
     /// Creates a new `ChatGroup`.
     ///
     /// # Arguments
-    /// * `id` - Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// * `id` - Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type is safe for storing this identifier.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -35,7 +35,7 @@ impl ChatGroup {
         }
     }
 
-    /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type is safe for storing this identifier.
     #[must_use]
     pub fn id<T: Into<i64>>(mut self, val: T) -> Self {
         self.id = val.into();

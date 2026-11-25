@@ -5,14 +5,14 @@
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatBoostSourceGiftCode {
-    /// User for which the gift code was created
+    /// User for whom the gift code was created
     pub user: Box<crate::types::User>,
 }
 impl ChatBoostSourceGiftCode {
     /// Creates a new `ChatBoostSourceGiftCode`.
     ///
     /// # Arguments
-    /// * `user` - User for which the gift code was created
+    /// * `user` - User for whom the gift code was created
     #[must_use]
     pub fn new<T0: Into<crate::types::User>>(user: T0) -> Self {
         Self {
@@ -20,7 +20,7 @@ impl ChatBoostSourceGiftCode {
         }
     }
 
-    /// User for which the gift code was created
+    /// User for whom the gift code was created
     #[must_use]
     pub fn user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
         self.user = Box::new(val.into());

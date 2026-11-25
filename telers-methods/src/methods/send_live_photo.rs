@@ -29,13 +29,13 @@ pub struct SendLivePhoto {
     pub ephemeral_message_parameters: Option<crate::types::EphemeralMessageParameters>,
     /// Live photo video to send. The video must be no longer than 10 seconds and must not exceed 10 MB in size. Pass a `file_id` as String to send a video that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending live photos by a URL is currently unsupported.
     pub live_photo: crate::types::InputFile,
-    /// The static photo to send. Pass a `file_id` as String to send a photo that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending live photos by a URL is currently unsupported.
+    /// The static photo to send. Pass a `file_id` as String to send a photo that exists on the Telegram servers (recommended) or upload a new photo using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending live photos by a URL is currently unsupported.
     pub photo: crate::types::InputFile,
-    /// Video caption (may also be used when resending videos by `file_id`), 0-1024 characters after entities parsing
+    /// Live photo caption (may also be used when resending live photos by `file_id`), 0-1024 characters after entities parsing
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub caption: Option<Box<str>>,
-    /// Mode for parsing entities in the video caption. See formatting options for more details.
+    /// Mode for parsing entities in the live photo caption. See formatting options for more details.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub parse_mode: Option<Box<str>>,
@@ -47,7 +47,7 @@ pub struct SendLivePhoto {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub show_caption_above_media: Option<bool>,
-    /// Pass `true` if the video needs to be covered with a spoiler animation
+    /// Pass `true` if the live photo needs to be covered with a spoiler animation
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub has_spoiler: Option<bool>,
@@ -85,7 +85,7 @@ impl SendLivePhoto {
     ///
     /// # Arguments
     /// * `live_photo` - Live photo video to send. The video must be no longer than 10 seconds and must not exceed 10 MB in size. Pass a `file_id` as String to send a video that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending live photos by a URL is currently unsupported.
-    /// * `photo` - The static photo to send. Pass a `file_id` as String to send a photo that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending live photos by a URL is currently unsupported.
+    /// * `photo` - The static photo to send. Pass a `file_id` as String to send a photo that exists on the Telegram servers (recommended) or upload a new photo using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending live photos by a URL is currently unsupported.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -202,35 +202,35 @@ impl SendLivePhoto {
         self
     }
 
-    /// The static photo to send. Pass a `file_id` as String to send a photo that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending live photos by a URL is currently unsupported.
+    /// The static photo to send. Pass a `file_id` as String to send a photo that exists on the Telegram servers (recommended) or upload a new photo using multipart/form-data. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending live photos by a URL is currently unsupported.
     #[must_use]
     pub fn photo<T: Into<crate::types::InputFile>>(mut self, val: T) -> Self {
         self.photo = val.into();
         self
     }
 
-    /// Video caption (may also be used when resending videos by `file_id`), 0-1024 characters after entities parsing
+    /// Live photo caption (may also be used when resending live photos by `file_id`), 0-1024 characters after entities parsing
     #[must_use]
     pub fn caption<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.caption = Some(val.into());
         self
     }
 
-    /// Video caption (may also be used when resending videos by `file_id`), 0-1024 characters after entities parsing
+    /// Live photo caption (may also be used when resending live photos by `file_id`), 0-1024 characters after entities parsing
     #[must_use]
     pub fn caption_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.caption = val.map(Into::into);
         self
     }
 
-    /// Mode for parsing entities in the video caption. See formatting options for more details.
+    /// Mode for parsing entities in the live photo caption. See formatting options for more details.
     #[must_use]
     pub fn parse_mode<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.parse_mode = Some(val.into());
         self
     }
 
-    /// Mode for parsing entities in the video caption. See formatting options for more details.
+    /// Mode for parsing entities in the live photo caption. See formatting options for more details.
     #[must_use]
     pub fn parse_mode_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.parse_mode = val.map(Into::into);
@@ -307,14 +307,14 @@ impl SendLivePhoto {
         self
     }
 
-    /// Pass `true` if the video needs to be covered with a spoiler animation
+    /// Pass `true` if the live photo needs to be covered with a spoiler animation
     #[must_use]
     pub fn has_spoiler<T: Into<bool>>(mut self, val: T) -> Self {
         self.has_spoiler = Some(val.into());
         self
     }
 
-    /// Pass `true` if the video needs to be covered with a spoiler animation
+    /// Pass `true` if the live photo needs to be covered with a spoiler animation
     #[must_use]
     pub fn has_spoiler_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.has_spoiler = val.map(Into::into);

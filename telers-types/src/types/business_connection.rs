@@ -9,7 +9,7 @@ pub struct BusinessConnection {
     pub id: Box<str>,
     /// Business account user that created the business connection
     pub user: Box<crate::types::User>,
-    /// Identifier of a private chat with the user who created the business connection. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// Identifier of a private chat with the user who created the business connection. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type is safe for storing this identifier.
     pub user_chat_id: i64,
     /// Date the connection was established in Unix time
     pub date: i64,
@@ -26,7 +26,7 @@ impl BusinessConnection {
     /// # Arguments
     /// * `id` - Unique identifier of the business connection
     /// * `user` - Business account user that created the business connection
-    /// * `user_chat_id` - Identifier of a private chat with the user who created the business connection. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// * `user_chat_id` - Identifier of a private chat with the user who created the business connection. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type is safe for storing this identifier.
     /// * `date` - Date the connection was established in Unix time
     /// * `is_enabled` - `true`, if the connection is active
     ///
@@ -70,7 +70,7 @@ impl BusinessConnection {
         self
     }
 
-    /// Identifier of a private chat with the user who created the business connection. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// Identifier of a private chat with the user who created the business connection. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type is safe for storing this identifier.
     #[must_use]
     pub fn user_chat_id<T: Into<i64>>(mut self, val: T) -> Self {
         self.user_chat_id = val.into();

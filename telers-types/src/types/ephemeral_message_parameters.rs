@@ -1,3 +1,4 @@
+/// Describes the parameters of an ephemeral message to be sent.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#ephemeralmessageparameters>
 #[derive(Clone, Debug)]

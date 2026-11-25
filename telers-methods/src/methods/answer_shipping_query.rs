@@ -15,7 +15,7 @@ pub struct AnswerShippingQuery {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub shipping_options: Option<Box<[crate::types::ShippingOption]>>,
-    /// Required if ok is `false`. Error message in human readable form that explains why it is impossible to complete the order (e.g. `Sorry, delivery to your desired address is unavailable`). Telegram will display this message to the user.
+    /// Required if ok is `false`. Error message in human-readable form that explains why it is impossible to complete the order (e.g. `Sorry, delivery to your desired address is unavailable`). Telegram will display this message to the user.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub error_message: Option<Box<str>>,
@@ -109,14 +109,14 @@ impl AnswerShippingQuery {
         self
     }
 
-    /// Required if ok is `false`. Error message in human readable form that explains why it is impossible to complete the order (e.g. `Sorry, delivery to your desired address is unavailable`). Telegram will display this message to the user.
+    /// Required if ok is `false`. Error message in human-readable form that explains why it is impossible to complete the order (e.g. `Sorry, delivery to your desired address is unavailable`). Telegram will display this message to the user.
     #[must_use]
     pub fn error_message<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.error_message = Some(val.into());
         self
     }
 
-    /// Required if ok is `false`. Error message in human readable form that explains why it is impossible to complete the order (e.g. `Sorry, delivery to your desired address is unavailable`). Telegram will display this message to the user.
+    /// Required if ok is `false`. Error message in human-readable form that explains why it is impossible to complete the order (e.g. `Sorry, delivery to your desired address is unavailable`). Telegram will display this message to the user.
     #[must_use]
     pub fn error_message_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.error_message = val.map(Into::into);

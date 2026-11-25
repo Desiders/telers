@@ -15,7 +15,7 @@ pub struct CreateInvoiceLink {
     pub title: Box<str>,
     /// Product description, 1-255 characters
     pub description: Box<str>,
-    /// Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
+    /// Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user; use it for your internal processes.
     pub payload: Box<str>,
     /// Payment provider token, obtained via @`BotFather`. Pass an empty string for payments in Telegram Stars.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
@@ -25,19 +25,19 @@ pub struct CreateInvoiceLink {
     pub currency: Box<str>,
     /// Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
     pub prices: Box<[crate::types::LabeledPrice]>,
-    /// The number of seconds the subscription will be active for before the next payment. The currency must be set to `XTR` (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user. Subscription price must no exceed 10000 Telegram Stars.
+    /// The number of seconds the subscription will be active for before the next payment. The currency must be set to `XTR` (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user. Subscription price must not exceed 10000 Telegram Stars.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub subscription_period: Option<i64>,
-    /// The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass `max_tip_amount` = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
+    /// The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass `max_tip_amount` = 145. See the exp parameter in currencies.json; it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub max_tip_amount: Option<i64>,
-    /// A JSON-serialized Array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
+    /// A JSON-serialized Array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increasing order and must not exceed `max_tip_amount`.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub suggested_tip_amounts: Option<Box<[i64]>>,
-    /// JSON-serialized data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider.
+    /// JSON-serialized data about the invoice, which will be shared with the payment provider. A detailed description of the required fields should be provided by the payment provider.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub provider_data: Option<Box<str>>,
@@ -92,7 +92,7 @@ impl CreateInvoiceLink {
     /// # Arguments
     /// * `title` - Product name, 1-32 characters
     /// * `description` - Product description, 1-255 characters
-    /// * `payload` - Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
+    /// * `payload` - Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user; use it for your internal processes.
     /// * `currency` - Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR` for payments in Telegram Stars.
     /// * `prices` - Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
     ///
@@ -167,7 +167,7 @@ impl CreateInvoiceLink {
         self
     }
 
-    /// Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
+    /// Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user; use it for your internal processes.
     #[must_use]
     pub fn payload<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.payload = val.into();
@@ -228,35 +228,35 @@ impl CreateInvoiceLink {
         self
     }
 
-    /// The number of seconds the subscription will be active for before the next payment. The currency must be set to `XTR` (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user. Subscription price must no exceed 10000 Telegram Stars.
+    /// The number of seconds the subscription will be active for before the next payment. The currency must be set to `XTR` (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user. Subscription price must not exceed 10000 Telegram Stars.
     #[must_use]
     pub fn subscription_period<T: Into<i64>>(mut self, val: T) -> Self {
         self.subscription_period = Some(val.into());
         self
     }
 
-    /// The number of seconds the subscription will be active for before the next payment. The currency must be set to `XTR` (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user. Subscription price must no exceed 10000 Telegram Stars.
+    /// The number of seconds the subscription will be active for before the next payment. The currency must be set to `XTR` (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user. Subscription price must not exceed 10000 Telegram Stars.
     #[must_use]
     pub fn subscription_period_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.subscription_period = val.map(Into::into);
         self
     }
 
-    /// The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass `max_tip_amount` = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
+    /// The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass `max_tip_amount` = 145. See the exp parameter in currencies.json; it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
     #[must_use]
     pub fn max_tip_amount<T: Into<i64>>(mut self, val: T) -> Self {
         self.max_tip_amount = Some(val.into());
         self
     }
 
-    /// The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass `max_tip_amount` = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
+    /// The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass `max_tip_amount` = 145. See the exp parameter in currencies.json; it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
     #[must_use]
     pub fn max_tip_amount_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.max_tip_amount = val.map(Into::into);
         self
     }
 
-    /// A JSON-serialized Array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
+    /// A JSON-serialized Array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increasing order and must not exceed `max_tip_amount`.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -276,7 +276,7 @@ impl CreateInvoiceLink {
         self
     }
 
-    /// A JSON-serialized Array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
+    /// A JSON-serialized Array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increasing order and must not exceed `max_tip_amount`.
     ///
     /// # Notes
     /// Adds a single element.
@@ -293,7 +293,7 @@ impl CreateInvoiceLink {
         self
     }
 
-    /// A JSON-serialized Array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
+    /// A JSON-serialized Array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increasing order and must not exceed `max_tip_amount`.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -306,14 +306,14 @@ impl CreateInvoiceLink {
         self
     }
 
-    /// JSON-serialized data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider.
+    /// JSON-serialized data about the invoice, which will be shared with the payment provider. A detailed description of the required fields should be provided by the payment provider.
     #[must_use]
     pub fn provider_data<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.provider_data = Some(val.into());
         self
     }
 
-    /// JSON-serialized data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider.
+    /// JSON-serialized data about the invoice, which will be shared with the payment provider. A detailed description of the required fields should be provided by the payment provider.
     #[must_use]
     pub fn provider_data_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.provider_data = val.map(Into::into);

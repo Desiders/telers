@@ -1,4 +1,4 @@
-/// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`
+/// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`, or the user was invited to the private chat with the bot by the owner of the bot
 /// # Notes
 /// This object represents a service message from original message field `write_access_allowed`.
 /// # Documentation
@@ -169,7 +169,7 @@ pub struct MessageWriteAccessAllowed {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
-    /// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`
+    /// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`, or the user was invited to the private chat with the bot by the owner of the bot
     pub write_access_allowed: crate::types::WriteAccessAllowed,
 }
 impl MessageWriteAccessAllowed {
@@ -179,7 +179,7 @@ impl MessageWriteAccessAllowed {
     /// * `message_id` - Unique message identifier inside this chat; 0 for ephemeral messages. In specific instances (e.g., a message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
     /// * `date` - Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     /// * `chat` - Chat the message belongs to
-    /// * `write_access_allowed` - Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`
+    /// * `write_access_allowed` - Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`, or the user was invited to the private chat with the bot by the owner of the bot
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -911,7 +911,7 @@ impl MessageWriteAccessAllowed {
         self
     }
 
-    /// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`
+    /// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`, or the user was invited to the private chat with the bot by the owner of the bot
     #[must_use]
     pub fn write_access_allowed<T: Into<crate::types::WriteAccessAllowed>>(
         mut self,

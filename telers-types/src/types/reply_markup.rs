@@ -94,7 +94,7 @@ impl ReplyMarkup {
 
     /// Helper method for field `remove_keyboard`.
     ///
-    /// Requests clients to remove the custom keyboard (user will not be able to summon this keyboard; if you want to hide the keyboard from sight but keep it accessible, use `one_time_keyboard` in [`crate::types::ReplyKeyboardMarkup`])
+    /// Requests clients to remove the custom keyboard (the user will not be able to summon this keyboard; if you want to hide the keyboard from sight but keep it accessible, use `one_time_keyboard` in [`crate::types::ReplyKeyboardMarkup`])
     #[must_use]
     pub fn remove_keyboard(&self) -> Option<bool> {
         match self {
@@ -117,9 +117,9 @@ impl ReplyMarkup {
     /// Helper method for field `selective`.
     ///
     /// # Variants
-    /// - `ReplyKeyboardMarkup`. Use this parameter if you want to show the keyboard to specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message. Example: A user requests to change the bot's language, bot replies to the request with a keyboard to select the new language. Other users in the group don't see the keyboard.
+    /// - `ReplyKeyboardMarkup`. Use this parameter if you want to show the keyboard to specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message. Example: A user requests to change the bot's language, and the bot replies to the request with a keyboard to select the new language. Other users in the group don't see the keyboard.
     /// - `ForceReply`. Use this parameter if you want to force reply from specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message.
-    /// - `ReplyKeyboardRemove`. Use this parameter if you want to remove the keyboard for specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message. Example: A user votes in a poll, bot returns confirmation message in reply to the vote and removes the keyboard for that user, while still showing the keyboard with poll options to users who haven't voted yet.
+    /// - `ReplyKeyboardRemove`. Use this parameter if you want to remove the keyboard for specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message. Example: A user votes in a poll, and the bot returns a confirmation message in reply to the vote and removes the keyboard for that user, while still showing the keyboard with poll options to users who haven't voted yet.
     #[must_use]
     pub fn selective(&self) -> Option<bool> {
         match self {

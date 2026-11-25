@@ -70,6 +70,7 @@ pub mod bot_command_scope_chat_administrators;
 pub mod bot_command_scope_chat_member;
 pub mod bot_command_scope_default;
 pub mod bot_description;
+pub mod bot_full_info;
 pub mod bot_name;
 pub mod bot_short_description;
 pub mod bot_subscription_updated;
@@ -734,6 +735,7 @@ pub use bot_command_scope_chat_administrators::BotCommandScopeChatAdministrators
 pub use bot_command_scope_chat_member::BotCommandScopeChatMember;
 pub use bot_command_scope_default::BotCommandScopeDefault;
 pub use bot_description::BotDescription;
+pub use bot_full_info::BotFullInfo;
 pub use bot_name::BotName;
 pub use bot_short_description::BotShortDescription;
 pub use bot_subscription_updated::BotSubscriptionUpdated;

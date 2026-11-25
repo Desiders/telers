@@ -17,7 +17,7 @@ pub struct Location {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub live_period: Option<i64>,
-    /// The direction in which user is moving, in degrees; 1-360. For active live locations only.
+    /// The direction in which the user is moving, in degrees; 1-360. For active live locations only.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub heading: Option<u16>,
@@ -89,14 +89,14 @@ impl Location {
         self
     }
 
-    /// The direction in which user is moving, in degrees; 1-360. For active live locations only.
+    /// The direction in which the user is moving, in degrees; 1-360. For active live locations only.
     #[must_use]
     pub fn heading<T: Into<u16>>(mut self, val: T) -> Self {
         self.heading = Some(val.into());
         self
     }
 
-    /// The direction in which user is moving, in degrees; 1-360. For active live locations only.
+    /// The direction in which the user is moving, in degrees; 1-360. For active live locations only.
     #[must_use]
     pub fn heading_option<T: Into<u16>>(mut self, val: Option<T>) -> Self {
         self.heading = val.map(Into::into);

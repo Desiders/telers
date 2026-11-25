@@ -1,4 +1,4 @@
-/// Use this method to edit a subscription invite link created by the bot. The bot must have the `can_invite_users` administrator rights. Returns the edited invite link as a [`crate::types::ChatInviteLink`] object.
+/// Use this method to edit a subscription invite link created by the bot. The bot must have the `can_invite_users` administrator right. Returns the edited invite link as a [`crate::types::ChatInviteLink`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#editchatsubscriptioninvitelink>
 /// # Returns

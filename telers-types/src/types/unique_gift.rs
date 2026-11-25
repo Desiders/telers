@@ -19,7 +19,7 @@ pub struct UniqueGift {
     pub symbol: crate::types::UniqueGiftSymbol,
     /// Backdrop of the gift
     pub backdrop: crate::types::UniqueGiftBackdrop,
-    /// `true`, if the original regular gift was exclusively purchaseable by Telegram Premium subscribers
+    /// `true`, if the original regular gift was exclusively purchasable by Telegram Premium subscribers
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub is_premium: Option<bool>,
@@ -137,14 +137,14 @@ impl UniqueGift {
         self
     }
 
-    /// `true`, if the original regular gift was exclusively purchaseable by Telegram Premium subscribers
+    /// `true`, if the original regular gift was exclusively purchasable by Telegram Premium subscribers
     #[must_use]
     pub fn is_premium<T: Into<bool>>(mut self, val: T) -> Self {
         self.is_premium = Some(val.into());
         self
     }
 
-    /// `true`, if the original regular gift was exclusively purchaseable by Telegram Premium subscribers
+    /// `true`, if the original regular gift was exclusively purchasable by Telegram Premium subscribers
     #[must_use]
     pub fn is_premium_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.is_premium = val.map(Into::into);

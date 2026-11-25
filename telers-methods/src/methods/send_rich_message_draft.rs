@@ -15,7 +15,7 @@ pub struct SendRichMessageDraft {
     pub message_thread_id: Option<i64>,
     /// Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated. Otherwise, the draft is replaced without animation.
     pub draft_id: i64,
-    /// The partial message to be streamed. Direct upload of new files and explicit upload of files by a URL isn't supported.
+    /// The partial message to be streamed. Direct upload of new files and explicit upload of files by a URL aren't supported.
     pub rich_message: crate::types::InputRichMessage,
     /// Pass `true` to show the user a button to stop further drafts. The bot will receive an Update `stopped_message_generation` if the user presses the button.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
@@ -32,7 +32,7 @@ impl SendRichMessageDraft {
     /// # Arguments
     /// * `chat_id` - Unique identifier for the target private chat
     /// * `draft_id` - Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated. Otherwise, the draft is replaced without animation.
-    /// * `rich_message` - The partial message to be streamed. Direct upload of new files and explicit upload of files by a URL isn't supported.
+    /// * `rich_message` - The partial message to be streamed. Direct upload of new files and explicit upload of files by a URL aren't supported.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -80,7 +80,7 @@ impl SendRichMessageDraft {
         self
     }
 
-    /// The partial message to be streamed. Direct upload of new files and explicit upload of files by a URL isn't supported.
+    /// The partial message to be streamed. Direct upload of new files and explicit upload of files by a URL aren't supported.
     #[must_use]
     pub fn rich_message<T: Into<crate::types::InputRichMessage>>(mut self, val: T) -> Self {
         self.rich_message = val.into();

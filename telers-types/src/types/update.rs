@@ -148,7 +148,7 @@ impl Update {
 
     /// Helper method for field `chosen_inline_result`.
     ///
-    /// The result of an inline query that was chosen by a user and sent to their chat partner. Please see our documentation on the feedback collecting for details on how to enable these updates for your bot.
+    /// The result of an inline query that was chosen by a user and sent to their chat partner. Please see our documentation on the feedback collecting for details on how to enable these updates for your bot. The updates can also be enabled using the parameter `inline_feedback_share_denominator` of the method [`telers_methods::methods::SetMySettings`](https://docs.rs/telers-methods/latest/telers_methods/methods/set_my_settings/struct.SetMySettings.html).
     #[must_use]
     pub fn chosen_inline_result(&self) -> Option<&crate::types::ChosenInlineResult> {
         match self {
@@ -225,7 +225,7 @@ impl Update {
 
     /// Helper method for field `managed_bot`.
     ///
-    /// A new bot was created to be managed by the bot, or token or owner of a managed bot was changed
+    /// A new bot was created to be managed by the bot, or the token or owner of a managed bot was changed
     #[must_use]
     pub fn managed_bot(&self) -> Option<&crate::types::ManagedBotUpdated> {
         match self {
@@ -258,7 +258,7 @@ impl Update {
 
     /// Helper method for field `message_reaction_count`.
     ///
-    /// Reactions to a message with anonymous reactions were changed. The bot must be an administrator in the chat and must explicitly specify `message_reaction_count` in the list of `allowed_updates` to receive these updates. The updates are grouped and can be sent with delay up to a few minutes.
+    /// Reactions to a message with anonymous reactions were changed. The bot must be an administrator in the chat and must explicitly specify `message_reaction_count` in the list of `allowed_updates` to receive these updates. The updates are grouped and can be sent with a delay of up to a few minutes.
     #[must_use]
     pub fn message_reaction_count(&self) -> Option<&crate::types::MessageReactionCountUpdated> {
         match self {
@@ -280,7 +280,7 @@ impl Update {
 
     /// Helper method for field `poll`.
     ///
-    /// New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot.
+    /// New poll state. Bots receive only updates about manually stopped polls and polls which are sent by the bot.
     #[must_use]
     pub fn poll(&self) -> Option<&crate::types::Poll> {
         match self {
@@ -379,7 +379,7 @@ impl Update {
 
     /// Helper method for field `update_id`.
     ///
-    /// The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
+    /// The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then the identifier of the next update will be chosen randomly instead of sequentially.
     #[must_use]
     pub fn update_id(&self) -> i64 {
         match self {

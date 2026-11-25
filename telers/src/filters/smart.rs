@@ -1787,6 +1787,133 @@ impl SmartFilterPath<crate::types::BotDescription> {
         self.map(|value| value.description.as_ref())
     }
 }
+impl SmartFilterPath<crate::types::BotFullInfo> {
+    /// Path to the `id` field of [`crate::types::BotFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn id(self) -> SmartFilterPath<i64> {
+        self.map(|value| &value.id)
+    }
+
+    /// Path to the `is_bot` field of [`crate::types::BotFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn is_bot(self) -> SmartFilterPath<bool> {
+        self.map(|value| &value.is_bot)
+    }
+
+    /// Path to the `first_name` field of [`crate::types::BotFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn first_name(self) -> SmartFilterPath<str> {
+        self.map(|value| value.first_name.as_ref())
+    }
+
+    /// Path to the optional `username` field of [`crate::types::BotFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn username(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.username.as_deref())
+    }
+
+    /// Path to the optional `active_usernames` field of [`crate::types::BotFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn active_usernames(self) -> SmartFilterPath<[Box<str>]> {
+        self.and_then(|value| value.active_usernames.as_deref())
+    }
+
+    /// Path to the `can_join_groups` field of [`crate::types::BotFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn can_join_groups(self) -> SmartFilterPath<bool> {
+        self.map(|value| &value.can_join_groups)
+    }
+
+    /// Path to the `can_read_all_group_messages` field of [`crate::types::BotFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn can_read_all_group_messages(self) -> SmartFilterPath<bool> {
+        self.map(|value| &value.can_read_all_group_messages)
+    }
+
+    /// Path to the `supports_guest_queries` field of [`crate::types::BotFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn supports_guest_queries(self) -> SmartFilterPath<bool> {
+        self.map(|value| &value.supports_guest_queries)
+    }
+
+    /// Path to the `supports_inline_queries` field of [`crate::types::BotFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn supports_inline_queries(self) -> SmartFilterPath<bool> {
+        self.map(|value| &value.supports_inline_queries)
+    }
+
+    /// Path to the optional `inline_query_placeholder` field of [`crate::types::BotFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn inline_query_placeholder(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.inline_query_placeholder.as_deref())
+    }
+
+    /// Path to the `needs_inline_query_location` field of [`crate::types::BotFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn needs_inline_query_location(self) -> SmartFilterPath<bool> {
+        self.map(|value| &value.needs_inline_query_location)
+    }
+
+    /// Path to the `can_connect_to_business` field of [`crate::types::BotFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn can_connect_to_business(self) -> SmartFilterPath<bool> {
+        self.map(|value| &value.can_connect_to_business)
+    }
+
+    /// Path to the `has_main_web_app` field of [`crate::types::BotFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn has_main_web_app(self) -> SmartFilterPath<bool> {
+        self.map(|value| &value.has_main_web_app)
+    }
+
+    /// Path to the `has_topics_enabled` field of [`crate::types::BotFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn has_topics_enabled(self) -> SmartFilterPath<bool> {
+        self.map(|value| &value.has_topics_enabled)
+    }
+
+    /// Path to the `allows_users_to_create_topics` field of [`crate::types::BotFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn allows_users_to_create_topics(self) -> SmartFilterPath<bool> {
+        self.map(|value| &value.allows_users_to_create_topics)
+    }
+
+    /// Path to the `has_topic_sidebar` field of [`crate::types::BotFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn has_topic_sidebar(self) -> SmartFilterPath<bool> {
+        self.map(|value| &value.has_topic_sidebar)
+    }
+
+    /// Path to the `can_manage_bots` field of [`crate::types::BotFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn can_manage_bots(self) -> SmartFilterPath<bool> {
+        self.map(|value| &value.can_manage_bots)
+    }
+
+    /// Path to the `supports_join_request_queries` field of [`crate::types::BotFullInfo`]
+    #[must_use]
+    #[inline]
+    pub fn supports_join_request_queries(self) -> SmartFilterPath<bool> {
+        self.map(|value| &value.supports_join_request_queries)
+    }
+}
 impl SmartFilterPath<crate::types::BotName> {
     /// Path to the `name` field of [`crate::types::BotName`]
     #[must_use]
@@ -11249,11 +11376,11 @@ impl SmartFilterPath<crate::types::InputRichBlockDocument> {
     }
 }
 impl SmartFilterPath<crate::types::InputRichBlockExpandableBlockQuotation> {
-    /// Path to the `text` field of [`crate::types::InputRichBlockExpandableBlockQuotation`]
+    /// Path to the `blocks` field of [`crate::types::InputRichBlockExpandableBlockQuotation`]
     #[must_use]
     #[inline]
-    pub fn text(self) -> SmartFilterPath<crate::types::RichText> {
-        self.map(|value| value.text.as_ref())
+    pub fn blocks(self) -> SmartFilterPath<[crate::types::InputRichBlock]> {
+        self.map(|value| value.blocks.as_ref())
     }
 
     /// Path to the optional `credit` field of [`crate::types::InputRichBlockExpandableBlockQuotation`]
@@ -41068,11 +41195,11 @@ impl SmartFilterPath<crate::types::RichBlockDocument> {
     }
 }
 impl SmartFilterPath<crate::types::RichBlockExpandableBlockQuotation> {
-    /// Path to the `text` field of [`crate::types::RichBlockExpandableBlockQuotation`]
+    /// Path to the `blocks` field of [`crate::types::RichBlockExpandableBlockQuotation`]
     #[must_use]
     #[inline]
-    pub fn text(self) -> SmartFilterPath<crate::types::RichText> {
-        self.map(|value| value.text.as_ref())
+    pub fn blocks(self) -> SmartFilterPath<[crate::types::RichBlock]> {
+        self.map(|value| value.blocks.as_ref())
     }
 
     /// Path to the optional `credit` field of [`crate::types::RichBlockExpandableBlockQuotation`]
@@ -45513,76 +45640,6 @@ impl SmartFilterPath<crate::types::User> {
     pub fn added_to_attachment_menu(self) -> SmartFilterPath<bool> {
         self.and_then(|value| value.added_to_attachment_menu.as_ref())
     }
-
-    /// Path to the optional `can_join_groups` field of [`crate::types::User`]
-    #[must_use]
-    #[inline]
-    pub fn can_join_groups(self) -> SmartFilterPath<bool> {
-        self.and_then(|value| value.can_join_groups.as_ref())
-    }
-
-    /// Path to the optional `can_read_all_group_messages` field of [`crate::types::User`]
-    #[must_use]
-    #[inline]
-    pub fn can_read_all_group_messages(self) -> SmartFilterPath<bool> {
-        self.and_then(|value| value.can_read_all_group_messages.as_ref())
-    }
-
-    /// Path to the optional `supports_guest_queries` field of [`crate::types::User`]
-    #[must_use]
-    #[inline]
-    pub fn supports_guest_queries(self) -> SmartFilterPath<bool> {
-        self.and_then(|value| value.supports_guest_queries.as_ref())
-    }
-
-    /// Path to the optional `supports_inline_queries` field of [`crate::types::User`]
-    #[must_use]
-    #[inline]
-    pub fn supports_inline_queries(self) -> SmartFilterPath<bool> {
-        self.and_then(|value| value.supports_inline_queries.as_ref())
-    }
-
-    /// Path to the optional `can_connect_to_business` field of [`crate::types::User`]
-    #[must_use]
-    #[inline]
-    pub fn can_connect_to_business(self) -> SmartFilterPath<bool> {
-        self.and_then(|value| value.can_connect_to_business.as_ref())
-    }
-
-    /// Path to the optional `has_main_web_app` field of [`crate::types::User`]
-    #[must_use]
-    #[inline]
-    pub fn has_main_web_app(self) -> SmartFilterPath<bool> {
-        self.and_then(|value| value.has_main_web_app.as_ref())
-    }
-
-    /// Path to the optional `has_topics_enabled` field of [`crate::types::User`]
-    #[must_use]
-    #[inline]
-    pub fn has_topics_enabled(self) -> SmartFilterPath<bool> {
-        self.and_then(|value| value.has_topics_enabled.as_ref())
-    }
-
-    /// Path to the optional `allows_users_to_create_topics` field of [`crate::types::User`]
-    #[must_use]
-    #[inline]
-    pub fn allows_users_to_create_topics(self) -> SmartFilterPath<bool> {
-        self.and_then(|value| value.allows_users_to_create_topics.as_ref())
-    }
-
-    /// Path to the optional `can_manage_bots` field of [`crate::types::User`]
-    #[must_use]
-    #[inline]
-    pub fn can_manage_bots(self) -> SmartFilterPath<bool> {
-        self.and_then(|value| value.can_manage_bots.as_ref())
-    }
-
-    /// Path to the optional `supports_join_request_queries` field of [`crate::types::User`]
-    #[must_use]
-    #[inline]
-    pub fn supports_join_request_queries(self) -> SmartFilterPath<bool> {
-        self.and_then(|value| value.supports_join_request_queries.as_ref())
-    }
 }
 impl SmartFilterPath<crate::types::UserChatBoosts> {
     /// Path to the `boosts` field of [`crate::types::UserChatBoosts`]
@@ -46265,5 +46322,12 @@ impl SmartFilterPath<crate::types::WriteAccessAllowed> {
     #[inline]
     pub fn from_attachment_menu(self) -> SmartFilterPath<bool> {
         self.and_then(|value| value.from_attachment_menu.as_ref())
+    }
+
+    /// Path to the optional `inviter` field of [`crate::types::WriteAccessAllowed`]
+    #[must_use]
+    #[inline]
+    pub fn inviter(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.inviter.as_deref())
     }
 }

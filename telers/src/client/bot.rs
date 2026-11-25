@@ -624,7 +624,21 @@ mod tests {
 
     #[tokio::test]
     async fn username_is_requested_once_and_shared_with_clones() {
-        const GET_ME_RESPONSE: &str = r#"{"ok":true,"result":{"id":123,"is_bot":true,"first_name":"bot","username":"telers_bot"}}"#;
+        const GET_ME_RESPONSE: &str = r#"{"ok":true,"result":{
+            "id":123,"is_bot":true,"first_name":"bot","username":"telers_bot",
+            "can_join_groups":false,
+            "can_read_all_group_messages":false,
+            "supports_guest_queries":false,
+            "supports_inline_queries":false,
+            "needs_inline_query_location":false,
+            "can_connect_to_business":false,
+            "has_main_web_app":false,
+            "has_topics_enabled":false,
+            "allows_users_to_create_topics":false,
+            "has_topic_sidebar":false,
+            "can_manage_bots":false,
+            "supports_join_request_queries":false
+        }}"#;
 
         let bot = Bot::with_client(
             "123:token",
@@ -638,8 +652,21 @@ mod tests {
 
     #[tokio::test]
     async fn username_is_none_for_a_bot_without_username() {
-        const GET_ME_RESPONSE: &str =
-            r#"{"ok":true,"result":{"id":123,"is_bot":true,"first_name":"bot"}}"#;
+        const GET_ME_RESPONSE: &str = r#"{"ok":true,"result":{
+            "id":123,"is_bot":true,"first_name":"bot",
+            "can_join_groups":false,
+            "can_read_all_group_messages":false,
+            "supports_guest_queries":false,
+            "supports_inline_queries":false,
+            "needs_inline_query_location":false,
+            "can_connect_to_business":false,
+            "has_main_web_app":false,
+            "has_topics_enabled":false,
+            "allows_users_to_create_topics":false,
+            "has_topic_sidebar":false,
+            "can_manage_bots":false,
+            "supports_join_request_queries":false
+        }}"#;
 
         let bot = Bot::with_client(
             "123:token",

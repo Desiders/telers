@@ -23,7 +23,7 @@ pub struct KeyboardButton {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub request_chat: Option<crate::types::KeyboardButtonRequestChat>,
-    /// If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available for bots that enabled management of other bots in the @`BotFather` Mini App. Available in private chats only.
+    /// If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available for bots that enabled management of other bots in the @`BotFather` Mini App or using the parameter `can_manage_bots` of the method [`telers_methods::methods::SetMySettings`](https://docs.rs/telers-methods/latest/telers_methods/methods/set_my_settings/struct.SetMySettings.html). Available in private chats only.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub request_managed_bot: Option<crate::types::KeyboardButtonRequestManagedBot>,
@@ -143,7 +143,7 @@ impl KeyboardButton {
         self
     }
 
-    /// If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available for bots that enabled management of other bots in the @`BotFather` Mini App. Available in private chats only.
+    /// If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available for bots that enabled management of other bots in the @`BotFather` Mini App or using the parameter `can_manage_bots` of the method [`telers_methods::methods::SetMySettings`](https://docs.rs/telers-methods/latest/telers_methods/methods/set_my_settings/struct.SetMySettings.html). Available in private chats only.
     #[must_use]
     pub fn request_managed_bot<T: Into<crate::types::KeyboardButtonRequestManagedBot>>(
         mut self,
@@ -153,7 +153,7 @@ impl KeyboardButton {
         self
     }
 
-    /// If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available for bots that enabled management of other bots in the @`BotFather` Mini App. Available in private chats only.
+    /// If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available for bots that enabled management of other bots in the @`BotFather` Mini App or using the parameter `can_manage_bots` of the method [`telers_methods::methods::SetMySettings`](https://docs.rs/telers-methods/latest/telers_methods/methods/set_my_settings/struct.SetMySettings.html). Available in private chats only.
     #[must_use]
     pub fn request_managed_bot_option<T: Into<crate::types::KeyboardButtonRequestManagedBot>>(
         mut self,

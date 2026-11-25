@@ -9,11 +9,11 @@ pub struct InputRichMessage {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub blocks: Option<Box<[crate::types::InputRichBlock]>>,
-    /// Content of the rich message to send described using HTML formatting. See rich message formatting options for more details. Use media field to specify the media used in the message.
+    /// Content of the rich message to send described using HTML formatting. See rich message formatting options for more details. Use the media field to specify the media used in the message.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub html: Option<Box<str>>,
-    /// Content of the rich message to send described using Markdown formatting. See rich message formatting options for more details. Use media field to specify the media used in the message.
+    /// Content of the rich message to send described using Markdown formatting. See rich message formatting options for more details. Use the media field to specify the media used in the message.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub markdown: Option<Box<str>>,
@@ -94,28 +94,28 @@ impl InputRichMessage {
         self
     }
 
-    /// Content of the rich message to send described using HTML formatting. See rich message formatting options for more details. Use media field to specify the media used in the message.
+    /// Content of the rich message to send described using HTML formatting. See rich message formatting options for more details. Use the media field to specify the media used in the message.
     #[must_use]
     pub fn html<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.html = Some(val.into());
         self
     }
 
-    /// Content of the rich message to send described using HTML formatting. See rich message formatting options for more details. Use media field to specify the media used in the message.
+    /// Content of the rich message to send described using HTML formatting. See rich message formatting options for more details. Use the media field to specify the media used in the message.
     #[must_use]
     pub fn html_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.html = val.map(Into::into);
         self
     }
 
-    /// Content of the rich message to send described using Markdown formatting. See rich message formatting options for more details. Use media field to specify the media used in the message.
+    /// Content of the rich message to send described using Markdown formatting. See rich message formatting options for more details. Use the media field to specify the media used in the message.
     #[must_use]
     pub fn markdown<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.markdown = Some(val.into());
         self
     }
 
-    /// Content of the rich message to send described using Markdown formatting. See rich message formatting options for more details. Use media field to specify the media used in the message.
+    /// Content of the rich message to send described using Markdown formatting. See rich message formatting options for more details. Use the media field to specify the media used in the message.
     #[must_use]
     pub fn markdown_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.markdown = val.map(Into::into);

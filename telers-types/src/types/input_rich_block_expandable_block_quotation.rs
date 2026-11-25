@@ -1,4 +1,4 @@
-/// A block quotation, corresponding to the HTML tag <`blockquote`> with custom attribute `expandable`.
+/// A block quotation, corresponding to the HTML tag <`blockquote`> with the custom attribute `expandable`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputrichblockexpandableblockquotation>
 #[derive(Clone, Debug)]
@@ -6,7 +6,7 @@
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct InputRichBlockExpandableBlockQuotation {
     /// Content of the block
-    pub text: Box<crate::types::RichText>,
+    pub blocks: Box<[crate::types::InputRichBlock]>,
     /// Credit of the block
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
@@ -16,22 +16,47 @@ impl InputRichBlockExpandableBlockQuotation {
     /// Creates a new `InputRichBlockExpandableBlockQuotation`.
     ///
     /// # Arguments
-    /// * `text` - Content of the block
+    /// * `blocks` - Content of the block
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new<T0: Into<crate::types::RichText>>(text: T0) -> Self {
+    pub fn new<T0Item: Into<crate::types::InputRichBlock>, T0: IntoIterator<Item = T0Item>>(
+        blocks: T0,
+    ) -> Self {
         Self {
-            text: Box::new(text.into()),
+            blocks: blocks.into_iter().map(Into::into).collect(),
             credit: None,
         }
     }
 
     /// Content of the block
+    ///
+    /// # Notes
+    /// Adds multiple elements.
     #[must_use]
-    pub fn text<T: Into<crate::types::RichText>>(mut self, val: T) -> Self {
-        self.text = Box::new(val.into());
+    pub fn blocks<T: Into<Box<[crate::types::InputRichBlock]>>>(mut self, val: T) -> Self {
+        self.blocks = self
+            .blocks
+            .into_vec()
+            .into_iter()
+            .chain(val.into())
+            .collect();
+        self
+    }
+
+    /// Content of the block
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn block<T: Into<crate::types::InputRichBlock>>(mut self, val: T) -> Self {
+        self.blocks = self
+            .blocks
+            .into_vec()
+            .into_iter()
+            .chain(Some(val.into()))
+            .collect();
         self
     }
 

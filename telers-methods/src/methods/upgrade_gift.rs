@@ -15,7 +15,7 @@ pub struct UpgradeGift {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub keep_original_details: Option<bool>,
-    /// The amount of Telegram Stars that will be paid for the upgrade from the business account balance. If `gift.prepaid_upgrade_star_count` > 0, then pass 0, otherwise, the `can_transfer_stars` business bot right is required and `gift.upgrade_star_count` must be passed.
+    /// The amount of Telegram Stars that will be paid for the upgrade from the business account balance. If `gift.prepaid_upgrade_star_count` > 0, then pass 0; otherwise, the `can_transfer_stars` business bot right is required and `gift.upgrade_star_count` must be passed.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub star_count: Option<i64>,
@@ -70,14 +70,14 @@ impl UpgradeGift {
         self
     }
 
-    /// The amount of Telegram Stars that will be paid for the upgrade from the business account balance. If `gift.prepaid_upgrade_star_count` > 0, then pass 0, otherwise, the `can_transfer_stars` business bot right is required and `gift.upgrade_star_count` must be passed.
+    /// The amount of Telegram Stars that will be paid for the upgrade from the business account balance. If `gift.prepaid_upgrade_star_count` > 0, then pass 0; otherwise, the `can_transfer_stars` business bot right is required and `gift.upgrade_star_count` must be passed.
     #[must_use]
     pub fn star_count<T: Into<i64>>(mut self, val: T) -> Self {
         self.star_count = Some(val.into());
         self
     }
 
-    /// The amount of Telegram Stars that will be paid for the upgrade from the business account balance. If `gift.prepaid_upgrade_star_count` > 0, then pass 0, otherwise, the `can_transfer_stars` business bot right is required and `gift.upgrade_star_count` must be passed.
+    /// The amount of Telegram Stars that will be paid for the upgrade from the business account balance. If `gift.prepaid_upgrade_star_count` > 0, then pass 0; otherwise, the `can_transfer_stars` business bot right is required and `gift.upgrade_star_count` must be passed.
     #[must_use]
     pub fn star_count_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.star_count = val.map(Into::into);

@@ -1,4 +1,4 @@
-/// Use this method to set the score of the specified user in a game message. On success, if the message is not an inline message, the Message is returned, otherwise `true` is returned. Returns an error, if the new score is not greater than the user's current score in the chat and force is `false`.
+/// Use this method to set the score of the specified user in a game message. On success, if the message is not an inline message, the Message is returned; otherwise, `true` is returned. Returns an error if the new score is not greater than the user's current score in the chat and force is `false`.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setgamescore>
 /// # Returns

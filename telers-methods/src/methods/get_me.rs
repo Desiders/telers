@@ -1,8 +1,8 @@
-/// A simple method for testing your bot's authentication token. Requires no parameters. Returns basic information about the bot in form of a User object.
+/// A simple method for testing your bot's authentication token. Requires no parameters. Returns information about the bot in the form of a [`crate::types::BotFullInfo`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getme>
 /// # Returns
-/// - `crate::types::User`
+/// - `crate::types::BotFullInfo`
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
@@ -21,7 +21,7 @@ impl Default for GetMe {
 }
 impl super::TelegramMethod for GetMe {
     type Method = Self;
-    type Return = crate::types::User;
+    type Return = crate::types::BotFullInfo;
 
     fn build_request(self) -> super::Request<Self::Method> {
         super::Request::new("getMe", self, None)

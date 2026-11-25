@@ -9,7 +9,7 @@ pub struct InputInvoiceMessageContent {
     pub title: Box<str>,
     /// Product description, 1-255 characters
     pub description: Box<str>,
-    /// Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
+    /// Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user; use it for your internal processes.
     pub payload: Box<str>,
     /// Payment provider token, obtained via @`BotFather`. Pass an empty string for payments in Telegram Stars.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
@@ -19,11 +19,11 @@ pub struct InputInvoiceMessageContent {
     pub currency: Box<str>,
     /// Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
     pub prices: Box<[crate::types::LabeledPrice]>,
-    /// The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass `max_tip_amount` = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
+    /// The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass `max_tip_amount` = 145. See the exp parameter in currencies.json; it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub max_tip_amount: Option<i64>,
-    /// A JSON-serialized Array of suggested amounts of tip in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
+    /// A JSON-serialized Array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increasing order and must not exceed `max_tip_amount`.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub suggested_tip_amounts: Option<Box<[i64]>>,
@@ -82,7 +82,7 @@ impl InputInvoiceMessageContent {
     /// # Arguments
     /// * `title` - Product name, 1-32 characters
     /// * `description` - Product description, 1-255 characters
-    /// * `payload` - Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
+    /// * `payload` - Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user; use it for your internal processes.
     /// * `currency` - Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR` for payments in Telegram Stars.
     /// * `prices` - Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
     ///
@@ -141,7 +141,7 @@ impl InputInvoiceMessageContent {
         self
     }
 
-    /// Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
+    /// Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user; use it for your internal processes.
     #[must_use]
     pub fn payload<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.payload = val.into();
@@ -199,21 +199,21 @@ impl InputInvoiceMessageContent {
         self
     }
 
-    /// The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass `max_tip_amount` = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
+    /// The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass `max_tip_amount` = 145. See the exp parameter in currencies.json; it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
     #[must_use]
     pub fn max_tip_amount<T: Into<i64>>(mut self, val: T) -> Self {
         self.max_tip_amount = Some(val.into());
         self
     }
 
-    /// The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass `max_tip_amount` = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
+    /// The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass `max_tip_amount` = 145. See the exp parameter in currencies.json; it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
     #[must_use]
     pub fn max_tip_amount_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.max_tip_amount = val.map(Into::into);
         self
     }
 
-    /// A JSON-serialized Array of suggested amounts of tip in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
+    /// A JSON-serialized Array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increasing order and must not exceed `max_tip_amount`.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -230,7 +230,7 @@ impl InputInvoiceMessageContent {
         self
     }
 
-    /// A JSON-serialized Array of suggested amounts of tip in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
+    /// A JSON-serialized Array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increasing order and must not exceed `max_tip_amount`.
     ///
     /// # Notes
     /// Adds a single element.
@@ -247,7 +247,7 @@ impl InputInvoiceMessageContent {
         self
     }
 
-    /// A JSON-serialized Array of suggested amounts of tip in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
+    /// A JSON-serialized Array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increasing order and must not exceed `max_tip_amount`.
     ///
     /// # Notes
     /// Adds a single element.

@@ -13,11 +13,11 @@ pub struct InlineQuery {
     pub query: Box<str>,
     /// Offset of the results to be returned, can be controlled by the bot
     pub offset: Box<str>,
-    /// Type of the chat from which the inline query was sent. Can be either `sender` for a private chat with the inline query sender, `private`, `group`, `supergroup`, or `channel`. The chat type should be always known for requests sent from official clients and most third-party clients, unless the request was sent from a secret chat.
+    /// Type of the chat from which the inline query was sent. Can be either `sender` for a private chat with the inline query sender, `private`, `group`, `supergroup`, or `channel`. The chat type should always be known for requests sent from official clients and most third-party clients, unless the request was sent from a secret chat.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub chat_type: Option<Box<str>>,
-    /// Sender location, only for bots that request user location
+    /// Sender location, only for bots that enabled user location requests via @`BotFather` or using the parameter `needs_inline_query_location` of the method [`telers_methods::methods::SetMySettings`](https://docs.rs/telers-methods/latest/telers_methods/methods/set_my_settings/struct.SetMySettings.html)
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub location: Option<crate::types::Location>,
@@ -83,28 +83,28 @@ impl InlineQuery {
         self
     }
 
-    /// Type of the chat from which the inline query was sent. Can be either `sender` for a private chat with the inline query sender, `private`, `group`, `supergroup`, or `channel`. The chat type should be always known for requests sent from official clients and most third-party clients, unless the request was sent from a secret chat.
+    /// Type of the chat from which the inline query was sent. Can be either `sender` for a private chat with the inline query sender, `private`, `group`, `supergroup`, or `channel`. The chat type should always be known for requests sent from official clients and most third-party clients, unless the request was sent from a secret chat.
     #[must_use]
     pub fn chat_type<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.chat_type = Some(val.into());
         self
     }
 
-    /// Type of the chat from which the inline query was sent. Can be either `sender` for a private chat with the inline query sender, `private`, `group`, `supergroup`, or `channel`. The chat type should be always known for requests sent from official clients and most third-party clients, unless the request was sent from a secret chat.
+    /// Type of the chat from which the inline query was sent. Can be either `sender` for a private chat with the inline query sender, `private`, `group`, `supergroup`, or `channel`. The chat type should always be known for requests sent from official clients and most third-party clients, unless the request was sent from a secret chat.
     #[must_use]
     pub fn chat_type_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.chat_type = val.map(Into::into);
         self
     }
 
-    /// Sender location, only for bots that request user location
+    /// Sender location, only for bots that enabled user location requests via @`BotFather` or using the parameter `needs_inline_query_location` of the method [`telers_methods::methods::SetMySettings`](https://docs.rs/telers-methods/latest/telers_methods/methods/set_my_settings/struct.SetMySettings.html)
     #[must_use]
     pub fn location<T: Into<crate::types::Location>>(mut self, val: T) -> Self {
         self.location = Some(val.into());
         self
     }
 
-    /// Sender location, only for bots that request user location
+    /// Sender location, only for bots that enabled user location requests via @`BotFather` or using the parameter `needs_inline_query_location` of the method [`telers_methods::methods::SetMySettings`](https://docs.rs/telers-methods/latest/telers_methods/methods/set_my_settings/struct.SetMySettings.html)
     #[must_use]
     pub fn location_option<T: Into<crate::types::Location>>(mut self, val: Option<T>) -> Self {
         self.location = val.map(Into::into);

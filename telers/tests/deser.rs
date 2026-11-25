@@ -7,7 +7,21 @@ use telers::{
 
 #[test]
 fn default_client_response_uses_deser_and_rejects_trailing_input() {
-    let input = r#"{"ok":true,"result":{"id":1,"is_bot":true,"first_name":"bot"}}"#;
+    let input = r#"{"ok":true,"result":{
+        "id":1,"is_bot":true,"first_name":"bot",
+        "can_join_groups":false,
+        "can_read_all_group_messages":false,
+        "supports_guest_queries":false,
+        "supports_inline_queries":false,
+        "needs_inline_query_location":false,
+        "can_connect_to_business":false,
+        "has_main_web_app":false,
+        "has_topics_enabled":false,
+        "allows_users_to_create_topics":false,
+        "has_topic_sidebar":false,
+        "can_manage_bots":false,
+        "supports_join_request_queries":false
+    }}"#;
     let response = GetMe::build_response(input).unwrap();
     assert_eq!(response.result.unwrap().first_name.as_ref(), "bot");
     assert!(GetMe::build_response(&format!("{input} null")).is_err());

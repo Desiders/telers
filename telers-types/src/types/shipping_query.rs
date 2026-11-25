@@ -11,7 +11,7 @@ pub struct ShippingQuery {
     pub from: Box<crate::types::User>,
     /// Bot-specified invoice payload
     pub invoice_payload: Box<str>,
-    /// User specified shipping address
+    /// User-specified shipping address
     pub shipping_address: crate::types::ShippingAddress,
 }
 impl ShippingQuery {
@@ -21,7 +21,7 @@ impl ShippingQuery {
     /// * `id` - Unique query identifier
     /// * `from` - User who sent the query
     /// * `invoice_payload` - Bot-specified invoice payload
-    /// * `shipping_address` - User specified shipping address
+    /// * `shipping_address` - User-specified shipping address
     #[must_use]
     pub fn new<
         T0: Into<Box<str>>,
@@ -63,7 +63,7 @@ impl ShippingQuery {
         self
     }
 
-    /// User specified shipping address
+    /// User-specified shipping address
     #[must_use]
     pub fn shipping_address<T: Into<crate::types::ShippingAddress>>(mut self, val: T) -> Self {
         self.shipping_address = val.into();

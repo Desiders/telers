@@ -1,6 +1,6 @@
 [package]
 name = "telers-methods"
-version = "10.4.0"
+version = "10.5.0"
 edition = "2021"
 rust-version = "1.88.0"
 description = "Telegram Bot API methods and request builders independent of an HTTP client"
@@ -23,3 +23,6 @@ serde_json = { version = "1.0", default-features = false, features = ["std", "un
 serde_stacker = { version = "0.1", default-features = false, optional = true }
 telers-types = { version = "10", path = "../telers-types", default-features = false }
 tracing = { version = "0.1", default-features = false, features = ["attributes", "std"] }
+
+[dev-dependencies]
+serde_json = "1.0"

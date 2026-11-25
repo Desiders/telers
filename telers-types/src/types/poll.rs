@@ -32,7 +32,7 @@ impl Poll {
 
     /// Helper method for field `allows_revoting`.
     ///
-    /// `true`, if the poll allows to change the chosen answer options
+    /// `true`, if the poll allows changing the chosen answer options
     #[must_use]
     pub fn allows_revoting(&self) -> bool {
         match self {
@@ -185,7 +185,7 @@ impl Poll {
 
     /// Helper method for field `members_only`.
     ///
-    /// `true` if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
+    /// `true`, if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
     #[must_use]
     pub fn members_only(&self) -> bool {
         match self {

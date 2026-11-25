@@ -1,4 +1,4 @@
-/// Use this method to set default chat permissions for all members. The bot must be an administrator in the group or a supergroup for this to work and must have the `can_restrict_members` administrator rights. Returns `true` on success.
+/// Use this method to set default chat permissions for all members. The bot must be an administrator in the group or a supergroup for this to work and must have the `can_restrict_members` administrator right. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setchatpermissions>
 /// # Returns

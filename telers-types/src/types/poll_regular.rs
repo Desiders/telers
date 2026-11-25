@@ -25,9 +25,9 @@ pub struct PollRegular {
     pub is_anonymous: bool,
     /// `true`, if the poll allows multiple answers
     pub allows_multiple_answers: bool,
-    /// `true`, if the poll allows to change the chosen answer options
+    /// `true`, if the poll allows changing the chosen answer options
     pub allows_revoting: bool,
-    /// `true` if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
+    /// `true`, if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
     #[cfg_attr(not(feature = "deser"), serde(default))]
     #[cfg_attr(feature = "deser", deser(default))]
     pub members_only: bool,
@@ -71,8 +71,8 @@ impl PollRegular {
     /// * `is_closed` - `true`, if the poll is closed
     /// * `is_anonymous` - `true`, if the poll is anonymous
     /// * `allows_multiple_answers` - `true`, if the poll allows multiple answers
-    /// * `allows_revoting` - `true`, if the poll allows to change the chosen answer options
-    /// * `members_only` - `true` if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
+    /// * `allows_revoting` - `true`, if the poll allows changing the chosen answer options
+    /// * `members_only` - `true`, if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -242,14 +242,14 @@ impl PollRegular {
         self
     }
 
-    /// `true`, if the poll allows to change the chosen answer options
+    /// `true`, if the poll allows changing the chosen answer options
     #[must_use]
     pub fn allows_revoting<T: Into<bool>>(mut self, val: T) -> Self {
         self.allows_revoting = val.into();
         self
     }
 
-    /// `true` if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
+    /// `true`, if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
     #[must_use]
     pub fn members_only<T: Into<bool>>(mut self, val: T) -> Self {
         self.members_only = val.into();

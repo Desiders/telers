@@ -291,7 +291,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `has_private_forwards`.
     ///
-    /// `true`, if privacy settings of the other party in the private chat allows to use ``tg://user?id=<user_id>`` links only in chats with the user
+    /// `true`, if the privacy settings of the other party in the private chat allow using ``tg://user?id=<user_id>`` links only in chats with the user
     #[must_use]
     pub fn has_private_forwards(&self) -> Option<bool> {
         match self {
@@ -341,7 +341,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `id`.
     ///
-    /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type is safe for storing this identifier.
     #[must_use]
     pub fn id(&self) -> i64 {
         match self {
@@ -426,7 +426,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `linked_chat_id`.
     ///
-    /// Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats. This identifier may be greater than 32 bits and some programming languages may have difficulty/silent defects in interpreting it. But it is smaller than 52 bits, so a signed 64 bit integer or double-precision float type are safe for storing this identifier.
+    /// Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats. This identifier may be greater than 32 bits and some programming languages may have difficulty/silent defects in interpreting it. But it is smaller than 52 bits, so a signed 64-bit integer or double-precision float type is safe for storing this identifier.
     #[must_use]
     pub fn linked_chat_id(&self) -> Option<i64> {
         match self {
@@ -694,13 +694,6 @@ impl ChatFullInfo {
             .and_then(|inner| inner.added_to_attachment_menu)
     }
 
-    /// Helper method for nested field `allows_users_to_create_topics`.
-    #[must_use]
-    pub fn allows_users_to_create_topics(&self) -> Option<bool> {
-        self.guard_bot()
-            .and_then(|inner| inner.allows_users_to_create_topics)
-    }
-
     /// Helper method for nested field `amount`.
     #[must_use]
     pub fn amount(&self) -> Option<&str> {
@@ -823,13 +816,6 @@ impl ChatFullInfo {
         }
     }
 
-    /// Helper method for nested field `can_connect_to_business`.
-    #[must_use]
-    pub fn can_connect_to_business(&self) -> Option<bool> {
-        self.guard_bot()
-            .and_then(|inner| inner.can_connect_to_business)
-    }
-
     /// Helper method for nested field `can_edit_tag`.
     #[must_use]
     pub fn can_edit_tag(&self) -> Option<bool> {
@@ -860,18 +846,6 @@ impl ChatFullInfo {
                 .and_then(|inner| inner.can_invite_users),
             _ => None,
         }
-    }
-
-    /// Helper method for nested field `can_join_groups`.
-    #[must_use]
-    pub fn can_join_groups(&self) -> Option<bool> {
-        self.guard_bot().and_then(|inner| inner.can_join_groups)
-    }
-
-    /// Helper method for nested field `can_manage_bots`.
-    #[must_use]
-    pub fn can_manage_bots(&self) -> Option<bool> {
-        self.guard_bot().and_then(|inner| inner.can_manage_bots)
     }
 
     /// Helper method for nested field `can_manage_topics`.
@@ -920,13 +894,6 @@ impl ChatFullInfo {
                 .and_then(|inner| inner.can_react_to_messages),
             _ => None,
         }
-    }
-
-    /// Helper method for nested field `can_read_all_group_messages`.
-    #[must_use]
-    pub fn can_read_all_group_messages(&self) -> Option<bool> {
-        self.guard_bot()
-            .and_then(|inner| inner.can_read_all_group_messages)
     }
 
     /// Helper method for nested field `can_send_audios`.
@@ -1504,23 +1471,11 @@ impl ChatFullInfo {
             .and_then(crate::types::Message::guest_query_id)
     }
 
-    /// Helper method for nested field `has_main_web_app`.
-    #[must_use]
-    pub fn has_main_web_app(&self) -> Option<bool> {
-        self.guard_bot().and_then(|inner| inner.has_main_web_app)
-    }
-
     /// Helper method for nested field `has_media_spoiler`.
     #[must_use]
     pub fn has_media_spoiler(&self) -> Option<bool> {
         self.pinned_message()
             .and_then(crate::types::Message::has_media_spoiler)
-    }
-
-    /// Helper method for nested field `has_topics_enabled`.
-    #[must_use]
-    pub fn has_topics_enabled(&self) -> Option<bool> {
-        self.guard_bot().and_then(|inner| inner.has_topics_enabled)
     }
 
     /// Helper method for nested field `invoice`.
@@ -2038,27 +1993,6 @@ impl ChatFullInfo {
     pub fn supergroup_chat_created(&self) -> Option<bool> {
         self.pinned_message()
             .and_then(crate::types::Message::supergroup_chat_created)
-    }
-
-    /// Helper method for nested field `supports_guest_queries`.
-    #[must_use]
-    pub fn supports_guest_queries(&self) -> Option<bool> {
-        self.guard_bot()
-            .and_then(|inner| inner.supports_guest_queries)
-    }
-
-    /// Helper method for nested field `supports_inline_queries`.
-    #[must_use]
-    pub fn supports_inline_queries(&self) -> Option<bool> {
-        self.guard_bot()
-            .and_then(|inner| inner.supports_inline_queries)
-    }
-
-    /// Helper method for nested field `supports_join_request_queries`.
-    #[must_use]
-    pub fn supports_join_request_queries(&self) -> Option<bool> {
-        self.guard_bot()
-            .and_then(|inner| inner.supports_join_request_queries)
     }
 
     /// Helper method for nested field `symbol_custom_emoji_id`.

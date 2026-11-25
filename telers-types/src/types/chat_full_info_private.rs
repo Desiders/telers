@@ -7,7 +7,7 @@
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct ChatFullInfoPrivate {
-    /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type is safe for storing this identifier.
     pub id: i64,
     /// Username, for private chats, supergroups and channels if available
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
@@ -85,7 +85,7 @@ pub struct ChatFullInfoPrivate {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub bio: Option<Box<str>>,
-    /// `true`, if privacy settings of the other party in the private chat allows to use ``tg://user?id=<user_id>`` links only in chats with the user
+    /// `true`, if the privacy settings of the other party in the private chat allow using ``tg://user?id=<user_id>`` links only in chats with the user
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub has_private_forwards: Option<bool>,
@@ -152,7 +152,7 @@ impl ChatFullInfoPrivate {
     /// Creates a new `ChatFullInfoPrivate`.
     ///
     /// # Arguments
-    /// * `id` - Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// * `id` - Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type is safe for storing this identifier.
     /// * `accent_color_id` - Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details.
     /// * `max_reaction_count` - The maximum number of reactions that can be set on a message in the chat
     /// * `accepted_gift_types` - Information about types of gifts that are accepted by the chat or by the corresponding user for private chats
@@ -212,7 +212,7 @@ impl ChatFullInfoPrivate {
         }
     }
 
-    /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type is safe for storing this identifier.
     #[must_use]
     pub fn id<T: Into<i64>>(mut self, val: T) -> Self {
         self.id = val.into();
@@ -569,14 +569,14 @@ impl ChatFullInfoPrivate {
         self
     }
 
-    /// `true`, if privacy settings of the other party in the private chat allows to use ``tg://user?id=<user_id>`` links only in chats with the user
+    /// `true`, if the privacy settings of the other party in the private chat allow using ``tg://user?id=<user_id>`` links only in chats with the user
     #[must_use]
     pub fn has_private_forwards<T: Into<bool>>(mut self, val: T) -> Self {
         self.has_private_forwards = Some(val.into());
         self
     }
 
-    /// `true`, if privacy settings of the other party in the private chat allows to use ``tg://user?id=<user_id>`` links only in chats with the user
+    /// `true`, if the privacy settings of the other party in the private chat allow using ``tg://user?id=<user_id>`` links only in chats with the user
     #[must_use]
     pub fn has_private_forwards_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.has_private_forwards = val.map(Into::into);

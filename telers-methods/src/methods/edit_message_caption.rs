@@ -1,4 +1,4 @@
-/// Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise `true` is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent.
+/// Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned; otherwise, `true` is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#editmessagecaption>
 /// # Returns
@@ -36,7 +36,7 @@ pub struct EditMessageCaption {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub caption_entities: Option<Box<[crate::types::MessageEntity]>>,
-    /// Pass `true` if the caption must be shown above the message media. Supported only for animation, photo and video messages.
+    /// Pass `true` if the caption must be shown above the message media. Supported only for animation, live photo, paid media, photo, video and widget messages.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub show_caption_above_media: Option<bool>,
@@ -205,14 +205,14 @@ impl EditMessageCaption {
         self
     }
 
-    /// Pass `true` if the caption must be shown above the message media. Supported only for animation, photo and video messages.
+    /// Pass `true` if the caption must be shown above the message media. Supported only for animation, live photo, paid media, photo, video and widget messages.
     #[must_use]
     pub fn show_caption_above_media<T: Into<bool>>(mut self, val: T) -> Self {
         self.show_caption_above_media = Some(val.into());
         self
     }
 
-    /// Pass `true` if the caption must be shown above the message media. Supported only for animation, photo and video messages.
+    /// Pass `true` if the caption must be shown above the message media. Supported only for animation, live photo, paid media, photo, video and widget messages.
     #[must_use]
     pub fn show_caption_above_media_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.show_caption_above_media = val.map(Into::into);

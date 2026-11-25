@@ -41,7 +41,7 @@ pub struct SendPoll {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub allows_multiple_answers: Option<bool>,
-    /// Pass `true` if the poll allows to change chosen answer options, defaults to `false` for quizzes and to `true` for regular polls
+    /// Pass `true` if the poll allows changing the chosen answer options, defaults to `false` for quizzes and to `true` for regular polls
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub allows_revoting: Option<bool>,
@@ -384,14 +384,14 @@ impl SendPoll {
         self
     }
 
-    /// Pass `true` if the poll allows to change chosen answer options, defaults to `false` for quizzes and to `true` for regular polls
+    /// Pass `true` if the poll allows changing the chosen answer options, defaults to `false` for quizzes and to `true` for regular polls
     #[must_use]
     pub fn allows_revoting<T: Into<bool>>(mut self, val: T) -> Self {
         self.allows_revoting = Some(val.into());
         self
     }
 
-    /// Pass `true` if the poll allows to change chosen answer options, defaults to `false` for quizzes and to `true` for regular polls
+    /// Pass `true` if the poll allows changing the chosen answer options, defaults to `false` for quizzes and to `true` for regular polls
     #[must_use]
     pub fn allows_revoting_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.allows_revoting = val.map(Into::into);

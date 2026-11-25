@@ -1,4 +1,4 @@
-/// Use this method to specify a URL and receive incoming updates via an outgoing webhook. Whenever there is an update for the bot, we will send an HTTPS POST request to the specified URL, containing a JSON-serialized Update. In case of an unsuccessful request (a request with response HTTP status code different from 2XY), we will repeat the request and give up after a reasonable amount of attempts. Returns `true` on success.
+/// Use this method to specify a URL and receive incoming updates via an outgoing webhook. Whenever there is an update for the bot, we will send an HTTPS POST request to the specified URL, containing a JSON-serialized Update. In case of an unsuccessful request (a request with response HTTP status code different from 2XY), we will repeat the request and give up after a reasonable number of attempts. Returns `true` on success.
 /// If you'd like to make sure that the webhook was set by you, you can specify secret data in the parameter `secret_token`. If specified, the request will contain a header `X-Telegram-Bot-Api-Secret-Token` with the secret token as content.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setwebhook>
@@ -22,7 +22,7 @@ pub struct SetWebhook {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub max_connections: Option<u8>,
-    /// A JSON-serialized list of the update types you want your bot to receive. For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except `chat_member`, `message_reaction`, and `message_reaction_count` (default). If not specified, the previous setting will be used. Please note that this parameter doesn't affect updates created before the call to the [`crate::methods::SetWebhook`], so unwanted updates may be received for a short period of time.
+    /// A JSON-serialized list of the update types you want your bot to receive. For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except `chat_member`, `message_reaction`, and `message_reaction_count` (default). If not specified, the previous setting will be used. Please note that this parameter doesn't affect updates created before the call to [`crate::methods::SetWebhook`], so unwanted updates may be received for a short period of time.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub allowed_updates: Option<Box<[Box<str>]>>,
@@ -105,7 +105,7 @@ impl SetWebhook {
         self
     }
 
-    /// A JSON-serialized list of the update types you want your bot to receive. For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except `chat_member`, `message_reaction`, and `message_reaction_count` (default). If not specified, the previous setting will be used. Please note that this parameter doesn't affect updates created before the call to the [`crate::methods::SetWebhook`], so unwanted updates may be received for a short period of time.
+    /// A JSON-serialized list of the update types you want your bot to receive. For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except `chat_member`, `message_reaction`, and `message_reaction_count` (default). If not specified, the previous setting will be used. Please note that this parameter doesn't affect updates created before the call to [`crate::methods::SetWebhook`], so unwanted updates may be received for a short period of time.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -125,7 +125,7 @@ impl SetWebhook {
         self
     }
 
-    /// A JSON-serialized list of the update types you want your bot to receive. For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except `chat_member`, `message_reaction`, and `message_reaction_count` (default). If not specified, the previous setting will be used. Please note that this parameter doesn't affect updates created before the call to the [`crate::methods::SetWebhook`], so unwanted updates may be received for a short period of time.
+    /// A JSON-serialized list of the update types you want your bot to receive. For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except `chat_member`, `message_reaction`, and `message_reaction_count` (default). If not specified, the previous setting will be used. Please note that this parameter doesn't affect updates created before the call to [`crate::methods::SetWebhook`], so unwanted updates may be received for a short period of time.
     ///
     /// # Notes
     /// Adds a single element.
@@ -142,7 +142,7 @@ impl SetWebhook {
         self
     }
 
-    /// A JSON-serialized list of the update types you want your bot to receive. For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except `chat_member`, `message_reaction`, and `message_reaction_count` (default). If not specified, the previous setting will be used. Please note that this parameter doesn't affect updates created before the call to the [`crate::methods::SetWebhook`], so unwanted updates may be received for a short period of time.
+    /// A JSON-serialized list of the update types you want your bot to receive. For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except `chat_member`, `message_reaction`, and `message_reaction_count` (default). If not specified, the previous setting will be used. Please note that this parameter doesn't affect updates created before the call to [`crate::methods::SetWebhook`], so unwanted updates may be received for a short period of time.
     ///
     /// # Notes
     /// Adds multiple elements.

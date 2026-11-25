@@ -11,7 +11,7 @@ pub struct GiveawayPremium {
     pub chats: Box<[crate::types::Chat]>,
     /// Point in time (Unix timestamp) when winners of the giveaway will be selected
     pub winners_selection_date: i64,
-    /// The number of users which are supposed to be selected as winners of the giveaway
+    /// The number of users who are supposed to be selected as winners of the giveaway
     pub winner_count: i64,
     /// `true`, if only users who join the chats after the giveaway started should be eligible to win
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
@@ -21,7 +21,7 @@ pub struct GiveawayPremium {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub has_public_winners: Option<bool>,
-    /// Description of additional giveaway prize
+    /// Description of an additional giveaway prize
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub prize_description: Option<Box<str>>,
@@ -38,7 +38,7 @@ impl GiveawayPremium {
     /// # Arguments
     /// * `chats` - The list of chats which the user must join to participate in the giveaway
     /// * `winners_selection_date` - Point in time (Unix timestamp) when winners of the giveaway will be selected
-    /// * `winner_count` - The number of users which are supposed to be selected as winners of the giveaway
+    /// * `winner_count` - The number of users who are supposed to be selected as winners of the giveaway
     /// * `premium_subscription_month_count` - The number of months the Telegram Premium subscription won from the giveaway will be active for; for Telegram Premium giveaways only
     ///
     /// # Notes
@@ -105,7 +105,7 @@ impl GiveawayPremium {
         self
     }
 
-    /// The number of users which are supposed to be selected as winners of the giveaway
+    /// The number of users who are supposed to be selected as winners of the giveaway
     #[must_use]
     pub fn winner_count<T: Into<i64>>(mut self, val: T) -> Self {
         self.winner_count = val.into();
@@ -140,14 +140,14 @@ impl GiveawayPremium {
         self
     }
 
-    /// Description of additional giveaway prize
+    /// Description of an additional giveaway prize
     #[must_use]
     pub fn prize_description<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.prize_description = Some(val.into());
         self
     }
 
-    /// Description of additional giveaway prize
+    /// Description of an additional giveaway prize
     #[must_use]
     pub fn prize_description_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.prize_description = val.map(Into::into);

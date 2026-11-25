@@ -1,11 +1,11 @@
-/// This object describes the rating of a user based on their Telegram Star spendings.
+/// This object describes the rating of a user based on their Telegram Star spending.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#userrating>
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct UserRating {
-    /// Current level of the user, indicating their reliability when purchasing digital goods and services. A higher level suggests a more trustworthy customer; a negative level is likely reason for concern.
+    /// Current level of the user, indicating their reliability when purchasing digital goods and services. A higher level suggests a more trustworthy customer; a negative level is likely a reason for concern.
     pub level: i64,
     /// Numerical value of the user's rating; the higher the rating, the better
     pub rating: i64,
@@ -20,7 +20,7 @@ impl UserRating {
     /// Creates a new `UserRating`.
     ///
     /// # Arguments
-    /// * `level` - Current level of the user, indicating their reliability when purchasing digital goods and services. A higher level suggests a more trustworthy customer; a negative level is likely reason for concern.
+    /// * `level` - Current level of the user, indicating their reliability when purchasing digital goods and services. A higher level suggests a more trustworthy customer; a negative level is likely a reason for concern.
     /// * `rating` - Numerical value of the user's rating; the higher the rating, the better
     /// * `current_level_rating` - The rating value required to get the current level
     ///
@@ -40,7 +40,7 @@ impl UserRating {
         }
     }
 
-    /// Current level of the user, indicating their reliability when purchasing digital goods and services. A higher level suggests a more trustworthy customer; a negative level is likely reason for concern.
+    /// Current level of the user, indicating their reliability when purchasing digital goods and services. A higher level suggests a more trustworthy customer; a negative level is likely a reason for concern.
     #[must_use]
     pub fn level<T: Into<i64>>(mut self, val: T) -> Self {
         self.level = val.into();

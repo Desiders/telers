@@ -5,7 +5,7 @@
 #[cfg_attr(feature = "deser", derive(deser::Serialize, deser::Deserialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize, serde::Deserialize))]
 pub struct StoryAreaTypeWeather {
-    /// Temperature, in degree Celsius
+    /// Temperature, in degrees Celsius
     pub temperature: f64,
     /// Emoji representing the weather
     pub emoji: Box<str>,
@@ -16,7 +16,7 @@ impl StoryAreaTypeWeather {
     /// Creates a new `StoryAreaTypeWeather`.
     ///
     /// # Arguments
-    /// * `temperature` - Temperature, in degree Celsius
+    /// * `temperature` - Temperature, in degrees Celsius
     /// * `emoji` - Emoji representing the weather
     /// * `background_color` - A color of the area background in the ARGB format
     #[must_use]
@@ -32,7 +32,7 @@ impl StoryAreaTypeWeather {
         }
     }
 
-    /// Temperature, in degree Celsius
+    /// Temperature, in degrees Celsius
     #[must_use]
     pub fn temperature<T: Into<f64>>(mut self, val: T) -> Self {
         self.temperature = val.into();

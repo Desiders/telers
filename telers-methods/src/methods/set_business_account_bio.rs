@@ -1,4 +1,4 @@
-/// Changes the bio of a managed business account. Requires the `can_change_bio` business bot right. Returns `true` on success.
+/// Changes the bio of a managed business account. Requires the `can_edit_bio` business bot right. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setbusinessaccountbio>
 /// # Returns

@@ -1,4 +1,4 @@
-/// This object represent a list of gifts.
+/// This object represents a list of gifts.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#gifts>
 #[derive(Clone, Debug)]

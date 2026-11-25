@@ -9,7 +9,7 @@ pub struct SuggestedPostParameters {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub price: Option<crate::types::SuggestedPostPrice>,
-    /// Proposed send date of the post. If specified, then the date must be between 300 second and 2678400 seconds (30 days) in the future. If the field is omitted, then the post can be published at any time within 30 days at the sole discretion of the user who approves it.
+    /// Proposed send date of the post. If specified, then the date must be between 300 seconds and 2678400 seconds (30 days) in the future. If the field is omitted, then the post can be published at any time within 30 days at the sole discretion of the user who approves it.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub send_date: Option<i64>,
@@ -44,14 +44,14 @@ impl SuggestedPostParameters {
         self
     }
 
-    /// Proposed send date of the post. If specified, then the date must be between 300 second and 2678400 seconds (30 days) in the future. If the field is omitted, then the post can be published at any time within 30 days at the sole discretion of the user who approves it.
+    /// Proposed send date of the post. If specified, then the date must be between 300 seconds and 2678400 seconds (30 days) in the future. If the field is omitted, then the post can be published at any time within 30 days at the sole discretion of the user who approves it.
     #[must_use]
     pub fn send_date<T: Into<i64>>(mut self, val: T) -> Self {
         self.send_date = Some(val.into());
         self
     }
 
-    /// Proposed send date of the post. If specified, then the date must be between 300 second and 2678400 seconds (30 days) in the future. If the field is omitted, then the post can be published at any time within 30 days at the sole discretion of the user who approves it.
+    /// Proposed send date of the post. If specified, then the date must be between 300 seconds and 2678400 seconds (30 days) in the future. If the field is omitted, then the post can be published at any time within 30 days at the sole discretion of the user who approves it.
     #[must_use]
     pub fn send_date_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
         self.send_date = val.map(Into::into);

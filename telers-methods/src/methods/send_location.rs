@@ -1,4 +1,4 @@
-/// Use this method to send point on the map. On success, the sent Message is returned.
+/// Use this method to send a point on the map. On success, the sent Message is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sendlocation>
 /// # Returns

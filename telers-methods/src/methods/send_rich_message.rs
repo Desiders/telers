@@ -7,7 +7,7 @@
 #[cfg_attr(feature = "deser", derive(deser::Serialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct SendRichMessage {
-    /// Unique identifier of the business connection on behalf of which the message will be sent. Bot can send rich messages on behalf of a business account only if the corresponding user can send rich messages.
+    /// Unique identifier of the business connection on behalf of which the message will be sent. The bot can send rich messages on behalf of a business account only if the corresponding user can send rich messages.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub business_connection_id: Option<Box<str>>,
@@ -85,14 +85,14 @@ impl SendRichMessage {
         }
     }
 
-    /// Unique identifier of the business connection on behalf of which the message will be sent. Bot can send rich messages on behalf of a business account only if the corresponding user can send rich messages.
+    /// Unique identifier of the business connection on behalf of which the message will be sent. The bot can send rich messages on behalf of a business account only if the corresponding user can send rich messages.
     #[must_use]
     pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.business_connection_id = Some(val.into());
         self
     }
 
-    /// Unique identifier of the business connection on behalf of which the message will be sent. Bot can send rich messages on behalf of a business account only if the corresponding user can send rich messages.
+    /// Unique identifier of the business connection on behalf of which the message will be sent. The bot can send rich messages on behalf of a business account only if the corresponding user can send rich messages.
     #[must_use]
     pub fn business_connection_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
         self.business_connection_id = val.map(Into::into);

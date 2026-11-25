@@ -7,7 +7,7 @@
 #[cfg_attr(feature = "deser", derive(deser::Serialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct GetMyDefaultAdministratorRights {
-    /// Pass `true` to get default administrator rights of the bot in channels. Otherwise, default administrator rights of the bot for groups and supergroups will be returned.
+    /// Pass `true` to get the default administrator rights of the bot in channels. Otherwise, the default administrator rights of the bot for groups and supergroups will be returned.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub for_channels: Option<bool>,
@@ -24,14 +24,14 @@ impl GetMyDefaultAdministratorRights {
         }
     }
 
-    /// Pass `true` to get default administrator rights of the bot in channels. Otherwise, default administrator rights of the bot for groups and supergroups will be returned.
+    /// Pass `true` to get the default administrator rights of the bot in channels. Otherwise, the default administrator rights of the bot for groups and supergroups will be returned.
     #[must_use]
     pub fn for_channels<T: Into<bool>>(mut self, val: T) -> Self {
         self.for_channels = Some(val.into());
         self
     }
 
-    /// Pass `true` to get default administrator rights of the bot in channels. Otherwise, default administrator rights of the bot for groups and supergroups will be returned.
+    /// Pass `true` to get the default administrator rights of the bot in channels. Otherwise, the default administrator rights of the bot for groups and supergroups will be returned.
     #[must_use]
     pub fn for_channels_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.for_channels = val.map(Into::into);

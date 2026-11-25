@@ -354,7 +354,7 @@ pub fn prepare_input_rich_message_media_content(
 }
 
 /// Collects the files of an [`InputRichBlock`] and, when the block holds other blocks, of all of them, as a
-/// collage, a slideshow, a details block or a list does.
+/// quotation, a collage, a slideshow, a details block or a list does.
 /// # Arguments
 /// * `files` - Collected files of the request
 /// * `block` - Block to collect the files of
@@ -382,6 +382,16 @@ pub fn prepare_input_rich_block(files: &mut Vec<InputFile>, block: &mut InputRic
         }
         InputRichBlock::VoiceNote(inner) => {
             prepare_file(files, &mut inner.voice_note.media);
+        }
+        InputRichBlock::Blockquote(inner) => {
+            for block in &mut inner.blocks {
+                prepare_input_rich_block(files, block);
+            }
+        }
+        InputRichBlock::ExpandableBlockquote(inner) => {
+            for block in &mut inner.blocks {
+                prepare_input_rich_block(files, block);
+            }
         }
         InputRichBlock::Collage(inner) => {
             for block in &mut inner.blocks {
@@ -414,8 +424,6 @@ pub fn prepare_input_rich_block(files: &mut Vec<InputFile>, block: &mut InputRic
         | InputRichBlock::Divider(_)
         | InputRichBlock::MathematicalExpression(_)
         | InputRichBlock::Anchor(_)
-        | InputRichBlock::Blockquote(_)
-        | InputRichBlock::ExpandableBlockquote(_)
         | InputRichBlock::Pullquote(_)
         | InputRichBlock::Table(_)
         | InputRichBlock::Map(_)
@@ -619,4 +627,133 @@ fn format_error_report(err: &impl Error) -> String {
     }
 
     output
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::{
+        methods::{GetMe, SendRichMessage, SetMySettings},
+        serialization,
+        types::{
+            BotFullInfo, InputMediaPhoto, InputMediaVideo, InputRichBlockBlockQuotation,
+            InputRichBlockExpandableBlockQuotation, InputRichBlockPhoto, InputRichBlockVideo,
+        },
+    };
+
+    #[test]
+    fn get_me_returns_bot_full_info() {
+        let response = GetMe::build_response(
+            r#"{"ok":true,"result":{
+                "id":4503599627370495,
+                "is_bot":true,
+                "first_name":"bot",
+                "active_usernames":["first_bot","second_bot"],
+                "can_join_groups":false,
+                "can_read_all_group_messages":false,
+                "supports_guest_queries":true,
+                "supports_inline_queries":true,
+                "inline_query_placeholder":"Search",
+                "needs_inline_query_location":false,
+                "can_connect_to_business":false,
+                "has_main_web_app":false,
+                "has_topics_enabled":true,
+                "allows_users_to_create_topics":false,
+                "has_topic_sidebar":true,
+                "can_manage_bots":false,
+                "supports_join_request_queries":false
+            }}"#,
+        )
+        .unwrap();
+        let bot: BotFullInfo = response.result.unwrap();
+
+        assert_eq!(bot.id, 4_503_599_627_370_495);
+        assert_eq!(bot.username, None);
+        assert_eq!(
+            bot.active_usernames.as_deref().unwrap(),
+            [Box::from("first_bot"), Box::from("second_bot")]
+        );
+        assert_eq!(bot.inline_query_placeholder.as_deref(), Some("Search"));
+        assert!(!bot.can_join_groups);
+        assert!(bot.supports_guest_queries);
+        assert!(bot.has_topic_sidebar);
+    }
+
+    #[test]
+    fn set_my_settings_preserves_false_and_zero_values() {
+        let request = SetMySettings::new()
+            .supports_inline_queries(false)
+            .inline_feedback_share_denominator(0)
+            .can_read_all_group_messages(false)
+            .has_topic_sidebar(true)
+            .callback_query_mode("inline")
+            .build_request();
+
+        assert_eq!(request.method_name, "setMySettings");
+        assert!(request.files.is_none());
+        let value: serde_json::Value =
+            serde_json::from_str(&serialization::to_string(&request.data).unwrap()).unwrap();
+        assert_eq!(
+            value,
+            serde_json::json!({
+                "supports_inline_queries": false,
+                "inline_feedback_share_denominator": 0,
+                "can_read_all_group_messages": false,
+                "has_topic_sidebar": true,
+                "callback_query_mode": "inline"
+            })
+        );
+    }
+
+    #[test]
+    fn rich_message_collects_files_from_nested_quotations() {
+        let photo = InputFile::buffered("photo");
+        let video = InputFile::buffered("video");
+        let thumbnail = InputFile::buffered("thumbnail");
+        let cover = InputFile::buffered("cover");
+        let blocks: [InputRichBlock; 3] = [
+            InputRichBlockPhoto::new(InputMediaPhoto::new(photo.clone())).into(),
+            InputRichBlockBlockQuotation::new([InputRichBlockExpandableBlockQuotation::new([
+                InputRichBlockVideo::new(
+                    InputMediaVideo::new(video.clone())
+                        .thumbnail(thumbnail.clone())
+                        .cover(cover.clone()),
+                ),
+            ])])
+            .into(),
+            InputRichBlockPhoto::new(InputMediaPhoto::new(InputFile::id("existing"))).into(),
+        ];
+        let request = SendRichMessage::new(
+            InputRichMessage::new().block(InputRichBlockExpandableBlockQuotation::new(blocks)),
+        )
+        .chat_id(1_i64)
+        .build_request();
+
+        assert_eq!(
+            request.files.unwrap(),
+            [
+                photo.clone(),
+                video.clone(),
+                thumbnail.clone(),
+                cover.clone()
+            ]
+        );
+        let value: serde_json::Value =
+            serde_json::from_str(&serialization::to_string(&request.data).unwrap()).unwrap();
+        let quotation = &value["rich_message"]["blocks"][0];
+        assert_eq!(quotation["type"], "expandable_blockquote");
+        assert!(quotation.get("text").is_none());
+        assert_eq!(
+            quotation["blocks"][0]["photo"]["media"],
+            photo.str_to_file()
+        );
+        assert_eq!(quotation["blocks"][2]["photo"]["media"], "existing");
+        let nested = &quotation["blocks"][1]["blocks"][0];
+        assert_eq!(nested["type"], "expandable_blockquote");
+        let media = &nested["blocks"][0]["video"];
+        assert_eq!(media["media"], video.str_to_file());
+        assert_eq!(media["thumbnail"], thumbnail.str_to_file());
+        assert_eq!(media["cover"], cover.str_to_file());
+    }
 }

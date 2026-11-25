@@ -65,7 +65,7 @@ impl StoryAreaType {
 
     /// Helper method for field `is_flipped`.
     ///
-    /// Pass `true` if reaction area corner is flipped
+    /// Pass `true` if the reaction area corner is flipped
     #[must_use]
     pub fn is_flipped(&self) -> Option<bool> {
         match self {
@@ -120,7 +120,7 @@ impl StoryAreaType {
 
     /// Helper method for field `temperature`.
     ///
-    /// Temperature, in degree Celsius
+    /// Temperature, in degrees Celsius
     #[must_use]
     pub fn temperature(&self) -> Option<f64> {
         match self {

@@ -7,7 +7,7 @@
 #[cfg_attr(feature = "deser", derive(deser::Serialize))]
 #[cfg_attr(not(feature = "deser"), derive(serde::Serialize))]
 pub struct EditMessageChecklist {
-    /// Unique identifier of the business connection on behalf of which the message will be sent
+    /// Unique identifier of the business connection on behalf of which the message to be edited was sent
     pub business_connection_id: Box<str>,
     /// Unique identifier for the target chat or username of the target bot in the format @username
     pub chat_id: crate::types::ChatIdKind,
@@ -24,7 +24,7 @@ impl EditMessageChecklist {
     /// Creates a new `EditMessageChecklist`.
     ///
     /// # Arguments
-    /// * `business_connection_id` - Unique identifier of the business connection on behalf of which the message will be sent
+    /// * `business_connection_id` - Unique identifier of the business connection on behalf of which the message to be edited was sent
     /// * `chat_id` - Unique identifier for the target chat or username of the target bot in the format @username
     /// * `message_id` - Unique identifier for the target message
     /// * `checklist` - A JSON-serialized object for the new checklist
@@ -52,7 +52,7 @@ impl EditMessageChecklist {
         }
     }
 
-    /// Unique identifier of the business connection on behalf of which the message will be sent
+    /// Unique identifier of the business connection on behalf of which the message to be edited was sent
     #[must_use]
     pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
         self.business_connection_id = val.into();

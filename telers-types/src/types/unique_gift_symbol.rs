@@ -9,7 +9,7 @@ pub struct UniqueGiftSymbol {
     pub name: Box<str>,
     /// The sticker that represents the unique gift
     pub sticker: Box<crate::types::Sticker>,
-    /// The number of unique gifts that receive this model for every 1000 gifts upgraded
+    /// The number of unique gifts that receive this symbol for every 1000 gifts upgraded
     pub rarity_per_mille: i64,
 }
 impl UniqueGiftSymbol {
@@ -18,7 +18,7 @@ impl UniqueGiftSymbol {
     /// # Arguments
     /// * `name` - Name of the symbol
     /// * `sticker` - The sticker that represents the unique gift
-    /// * `rarity_per_mille` - The number of unique gifts that receive this model for every 1000 gifts upgraded
+    /// * `rarity_per_mille` - The number of unique gifts that receive this symbol for every 1000 gifts upgraded
     #[must_use]
     pub fn new<T0: Into<Box<str>>, T1: Into<crate::types::Sticker>, T2: Into<i64>>(
         name: T0,
@@ -46,7 +46,7 @@ impl UniqueGiftSymbol {
         self
     }
 
-    /// The number of unique gifts that receive this model for every 1000 gifts upgraded
+    /// The number of unique gifts that receive this symbol for every 1000 gifts upgraded
     #[must_use]
     pub fn rarity_per_mille<T: Into<i64>>(mut self, val: T) -> Self {
         self.rarity_per_mille = val.into();

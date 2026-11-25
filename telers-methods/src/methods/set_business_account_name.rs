@@ -1,4 +1,4 @@
-/// Changes the first and last name of a managed business account. Requires the `can_change_name` business bot right. Returns `true` on success.
+/// Changes the first and last name of a managed business account. Requires the `can_edit_name` business bot right. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setbusinessaccountname>
 /// # Returns

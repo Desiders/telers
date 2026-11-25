@@ -346,7 +346,7 @@ impl InlineQueryResult {
     /// - `InlineQueryResultMpeg4GifKind`. Content of the message to be sent instead of the video animation
     /// - `InlineQueryResultPhotoKind`. Content of the message to be sent instead of the photo
     /// - `InlineQueryResultCachedSticker`. Content of the message to be sent instead of the sticker
-    /// - `InlineQueryResultVideoKind`. Content of the message to be sent instead of the video. This field is required if [`crate::types::InlineQueryResultVideo`] is used to send an HTML-page as a result (e.g., a `YouTube` video).
+    /// - `InlineQueryResultVideoKind`. Content of the message to be sent instead of the video. This field is required if [`crate::types::InlineQueryResultVideo`] is used to send an HTML page as a result (e.g., a `YouTube` video).
     /// - `InlineQueryResultVoiceKind`. Content of the message to be sent instead of the voice recording
     /// - `InlineQueryResultArticle`. Content of the message to be sent
     /// - `InlineQueryResultContact`. Content of the message to be sent instead of the contact

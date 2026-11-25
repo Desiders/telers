@@ -15,7 +15,7 @@ pub struct InputSticker {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub mask_position: Option<crate::types::MaskPosition>,
-    /// List of 0-20 search keywords for the sticker with total length of up to 64 characters. For `regular` and `custom_emoji` stickers only.
+    /// List of 0-20 search keywords for the sticker with a total length of up to 64 characters. For `regular` and `custom_emoji` stickers only.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub keywords: Option<Box<[Box<str>]>>,
@@ -111,7 +111,7 @@ impl InputSticker {
         self
     }
 
-    /// List of 0-20 search keywords for the sticker with total length of up to 64 characters. For `regular` and `custom_emoji` stickers only.
+    /// List of 0-20 search keywords for the sticker with a total length of up to 64 characters. For `regular` and `custom_emoji` stickers only.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -128,7 +128,7 @@ impl InputSticker {
         self
     }
 
-    /// List of 0-20 search keywords for the sticker with total length of up to 64 characters. For `regular` and `custom_emoji` stickers only.
+    /// List of 0-20 search keywords for the sticker with a total length of up to 64 characters. For `regular` and `custom_emoji` stickers only.
     ///
     /// # Notes
     /// Adds a single element.
@@ -145,7 +145,7 @@ impl InputSticker {
         self
     }
 
-    /// List of 0-20 search keywords for the sticker with total length of up to 64 characters. For `regular` and `custom_emoji` stickers only.
+    /// List of 0-20 search keywords for the sticker with a total length of up to 64 characters. For `regular` and `custom_emoji` stickers only.
     ///
     /// # Notes
     /// Adds a single element.

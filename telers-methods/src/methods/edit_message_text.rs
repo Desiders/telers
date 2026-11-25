@@ -1,4 +1,4 @@
-/// Use this method to edit text, rich and game messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise `true` is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent.
+/// Use this method to edit text, rich and game messages. On success, if the edited message is not an inline message, the edited Message is returned; otherwise, `true` is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#editmessagetext>
 /// # Returns
@@ -40,7 +40,7 @@ pub struct EditMessageText {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub link_preview_options: Option<crate::types::LinkPreviewOptions>,
-    /// New rich content of the message; required if text isn't specified. Direct upload of new files and explicit upload of files by a URL isn't supported when an inline message is edited.
+    /// New rich content of the message; required if text isn't specified. Direct upload of new files and explicit upload of files by a URL aren't supported when an inline message is edited.
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub rich_message: Option<crate::types::InputRichMessage>,
@@ -227,14 +227,14 @@ impl EditMessageText {
         self
     }
 
-    /// New rich content of the message; required if text isn't specified. Direct upload of new files and explicit upload of files by a URL isn't supported when an inline message is edited.
+    /// New rich content of the message; required if text isn't specified. Direct upload of new files and explicit upload of files by a URL aren't supported when an inline message is edited.
     #[must_use]
     pub fn rich_message<T: Into<crate::types::InputRichMessage>>(mut self, val: T) -> Self {
         self.rich_message = Some(val.into());
         self
     }
 
-    /// New rich content of the message; required if text isn't specified. Direct upload of new files and explicit upload of files by a URL isn't supported when an inline message is edited.
+    /// New rich content of the message; required if text isn't specified. Direct upload of new files and explicit upload of files by a URL aren't supported when an inline message is edited.
     #[must_use]
     pub fn rich_message_option<T: Into<crate::types::InputRichMessage>>(
         mut self,

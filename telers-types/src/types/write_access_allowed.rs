@@ -1,4 +1,4 @@
-/// This object represents a service message about a user allowing a bot to write messages after adding it to the attachment menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`.
+/// This object represents a service message about a user allowing a bot to write messages after adding it to the attachment menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method `requestWriteAccess`, or about a user being invited to the private chat with the bot by the owner of the bot.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#writeaccessallowed>
 #[derive(Clone, Debug)]
@@ -17,6 +17,10 @@ pub struct WriteAccessAllowed {
     #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
     #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
     pub from_attachment_menu: Option<bool>,
+    /// The owner of the bot, if the access was granted when the owner invited the user to the private chat with the bot. Bot owners can invite up to 10 users at once by pressing the link <https://t.me/botinvite/<`bot_username>`>.
+    #[cfg_attr(not(feature = "deser"), serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(feature = "deser", deser(skip_serializing_if = Option::is_none))]
+    pub inviter: Option<Box<crate::types::User>>,
 }
 impl WriteAccessAllowed {
     /// Creates a new `WriteAccessAllowed`.
@@ -29,6 +33,7 @@ impl WriteAccessAllowed {
             from_request: None,
             web_app_name: None,
             from_attachment_menu: None,
+            inviter: None,
         }
     }
 
@@ -71,6 +76,20 @@ impl WriteAccessAllowed {
     #[must_use]
     pub fn from_attachment_menu_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
         self.from_attachment_menu = val.map(Into::into);
+        self
+    }
+
+    /// The owner of the bot, if the access was granted when the owner invited the user to the private chat with the bot. Bot owners can invite up to 10 users at once by pressing the link <https://t.me/botinvite/<`bot_username>`>.
+    #[must_use]
+    pub fn inviter<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.inviter = Some(Box::new(val.into()));
+        self
+    }
+
+    /// The owner of the bot, if the access was granted when the owner invited the user to the private chat with the bot. Bot owners can invite up to 10 users at once by pressing the link <https://t.me/botinvite/<`bot_username>`>.
+    #[must_use]
+    pub fn inviter_option<T: Into<crate::types::User>>(mut self, val: Option<T>) -> Self {
+        self.inviter = val.map(|val| Box::new(val.into()));
         self
     }
 }
